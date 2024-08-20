@@ -52,7 +52,7 @@ const Login = () => {
       setError('Veuillez entrer un email et un mot de passe correctes!');
       return;
     }else{
-      console.log('checker la bdd et rediriger vers articles')
+      
       Login(login);
     }
   }, [login]);

@@ -90,6 +90,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
     { name: "t('screens.settings')", to: 'Settings', icon: assets.settings },
     { name: "t('screens.register')", to: 'Register', icon: assets.register },
     { name: "t('screens.extra')", to: 'Extra', icon: assets.extras },
+    { name: "t('screens.eventdetails')", to: 'Eventdetails', icon: assets.register },
   ];
 
   return (
