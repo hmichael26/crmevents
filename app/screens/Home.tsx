@@ -1,25 +1,19 @@
 import React, {useCallback, useState, useContext, useEffect} from 'react';
-
 import { FlatList, View } from 'react-native';
-
 import {useData, useTheme} from '../hooks/';
-import {Block, Button, Image, Input, Product, Text} from '../components/';
-import {IArticle, ICategory} from '../constants/types';
-
+import {Block, Button, Input, Text} from '../components/';
+import {ICategory} from '../constants/types';
 import { AuthContext } from '../context/AuthContext';
-
 import _ from 'lodash';
 
 const Home = () => {
-  // const {t} = useTranslation();
   const data = useData();
-  const [selected, setSelected] = useState<ICategory>();
+  const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(null);
   const [tab, setTab] = useState<number>(0);
   const {following, trending} = useData();
   const [products, setProducts] = useState(following);
-  const {assets, colors, fonts, gradients, sizes} = useTheme();
+  const {colors, gradients, sizes} = useTheme();
   const {isloading, location, userdata, usertoken, setUserData, getUserData} = useContext(AuthContext);
-
   const [keyword, setKeyword] = useState('');
   const [InputValue, setInputValue] = useState('');
   const [filteredEvents, setFilteredEvents] = useState([]);
@@ -35,28 +29,27 @@ const Home = () => {
 
   useEffect(() => {
     setCategories(data?.categories);
-    setSelected(data?.categories[0]);
+    setSelectedCategory(data?.categories[0]);
   }, [data.categories]);
 
   useEffect(() => {
-
-    const category = data?.categories?.find(
-      (category) => category?.id === selected?.id,
-    );
-
     if (Array.isArray(userdata?.newevts)) {
       const filteredEvents = userdata.newevts.filter((event: any) => {
-        // event.evt.toLowerCase().includes(keyword.toLowerCase())
         const eventEvt = event.evt ? event.evt.toString().toLowerCase() : '';
+        const eventEnt = event.ent ? event.ent.toString().toLowerCase() : '';
         const keywordLower = keyword.toString().toLowerCase();
-        return eventEvt.includes(keywordLower);
-      }
-      );
+
+        const matchesKeyword = eventEvt.includes(keywordLower) || eventEnt.includes(keywordLower);
+        const matchesCategory = selectedCategory ? event.type == selectedCategory.id : true;
+
+        return matchesKeyword && matchesCategory;
+      });
+
       setFilteredEvents(filteredEvents);
     } else {
       setFilteredEvents([]);
     }
-  }, [keyword, userdata?.newevts]);
+  }, [keyword, userdata?.newevts, selectedCategory]);
 
   const handleTextChange = _.throttle((event) => {
     const text = event.nativeEvent.text;
@@ -82,13 +75,13 @@ const Home = () => {
           showsHorizontalScrollIndicator={false}
           contentOffset={{x: -sizes.padding, y: 0}}>
           {categories?.map((category) => {
-            const isSelected = category?.id === selected?.id;
+            const isSelected = category?.id === selectedCategory?.id;
             return (
               <Button
                 radius={sizes.m}
                 marginHorizontal={sizes.s}
                 key={`category-${category?.id}}`}
-                onPress={() => setSelected(category)}
+                onPress={() => setSelectedCategory(category)}
                 gradient={gradients?.[isSelected ? 'primary' : 'light']}>
                 <Text
                   p
@@ -107,14 +100,20 @@ const Home = () => {
 
       {/* products list */}
       <View>
-
-          <FlatList
-            data={filteredEvents}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
+        <FlatList
+          data={filteredEvents}
+          showsVerticalScrollIndicator={true}
+          keyExtractor={(item, index) => index.toString()}
+          style={{paddingHorizontal: sizes.padding}}
+          contentContainerStyle={{paddingBottom: sizes.l}}
+          renderItem={({ item }) => (
+            <View>
+              <Text style={{ fontWeight: 'bold', paddingHorizontal: 10, fontSize: 13 }}>{(item as any).ent} - {(item as any).com} - {(item as any).ref}</Text>
               <Text style={{ fontWeight: 'bold', paddingHorizontal: 10, fontSize: 13 }}>{(item as any).evt}</Text>
-            )}
-          />
+              <Text style={{ fontWeight: 'bold', paddingHorizontal: 10, fontSize: 13 }}>{(item as any).clt}</Text>
+            </View>
+          )}
+        />
       </View>
     </Block>
   );

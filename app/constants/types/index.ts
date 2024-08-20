@@ -17,7 +17,7 @@ export interface IUser {
 }
 
 export interface ICategory {
-  id?: number;
+  id?: string;
   name?: string;
 }
 export interface IArticleOptions {

@@ -6,6 +6,7 @@ import {useData, useTheme} from '../hooks/';
 import { useForm } from 'react-hook-form';
 import * as regex from '../constants/regex';
 import {Block, Button, Input, Image, Text, Checkbox} from '../components/';
+import i18n from 'i18n-js';
 
 const isAndroid = Platform.OS === 'android';
 
@@ -82,7 +83,7 @@ const Login = () => {
               flex={0}
               justify="flex-start"
               onPress={() => navigation.goBack()}>
-              <Image
+              {/*<Image
                 radius={0}
                 width={10}
                 height={18}
@@ -90,9 +91,9 @@ const Login = () => {
                 source={assets.arrow}
                 transform={[{rotate: '180deg'}]}
               />
-              <Text p white marginLeft={sizes.s}>
+               <Text p white marginLeft={sizes.s}>
                 {"t('common.goBack')"}
-              </Text>
+              </Text> */}
             </Button>
 
             <Text h4 center white marginBottom={sizes.md}>
@@ -165,9 +166,9 @@ const Login = () => {
                   start={[0, 1]}
                   gradient={gradients.divider}
                 />
-                <Text center marginHorizontal={sizes.s}>
+                {/* <Text center marginHorizontal={sizes.s}>
                   {"t('common.or')"}
-                </Text>
+                </Text> */}
                 <Block
                   flex={0}
                   height={1}
