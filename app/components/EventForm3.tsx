@@ -16,8 +16,9 @@ const { width, height } = Dimensions.get('window');
 
 const Form3 = () => {
   const { assets, colors, gradients, sizes } = useTheme();
-  const [switch2, setSwitch2] = useState(false);
-
+  const [switch1, setSwitch1] = useState(true);
+  const [switch2, setSwitch2] = useState(true);
+  const [switch3, setSwitch3] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const handleSelectionChange = (selectedIds: string[]) => {
     setSelectedOptions(selectedIds);
@@ -29,8 +30,16 @@ const Form3 = () => {
     <Text style={{ fontSize: 20, fontWeight: "bold", textAlign: 'center', color: colors.primary, flexWrap: "wrap", marginVertical: 15 }}>Proposition de Commission aux Prestataires</Text>
 
     <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
-      <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>10 HT %</Text>
+      <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>10% HT sur le Total HT facturé</Text>
+      <Switch checked={switch1}  onPress={(checked) => setSwitch2(checked)} />
+   </View>
+   <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
+      <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>12% HT sur le Total HT facturé</Text>
       <Switch checked={switch2}  onPress={(checked) => setSwitch2(checked)} />
+   </View>
+   <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
+      <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>15% HT sur le Total HT facturé</Text>
+      <Switch checked={switch3}  onPress={(checked) => setSwitch2(checked)} />
    </View>
 
 
