@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons'; // Remplacez 'Ionicons' par l'icône de votre choix
 import Select from 'react-select'
@@ -27,7 +27,39 @@ const EventDetails: React.FC = () => {
   const [data, setData] = React.useState([]);
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(1)).current; // Valeur d'animation initiale
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+        Animated.timing(fadeAnim, {
+          toValue: 0, // Disparaît
+          duration: 300, // Durée de l'animation en ms
+          useNativeDriver: true,
+        }).start();
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        Animated.timing(fadeAnim, {
+          toValue: 1, // Réapparaît
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          setKeyboardVisible(false);
+        });
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [fadeAnim]);
 
 
   return <SafeAreaView style={{ flex: 1, backgroundColor: "#fff", marginTop: -sizes.sm, flexDirection: "column" }}>
@@ -40,18 +72,18 @@ const EventDetails: React.FC = () => {
       </Button>
 
       <View style={{ flexDirection: "row", justifyContent: "space-around", gap: 10, marginHorizontal: 5, marginVertical: 10 }}>
-        <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base} rounded={true} round={false} style={{ borderColor: "#000"}} onPress={() =>setStep("date")}>
+        <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base} rounded={true} round={false} style={{ borderColor: "#000" }} onPress={() => setStep("date")}>
           <Text white bold transform="uppercase" size={15}  >
             Dates
           </Text>
         </Button>
-        <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false} onPress={() =>setStep("clients")}>
+        <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false} onPress={() => setStep("clients")}>
           <Text white bold transform="uppercase" size={15}>
 
             CLients
           </Text>
         </Button>
-        <Button flex={1} gradient={gradients.success} marginBottom={sizes.base} rounded={false} round={false} onPress={() =>setStep("com")}>
+        <Button flex={1} gradient={gradients.success} marginBottom={sizes.base} rounded={false} round={false} onPress={() => setStep("com")}>
           <Text white bold transform="uppercase" size={15}>
             COM %
           </Text>
@@ -60,34 +92,48 @@ const EventDetails: React.FC = () => {
     </View>
 
 
-    {step === "date" && <Form1 />}
-    {step === "clients" && <Form2 />}
-    {step === "com" && <Form3 />}
 
-    <View style={styles.footer}>
-      <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 20 }}>
 
-        <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base} rounded={false} round={false} >
-          <Text white size={14} bold >
-            Accueil projet
-          </Text>
-          <Text white size={14} bold>
-            980
-          </Text>
-        </Button>
-        <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base} rounded={false} round={false}>
-          <Text white bold transform="uppercase" size={15}>
-            Sauvegarder
-          </Text>
-        </Button>
-        <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false}>
-          <Text white bold transform="uppercase" size={15}>
-            CHat
-          </Text>
-        </Button>
+    <ScrollView style={{ flex: 1, paddingBottom: 25 }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+      >
+        {step === "date" && <Form1 />}
+        {step === "clients" && <Form2 />}
+        {step === "com" && <Form3 />}
+      </KeyboardAvoidingView>
 
-      </View>
-    </View>
+    </ScrollView>
+
+
+
+
+    {!isKeyboardVisible && (
+      <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 20 }}>
+
+          <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base} rounded={false} round={false} >
+            <Text white size={14} bold >
+              Accueil projet
+            </Text>
+            <Text white size={14} bold>
+              980
+            </Text>
+          </Button>
+          <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base} rounded={false} round={false}>
+            <Text white bold transform="uppercase" size={15}>
+              Sauvegarder
+            </Text>
+          </Button>
+          <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false}>
+            <Text white bold transform="uppercase" size={15}>
+              CHat
+            </Text>
+          </Button>
+
+        </View> 
+      </Animated.View>)}
   </SafeAreaView>;
 }
 
@@ -127,12 +173,12 @@ const styles = StyleSheet.create({
   },
   footer: {
 
-    position: 'absolute',
+    position: "relative",
     bottom: 0,
     left: 0,
     right: 0,
     height: 60,
-
+    padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },

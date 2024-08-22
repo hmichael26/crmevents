@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, Platform } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
-
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 // import { Container } from './styles';
 const options = [
     { id: '1', label: 'Option 1' },
@@ -17,6 +17,24 @@ const Form1= () => {
     const handleSelectionChange = (selectedIds: string[]) => {
         setSelectedOptions(selectedIds);
       };
+
+      const [date, setDate] = useState(new Date());
+      const [show, setShow] = useState(false);
+    
+      const onChange = (event: DateTimePickerEvent, selectedDate: Date) => {
+       
+        const currentDate = selectedDate || date;
+      
+        setShow(Platform.OS === 'ios');
+        
+        setDate(currentDate);
+        
+      };
+    
+      const showDatepicker = () => {
+        setShow(true);
+      };
+    
     
   return  <View style={styles.container}>
   <TextInputWithIcon
@@ -27,13 +45,19 @@ const Form1= () => {
   />
 
   <View style={styles.inputContainer}>
+ 
     <TextInputWithIcon
 
       iconName="calendar"
       placeholder="Date de creation"
+      editable={false}
+      value={date.toLocaleDateString()}
       style={{ width: "50%" }}
+      onPress={showDatepicker}
 
     />
+   
+   
     <TextInputWithIcon
 
 
@@ -72,14 +96,20 @@ const Form1= () => {
 
       iconName="calendar"
       placeholder="Date d'arrive"
+      editable={false}
+      value={date.toLocaleDateString()}
       style={{ width: "50%" }}
+      onPress={showDatepicker}
 
     /> 
     <TextInputWithIcon
 
       iconName="calendar"
       placeholder="Date de depart"
+      editable={false}
+      value={date.toLocaleDateString()}
       style={{ width: "50%" }}
+      onPress={showDatepicker}
 
     />
   </View>
@@ -97,6 +127,17 @@ placeholder="Budget"
 style={{ width: "50%" }}
 
 />
+
+{show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          mode="date"
+          is24Hour={true}
+          display="default"
+          onChange={onChange}
+        />
+      )}
   </View>
 
 

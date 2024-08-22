@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity ,Text} from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, Text } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
 import { useTheme } from '../hooks';
@@ -16,6 +16,7 @@ const { width, height } = Dimensions.get('window');
 
 const Form3 = () => {
   const { assets, colors, gradients, sizes } = useTheme();
+  const [switch2, setSwitch2] = useState(false);
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const handleSelectionChange = (selectedIds: string[]) => {
@@ -25,11 +26,11 @@ const Form3 = () => {
   return <View style={styles.container}>
 
 
-<Text style={{fontSize:20,fontWeight:"bold",textAlign:'center',color:colors.primary,flexWrap:"wrap",marginVertical:15}}>Proposition de Commission aux Prestataires</Text>
+    <Text style={{ fontSize: 20, fontWeight: "bold", textAlign: 'center', color: colors.primary, flexWrap: "wrap", marginVertical: 15 }}>Proposition de Commission aux Prestataires</Text>
 
-<View style={{flexDirection:"row", alignContent:"center",justifyContent:"space-between",borderColor:"#ccc",borderWidth:1,padding:5,borderRadius:10,marginVertical:5}}>
-    <Text style={{ fontSize: 17,fontWeight:"bold",marginHorizontal:10}}>Martine DUBOIS</Text>
-    <Switch />
+    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
+      <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>10 HT %</Text>
+      <Switch checked={switch2}  onPress={(checked) => setSwitch2(checked)} />
    </View>
 
 

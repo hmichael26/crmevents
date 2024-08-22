@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, TextInputProps, Text } from 'react-native';
+import { View, TextInput, StyleSheet, TextInputProps, Text, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import Switch from './Switch';
@@ -8,11 +8,13 @@ import Switch from './Switch';
 interface TextInputWithIconProps extends TextInputProps {
   iconName?: string;
   fonsiName?:string;
+  onPress?: () => void;
 }
 
 const TextInputWithIcon: React.FC<TextInputWithIconProps> = ({
   iconName,
   fonsiName,
+  onPress,
   style,
   ...props
 }) => {
@@ -24,11 +26,14 @@ const TextInputWithIcon: React.FC<TextInputWithIconProps> = ({
         {fonsiName && (
         <Fontisto name={fonsiName} size={20} color="gray" style={styles.icon} />
       )}
+      <Pressable onPress={onPress}>
       <TextInput
         style={[styles.input]}
         {...props}
          placeholderTextColor="#ccc"
       />
+      </Pressable>
+      
     </View>
   );
 };
