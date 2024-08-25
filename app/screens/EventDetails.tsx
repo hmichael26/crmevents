@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated,PixelRatio } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons'; // Remplacez 'Ionicons' par l'icône de votre choix
 import Select from 'react-select'
@@ -20,7 +20,10 @@ const options = [
   { id: '3', label: 'Option 3' },
   // Add more options as needed
 ];
+const fontScale = PixelRatio.getFontScale();
+
 const EventDetails: React.FC = () => {
+  const getFontSize = (size: number) => size / fontScale;
 
   const { assets, colors, gradients, sizes } = useTheme();
   const [step, setStep] = useState("clients");
@@ -114,20 +117,20 @@ const EventDetails: React.FC = () => {
         <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 20 }}>
 
           <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base} rounded={false} round={false} >
-            <Text white size={14} bold >
+            <Text white size={getFontSize(13)} bold >
               Accueil projet
             </Text>
-            <Text white size={14} bold>
+            <Text white size={getFontSize(13)} bold>
               980
             </Text>
           </Button>
           <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base} rounded={false} round={false}>
-            <Text white bold transform="uppercase" size={15}>
+            <Text white bold transform="uppercase" size={getFontSize(13)}>
               Sauvegarder
             </Text>
           </Button>
           <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false}>
-            <Text white bold transform="uppercase" size={15}>
+            <Text white bold transform="uppercase" size={getFontSize(13)}>
               CHat
             </Text>
           </Button>
