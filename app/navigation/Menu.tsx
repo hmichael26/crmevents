@@ -43,18 +43,8 @@ const ScreensStack = () => {
   }, [isDrawerOpen, animation]);
 
   return (
-    <Animated.View
-      style={StyleSheet.flatten([
-        animatedStyle,
-        {
-          flex: 1,
-          overflow: 'hidden',
-          borderColor: colors.card,
-          borderWidth: isDrawerOpen ? 1 : 0,
-        },
-      ])}>
-      <Screens />
-    </Animated.View>
+    <Screens />
+ 
   );
 };
 
@@ -90,6 +80,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
     { name: "t('screens.settings')", to: 'Settings', icon: assets.settings },
     { name: "t('screens.register')", to: 'Register', icon: assets.register },
     { name: "t('screens.extra')", to: 'Extra', icon: assets.extras },
+    { name: "t('screens.eventdetails')", to: 'Eventdetails', icon: assets.register },
   ];
 
   return (
@@ -223,9 +214,9 @@ export default () => {
             backgroundColor: 'transparent',
           },
         }}
-        drawerContent={(props) => <DrawerContent {...props} />}
+           drawerContent={(props) => <DrawerContent {...props} />}
       >
-        <Drawer.Screen name="Screens" component={ScreensStack} />
+        <Drawer.Screen name="Screens" component={ScreensStack} options={{headerShown:false}}/>
       </Drawer.Navigator>
     </Block>
   );
