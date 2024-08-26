@@ -31,7 +31,7 @@ const Form3 = () => {
 
     <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
       <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>10% HT sur le Total HT facturé</Text>
-      <Switch checked={switch1}  onPress={(checked) => setSwitch2(checked)} />
+      <Switch checked={switch1}  onPress={(checked) => setSwitch1(checked)} />
    </View>
    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
       <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>12% HT sur le Total HT facturé</Text>
@@ -39,7 +39,7 @@ const Form3 = () => {
    </View>
    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
       <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>15% HT sur le Total HT facturé</Text>
-      <Switch checked={switch3}  onPress={(checked) => setSwitch2(checked)} />
+      <Switch checked={switch3}  onPress={(checked) => setSwitch3(checked)} />
    </View>
 
 
