@@ -23,10 +23,16 @@ const options = [
 const fontScale = PixelRatio.getFontScale();
 
 const EventDetails: React.FC = () => {
+  const getButtonSize = () => {
+    const buttonWidth = width * 0.3; // 30% de la largeur de l'écran
+    const buttonHeight = height * 0.06; // 6% de la hauteur de l'écran
+    return { width: buttonWidth, height: buttonHeight };
+  };
+  
   const getFontSize = (size: number) => size / fontScale;
 
   const { assets, colors, gradients, sizes } = useTheme();
-  const [step, setStep] = useState("clients");
+  const [step, setStep] = useState("date");
   const [data, setData] = React.useState([]);
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -97,15 +103,12 @@ const EventDetails: React.FC = () => {
 
 
 
-    <ScrollView style={{ flex: 1, paddingBottom: 25 }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-      >
+    <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
+     
         {step === "date" && <Form1 />}
         {step === "clients" && <Form2 />}
         {step === "com" && <Form3 />}
-      </KeyboardAvoidingView>
+    
 
     </ScrollView>
 
@@ -146,6 +149,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     flex: 1
 
+  }, scrollViewContent: {
+    padding: 15,
   },
   label: {
     fontSize: 16,
