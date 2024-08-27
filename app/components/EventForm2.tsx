@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, Text, ScrollView } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
 import Button from './Button';
@@ -15,6 +15,23 @@ const options = [
 const { width, height } = Dimensions.get('window');
 
 const Form2 = () => {
+
+  const [clients, setClients] = useState<string[]>(["Mr Dubois"]);
+
+  const addClient = () => {
+    setClients([...clients, '']);
+  };
+
+  const removeClient = (index: number) => {
+    const newClients = clients.filter((_, i) => i !== index);
+    setClients(newClients);
+  };
+
+  const updateClient = (index: number, value: string) => {
+    const newClients = [...clients];
+    newClients[index] = value;
+    setClients(newClients);
+  };
   const { assets, colors, gradients, sizes } = useTheme();
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -92,18 +109,33 @@ const Form2 = () => {
     />
 
 
-    <View style={{ flexDirection: "row", gap: 2,alignItems:"center", justifyContent: "space-around" }}>
-      <Text style={{ fontSize: 18,color: colors.primary,fontWeight:"bold" }}>Ajouter d'autre clients</Text>
-      <Button flex={0.6} gradient={gradients.warning} marginBottom={sizes.base} rounded={false} round={false} style={{marginTop:10}}>
-        <Text style={{fontWeight:"bold",fontSize:16,color:"white"}}> + Ajouter</Text>
+    <View style={{ flexDirection: "row", gap: 2, alignItems: "center", justifyContent: "space-around" }}>
+      <Text style={{ fontSize: 18, color: colors.primary, fontWeight: "bold" }}>Ajouter d'autre clients</Text>
+      <Button flex={0.6} gradient={gradients.warning} marginBottom={sizes.base} rounded={false} round={false} style={{ marginTop: 10 }} onPress={addClient}>
+        <Text style={{ fontWeight: "bold", fontSize: 16, color: "white" }}> + Ajouter</Text>
       </Button>
     </View>
 
 
-   <View style={{flexDirection:"row", alignContent:"center",justifyContent:"space-between",borderColor:"#ccc",borderWidth:1,padding:10,borderRadius:10}}>
-    <Text style={{ fontSize: 18,color:"#ccc"}}>Martine DUBOIS</Text>
-    <Text style={{ fontSize: 24,color: colors.primary ,fontWeight:"bold"}}>X</Text>
-   </View>
+ 
+
+   
+    {clients.map((client, index) => (
+     
+      <View key={index} style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10 , marginVertical: 5}}>
+        <TextInput
+          style={{ fontSize: 18, color: "#ccc" }}
+          value={client}
+          onChangeText={(text) => updateClient(index, text)}
+          placeholder="Nom du client"
+        />
+        <TouchableOpacity onPress={() => removeClient(index)}>
+          <Text style={{ fontSize: 24, color: colors.primary, fontWeight: "bold" }}>X</Text>
+        </TouchableOpacity>
+      </View>
+    ))}
+ 
+
 
 
   </View>;
@@ -123,7 +155,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: height * 0.054,
-    borderColor: 'gray',
+    borderColor: '#000',
     borderWidth: 1,
     paddingLeft: 4,
     marginBottom: 16,
@@ -169,6 +201,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: "center"
+  }, clientInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  clientInput: {
+    flex: 1,
+    fontSize: 18,
+    color: "#333",
+  },
+  removeClientButton: {
+    fontSize: 24,
+
+    fontWeight: "bold",
+    marginLeft: 10,
   },
 })
 export default Form2;
