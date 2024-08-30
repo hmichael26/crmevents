@@ -20,6 +20,7 @@ import {
   Settings,
   Shopping,
   NotificationsSettings,
+  EventPresta,
 } from '../screens';
 
 import { useScreenOptions } from '../hooks';
@@ -32,7 +33,7 @@ export default () => {
   const screenOptions = useScreenOptions();
 
   return (
-    <Stack.Navigator initialRouteName='Eventdetails' screenOptions={screenOptions.stack} >
+    <Stack.Navigator initialRouteName='EventPresta' screenOptions={screenOptions.stack} >
       <Stack.Screen
         name="Home"
         component={Home}
@@ -136,6 +137,11 @@ export default () => {
       <Stack.Screen
         name="Eventdetails"
         component={EventDetails}
+        options={screenOptions.eventDetail}
+      />
+         <Stack.Screen
+        name="EventPresta"
+        component={EventPresta}
         options={screenOptions.eventDetail}
       />
     </Stack.Navigator>
