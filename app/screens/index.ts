@@ -17,3 +17,5 @@ export {default as Booking} from './Booking';
 export {default as Settings} from './Settings';
 export {default as Shopping} from './Shopping';
 export {default as EventDetails} from './EventDetails';
+export {default as EventPresta} from './EventPresta';
+
