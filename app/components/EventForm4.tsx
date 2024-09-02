@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import Font6 from 'react-native-vector-icons/FontAwesome6';
 import Input from './Input';
+import ConfirmationModal from './ConfirmModal';
 
 // import { Container } from './styles';
 const options = [
@@ -30,10 +31,47 @@ const Form4 = () => {
   const [switch1, setSwitch1] = useState(true);
   const [switch2, setSwitch2] = useState(true);
   const [switch3, setSwitch3] = useState(false);
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  const handleSelectionChange = (selectedIds: string[]) => {
-    setSelectedOptions(selectedIds);
+  const [validForm1, setValid1] = useState<Boolean>(false);
+  const [validForm2, setValid2] = useState<Boolean>(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [currentForm, setCurrentForm] = useState<number | null>(null); // 1 pour Form1, 2 pour Form2
+
+  const handleConfirm = () => {
+    setModalVisible(false);
+    if (currentForm === 1) {
+      setValid1(true);
+      console.log('Formulaire 1 validé');
+    } else if (currentForm === 2) {
+      setValid2(true);
+      console.log('Formulaire 2 validé');
+    }
+    setCurrentForm(null);
   };
+
+  const handleCancel = () => {
+    setModalVisible(false);
+    if (currentForm === 1) {
+      setValid1(false); // Dévalide Formulaire 1
+      console.log('Formulaire 1 dévalidé');
+    } else if (currentForm === 2) {
+      setValid2(false); // Dévalide Formulaire 2
+      console.log('Formulaire 2 dévalidé');
+    }
+    setCurrentForm(null);
+  };
+
+  const validateForm = (formNumber: number) => {
+    if (formNumber === 1 ) {
+      setCurrentForm(1);
+      setModalVisible(true);
+    } else if (formNumber === 2 ) {
+      setCurrentForm(2);
+      setModalVisible(true);
+    }
+  };
+
 
   return <SafeAreaView >
     <View style={styles.container}>
@@ -69,7 +107,7 @@ const Form4 = () => {
             <Text black size={getFontSize(13)} bold style={{ marginRight: 3 }} >
               inserer le
             </Text>
-            <Text color={colors.primary} size={getFontSize(13.5)} bold >
+            <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%' }} >
               12/01/2024
             </Text>
           </View>
@@ -77,7 +115,7 @@ const Form4 = () => {
             <Text black size={getFontSize(13)} bold style={{ marginRight: 2 }}>
               inserer le
             </Text>
-            <Text color={colors.primary} size={getFontSize(13.5)} bold>
+            <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%' }}>
               13/01/2024 à 14h00
             </Text>
           </View>
@@ -102,17 +140,22 @@ const Form4 = () => {
                 devis
               </Text>
             </Button>
-            <Button flex={0.4} marginBottom={sizes.base / 2} rounded={false} round={false} style={{ borderWidth: 1, borderColor: "#ccc" }}>
+            <Button flex={0.4} marginBottom={sizes.base} rounded={false} round={false} style={{ borderWidth: 1, borderColor: "#ccc" }} onPress={() => validateForm(1)}>
 
               <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
-                Valider  V
+                Valider
               </Text>
+              {
+                validForm1 && <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
+                  V
+                </Text>
+              }
             </Button>
 
           </View>
-          <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
+          <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }} >
 
-            <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
+            <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false}  >
               <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                 ouvrir
               </Text>
@@ -128,11 +171,16 @@ const Form4 = () => {
                 brochure
               </Text>
             </Button>
-            <Button flex={0.4} marginBottom={sizes.base / 2} rounded={false} round={false} style={{ borderWidth: 1, borderColor: "#ccc" }}>
+            <Button flex={0.4} marginBottom={sizes.base} rounded={false} round={false} style={{ borderWidth: 1, borderColor: "#ccc" }} onPress={() => validateForm(2)}>
 
               <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
-                Valider  V
+                Valider
               </Text>
+              {
+                validForm2 && <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
+                  V
+                </Text>
+              }
             </Button>
 
           </View>
@@ -149,6 +197,14 @@ const Form4 = () => {
 
 
           </View>
+
+          <ConfirmationModal
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+            message="vous ete sur le point de valider ?"
+          />
         </View>
         <View style={{ flex: 1, flexDirection: 'row', marginTop: 6 }}>
           <View style={{
@@ -292,10 +348,10 @@ const Form4 = () => {
 
     </View>
 
-    <View style={{flex:1,flexDirection:"row",alignContent:"center",justifyContent:"center",marginHorizontal:100}}>
+    <View style={{ flex: 1, flexDirection: "row", alignContent: "center", justifyContent: "center", marginHorizontal: 100 }}>
       <Button flex={1} width={"40%"} gradient={gradients.success} marginBottom={0} rounded={false} round={false} marginTop={sizes.base / 2}>
         <Text white size={getFontSize(15)} bold style={{ textTransform: 'uppercase' }} h5 center>
-           Envoyer demande à tous les lieux
+          Envoyer demande à tous les lieux
         </Text>
 
       </Button>
@@ -314,7 +370,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 10,
-    
+
 
   },
   label: {
