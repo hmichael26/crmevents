@@ -77,8 +77,12 @@ const Form4 = () => {
     <View style={styles.container}>
 
 
-      <Badge badgeNumber={1} />
-      <View style={{ borderWidth: 1, borderColor: "#000", borderRadius: 10 }} >
+      <Badge text='Hotel NORMANDY' badgeNumber={1} />
+      <Badge text='Hotel NORMANDY' badgeNumber={0} />
+      <Badge text='Hotel NORMANDY' badgeNumber={0} />
+     {
+      false && <>
+       <View style={{ borderWidth: 1, borderColor: "#000", borderRadius: 10 }} >
         <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 3 }}>
 
           <Button flex={1} gradient={gradients.success} marginBottom={sizes.base / 2} rounded={false} round={false} >
@@ -345,10 +349,15 @@ const Form4 = () => {
         </Text>
 
       </Button>
+      
+      </>
+     }
+     
 
     </View>
-
-    <View style={{ flex: 1, flexDirection: "row", alignContent: "center", justifyContent: "center", marginHorizontal: 100 }}>
+{
+  false && 
+  <View style={{ flex: 1, flexDirection: "row", alignContent: "center", justifyContent: "center", marginHorizontal: 100 }}>
       <Button flex={1} width={"40%"} gradient={gradients.success} marginBottom={0} rounded={false} round={false} marginTop={sizes.base / 2}>
         <Text white size={getFontSize(15)} bold style={{ textTransform: 'uppercase' }} h5 center>
           Envoyer demande à tous les lieux
@@ -356,6 +365,8 @@ const Form4 = () => {
 
       </Button>
     </View>
+}
+  
 
   </SafeAreaView>
     ;

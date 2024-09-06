@@ -7,19 +7,20 @@ import { useTheme } from '../hooks';
 
 interface HotelButtonWithBadgeProps {
     badgeNumber?: number;
+    text?: string;
   
   }
-const Badge: React.FC<HotelButtonWithBadgeProps>= ({badgeNumber}) => {
+const Badge: React.FC<HotelButtonWithBadgeProps>= ({badgeNumber, text}) => {
     const { assets, colors, gradients, sizes } = useTheme();
 
 
   return <Button flex={1} gradient={gradients.success} marginBottom={sizes.base/3} rounded={false} round={false} style={{marginHorizontal:10,marginTop:3}} >
-  <View style={{ position: "absolute", backgroundColor: colors.danger, right: -23, top: -23, margin: 20, width: 30, height: 25, borderRadius: 55, display: "flex", justifyContent: "center", alignItems: "center" }}>
+ {badgeNumber != 0 && <View style={{ position: "absolute", backgroundColor: colors.danger, right: -23, top: -23, margin: 20, width: 30, height: 25, borderRadius: 55, display: "flex", justifyContent: "center", alignItems: "center" }}>
     <Text style={{ color: "#fff", fontWeight: "bold" }}> {badgeNumber} </Text>
-  </View>
+  </View>}
   <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold", textTransform: "uppercase" }}>
 
-    Hôtel  NORMANDY
+   {text}
   </Text>
 
 </Button>;

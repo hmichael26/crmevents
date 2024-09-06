@@ -13,6 +13,7 @@ import Form1 from '../components/EventForm1';
 import Form2 from '../components/EventForm2';
 import Form3 from '../components/EventForm3';
 import Form4 from '../components/EventForm4';
+import Form5 from '../components/EventForm5';
 // import { Container } from './styles';
 const { width, height } = Dimensions.get('window');
 const options = [
@@ -33,7 +34,7 @@ const EventPresta: React.FC = () => {
   const getFontSize = (size: number) => size / fontScale;
 
   const { assets, colors, gradients, sizes } = useTheme();
-  const [step, setStep] = useState("date");
+  const [step, setStep] = useState("deroule");
   const [data, setData] = React.useState([]);
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -82,9 +83,9 @@ const EventPresta: React.FC = () => {
       </Button>
 
       <View style={{ flexDirection: "row", justifyContent: "space-around", gap: 10, marginHorizontal: 5, marginVertical: 10 }}>
-        <Button flex={0.4} gradient={gradients.secondary} marginBottom={sizes.base} rounded={true} round={false} style={{ borderColor: "#000" }} onPress={() => setStep("date")}>
+        <Button flex={0.4} gradient={gradients.secondary} marginBottom={sizes.base} rounded={true} round={false} style={{ borderColor: "#000" }} onPress={() => setStep("deroule")}>
           <Text white bold transform="uppercase" size={15}  >
-            Dates
+            Déroulé
           </Text>
         </Button>
         <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false} onPress={() => setStep("Presta")}>
@@ -102,7 +103,7 @@ const EventPresta: React.FC = () => {
 
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
      
-        {step === "date" && <Form1 />}
+        {step === "deroule" && <Form5 />}
         {step === "Presta" && <Form4 />}
       
     
