@@ -63,299 +63,345 @@ const Form4 = () => {
   };
 
   const validateForm = (formNumber: number) => {
-    if (formNumber === 1 ) {
+    if (formNumber === 1) {
       setCurrentForm(1);
       setModalVisible(true);
-    } else if (formNumber === 2 ) {
+    } else if (formNumber === 2) {
       setCurrentForm(2);
       setModalVisible(true);
     }
   };
 
+  const [activeBadge, setActiveBadge] = useState<number | null>(0);
+  const [badges, setBadges] = useState([
+    { text: 'Hotel NORMANDY', number: 0, color: 'success' },
+    { text: 'CHATEAU MONTVILLARGENNE', number: 0, color: 'black' },
+    { text: 'PULMANN TOUR EIFFEL', number: 0, color: 'secondary' },
+    { text: 'PULMANN TOUR EIFFEL', number: 0, color: 'secondary' },
+    { text: 'LE COLLECTIONNEUR', number: 0, color: 'secondary' },
+    { text: 'BARRIERE ENGHIEN', number: 0, color: 'secondary' },
+    { text: 'LE BRACH', number: 0, color: 'black' },
+    { text: 'CHATEAU DE LA TOUR', number: 0, color: 'success' },
+    { text: '1k HOTEL', number: 0, color: 'success' },
+  ]);
+
+  const handleBadgeClick = (badgeIndex: number) => {
+    // Toggle activeBadge
+    setActiveBadge(prevActiveBadge =>
+      prevActiveBadge === badgeIndex ? 0 : badgeIndex
+    );
+
+    /*
+    // Update badge number
+    setBadges(prevBadges => {
+      const updatedBadges = [...prevBadges];
+      updatedBadges[badgeIndex - 1].number += 1; // No need to subtract 1 from index
+      return updatedBadges;
+    });*/
+  };
 
   return <SafeAreaView >
     <View style={styles.container}>
 
+    {badges.map((badge, index) => (
+       (activeBadge === 0 || activeBadge === index+1) &&
+        <Badge 
+          key={index}
+          text={badge.text} 
+          badgeNumber={badge.number} 
+          badgeColor={badge.color} // Assuming your Badge component accepts a badgeColor prop
+          onPress={() => handleBadgeClick(index+1)} 
+        
 
-      <Badge badgeNumber={1} />
-      <View style={{ borderWidth: 1, borderColor: "#000", borderRadius: 10 }} >
-        <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 3 }}>
+        />
+      ))}
+      {
+        activeBadge !== 0 && <>
+          <View style={{ borderWidth: 1, borderColor: "#000", borderRadius: 10 }} >
+            <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 3 }}>
 
-          <Button flex={1} gradient={gradients.success} marginBottom={sizes.base / 2} rounded={false} round={false} >
-            <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-              envoyer
-            </Text>
-            <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-              Demander
-            </Text>
-          </Button>
-          <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base / 2} rounded={false} round={false}>
-            <Text white bold transform="uppercase" size={getFontSize(13)}>
-              Inserer
-            </Text>
-            <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-              devis
-            </Text>
-          </Button>
-          <Button flex={0.2} gradient={gradients.danger} marginBottom={sizes.base / 2} rounded={false} round={false}>
-            <Icon name='trash' size={getFontSize(30)} style={{ color: "#fff" }}></Icon>
-          </Button>
-
-        </View>
-        <View style={{ flex: 1, flexDirection: "row", marginHorizontal: 2, gap: 3 }}>
-          <View style={{ flex: 0.7, flexDirection: "row", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 4 }}>
-            <Text black size={getFontSize(13)} bold style={{ marginRight: 3 }} >
-              inserer le
-            </Text>
-            <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%' }} >
-              12/01/2024
-            </Text>
-          </View>
-          <View style={{ flex: 1, flexDirection: "row", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 4 }}>
-            <Text black size={getFontSize(13)} bold style={{ marginRight: 2 }}>
-              inserer le
-            </Text>
-            <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%' }}>
-              13/01/2024 à 14h00
-            </Text>
-          </View>
-
-        </View>
-        <View>
-          <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginTop: 15 }}>
-
-            <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
-              <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-                ouvrir
-              </Text>
-              <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-                un devis
-              </Text>
-            </Button>
-            <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
-              <Text white bold transform="uppercase" size={getFontSize(13)}>
-                Telecharger
-              </Text>
-              <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-                devis
-              </Text>
-            </Button>
-            <Button flex={0.4} marginBottom={sizes.base} rounded={false} round={false} style={{ borderWidth: 1, borderColor: "#ccc" }} onPress={() => validateForm(1)}>
-
-              <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
-                Valider
-              </Text>
-              {
-                validForm1 && <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
-                  V
+              <Button flex={1} gradient={gradients.success} marginBottom={sizes.base / 2} rounded={false} round={false} >
+                <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                  envoyer
                 </Text>
-              }
-            </Button>
-
-          </View>
-          <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }} >
-
-            <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false}  >
-              <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-                ouvrir
-              </Text>
-              <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-                brochure
-              </Text>
-            </Button>
-            <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
-              <Text white bold transform="uppercase" size={getFontSize(13)}>
-                Telecharger
-              </Text>
-              <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-                brochure
-              </Text>
-            </Button>
-            <Button flex={0.4} marginBottom={sizes.base} rounded={false} round={false} style={{ borderWidth: 1, borderColor: "#ccc" }} onPress={() => validateForm(2)}>
-
-              <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
-                Valider
-              </Text>
-              {
-                validForm2 && <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
-                  V
+                <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                  Demander
                 </Text>
-              }
-            </Button>
+              </Button>
+              <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base / 2} rounded={false} round={false}>
+                <Text white bold transform="uppercase" size={getFontSize(13)}>
+                  Inserer
+                </Text>
+                <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                  devis
+                </Text>
+              </Button>
+              <Button flex={0.2} gradient={gradients.danger} marginBottom={sizes.base / 2} rounded={false} round={false}>
+                <Icon name='trash' size={getFontSize(30)} style={{ color: "#fff" }}></Icon>
+              </Button>
 
+            </View>
+            <View style={{ flex: 1, flexDirection: "row", marginHorizontal: 2, gap: 3 }}>
+              <View style={{ flex: 0.7, flexDirection: "row", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 4 }}>
+                <Text black size={getFontSize(13)} bold style={{ marginRight: 3 }} >
+                  inserer le
+                </Text>
+                <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%' }} >
+                  12/01/2024
+                </Text>
+              </View>
+              <View style={{ flex: 1, flexDirection: "row", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 4 }}>
+                <Text black size={getFontSize(13)} bold style={{ marginRight: 2 }}>
+                  inserer le
+                </Text>
+                <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%' }}>
+                  13/01/2024 à 14h00
+                </Text>
+              </View>
+
+            </View>
+            <View>
+              <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginTop: 15 }}>
+
+                <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
+                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                    ouvrir
+                  </Text>
+                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                    un devis
+                  </Text>
+                </Button>
+                <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
+                  <Text white bold transform="uppercase" size={getFontSize(13)}>
+                    Telecharger
+                  </Text>
+                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                    devis
+                  </Text>
+                </Button>
+                <Button flex={0.4} marginBottom={sizes.base} rounded={false} round={false} style={{ borderWidth: 1, borderColor: "#ccc" }} onPress={() => validateForm(1)}>
+
+                  <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
+                    Valider
+                  </Text>
+                  {
+                    validForm1 && <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
+                      V
+                    </Text>
+                  }
+                </Button>
+
+              </View>
+              <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }} >
+
+                <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false}  >
+                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                    ouvrir
+                  </Text>
+                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                    brochure
+                  </Text>
+                </Button>
+                <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
+                  <Text white bold transform="uppercase" size={getFontSize(13)}>
+                    Telecharger
+                  </Text>
+                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                    brochure
+                  </Text>
+                </Button>
+                <Button flex={0.4} marginBottom={sizes.base} rounded={false} round={false} style={{ borderWidth: 1, borderColor: "#ccc" }} onPress={() => validateForm(2)}>
+
+                  <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
+                    Valider
+                  </Text>
+                  {
+                    validForm2 && <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
+                      V
+                    </Text>
+                  }
+                </Button>
+
+              </View>
+              <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
+
+                <Button flex={0.26} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
+                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                    Galerie
+                  </Text>
+                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                    photo
+                  </Text>
+                </Button>
+
+
+              </View>
+
+              <ConfirmationModal
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                message="vous ete sur le point de valider ?"
+              />
+            </View>
+            <View style={{ flex: 1, flexDirection: 'row', marginTop: 6 }}>
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: "center",
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 5,
+
+                paddingVertical: 5,
+                marginHorizontal: 4,
+                marginBottom: 2,
+                width: "50%",
+                gap: 5
+
+              }}>
+                <Text black bold style={{ fontSize: 15 }}>Comparateur</Text>
+                <Switch
+                  checked={switch1}
+                  switchStyle={{ backgroundColor: colors.secondary }}
+                  onPress={(checked) => setSwitch1(checked)}
+                />
+              </View>
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: "center",
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 5,
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                marginBottom: 2,
+                width: "46%"
+
+              }}>
+                <Text color={colors.primary} bold style={{ fontSize: 20 }}>12000$</Text>
+
+              </View>
+            </View>
+            <View style={{ flex: 1, flexDirection: 'row', marginTop: 6 }}>
+              <View style={{
+                flexDirection: 'row',
+
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 5,
+
+                paddingVertical: 5,
+                marginHorizontal: 4,
+                marginBottom: 2,
+                flex: 0.4,
+                gap: 5
+
+              }}>
+
+                <Font6 name='thumbs-down' color={colors.danger} size={getFontSize(23)}></Font6>
+
+              </View>
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: "center",
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 5,
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                marginBottom: 2,
+                flex: 0.4,
+              }}>
+                <Text color={colors.primary} bold style={{ fontSize: 20 }}>0.5%</Text>
+
+              </View>
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 5,
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                marginBottom: 2,
+                marginHorizontal: 4,
+                flex: 1,
+
+              }}>
+                <Text black bold size={getFontSize(16)}>Option : </Text>
+                <Text color={colors.primary} bold style={{ fontSize: 20 }}>Multi-Option</Text>
+
+              </View>
+            </View>
+
+            <View>
+              <Input
+                multiline
+                numberOfLines={2}
+                style={{
+                  height: 70,
+                  marginHorizontal: 4
+                }}
+                placeholder='Autreproposition de commission && Commentaires prestataire'
+              >
+
+              </Input>
+            </View>
+            <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", margin: 3 }}>
+              <TextInputWithIcon
+
+
+                placeholder="email prestataire"
+
+
+                style={{ width: "50%" }}
+
+
+              />
+
+
+              <TextInputWithIcon
+
+
+                placeholder="Prenom & Telephone"
+                style={{ width: "50%" }}
+
+              />
+            </View>
           </View>
-          <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
-
-            <Button flex={0.26} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
-              <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-                Galerie
-              </Text>
-              <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-                photo
-              </Text>
-            </Button>
 
 
-          </View>
+          <Button flex={1} gradient={gradients.black} marginBottom={0} rounded={false} round={false} marginTop={sizes.base / 2}>
+            <Text white size={getFontSize(17)} bold style={{ textTransform: 'uppercase' }} h5>
+              CHâteau montvillargenne
+            </Text>
 
-          <ConfirmationModal
-            visible={modalVisible}
-            onClose={() => setModalVisible(false)}
-            onConfirm={handleConfirm}
-            onCancel={handleCancel}
-            message="vous ete sur le point de valider ?"
-          />
-        </View>
-        <View style={{ flex: 1, flexDirection: 'row', marginTop: 6 }}>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: "center",
-            alignItems: 'center',
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
+          </Button>
 
-            paddingVertical: 5,
-            marginHorizontal: 4,
-            marginBottom: 2,
-            width: "50%",
-            gap: 5
-
-          }}>
-            <Text black bold style={{ fontSize: 15 }}>Comparateur</Text>
-            <Switch
-              checked={switch1}
-              switchStyle={{ backgroundColor: colors.secondary }}
-              onPress={(checked) => setSwitch1(checked)}
-            />
-          </View>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: "center",
-            alignItems: 'center',
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            marginBottom: 2,
-            width: "46%"
-
-          }}>
-            <Text color={colors.primary} bold style={{ fontSize: 20 }}>12000$</Text>
-
-          </View>
-        </View>
-        <View style={{ flex: 1, flexDirection: 'row', marginTop: 6 }}>
-          <View style={{
-            flexDirection: 'row',
-
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
-
-            paddingVertical: 5,
-            marginHorizontal: 4,
-            marginBottom: 2,
-            flex: 0.4,
-            gap: 5
-
-          }}>
-
-            <Font6 name='thumbs-down' color={colors.danger} size={getFontSize(23)}></Font6>
-
-          </View>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: "center",
-            alignItems: 'center',
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            marginBottom: 2,
-            flex: 0.4,
-          }}>
-            <Text color={colors.primary} bold style={{ fontSize: 20 }}>0.5%</Text>
-
-          </View>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            marginBottom: 2,
-            marginHorizontal: 4,
-            flex: 1,
-
-          }}>
-            <Text black bold size={getFontSize(16)}>Option : </Text>
-            <Text color={colors.primary} bold style={{ fontSize: 20 }}>Multi-Option</Text>
-
-          </View>
-        </View>
-
-        <View>
-          <Input
-            multiline
-            numberOfLines={2}
-            style={{
-              height: 70,
-              marginHorizontal: 4
-            }}
-            placeholder='Autreproposition de commission && Commentaires prestataire'
-          >
-
-          </Input>
-        </View>
-        <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", margin: 3 }}>
-          <TextInputWithIcon
+        </>
+      }
 
 
-            placeholder="email prestataire"
+    </View>
+    {
+       activeBadge !== 0 &&
+      <View style={{ flex: 1, flexDirection: "row", alignContent: "center", justifyContent: "center", marginHorizontal: 100 }}>
+        <Button flex={1} width={"40%"} gradient={gradients.success} marginBottom={0} rounded={false} round={false} marginTop={sizes.base / 2}>
+          <Text white size={getFontSize(15)} bold style={{ textTransform: 'uppercase' }} h5 center>
+            Envoyer demande à tous les lieux
+          </Text>
 
-
-            style={{ width: "50%" }}
-
-
-          />
-
-
-          <TextInputWithIcon
-
-
-            placeholder="Prenom & Telephone"
-            style={{ width: "50%" }}
-
-          />
-        </View>
+        </Button>
       </View>
+    }
 
-
-      <Button flex={1} gradient={gradients.black} marginBottom={0} rounded={false} round={false} marginTop={sizes.base / 2}>
-        <Text white size={getFontSize(17)} bold style={{ textTransform: 'uppercase' }} h5>
-          CHâteau montvillargenne
-        </Text>
-
-      </Button>
-
-    </View>
-
-    <View style={{ flex: 1, flexDirection: "row", alignContent: "center", justifyContent: "center", marginHorizontal: 100 }}>
-      <Button flex={1} width={"40%"} gradient={gradients.success} marginBottom={0} rounded={false} round={false} marginTop={sizes.base / 2}>
-        <Text white size={getFontSize(15)} bold style={{ textTransform: 'uppercase' }} h5 center>
-          Envoyer demande à tous les lieux
-        </Text>
-
-      </Button>
-    </View>
 
   </SafeAreaView>
     ;
