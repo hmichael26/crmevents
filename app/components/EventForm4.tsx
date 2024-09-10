@@ -264,7 +264,8 @@ const Form4 = () => {
                 <Text black bold style={{ fontSize: 15 }}>Comparateur</Text>
                 <Switch
                   checked={switch1}
-                  switchStyle={{ backgroundColor: colors.secondary }}
+                  switchStyle={{ }}
+                 
                   onPress={(checked) => setSwitch1(checked)}
                 />
               </View>
