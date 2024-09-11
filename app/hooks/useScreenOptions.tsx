@@ -20,10 +20,10 @@ import { Input } from '../components';
 
 export default () => {
   // const {t} = useTranslation();
-  const {user, basket} = useData();
+  const {user, basket,isDark} = useData();
   const navigation = useNavigation();
   const {icons, colors, gradients, sizes} = useTheme();
-
+  const labelColor= isDark?  colors.white : colors.dark;
   const menu = {
     headerStyle: {elevation: 0},
     headerTitleAlign: 'left',
@@ -36,7 +36,7 @@ export default () => {
     // ),
     headerLeft: () => (
       <Button onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}>
-        <Image source={icons.menu} radius={0} color={colors.icon} />
+        <Image source={icons.menu} radius={0} color={labelColor} />
       </Button>
     ),
     headerRight: () => (
@@ -224,12 +224,12 @@ export default () => {
     eventDetail:{
        ...menu,
        headerTitle: ({children}: any) => (
-          <Text style={{marginHorizontal:7,fontSize:25,fontWeight:'bold', color:'white'}}>GO</Text>
+          <Text style={{marginHorizontal:7,fontSize:25,fontWeight:'bold', color:labelColor}}>GO</Text>
          ),
        headerLeft: () => (
         <Button
           onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}>
-          <Image source={icons.menu} radius={0} color={colors.white} />
+          <Image source={icons.menu} radius={0} color={labelColor} />
         </Button>
       ),
       headerRight: () => (
