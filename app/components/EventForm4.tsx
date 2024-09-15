@@ -77,7 +77,7 @@ const Form4 = () => {
     { text: 'Hotel NORMANDY', number: 0, color: 'success' },
     { text: 'CHATEAU MONTVILLARGENNE', number: 0, color: 'black' },
     { text: 'PULMANN TOUR EIFFEL', number: 0, color: 'secondary' },
-    { text: 'PULMANN TOUR EIFFEL', number: 0, color: 'secondary' },
+  
     { text: 'LE COLLECTIONNEUR', number: 0, color: 'secondary' },
     { text: 'BARRIERE ENGHIEN', number: 0, color: 'secondary' },
     { text: 'LE BRACH', number: 0, color: 'black' },
@@ -103,15 +103,15 @@ const Form4 = () => {
   return <SafeAreaView >
     <View style={styles.container}>
 
-    {badges.map((badge, index) => (
-       (activeBadge === 0 || activeBadge === index+1) &&
-        <Badge 
+      {badges.map((badge, index) => (
+        (activeBadge === 0 || activeBadge === index + 1) &&
+        <Badge
           key={index}
-          text={badge.text} 
-          badgeNumber={badge.number} 
+          text={badge.text}
+          badgeNumber={badge.number}
           badgeColor={badge.color} // Assuming your Badge component accepts a badgeColor prop
-          onPress={() => handleBadgeClick(index+1)} 
-        
+          onPress={() => handleBadgeClick(index + 1)}
+
 
         />
       ))}
@@ -264,8 +264,8 @@ const Form4 = () => {
                 <Text black bold style={{ fontSize: 15 }}>Comparateur</Text>
                 <Switch
                   checked={switch1}
-                  switchStyle={{ }}
-                 
+                  switchStyle={{}}
+
                   onPress={(checked) => setSwitch1(checked)}
                 />
               </View>
@@ -378,13 +378,20 @@ const Form4 = () => {
             </View>
           </View>
 
+          {badges.map((badge, index) => (
+           
+            (index === activeBadge) && ( // condition pour afficher uniquement le badge suivant
+              <Badge
+                key={index}
+                text={badge.text}
+                badgeNumber={badge.number}
+                badgeColor={badge.color} // Si le composant Badge accepte badgeColor
+                onPress={() => handleBadgeClick(index+1)} // Vous pouvez enlever le +1 si handleBadgeClick gère l'index correctement
+              />
+            )
+          ))}
 
-          <Button flex={1} gradient={gradients.black} marginBottom={0} rounded={false} round={false} marginTop={sizes.base / 2}>
-            <Text white size={getFontSize(17)} bold style={{ textTransform: 'uppercase' }} h5>
-              CHâteau montvillargenne
-            </Text>
 
-          </Button>
 
         </>
       }
@@ -392,7 +399,7 @@ const Form4 = () => {
 
     </View>
     {
-       activeBadge !== 0 &&
+      activeBadge !== 0 &&
       <View style={{ flex: 1, flexDirection: "row", alignContent: "center", justifyContent: "center", marginHorizontal: 100 }}>
         <Button flex={1} width={"40%"} gradient={gradients.success} marginBottom={0} rounded={false} round={false} marginTop={sizes.base / 2}>
           <Text white size={getFontSize(15)} bold style={{ textTransform: 'uppercase' }} h5 center>
