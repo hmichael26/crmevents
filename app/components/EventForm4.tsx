@@ -13,11 +13,15 @@ import Font6 from 'react-native-vector-icons/FontAwesome6';
 import Input from './Input';
 import ConfirmationModal from './ConfirmModal';
 
+import { Picker } from '@react-native-picker/picker';
+
+
+
 // import { Container } from './styles';
 const options = [
-  { id: '1', label: 'Option 1' },
-  { id: '2', label: 'Option 2' },
-  { id: '3', label: 'Option 3' },
+  { id: '1', label: 'oui' },
+  { id: '2', label: 'non' },
+  { id: '3', label: 'supprimer' },
   // Add more options as needed
 ];
 
@@ -27,6 +31,8 @@ const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
 const Form4 = () => {
+  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption2, setSelectedOption2] = useState('');
   const { assets, colors, gradients, sizes } = useTheme();
   const [switch1, setSwitch1] = useState(true);
   const [switch2, setSwitch2] = useState(true);
@@ -37,39 +43,46 @@ const Form4 = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const [currentForm, setCurrentForm] = useState<number | null>(null); // 1 pour Form1, 2 pour Form2
-
+  ;
+  const handleOptionSelect = (option: React.SetStateAction<string>, type: number) => {
+    if (type == 1) {
+      if (option === 'supprimer') {
+        validateForm(1); // Ouvre le modal pour confirmer la suppression
+      } else {
+        setSelectedOption(option); // Met à jour directement l'option sélectionnée
+      }
+    } else {
+      if (option === 'supprimer') {
+        validateForm(2); // Ouvre le modal pour confirmer la suppression
+      } else {
+        setSelectedOption2(option); // Met à jour directement l'option sélectionnée
+      }
+    }
+  };
+  
   const handleConfirm = () => {
-    setModalVisible(false);
+    // Si le formulaire 1 est actif et confirmé
     if (currentForm === 1) {
-      setValid1(true);
-      console.log('Formulaire 1 validé');
+      setSelectedOption('supprimer'); // Applique la suppression
+      console.log('Formulaire 1 supprimé');
     } else if (currentForm === 2) {
-      setValid2(true);
-      console.log('Formulaire 2 validé');
+      setSelectedOption2('supprimer'); // Applique la suppression
+      console.log('Formulaire 2 supprimé');
     }
-    setCurrentForm(null);
+    
+    setModalVisible(false); // Ferme le modal après la confirmation
+    setCurrentForm(null); // Réinitialise le formulaire actif
   };
-
+  
   const handleCancel = () => {
-    setModalVisible(false);
-    if (currentForm === 1) {
-      setValid1(false); // Dévalide Formulaire 1
-      console.log('Formulaire 1 dévalidé');
-    } else if (currentForm === 2) {
-      setValid2(false); // Dévalide Formulaire 2
-      console.log('Formulaire 2 dévalidé');
-    }
-    setCurrentForm(null);
+    setModalVisible(false); // Ferme le modal sans rien faire
+    setCurrentForm(null); // Réinitialise le formulaire actif
+    console.log('Suppression annulée');
   };
-
+  
   const validateForm = (formNumber: number) => {
-    if (formNumber === 1) {
-      setCurrentForm(1);
-      setModalVisible(true);
-    } else if (formNumber === 2) {
-      setCurrentForm(2);
-      setModalVisible(true);
-    }
+    setCurrentForm(formNumber); // Active le formulaire correspondant
+    setModalVisible(true); // Ouvre le modal de confirmation
   };
 
   const [activeBadge, setActiveBadge] = useState<number | null>(0);
@@ -77,7 +90,7 @@ const Form4 = () => {
     { text: 'Hotel NORMANDY', number: 0, color: 'success' },
     { text: 'CHATEAU MONTVILLARGENNE', number: 0, color: 'black' },
     { text: 'PULMANN TOUR EIFFEL', number: 0, color: 'secondary' },
-  
+
     { text: 'LE COLLECTIONNEUR', number: 0, color: 'secondary' },
     { text: 'BARRIERE ENGHIEN', number: 0, color: 'secondary' },
     { text: 'LE BRACH', number: 0, color: 'black' },
@@ -179,17 +192,24 @@ const Form4 = () => {
                     devis
                   </Text>
                 </Button>
-                <Button flex={0.4} marginBottom={sizes.base} rounded={false} round={false} style={{ borderWidth: 1, borderColor: "#ccc" }} onPress={() => validateForm(1)}>
 
-                  <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
-                    Valider
-                  </Text>
-                  {
-                    validForm1 && <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
-                      V
-                    </Text>
-                  }
-                </Button>
+                {selectedOption ? <Text black bold>{selectedOption}</Text> : <Text black bold>valider</Text>}
+               
+                <View style={{ flex: 0.35, flexDirection: "column" }}>
+
+                  <Picker
+                  style={{width:35}}
+                    selectedValue={selectedOption}
+                    onValueChange={(itemValue) => handleOptionSelect(itemValue, 1)}
+                   // mode='dropdown'
+                  >
+
+                    {options.map((option, index) => (
+                      <Picker.Item key={index} label={option.label} value={option.label} />
+                    ))}
+                  </Picker>
+                </View>
+
 
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }} >
@@ -210,17 +230,25 @@ const Form4 = () => {
                     brochure
                   </Text>
                 </Button>
-                <Button flex={0.4} marginBottom={sizes.base} rounded={false} round={false} style={{ borderWidth: 1, borderColor: "#ccc" }} onPress={() => validateForm(2)}>
+              
+                {selectedOption2 ? <Text black bold>{selectedOption2}</Text> : <Text black bold>valider</Text>}
+               
+                <View style={{ flex: 0.35, flexDirection: "column" }}>
 
-                  <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
-                    Valider
-                  </Text>
-                  {
-                    validForm2 && <Text black size={getFontSize(13)} bold style={{ textTransform: 'uppercase', }}>
-                      V
-                    </Text>
-                  }
-                </Button>
+                  <Picker
+                  style={{width:35}}
+                    selectedValue={selectedOption2}
+                    onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
+                  
+                  >
+
+                    {options.map((option, index) => (
+                      <Picker.Item key={index} label={option.label} value={option.label} />
+                    ))}
+
+                    
+                  </Picker>
+                </View>
 
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
@@ -242,7 +270,7 @@ const Form4 = () => {
                 onClose={() => setModalVisible(false)}
                 onConfirm={handleConfirm}
                 onCancel={handleCancel}
-                message="vous ete sur le point de valider ?"
+                message="vous ete sur le point de supprimer ?"
               />
             </View>
             <View style={{ flex: 1, flexDirection: 'row', marginTop: 6 }}>
@@ -379,14 +407,14 @@ const Form4 = () => {
           </View>
 
           {badges.map((badge, index) => (
-           
+
             (index === activeBadge) && ( // condition pour afficher uniquement le badge suivant
               <Badge
                 key={index}
                 text={badge.text}
                 badgeNumber={badge.number}
                 badgeColor={badge.color} // Si le composant Badge accepte badgeColor
-                onPress={() => handleBadgeClick(index+1)} // Vous pouvez enlever le +1 si handleBadgeClick gère l'index correctement
+                onPress={() => handleBadgeClick(index + 1)} // Vous pouvez enlever le +1 si handleBadgeClick gère l'index correctement
               />
             )
           ))}

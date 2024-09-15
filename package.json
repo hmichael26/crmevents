@@ -48,6 +48,8 @@
     "react-hook-form": "^7.52.1",
     "react-native": "0.74.2",
     "react-native-calendars": "^1.1305.0",
+    "react-native-dropdown-picker": "^5.4.6",
+    "react-native-element-dropdown": "^2.12.1",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-gifted-chat": "^2.4.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
@@ -60,7 +62,8 @@
     "react-native-toast-message": "^2.2.0",
     "react-native-vector-icons": "^10.1.0",
     "react-native-web": "~0.19.10",
-    "react-select": "^5.8.0"
+    "react-select": "^5.8.0",
+    "reanimated-bottom-sheet": "^1.0.0-alpha.22"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
