@@ -193,9 +193,9 @@ const Form4 = () => {
                   </Text>
                 </Button>
 
-                {selectedOption ? <Text black bold>{selectedOption}</Text> : <Text black bold>valider</Text>}
+                {selectedOption ? <Text black bold size={getFontSize(12)} style={{width: 65,textAlign:"center"}} >{selectedOption}</Text> : <Text black bold>valider</Text>}
                
-                <View style={{ flex: 0.35, flexDirection: "column" }}>
+                <View style={{ flex: 0.30, flexDirection: "column" }}>
 
                   <Picker
                   style={{width:35}}
@@ -231,9 +231,9 @@ const Form4 = () => {
                   </Text>
                 </Button>
               
-                {selectedOption2 ? <Text black bold>{selectedOption2}</Text> : <Text black bold>valider</Text>}
+                {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{width: 65,textAlign:"center"}} >{selectedOption2}</Text> : <Text black bold>valider</Text>}
                
-                <View style={{ flex: 0.35, flexDirection: "column" }}>
+                <View style={{ flex: 0.3, flexDirection: "column" }}>
 
                   <Picker
                   style={{width:35}}
