@@ -176,7 +176,7 @@ const Form4 = () => {
             <View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginTop: 15 }}>
 
-                <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
+                <Button flex={0.8} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
                   <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                     ouvrir
                   </Text>
@@ -184,22 +184,22 @@ const Form4 = () => {
                     un devis
                   </Text>
                 </Button>
-                <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
-                  <Text white bold transform="uppercase" size={getFontSize(13)}>
+                <Button flex={0.6} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
+                  <Text white bold transform="uppercase" size={getFontSize(12)}>
                     Telecharger
                   </Text>
-                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                  <Text white size={getFontSize(12)} bold style={{ textTransform: 'uppercase' }}>
                     devis
                   </Text>
                 </Button>
 
-                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
-                  {selectedOption ? <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }} >{selectedOption}</Text> : <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }}>valider</Text>}
+                <View style={{ flex: 1, flexDirection: "row", width:"100%",alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
+                  {selectedOption ? <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }} >{selectedOption}</Text> : <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }}>valider</Text>}
 
                 
 
                     <Picker
-                      style={{ width: 35, marginLeft: getFontSize(-10) }}
+                      style={{ width: "25%" ,marginLeft:5}}
                       selectedValue={selectedOption}
                       onValueChange={(itemValue) => handleOptionSelect(itemValue, 1)}
                     // mode='dropdown'
@@ -215,7 +215,7 @@ const Form4 = () => {
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }} >
 
-                <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false}  >
+                <Button flex={0.8} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false}  >
                   <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                     ouvrir
                   </Text>
@@ -223,22 +223,22 @@ const Form4 = () => {
                     brochure
                   </Text>
                 </Button>
-                <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
-                  <Text white bold transform="uppercase" size={getFontSize(13)}>
+                <Button flex={0.6} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
+                  <Text white bold transform="uppercase" size={getFontSize(12)}>
                     Telecharger
                   </Text>
-                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
+                  <Text white size={getFontSize(12)} bold style={{ textTransform: 'uppercase' }}>
                     brochure
                   </Text>
                 </Button>
 
-                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
-                  {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }}>valider</Text>}
+                <View style={{ flex: 1, flexDirection: "row", width:"100%",alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
+                {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width:'75%' ,textAlign: "left" }}>valider</Text>}
 
                 
 
                     <Picker
-                      style={{ width: 35, marginLeft: getFontSize(-10) }}
+                      style={{ width: "25%",marginLeft:5 }}
                       selectedValue={selectedOption2}
                       onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
 
