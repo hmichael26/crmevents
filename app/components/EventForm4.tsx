@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as  TextBlock } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
 import { useTheme } from '../hooks';
@@ -193,10 +193,10 @@ const Form4 = () => {
                   </Text>
                 </Button>
 
-                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5}}>
+                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
                   {selectedOption ? <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }} >{selectedOption}</Text> : <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }}>valider</Text>}
 
-                  <View style={{ flex: 0.30, flexDirection: "column" }}>
+                
 
                     <Picker
                       style={{ width: 35, marginLeft: -5 }}
@@ -209,7 +209,7 @@ const Form4 = () => {
                         <Picker.Item key={index} label={option.label} value={option.label} />
                       ))}
                     </Picker>
-                  </View>
+              
                 </View>
 
               </View>
@@ -232,10 +232,10 @@ const Form4 = () => {
                   </Text>
                 </Button>
 
-                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 }}>
+                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
                   {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }}>valider</Text>}
 
-                  <View style={{ flex: 0.3, flexDirection: "column" }}>
+                
 
                     <Picker
                       style={{ width: 35, marginLeft: -5 }}
@@ -250,7 +250,7 @@ const Form4 = () => {
 
 
                     </Picker>
-                  </View>
+                 
                 </View>
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
