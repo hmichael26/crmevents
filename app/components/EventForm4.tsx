@@ -233,24 +233,22 @@ const Form4 = () => {
                 </Button>
 
                 <View style={{ flex: 1, flexDirection: "row", width:"100%",alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
-                {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width:'75%' ,textAlign: "left" }}>valider</Text>}
+                  {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }}>valider</Text>}
 
                 
 
                     <Picker
-                      style={{ width: "25%",marginLeft:5 }}
+                      style={{ width: "25%" ,marginLeft:5}}
                       selectedValue={selectedOption2}
                       onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
-
+                    // mode='dropdown'
                     >
 
                       {options.map((option, index) => (
                         <Picker.Item key={index} label={option.label} value={option.label} />
                       ))}
-
-
                     </Picker>
-                 
+              
                 </View>
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
