@@ -199,7 +199,7 @@ const Form4 = () => {
                 
 
                     <Picker
-                      style={{ width: 35, marginLeft: -5 }}
+                      style={{ width: 35, marginLeft: getFontSize(-10) }}
                       selectedValue={selectedOption}
                       onValueChange={(itemValue) => handleOptionSelect(itemValue, 1)}
                     // mode='dropdown'
@@ -238,7 +238,7 @@ const Form4 = () => {
                 
 
                     <Picker
-                      style={{ width: 35, marginLeft: -5 }}
+                      style={{ width: 35, marginLeft: getFontSize(-10) }}
                       selectedValue={selectedOption2}
                       onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
 
