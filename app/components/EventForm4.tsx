@@ -59,7 +59,7 @@ const Form4 = () => {
       }
     }
   };
-  
+
   const handleConfirm = () => {
     // Si le formulaire 1 est actif et confirmé
     if (currentForm === 1) {
@@ -69,17 +69,17 @@ const Form4 = () => {
       setSelectedOption2('supprimer'); // Applique la suppression
       console.log('Formulaire 2 supprimé');
     }
-    
+
     setModalVisible(false); // Ferme le modal après la confirmation
     setCurrentForm(null); // Réinitialise le formulaire actif
   };
-  
+
   const handleCancel = () => {
     setModalVisible(false); // Ferme le modal sans rien faire
     setCurrentForm(null); // Réinitialise le formulaire actif
     console.log('Suppression annulée');
   };
-  
+
   const validateForm = (formNumber: number) => {
     setCurrentForm(formNumber); // Active le formulaire correspondant
     setModalVisible(true); // Ouvre le modal de confirmation
@@ -193,23 +193,24 @@ const Form4 = () => {
                   </Text>
                 </Button>
 
-                {selectedOption ? <Text black bold size={getFontSize(12)} style={{width: 65,textAlign:"center"}} >{selectedOption}</Text> : <Text black bold>valider</Text>}
-               
-                <View style={{ flex: 0.30, flexDirection: "column" }}>
+                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5}}>
+                  {selectedOption ? <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }} >{selectedOption}</Text> : <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }}>valider</Text>}
 
-                  <Picker
-                  style={{width:35}}
-                    selectedValue={selectedOption}
-                    onValueChange={(itemValue) => handleOptionSelect(itemValue, 1)}
-                   // mode='dropdown'
-                  >
+                  <View style={{ flex: 0.30, flexDirection: "column" }}>
 
-                    {options.map((option, index) => (
-                      <Picker.Item key={index} label={option.label} value={option.label} />
-                    ))}
-                  </Picker>
+                    <Picker
+                      style={{ width: 35, marginLeft: -5 }}
+                      selectedValue={selectedOption}
+                      onValueChange={(itemValue) => handleOptionSelect(itemValue, 1)}
+                    // mode='dropdown'
+                    >
+
+                      {options.map((option, index) => (
+                        <Picker.Item key={index} label={option.label} value={option.label} />
+                      ))}
+                    </Picker>
+                  </View>
                 </View>
-
 
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }} >
@@ -230,26 +231,27 @@ const Form4 = () => {
                     brochure
                   </Text>
                 </Button>
-              
-                {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{width: 65,textAlign:"center"}} >{selectedOption2}</Text> : <Text black bold>valider</Text>}
-               
-                <View style={{ flex: 0.3, flexDirection: "column" }}>
 
-                  <Picker
-                  style={{width:35}}
-                    selectedValue={selectedOption2}
-                    onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
-                  
-                  >
+                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 }}>
+                  {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width: 65, textAlign: "center" }}>valider</Text>}
 
-                    {options.map((option, index) => (
-                      <Picker.Item key={index} label={option.label} value={option.label} />
-                    ))}
+                  <View style={{ flex: 0.3, flexDirection: "column" }}>
 
-                    
-                  </Picker>
+                    <Picker
+                      style={{ width: 35, marginLeft: -5 }}
+                      selectedValue={selectedOption2}
+                      onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
+
+                    >
+
+                      {options.map((option, index) => (
+                        <Picker.Item key={index} label={option.label} value={option.label} />
+                      ))}
+
+
+                    </Picker>
+                  </View>
                 </View>
-
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
 

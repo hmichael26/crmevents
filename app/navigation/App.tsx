@@ -17,7 +17,7 @@ const App = () => {
   const SecureNavigator = () => {
     const { usertoken, userdata } = useContext(AuthContext);
     console.log(usertoken)
-    // if (false /*usertoken === null || usertoken === '' || userdata === null*/) {
+    // *if (false /*usertoken === null || usertoken === '' || userdata === null*/) {
     if ( usertoken === null || usertoken === '' || userdata === null) {
       return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
