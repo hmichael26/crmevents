@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as  TextBlock } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as TextBlock, Pressable } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
 import { useTheme } from '../hooks';
@@ -31,6 +31,11 @@ const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
 const Form4 = () => {
+
+
+  const pickerRef = useRef();
+  const pickerRef2 = useRef();
+
   const [selectedOption, setSelectedOption] = useState('');
   const [selectedOption2, setSelectedOption2] = useState('');
   const { assets, colors, gradients, sizes } = useTheme();
@@ -44,6 +49,14 @@ const Form4 = () => {
 
   const [currentForm, setCurrentForm] = useState<number | null>(null); // 1 pour Form1, 2 pour Form2
   ;
+
+
+  function open() {
+    pickerRef.current.focus();
+  }
+  function open2() {
+    pickerRef2.current.focus();
+  }
   const handleOptionSelect = (option: React.SetStateAction<string>, type: number) => {
     if (type == 1) {
       if (option === 'supprimer') {
@@ -193,24 +206,27 @@ const Form4 = () => {
                   </Text>
                 </Button>
 
-                <View style={{ flex: 1, flexDirection: "row", width:"100%",alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
-                  {selectedOption ? <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }} >{selectedOption}</Text> : <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }}>valider</Text>}
+                <Pressable style={{ flex: 1, flexDirection: "row", width: "100%", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10, marginBottom: 5, height: getFontSize(48) }} onPress={open}>
 
-                
+                  {selectedOption ? <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "left" }} >{selectedOption}</Text> : <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "left" }}>valider</Text>}
 
-                    <Picker
-                      style={{ width: "25%" ,marginLeft:5}}
-                      selectedValue={selectedOption}
-                      onValueChange={(itemValue) => handleOptionSelect(itemValue, 1)}
-                    // mode='dropdown'
-                    >
 
-                      {options.map((option, index) => (
-                        <Picker.Item key={index} label={option.label} value={option.label} />
-                      ))}
-                    </Picker>
-              
-                </View>
+
+                  <Picker
+
+                    ref={pickerRef}
+                    style={{ width: "25%", marginLeft: 5 }}
+                    selectedValue={selectedOption}
+                    onValueChange={(itemValue) => handleOptionSelect(itemValue, 1)}
+                  // mode='dropdown'
+                  >
+
+                    {options.map((option, index) => (
+                      <Picker.Item key={index} label={option.label} value={option.label} />
+                    ))}
+                  </Picker>
+
+                </Pressable>
 
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }} >
@@ -232,24 +248,27 @@ const Form4 = () => {
                   </Text>
                 </Button>
 
-                <View style={{ flex: 1, flexDirection: "row", width:"100%",alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
-                  {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }}>valider</Text>}
+                <Pressable style={{ flex: 1, flexDirection: "row", width: "100%", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10, marginBottom: 5, height: getFontSize(48) }} onPress={open2}>
 
-                
+                  {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "left" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "left" }}>valider</Text>}
 
-                    <Picker
-                      style={{ width: "25%" ,marginLeft:5}}
-                      selectedValue={selectedOption2}
-                      onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
-                    // mode='dropdown'
-                    >
 
-                      {options.map((option, index) => (
-                        <Picker.Item key={index} label={option.label} value={option.label} />
-                      ))}
-                    </Picker>
-              
-                </View>
+
+                  <Picker
+
+                    ref={pickerRef2}
+                    style={{ width: "25%", marginLeft: 5 }}
+                    selectedValue={selectedOption2}
+                    onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
+                  // mode='dropdown'
+                  >
+
+                    {options.map((option, index) => (
+                      <Picker.Item key={index} label={option.label} value={option.label} />
+                    ))}
+                  </Picker>
+
+                </Pressable>
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
 
