@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated,PixelRatio } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated,PixelRatio,Button as Btn } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons'; // Remplacez 'Ionicons' par l'icône de votre choix
 import Select from 'react-select'
@@ -12,6 +12,7 @@ import form1 from '../components/EventForm1';
 import Form1 from '../components/EventForm1';
 import Form2 from '../components/EventForm2';
 import Form3 from '../components/EventForm3';
+import CustomButton from '../components/CustomBtn';
 // import { Container } from './styles';
 const { width, height } = Dimensions.get('window');
 const options = [
@@ -81,22 +82,17 @@ const EventDetails: React.FC = () => {
       </Button>
 
       <View style={{ flexDirection: "row", justifyContent: "space-around", gap: 10, marginHorizontal: 5, marginVertical: 10 }}>
-        <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base} rounded={true} round={false} style={{ borderColor: "#000" }} onPress={() => setStep("date")}>
-          <Text white bold transform="uppercase" size={15}  >
-            Dates
-          </Text>
-        </Button>
-        <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false} onPress={() => setStep("clients")}>
-          <Text white bold transform="uppercase" size={15}>
+      
+     
+     <CustomButton title='DATES'  style={[step === "date" && {borderColor:"black",borderWidth:3},{flex:1,backgroundColor:colors.secondary,marginBottom:sizes.base}]}  onPress={() => setStep("date")}/>
+      
+     <CustomButton title='CLIENTS' style={[step === "clients" && {borderColor:"black",borderWidth:3},{flex:1,backgroundColor:colors.info,marginBottom:sizes.base}]}   onPress={() => setStep("clients")}/>
+     <CustomButton title=' COM %' style={[step === "com" && {borderColor:"black",borderWidth:3},{flex:1,backgroundColor:colors.success,marginBottom:sizes.base}]}   onPress={() => setStep("com")}/>
 
-            CLients
-          </Text>
-        </Button>
-        <Button flex={1} gradient={gradients.success} marginBottom={sizes.base} rounded={false} round={false} onPress={() => setStep("com")}>
-          <Text white bold transform="uppercase" size={15}>
-            COM %
-          </Text>
-        </Button>
+      
+        
+       
+       
       </View>
     </View>
 
