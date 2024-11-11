@@ -224,7 +224,7 @@ export default () => {
     eventDetail:{
        ...menu,
        headerTitle: ({children}: any) => (
-          <Text style={{marginHorizontal:7,fontSize:25,fontWeight:'bold', color:labelColor}}>GO</Text>
+          <Text style={{marginHorizontal:7,fontSize:25,fontWeight:'bold', color:labelColor}}>GO SEMINAIRE</Text>
          ),
        headerLeft: () => (
         <Button

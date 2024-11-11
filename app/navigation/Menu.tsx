@@ -153,10 +153,6 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
           gradient={gradients.menu}
         />
 
-        <Text semibold transform="uppercase" opacity={0.5}>
-          {"t('menu.documentation')"}
-        </Text>
-
         <Button
           row
           justify="flex-start"

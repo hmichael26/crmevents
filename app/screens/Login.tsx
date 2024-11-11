@@ -6,7 +6,33 @@ import {useData, useTheme} from '../hooks/';
 import { useForm } from 'react-hook-form';
 import * as regex from '../constants/regex';
 import {Block, Button, Input, Image, Text, Checkbox} from '../components/';
-import i18n from 'i18n-js';
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+const translations = {
+  en: {
+    translation: {
+      'login.title': 'Login Title',
+    },
+  },
+  fr: {
+    translation: {
+      'login.title': 'Titre de Connexion',
+    },
+  },
+};
+
+i18n
+.use(initReactI18next)
+.init({
+  resources: translations,
+  lng: 'fr',  // langue par défaut
+  fallbackLng: 'fr',
+  compatibilityJSON: 'v3', // Utiliser le format de compatibilité v3
+  interpolation: {
+    escapeValue: false,  // React se charge déjà de l'échappement des valeurs
+  },
+});
 
 const isAndroid = Platform.OS === 'android';
 
@@ -97,7 +123,7 @@ const Login = () => {
             </Button>
 
             <Text h4 center white marginBottom={sizes.md}>
-              {"t('login.title')"}
+              Bienvenue sur CrmEvents
             </Text>
           </Image>
         </Block>
@@ -119,14 +145,13 @@ const Login = () => {
               radius={sizes.sm}
               overflow="hidden"
               justify="space-evenly"
-              // tint={colors.blurTint}
               paddingVertical={sizes.sm}>
-              <Text p semibold center>
-                {"t('login.subtitle')"}
+              <Text p center white marginTop={26} size={22}>
+                Connexion
               </Text>
               {/* social buttons */}
               <Block row center justify="space-evenly" marginVertical={sizes.m}>
-                <Button outlined gray shadow={!isAndroid}>
+                {/* <Button outlined gray shadow={!isAndroid}>
                   <Image
                     source={assets.facebook}
                     height={sizes.m}
@@ -149,7 +174,7 @@ const Login = () => {
                     width={sizes.m}
                     color={isDark ? colors.icon : undefined}
                   />
-                </Button>
+                </Button> */}
               </Block>
               <Block
                 row
@@ -181,21 +206,21 @@ const Login = () => {
               {/* form inputs */}
               <Block paddingHorizontal={sizes.sm}>
                 <Input
-                  label={"t('common.email')"}
+                  label="Email"
                   autoCapitalize="none"
                   marginBottom={sizes.m}
                   keyboardType="email-address"
-                  placeholder={"t('common.emailPlaceholder')"}
+                  placeholder="Entrez votre adresse e-mail"
                   success={Boolean(login.email && isValid.email)}
                   danger={Boolean(login.email && !isValid.email)}
                   onChangeText={(value) => handleChange({email: value})}
                 />
                 <Input
                   secureTextEntry
-                  label={"t('common.password')"}
+                  label="Mot de Passe"
                   autoCapitalize="none"
                   marginBottom={sizes.m}
-                  placeholder={"t('common.passwordPlaceholder')"}
+                  placeholder="Entrer un mot de passe"
                   onChangeText={(value) => handleChange({password: value})}
                   success={Boolean(login.password && isValid.password)}
                   danger={Boolean(login.password && !isValid.password)}
@@ -209,13 +234,12 @@ const Login = () => {
                   onPress={(value) => handleChange({agreed: value})}
                 />
                 <Text paddingRight={sizes.s}>
-                  {"t('common.agree')"}
+                Je suis d'accord avec les 
                   <Text
                     semibold
                     onPress={() => {
                       Linking.openURL('https://www.creative-tim.com/terms');
-                    }}>
-                    {"t('common.terms')"}
+                    }}> Termes et Conditions
                   </Text>
                 </Text>
               </Block>
@@ -227,7 +251,7 @@ const Login = () => {
                 gradient={gradients.primary}
                 disabled={Object.values(isValid).includes(false)}>
                 <Text bold white transform="uppercase">
-                  {"t('common.signin')"}
+                S'identifier
                 </Text>
               </Button>
               {error !== '' && <Text style={{ color: 'red' }}>{error}</Text>}

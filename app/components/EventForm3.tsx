@@ -14,7 +14,11 @@ const options = [
 ];
 const { width, height } = Dimensions.get('window');
 
-const Form3 = () => {
+type Form3Props = {
+  item: any;
+};
+
+const Form3: React.FC<Form3Props> = ({ item }) => {
   const { assets, colors, gradients, sizes } = useTheme();
   const [switch1, setSwitch1] = useState(true);
   const [switch2, setSwitch2] = useState(true);
@@ -27,7 +31,7 @@ const Form3 = () => {
   return <View style={styles.container}>
 
 
-    <Text style={{ fontSize: 20, fontWeight: "bold", textAlign: 'center', color: colors.primary, flexWrap: "wrap", marginVertical: 15 }}>Proposition de Commission aux Prestataires</Text>
+    <Text style={{ fontSize: 18, fontWeight: "bold", textAlign: 'center', color: colors.primary, flexWrap: "wrap", marginVertical: 15 }}>Proposition de Commission aux Prestataires</Text>
 
     <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
       <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>10% HT sur le Total HT facturé</Text>

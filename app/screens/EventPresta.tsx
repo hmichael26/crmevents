@@ -77,20 +77,19 @@ const EventPresta: React.FC = () => {
 
     <View style={{ marginHorizontal: 30 }}>
       <Button gradient={gradients.primary} marginBottom={sizes.base} >
-        <Text white bold transform="uppercase" size={20}>
-        Lieux dispo
+        <Text white transform="uppercase" size={20}>
+        Lieux disponibles
         </Text>
       </Button>
 
       <View style={{ flexDirection: "row", justifyContent: "space-around", gap: 10, marginHorizontal: 5, marginVertical: 10 }}>
         <Button flex={0.4} gradient={gradients.secondary} marginBottom={sizes.base} rounded={true} round={false} style={{ borderColor: "#000" }} onPress={() => setStep("deroule")}>
-          <Text white bold transform="uppercase" size={15}  >
+          <Text white transform="uppercase" size={15}  >
             Déroulé
           </Text>
         </Button>
         <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false} onPress={() => setStep("Presta")}>
-          <Text white bold transform="uppercase" size={15}>
-
+          <Text white transform="uppercase" size={15}>
             Prestataires interrogés
           </Text>
         </Button>
@@ -98,20 +97,10 @@ const EventPresta: React.FC = () => {
       </View>
     </View>
 
-
-
-
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
-     
         {step === "deroule" && <Form5 />}
         {step === "Presta" && <Form4 />}
-      
-    
-
     </ScrollView>
-
-
-
 
     {!isKeyboardVisible && (
       <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>

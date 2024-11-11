@@ -12,6 +12,25 @@ import form1 from '../components/EventForm1';
 import Form1 from '../components/EventForm1';
 import Form2 from '../components/EventForm2';
 import Form3 from '../components/EventForm3';
+import { RouteProp, useNavigation } from '@react-navigation/native';
+
+type RootStackParamList = {
+  EventDetails: { item: ItemType };  // Définir les paramètres de l'écran
+};
+
+type EventDetailsRouteProp = RouteProp<RootStackParamList, 'EventDetails'>;
+
+interface ItemType {
+  evt: string;
+  id: number;
+  ref: number;
+  name: string;
+  description: string;
+}
+
+interface EventDetailsProps {
+  route: EventDetailsRouteProp;  // Déclarer la route avec son type
+}
 // import { Container } from './styles';
 const { width, height } = Dimensions.get('window');
 const options = [
@@ -22,7 +41,13 @@ const options = [
 ];
 const fontScale = PixelRatio.getFontScale();
 
-const EventDetails: React.FC = () => {
+const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
+
+  const { item } = route.params; // Récupérer l'item depuis les paramètres
+  const navigation = useNavigation();
+
+  console.log(item)
+
   const getButtonSize = () => {
     const buttonWidth = width * 0.3; // 30% de la largeur de l'écran
     const buttonHeight = height * 0.06; // 6% de la hauteur de l'écran
@@ -75,25 +100,24 @@ const EventDetails: React.FC = () => {
 
     <View style={{ marginHorizontal: 30 }}>
       <Button gradient={gradients.primary} marginBottom={sizes.base} >
-        <Text white bold transform="uppercase" size={20}>
-          Détails de l'Event
+        <Text white transform="uppercase" size={18}>
+          Détails de l'Event {item.ref}
         </Text>
       </Button>
 
       <View style={{ flexDirection: "row", justifyContent: "space-around", gap: 10, marginHorizontal: 5, marginVertical: 10 }}>
         <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base} rounded={true} round={false} style={{ borderColor: "#000" }} onPress={() => setStep("date")}>
-          <Text white bold transform="uppercase" size={15}  >
+          <Text white transform="uppercase" size={15}  >
             Dates
           </Text>
         </Button>
         <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false} onPress={() => setStep("clients")}>
-          <Text white bold transform="uppercase" size={15}>
-
-            CLients
+          <Text white transform="uppercase" size={15}>
+            Clients
           </Text>
         </Button>
         <Button flex={1} gradient={gradients.success} marginBottom={sizes.base} rounded={false} round={false} onPress={() => setStep("com")}>
-          <Text white bold transform="uppercase" size={15}>
+          <Text white transform="uppercase" size={15}>
             COM %
           </Text>
         </Button>
@@ -105,9 +129,9 @@ const EventDetails: React.FC = () => {
 
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
      
-        {step === "date" && <Form1 />}
-        {step === "clients" && <Form2 />}
-        {step === "com" && <Form3 />}
+        {step === "date" && <Form1 item={item} />}
+        {step === "clients" && <Form2 item={item} />}
+        {step === "com" && <Form3 item={item} />}
     
 
     </ScrollView>
@@ -119,22 +143,19 @@ const EventDetails: React.FC = () => {
       <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>
         <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 20 }}>
 
-          <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base} rounded={false} round={false} >
-            <Text white size={getFontSize(13)} bold >
-              Accueil projet
-            </Text>
-            <Text white size={getFontSize(13)} bold>
-              980
+          <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base} rounded={false} round={false} onPress={() => navigation.goBack()}>
+            <Text white transform="uppercase" size={getFontSize(13)}>
+              Retour
             </Text>
           </Button>
           <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base} rounded={false} round={false}>
-            <Text white bold transform="uppercase" size={getFontSize(13)}>
+            <Text white transform="uppercase" size={getFontSize(13)}>
               Sauvegarder
             </Text>
           </Button>
           <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false}>
-            <Text white bold transform="uppercase" size={getFontSize(13)}>
-              CHat
+            <Text white transform="uppercase" size={getFontSize(13)}>
+              Chat
             </Text>
           </Button>
 

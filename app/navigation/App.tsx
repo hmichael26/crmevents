@@ -8,6 +8,8 @@ import Menu from './Menu';
 import Login from '../screens/Login';
 import { useData, ThemeProvider } from '../hooks';
 import { AuthContext, AuthProvider } from '../context/AuthContext';
+import 'intl-pluralrules';
+
 
 const App = () => {
   const { isDark, theme, setTheme } = useData();

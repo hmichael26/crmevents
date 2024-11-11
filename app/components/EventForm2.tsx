@@ -14,9 +14,13 @@ const options = [
 ];
 const { width, height } = Dimensions.get('window');
 
-const Form2 = () => {
+type Form2Props = {
+  item: any;
+};
 
-  const [clients, setClients] = useState<string[]>(["Mr Dubois"]);
+const Form2: React.FC<Form2Props> = ({ item }) => {
+
+  const [clients, setClients] = useState<string[]>([""]);
 
   const addClient = () => {
     setClients([...clients, '']);
@@ -44,6 +48,7 @@ const Form2 = () => {
 
 
       placeholder="Prénom NOM"
+      value={item.clt}
 
     />
 
@@ -53,31 +58,31 @@ const Form2 = () => {
 
         placeholder="Entreprise"
         style={{ width: "50%" }}
-
+        value={item.ent}
       />
       <TextInputWithIcon
 
 
         placeholder="Email"
         style={{ width: "50%" }}
-
+        value={item.clt_email}
       />
     </View>
     <View style={styles.inputContainer}>
       <TextInputWithIcon
 
 
-        placeholder="telephone fixe"
+        placeholder="Téléphone fixe"
         style={{ width: "50%" }}
-
+        value={item.clt_telfix}
       />
 
       <TextInputWithIcon
 
 
-        placeholder="telephone portable"
+        placeholder="Téléphone portable"
         style={{ width: "50%" }}
-
+        value={item.clt_telport}
       />
     </View>
 
@@ -105,14 +110,14 @@ const Form2 = () => {
         borderColor: '#ccc',
         borderWidth: 2
       }}
-
+      value={item.clt_infos}
     />
 
 
     <View style={{ flexDirection: "row", gap: 2, alignItems: "center", justifyContent: "space-around" }}>
-      <Text style={{ fontSize: 18, color: colors.primary, fontWeight: "bold" }}>Ajouter d'autre clients</Text>
+      <Text style={{ fontSize: 16, color: colors.primary }}>Ajouter d'autres clients</Text>
       <Button flex={0.6} gradient={gradients.warning} marginBottom={sizes.base} rounded={false} round={false} style={{ marginTop: 10 }} onPress={addClient}>
-        <Text style={{ fontWeight: "bold", fontSize: 16, color: "white" }}> + Ajouter</Text>
+        <Text style={{ fontSize: 16, color: "white" }}> + Ajouter</Text>
       </Button>
     </View>
 
@@ -130,7 +135,7 @@ const Form2 = () => {
           placeholder="Nom du client"
         />
         <TouchableOpacity onPress={() => removeClient(index)}>
-          <Text style={{ fontSize: 24, color: colors.primary, fontWeight: "bold" }}>X</Text>
+          <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>x</Text>
         </TouchableOpacity>
       </View>
     ))}

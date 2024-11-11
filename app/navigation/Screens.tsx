@@ -21,10 +21,11 @@ import {
   Shopping,
   NotificationsSettings,
   EventPresta,
+  EventDetails,
+  EventMenu
 } from '../screens';
 
 import { useScreenOptions } from '../hooks';
-import EventDetails from '../screens/EventDetails';
 
 const Stack = createStackNavigator();
 
@@ -33,7 +34,7 @@ export default () => {
   const screenOptions = useScreenOptions();
 
   return (
-    <Stack.Navigator initialRouteName='EventPresta' screenOptions={screenOptions.stack} >
+    <Stack.Navigator initialRouteName='Home' screenOptions={screenOptions.stack} >
       <Stack.Screen
         name="Home"
         component={Home}
@@ -137,13 +138,23 @@ export default () => {
       <Stack.Screen
         name="Eventdetails"
         component={EventDetails}
-        options={screenOptions.eventDetail}
+        options={{title: "t('Details')", ...screenOptions.eventDetail, headerRight: () => null}}
       />
-         <Stack.Screen
+
+      <Stack.Screen
         name="EventPresta"
         component={EventPresta}
-        options={screenOptions.eventDetail}
+        options={screenOptions.eventPresta}
       />
+      
+
+      <Stack.Screen
+        name="EventMenu"
+        component={EventMenu}
+        // options={screenOptions.eventMenu}
+        options={{ title: "t('Open Project')", ...screenOptions.eventMenu, headerRight: () => null}}
+      />
+
     </Stack.Navigator>
   );
 };

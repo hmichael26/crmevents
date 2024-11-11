@@ -5,22 +5,26 @@ import MultiSelect from './MultiSelectBox';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 // import { Container } from './styles';
 const options = [
-  { id: '1', label: 'Option 1' },
-  { id: '2', label: 'Option 2' },
-  { id: '3', label: 'Option 3' },
+  { id: '1', label: 'Congrès' },
+  { id: '2', label: 'Incentive' },
+  { id: '3', label: 'Convention' },
   // Add more options as needed
 ];
 const { width, height } = Dimensions.get('window');
 
-const Form1 = () => {
+type Form1Props = {
+  item: any;
+};
+
+const Form1: React.FC<Form1Props> = ({ item }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const handleSelectionChange = (selectedIds: string[]) => {
     setSelectedOptions(selectedIds);
   };
 
-  const [date, setDate] = useState(new Date());
-  const [date2, setDate2] = useState(new Date());
-  const [date3, setDate3] = useState(new Date());
+  const [date, setDate] = useState(item.date_reception ? new Date(item.date_reception) : new Date());
+  const [date2, setDate2] = useState(item.date_deb ? new Date(item.date_deb) : new Date());
+  const [date3, setDate3] = useState(item.date_fin ? new Date(item.date_fin) : new Date());
 
   const [show, setShow] = useState(false);
   const [currentDatePicker, setCurrentDatePicker] = useState<'date' | 'date2' | 'date3'>('date');
@@ -48,12 +52,7 @@ const Form1 = () => {
 
 
   return <View style={styles.container}>
-    <TextInputWithIcon
-
-
-      placeholder="Titre de l'Event"
-
-    />
+    <TextInputWithIcon placeholder="Titre de l'Event" value={item.evt} />
 
     <View style={styles.inputContainer}>
 
@@ -70,28 +69,23 @@ const Form1 = () => {
 
 
       <TextInputWithIcon
-
-
         placeholder="REF Projet : 931"
         style={{ width: "50%" }}
-
+        value={item.ref}
       />
     </View>
     <View style={styles.inputContainer}>
       <TextInputWithIcon
-
         iconName="mail"
         placeholder="Pax"
         style={{ width: "30%" }}
-
+        value={item.pax}
       />
 
       <TextInputWithIcon
-
-
         placeholder="Zone geographique"
         style={{ width: "70%" }}
-
+        value={item.zone}
       />
     </View>
     <View>
@@ -106,7 +100,7 @@ const Form1 = () => {
       <TextInputWithIcon
 
         iconName="calendar"
-        placeholder="Date d'arrive"
+        placeholder="Début"
         editable={false}
         value={date2.toLocaleDateString()}
         style={{ width: "50%" }}
@@ -116,7 +110,7 @@ const Form1 = () => {
       <TextInputWithIcon
 
         iconName="calendar"
-        placeholder="Date de depart"
+        placeholder="Fin"
         editable={false}
         value={date3.toLocaleDateString()}
         style={{ width: "50%" }}
@@ -126,16 +120,17 @@ const Form1 = () => {
     </View>
     <View style={styles.inputContainer}>
       <SwitchTextBox
-        label="date Flexible"
-        placeholder="Enter notification details"
-        style={{ width: "50%" }}
+        label="Dates flexibles"
+        placeholder="Flexibilite"
+        style={{ width: "60%" }}
         onToggle={(value) => console.log('Switch toggled:', value)}
       />
       <TextInputWithIcon
 
-        fonsiName="dollar"
+        fonsiName="euro"
         placeholder="Budget"
-        style={{ width: "50%" }}
+        style={{ width: "40%" }}
+        value={item.budget}
 
       />
 
@@ -166,6 +161,7 @@ const Form1 = () => {
         borderColor: '#ccc',
         borderWidth: 2
       }}
+      value={item.commentaires_dates}
 
     />
 
@@ -180,6 +176,7 @@ const Form1 = () => {
         borderColor: '#ccc',
         borderWidth: 2
       }}
+      value={item.format}
 
     />
 
