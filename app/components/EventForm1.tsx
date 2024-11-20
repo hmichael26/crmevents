@@ -4,24 +4,60 @@ import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 // import { Container } from './styles';
+/*
 const options = [
   { id: '1', label: 'Congrès' },
   { id: '2', label: 'Incentive' },
   { id: '3', label: 'Convention' },
   // Add more options as needed
-];
+];*/
 const { width, height } = Dimensions.get('window');
-
+type EventType = {
+  id: string;
+  libelle: string;
+};
 type Form1Props = {
   item: any;
+  eventTypes: any;
 };
 
-const Form1: React.FC<Form1Props> = ({ item }) => {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+const Form1: React.FC<Form1Props> = ({ item, eventTypes }) => {
+ 
+  const parseSelectedIds = (typesEvts: string | null | undefined): number[] => {
+    // Cas null ou undefined
+    if (!typesEvts) return [];
+    
+    // Trim et split
+    return typesEvts
+      .split(',')
+      .map(id => Number(id.trim()))
+      .filter(id => !isNaN(id));
+  };
+
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(
+    parseSelectedIds(item.types_evts).map(id => id.toString())
+  );
   const handleSelectionChange = (selectedIds: string[]) => {
+    
     setSelectedOptions(selectedIds);
   };
 
+
+/*
+  const options = eventTypes 
+  ? Object.values(eventTypes).map(item => ({ 
+      id: item.id, 
+      label: item.libelle 
+    })) 
+  : [];*/
+
+  const options = Array.isArray(eventTypes) 
+  ? eventTypes.map(item => ({ id: item.id, label: item.libelle }))
+  : eventTypes 
+    ? [{ id: eventTypes.id, label: eventTypes.libelle }]
+    : [];
+    
+console.log(options);
   const [date, setDate] = useState(item.date_reception ? new Date(item.date_reception) : new Date());
   const [date2, setDate2] = useState(item.date_deb ? new Date(item.date_deb) : new Date());
   const [date3, setDate3] = useState(item.date_fin ? new Date(item.date_fin) : new Date());

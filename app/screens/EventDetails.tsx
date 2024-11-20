@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated,PixelRatio } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons'; // Remplacez 'Ionicons' par l'icône de votre choix
@@ -13,6 +13,7 @@ import Form1 from '../components/EventForm1';
 import Form2 from '../components/EventForm2';
 import Form3 from '../components/EventForm3';
 import { RouteProp, useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
 
 type RootStackParamList = {
   EventDetails: { item: ItemType };  // Définir les paramètres de l'écran
@@ -42,11 +43,15 @@ const options = [
 const fontScale = PixelRatio.getFontScale();
 
 const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
+  const { userdata } = useContext(AuthContext);
+ 
 
+  const eventTypes  = userdata.all_types_evts;
+ // console.log(eventTypes)
   const { item } = route.params; // Récupérer l'item depuis les paramètres
   const navigation = useNavigation();
 
-  console.log(item)
+ // console.log(item)
 
   const getButtonSize = () => {
     const buttonWidth = width * 0.3; // 30% de la largeur de l'écran
@@ -129,7 +134,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
      
-        {step === "date" && <Form1 item={item} />}
+        {step === "date" && <Form1 item={item} eventTypes={eventTypes} />}
         {step === "clients" && <Form2 item={item} />}
         {step === "com" && <Form3 item={item} />}
     
