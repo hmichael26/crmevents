@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated,PixelRatio } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated, PixelRatio } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons'; // Remplacez 'Ionicons' par l'icône de votre choix
 import Select from 'react-select'
@@ -14,6 +14,7 @@ import Form2 from '../components/EventForm2';
 import Form3 from '../components/EventForm3';
 import Form4 from '../components/EventForm4';
 import Form5 from '../components/EventForm5';
+import { AuthContext } from '../context/AuthContext';
 // import { Container } from './styles';
 const { width, height } = Dimensions.get('window');
 const options = [
@@ -25,12 +26,20 @@ const options = [
 const fontScale = PixelRatio.getFontScale();
 
 const EventPresta: React.FC = () => {
+  const { userdata } = useContext(AuthContext);
+  const eventTypes = userdata.all_types_evts;
+
+  const options = Array.isArray(eventTypes)
+    ? eventTypes.map(item => ({ id: item.id, libelle: item.libelle }))
+    : eventTypes
+      ? [{ id: eventTypes.id, libelle: eventTypes.libelle }]
+      : [];
   const getButtonSize = () => {
     const buttonWidth = width * 0.3; // 30% de la largeur de l'écran
     const buttonHeight = height * 0.06; // 6% de la hauteur de l'écran
     return { width: buttonWidth, height: buttonHeight };
   };
-  
+
   const getFontSize = (size: number) => size / fontScale;
 
   const { assets, colors, gradients, sizes } = useTheme();
@@ -40,6 +49,37 @@ const EventPresta: React.FC = () => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current; // Valeur d'animation initiale
+  const [derouleTitle, setDerouleTitle] = useState("");
+
+  const [formData, setFormData] = useState({
+    derouleTitle: '',
+    fields: []
+  });
+
+  const handleDerouleTitleChange = (title: string) => {
+    setDerouleTitle(title);
+    // Mettre à jour formData avec le nouveau titre
+    setFormData(prevData => ({
+      ...prevData,
+      derouleTitle: title
+    }));
+  };
+
+  const handleForm5DataChange = (data: any) => {
+    setFormData(prevData => ({
+      ...prevData,
+      fields: data.fields
+    }));
+  };
+
+  const handleSaveForm = () => {
+    // Maintenant formData contient à la fois le titre et les champs
+    Alert.alert(
+      "Données du formulaire",
+      JSON.stringify(formData, null, 2),
+      [{ text: "OK" }]
+    );
+  };
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -78,14 +118,14 @@ const EventPresta: React.FC = () => {
     <View style={{ marginHorizontal: 30 }}>
       <Button gradient={gradients.primary} marginBottom={sizes.base} >
         <Text white transform="uppercase" size={20}>
-        Lieux disponibles
+          Lieux disponibles
         </Text>
       </Button>
 
       <View style={{ flexDirection: "row", justifyContent: "space-around", gap: 10, marginHorizontal: 5, marginVertical: 10 }}>
         <Button flex={0.4} gradient={gradients.secondary} marginBottom={sizes.base} rounded={true} round={false} style={{ borderColor: "#000" }} onPress={() => setStep("deroule")}>
           <Text white transform="uppercase" size={15}  >
-            Déroulé
+           {derouleTitle ? derouleTitle : "Déroulé"}
           </Text>
         </Button>
         <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false} onPress={() => setStep("Presta")}>
@@ -93,20 +133,42 @@ const EventPresta: React.FC = () => {
             Prestataires interrogés
           </Text>
         </Button>
-      
+
       </View>
     </View>
 
+    {
+      step === "deroule" && <View style={{ borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10, marginHorizontal: 25 }}>
+
+        <TextInput
+          style={{
+            color: 'black',
+            fontSize: 18,
+            textTransform: 'uppercase',
+            width: '100%',
+            textAlign: "center",
+          }}
+          placeholder="saisissez le titre de votre deroule"
+          placeholderTextColor="#000"
+          value={derouleTitle}
+          onChangeText={handleDerouleTitleChange}
+        />
+
+      </View>
+
+    }
+
+
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
-        {step === "deroule" && <Form5 />}
-        {step === "Presta" && <Form4 />}
+      {step === "deroule" && <Form5 options={options} onDataChange={handleForm5DataChange} />}
+      {step === "Presta" && <Form4 />}
     </ScrollView>
 
     {!isKeyboardVisible && (
       <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>
-        <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 20 ,marginBottom:-15}}>
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 20, marginBottom: -15 }}>
 
-          <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base/1.5} rounded={false} round={false}  height={35}>
+          <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base / 1.5} rounded={false} round={false} height={35}>
             <Text white size={getFontSize(13)} bold >
               Accueil projet
             </Text>
@@ -114,18 +176,18 @@ const EventPresta: React.FC = () => {
               980
             </Text>
           </Button>
-          <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base/1.5} rounded={false} round={false}   height={35}>
+          <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base / 1.5} rounded={false} round={false} height={35} onPress={handleSaveForm}>
             <Text white bold transform="uppercase" size={getFontSize(13)}>
               Sauvegarder
             </Text>
           </Button>
-          <Button flex={1} gradient={gradients.info} marginBottom={sizes.base/1.5} rounded={false} round={false}  height={35}>
+          <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 1.5} rounded={false} round={false} height={35}>
             <Text white bold transform="uppercase" size={getFontSize(13)}>
               CHat
             </Text>
           </Button>
 
-        </View> 
+        </View>
       </Animated.View>)}
   </SafeAreaView>;
 }
