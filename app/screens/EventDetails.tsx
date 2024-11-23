@@ -67,7 +67,29 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(1)).current; // Valeur d'animation initiale
+  const fadeAnim = useRef(new Animated.Value(1)).current; 
+
+  const [formData, setFormData] = useState({
+   
+    clients: []
+  });
+
+ 
+  const handleForm5DataChange = (data: any) => {
+    setFormData(prevData => ({
+      ...prevData,
+      clients: data
+    }));
+  };
+
+  const handleSaveForm = () => {
+    // Maintenant formData contient à la fois le titre et les champs
+    Alert.alert(
+      "Données du formulaire",
+      JSON.stringify(formData, null, 2),
+      [{ text: "OK" }]
+    );
+  };
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -135,7 +157,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
      
         {step === "date" && <Form1 item={item} eventTypes={eventTypes} />}
-        {step === "clients" && <Form2 item={item} />}
+        {step === "clients" && <Form2 item={item}  onDataChange={handleForm5DataChange} clients={formData.clients} />}
         {step === "com" && <Form3 item={item} />}
     
 
@@ -153,7 +175,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
               Retour
             </Text>
           </Button>
-          <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base} rounded={false} round={false}>
+          <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base} rounded={false} round={false} onPress={handleSaveForm}>
             <Text white transform="uppercase" size={getFontSize(13)}>
               Sauvegarder
             </Text>

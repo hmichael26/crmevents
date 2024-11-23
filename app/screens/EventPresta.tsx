@@ -138,7 +138,7 @@ const EventPresta: React.FC = () => {
     </View>
 
     {
-      step === "deroule" && <View style={{ borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10, marginHorizontal: 25 }}>
+      step === "deroule" && <View style={{ borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10, marginHorizontal: 30 }}>
 
         <TextInput
           style={{

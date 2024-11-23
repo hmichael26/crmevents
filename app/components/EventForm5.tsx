@@ -309,7 +309,7 @@ const Form5: React.FC<Form5Props> = ({options, onDataChange}) => {
 const styles = StyleSheet.create({
   container: {
     padding: 5,
-    marginHorizontal: 15,
+    marginHorizontal: 10,
     flex: 1,
   },
   fieldContainer: {
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 10,
-    marginHorizontal: 40
+    marginHorizontal: 10
   },
   button: {
 
