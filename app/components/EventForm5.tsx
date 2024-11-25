@@ -160,7 +160,7 @@ const Form5: React.FC<Form5Props> = ({options, onDataChange}) => {
     switch (field.type) {
       case 'date':
         return (
-          <View key={index} style={{ flexDirection: "row", alignContent: "center", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10 }}>
+          <View key={index} style={{ flexDirection: "row", alignContent: "center", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10 ,marginHorizontal:7}}>
             <TouchableOpacity onPress={() => removeField(index)}>
               <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>X</Text>
             </TouchableOpacity>
@@ -172,7 +172,7 @@ const Form5: React.FC<Form5Props> = ({options, onDataChange}) => {
         );
       case 'text':
         return (
-          <View key={index} style={{ flexDirection: "row", alignContent: "center", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10 }}>
+          <View key={index} style={{ flexDirection: "row", alignContent: "center", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10,marginHorizontal:7 }}>
             <TouchableOpacity onPress={() => removeField(index)}>
               <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>X</Text>
             </TouchableOpacity>
@@ -199,7 +199,8 @@ const Form5: React.FC<Form5Props> = ({options, onDataChange}) => {
               borderColor: "#ccc",
               borderWidth: 1,
               paddingHorizontal: 10,
-              borderRadius: 10
+              borderRadius: 10,
+              marginHorizontal:7
             }}
           >
             <TouchableOpacity onPress={() => removeField(index)}>
