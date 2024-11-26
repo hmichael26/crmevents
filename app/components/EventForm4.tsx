@@ -34,7 +34,7 @@ const Form4 = () => {
   const [selectedOption, setSelectedOption] = useState('');
   const [selectedOption2, setSelectedOption2] = useState('');
   const { assets, colors, gradients, sizes } = useTheme();
-  const [switch1, setSwitch1] = useState(true);
+  const [switch1, setSwitch1] = useState(true); //  true pour le switch comparateur
   const [switch2, setSwitch2] = useState(true);
   const [switch3, setSwitch3] = useState(false);
   const [validForm1, setValid1] = useState<Boolean>(false);

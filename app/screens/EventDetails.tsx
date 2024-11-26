@@ -157,7 +157,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
      
         {step === "date" && <Form1 item={item} eventTypes={eventTypes} />}
-        {step === "clients" && <Form2 item={item}  onDataChange={handleForm5DataChange} clients={formData.clients} />}
+        {step === "clients" && <Form2 item={item}  onDataChange={handleForm5DataChange} clients={formData.clients}  clientData={userdata.all_clts} />}
         {step === "com" && <Form3 item={item} />}
     
 
