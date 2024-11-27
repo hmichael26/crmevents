@@ -74,6 +74,11 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     clients: []
   });
 
+  const FormIds = formData.clients
+    .map(client => client?.id.toString())
+    .join(',');
+  
+  
  
   const handleForm5DataChange = (data: any) => {
     setFormData(prevData => ({
@@ -86,7 +91,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     // Maintenant formData contient à la fois le titre et les champs
     Alert.alert(
       "Données du formulaire",
-      JSON.stringify(formData, null, 2),
+      JSON.stringify(FormIds, null, 2),
       [{ text: "OK" }]
     );
   };

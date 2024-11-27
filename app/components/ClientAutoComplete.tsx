@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  Modal, 
-  StyleSheet, 
-  TextInput, 
-  FlatList 
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  StyleSheet,
+  TextInput,
+  FlatList
 } from 'react-native';
+
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 interface Client {
   id: number;
   nom: string;
-  entreprise?: string;
-  email?: string;
-  telephone?: string;
+
 }
 
 interface ClientAutocompleteProps {
@@ -22,62 +23,73 @@ interface ClientAutocompleteProps {
   onSelectClient: (client: Client) => void;
   onEditClient?: (client: Client) => void;
   onDeleteClient?: (client: Client) => void;
+  initialClient?: Client; // Nouvelle prop optionnelle
+
 }
 
-const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({ 
-  clients, 
+const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
+  clients,
   onSelectClient,
   onEditClient,
-  onDeleteClient
+  onDeleteClient,
+    initialClient
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedClient, setSelectedClient] = useState<Client | null>(
+    initialClient || null
+  );
 
-  // Filtrer les clients basé sur la recherche
-  const filteredClients = clients.filter(client => 
+ 
+
+  const filteredClients = clients.filter(client =>
     client.nom.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const renderClientItem = ({ item }: { item: Client }) => (
     <View style={styles.clientItemContainer}>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.clientItemDetails}
         onPress={() => {
           onSelectClient(item);
+          setSelectedClient(item);  // Stocker l'objet client complet
           setModalVisible(false);
         }}
       >
-        <User color="#666" size={24} />
+
+        <Icon name="user-o" color="#666" size={24} />
+
         <View style={styles.clientTextContainer}>
           <Text style={styles.clientName}>{item.nom}</Text>
-          {item.entreprise && (
-            <Text style={styles.clientSubtitle}>{item.entreprise}</Text>
-          )}
+
         </View>
       </TouchableOpacity>
-      
+
       <View style={styles.clientActions}>
         {onEditClient && (
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => {
               onEditClient(item);
               setModalVisible(false);
             }}
             style={styles.actionButton}
           >
-            <Pencil color="#4A90E2" size={20} />
+            <Icon name="pencil" color="#4A90E2" size={20} />
+
           </TouchableOpacity>
         )}
-        
+
         {onDeleteClient && (
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => {
               onDeleteClient(item);
               setModalVisible(false);
             }}
             style={styles.actionButton}
           >
-            <Trash2 color="#FF6347" size={20} />
+
+            <Icon name="trash" color="#FF6347" size={20} />
+
           </TouchableOpacity>
         )}
       </View>
@@ -86,12 +98,18 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
 
   return (
     <View>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.inputContainer}
         onPress={() => setModalVisible(true)}
       >
-        <Search color="#666" size={20} />
-        <Text style={styles.inputText}>Rechercher un client</Text>
+
+
+
+        <Text style={styles.clientName}>
+          {(selectedClient && selectedClient.nom !="" ) ? selectedClient.nom : 'Sélectionner un client'}
+        </Text>
+
+
       </TouchableOpacity>
 
       <Modal
@@ -103,8 +121,9 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.searchContainer}>
-              <Search color="#666" size={20} />
-              <TextInput 
+              <Icon name="search" color="#666" size={20} />
+
+              <TextInput
                 placeholder="Rechercher un client"
                 style={styles.searchInput}
                 value={searchQuery}
@@ -125,7 +144,7 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
               )}
             />
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.closeButton}
               onPress={() => setModalVisible(false)}
             >
@@ -142,7 +161,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
+
     borderColor: '#ccc',
     borderRadius: 10,
     padding: 15,

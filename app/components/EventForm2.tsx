@@ -14,13 +14,13 @@ import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import Button from './Button';
 import { useTheme } from '../hooks';
 import CustomAutocomplete from './CustomAutocomplete';
-import { Pencil, Trash2, User, Search } from 'lucide-react-native';
+import ClientAutocomplete from './ClientAutoComplete';
 
 const { width, height } = Dimensions.get('window');
 
 interface Client {
   id: number;
-  clt: string;
+  nom: string;
 }
 
 type Form2Props = {
@@ -39,11 +39,10 @@ const Form2: React.FC<Form2Props> = ({
   const { assets, colors, gradients, sizes } = useTheme();
   const [clients, setClients] = useState<Client[]>(() => {
     if (initialClients && initialClients.length > 0) {
-      return initialClients;
+      return initialClients.map(client => ({ id: client.id, nom: client.nom }));
     }
     return [];
   });
-
   const names = clientData.map((clt: { nom: any; }) => clt.nom).filter((name: string) => name.trim() !== '');
 
   useEffect(() => {
@@ -53,10 +52,7 @@ const Form2: React.FC<Form2Props> = ({
   }, [initialClients]);
 
   const addClient = () => {
-    const newClients = [
-      ...clients,
-      { id: Date.now(), clt: '' }
-    ];
+    const newClients = [...clients, { id: Date.now(), nom: '' }];
     setClients(newClients);
     onDataChange(newClients);
   };
@@ -64,21 +60,29 @@ const Form2: React.FC<Form2Props> = ({
   const removeClient = (id: number) => {
     const newClients = clients.filter(client => client.id !== id);
 
+   /* // Toujours garder au moins un client
     if (newClients.length === 0) {
-      newClients.push({ id: Date.now(), clt: '' });
-    }
+      newClients.push();
+    }*/
 
     setClients(newClients);
     onDataChange(newClients);
   };
 
-  const updateClient = (id: number, value: string) => {
+  const updateClientSelection = (selectedClient: Client, currentClientId: number) => {
     const newClients = clients.map(client =>
-      client.id === id ? { ...client, clt: value } : client
+      client.id === currentClientId
+        ? {
+          id: selectedClient.id,
+          nom: selectedClient.nom
+        }
+        : client
     );
+
     setClients(newClients);
     onDataChange(newClients);
   };
+
 
   const addClientAutocomplete = (name: string, id: number) => {
     const fullClientData = clientData?.find((clt: any) => clt.nom === name);
@@ -96,19 +100,30 @@ const Form2: React.FC<Form2Props> = ({
     onDataChange(newClients);
   };
 
+
+  const updateClientIds = (clientList: Client[]) => {
+    // Extract selected client IDs and join them with comma
+    const selectedClientIds = clientList
+      .filter(client => client.id > 0) // Exclude temporary clients with timestamp ID
+      .map(client => client.id.toString())
+      .join(',');
+    
+    onDataChange(selectedClientIds);
+  };
+
   const renderClientItem = ({ item: client }: { item: Client }) => (
     <View
       key={client.id}
       style={styles.clientContainer}
     >
-      <CustomAutocomplete
-        data={names}
-        onSelect={(selectedName) => addClientAutocomplete(selectedName, client.id)}
-        placeholder="Nom du client"
-        style={styles.clientInput}
+      <ClientAutocomplete
+        clients={clientData || []}
+        onSelectClient={(selectedClient) => updateClientSelection(selectedClient, client.id)}
+
+        initialClient={client}
       />
-      <TouchableOpacity onPress={() => removeClient(client.id)}>
-        <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>x</Text>
+      <TouchableOpacity onPress={() => removeClient(client.id)} style={{ paddingHorizontal: 10 , paddingBottom: 5 }}>
+        <Text style={{ fontSize: 23, color: colors.primary, fontWeight: "bold" }}>x</Text>
       </TouchableOpacity>
     </View>
   );
@@ -130,7 +145,7 @@ const Form2: React.FC<Form2Props> = ({
               style={{ width: "50%" }}
               value={item?.ent}
             />
-           
+
             <TextInputWithIcon
               placeholder="Email"
               style={{ width: "50%" }}
@@ -186,6 +201,7 @@ const Form2: React.FC<Form2Props> = ({
               <Text style={{ fontSize: 16, color: "white" }}> + Ajouter</Text>
             </Button>
           </View>
+
         </>
       )}
 
@@ -219,10 +235,11 @@ const styles = StyleSheet.create({
   clientContainer: {
     flexDirection: "row",
     alignContent: "center",
+    alignItems: "center",
     justifyContent: "space-between",
     borderColor: "#ccc",
     borderWidth: 1,
-    padding: 10,
+   
     borderRadius: 10,
     marginVertical: 5
   },
