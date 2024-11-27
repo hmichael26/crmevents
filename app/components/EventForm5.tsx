@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, StyleSheet, TextInput, Dimensions, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { useTheme } from '../hooks';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import Button from './Button';
+import { AuthContext } from '../context/AuthContext';
 
 const { height } = Dimensions.get('window');
 
@@ -39,10 +40,17 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange }) => {
     </View>
   );
 };
+interface FormData {
+  fields: {
+    type: FieldType;
+    value: string;
+  }[];
+  timestamp: string;
+}
 
 interface Option {
-  label: string;
-  value: string;
+  id: string;
+  libelle: string;
 }
 
 type FieldType = 'date' | 'text' | 'dynamic';
@@ -52,15 +60,42 @@ interface Field {
   value: Date | string;
 }
 
-const Form5: React.FC = () => {
+
+interface Form5Props {
+  options: Option[];
+  onDataChange: (data: any) => void;
+}
+
+const Form5: React.FC<Form5Props> = ({options, onDataChange}) => {
+
+  const { userdata } = useContext(AuthContext);
   const { gradients, colors } = useTheme();
   const [fields, setFields] = useState<Field[]>([]);
-  const [dynamicOptions, setDynamicOptions] = useState<Option[]>([
+ /* const [dynamicOptions, setDynamicOptions] = useState<Option[]>([
     { label: 'En train d\'écrire', value: 'writing' },
     { label: 'Option 1', value: 'option1' },
     { label: 'Option 2', value: 'option2' },
     { label: 'Option 3', value: 'option3' },
-  ]);
+  ]);*/
+  const [dynamicOptions, setDynamicOptions] = useState<Option[]>([]);
+
+  // Initialiser les options au montage du composant
+  useEffect(() => {
+    if (Array.isArray(options) && options.length > 0) {
+      setDynamicOptions(options);
+    }
+  }, [options]);
+  useEffect(() => {
+    const formData = {
+      fields: fields.map(field => ({
+     
+        type: field.type,
+        value: field.value
+      }))
+    };
+    onDataChange(formData);
+  }, [fields]);
+
   const [showOptionsModal, setShowOptionsModal] = useState(false);
   const [newOptionLabel, setNewOptionLabel] = useState('');
   const [newOptionValue, setNewOptionValue] = useState('');
@@ -78,12 +113,24 @@ const Form5: React.FC = () => {
         newField = { type: 'text', value: '' };
         break;
       case 'dynamic':
-        newField = { type: 'dynamic', value: dynamicOptions[0].value };
+        if (dynamicOptions.length > 0) {
+          newField = { 
+            type: 'dynamic', 
+            value: dynamicOptions[0].libelle 
+          };
+        } else {
+          newField = { 
+            type: 'dynamic', 
+            value: '' 
+          };
+        }
         break;
     }
 
     setFields([...fields, newField]);
   };
+
+ 
 
   const updateField = (index: number, newValue: Date | string): void => {
     const newFields = [...fields];
@@ -98,7 +145,7 @@ const Form5: React.FC = () => {
 
   const addOption = () => {
     if (newOptionLabel && newOptionValue) {
-      setDynamicOptions([...dynamicOptions, { label: newOptionLabel, value: newOptionValue }]);
+      setDynamicOptions([...dynamicOptions, { id: newOptionLabel, libelle: newOptionValue }]);
       setNewOptionLabel('');
       setNewOptionValue('');
     }
@@ -113,7 +160,7 @@ const Form5: React.FC = () => {
     switch (field.type) {
       case 'date':
         return (
-          <View key={index} style={{ flexDirection: "row", alignContent: "center", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10 }}>
+          <View key={index} style={{ flexDirection: "row", alignContent: "center", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10 ,marginHorizontal:7}}>
             <TouchableOpacity onPress={() => removeField(index)}>
               <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>X</Text>
             </TouchableOpacity>
@@ -125,7 +172,7 @@ const Form5: React.FC = () => {
         );
       case 'text':
         return (
-          <View key={index} style={{ flexDirection: "row", alignContent: "center", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10 }}>
+          <View key={index} style={{ flexDirection: "row", alignContent: "center", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10,marginHorizontal:7 }}>
             <TouchableOpacity onPress={() => removeField(index)}>
               <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>X</Text>
             </TouchableOpacity>
@@ -142,32 +189,37 @@ const Form5: React.FC = () => {
         );
       case 'dynamic':
         return (
-          <View 
-          key={index} 
-          style={{ 
-            flex: 1, 
-            flexDirection: "row",
-            alignItems: "center",  
-            justifyContent: "space-between", 
-            borderColor: "#ccc", 
-            borderWidth: 1, 
-            paddingHorizontal: 10, 
-            borderRadius: 10 
-          }}
-        >
-          <TouchableOpacity onPress={() => removeField(index)}>
-            <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>X</Text>
-          </TouchableOpacity>
-          <Picker
-            selectedValue={field.value as string}
-            style={[styles.picker, { flex: 1 }]} 
-            onValueChange={(itemValue) => updateField(index, itemValue)}
+          <View
+            key={index}
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              borderColor: "#ccc",
+              borderWidth: 1,
+              paddingHorizontal: 10,
+              borderRadius: 10,
+              marginHorizontal:7
+            }}
           >
-            {dynamicOptions.map((option) => (
-              <Picker.Item key={option.value} label={option.label} value={option.value} />
-            ))}
-          </Picker>
-        </View>
+            <TouchableOpacity onPress={() => removeField(index)}>
+              <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>X</Text>
+            </TouchableOpacity>
+            <Picker
+              selectedValue={field.value as string}
+              style={[styles.picker, { flex: 1 }]}
+              onValueChange={(itemValue) => updateField(index, itemValue)}
+            >
+              {dynamicOptions.map((option) => (
+                <Picker.Item 
+                  key={option.id} 
+                  label={option.libelle} 
+                  value={option.libelle}
+                />
+              ))}
+            </Picker>
+          </View>
         );
     }
   };
@@ -258,7 +310,7 @@ const Form5: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 5,
-    marginHorizontal: 15,
+    marginHorizontal: 10,
     flex: 1,
   },
   fieldContainer: {
@@ -271,14 +323,14 @@ const styles = StyleSheet.create({
 
   },
   picker: {
-   
+
     borderColor: '#000',
     borderWidth: 1,
     borderRadius: 10,
   },
   buttonContainer: {
     marginTop: 10,
-    marginHorizontal: 40
+    marginHorizontal: 10
   },
   button: {
 

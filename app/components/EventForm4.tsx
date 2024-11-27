@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as  TextBlock } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as TextBlock } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
 import { useTheme } from '../hooks';
@@ -34,13 +34,14 @@ const Form4 = () => {
   const [selectedOption, setSelectedOption] = useState('');
   const [selectedOption2, setSelectedOption2] = useState('');
   const { assets, colors, gradients, sizes } = useTheme();
-  const [switch1, setSwitch1] = useState(true);
+  const [switch1, setSwitch1] = useState(true); //  true pour le switch comparateur
   const [switch2, setSwitch2] = useState(true);
   const [switch3, setSwitch3] = useState(false);
   const [validForm1, setValid1] = useState<Boolean>(false);
   const [validForm2, setValid2] = useState<Boolean>(false);
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible2, setModalVisible2] = useState(false);
 
   const [currentForm, setCurrentForm] = useState<number | null>(null); // 1 pour Form1, 2 pour Form2
   ;
@@ -97,13 +98,14 @@ const Form4 = () => {
     { text: 'CHATEAU DE LA TOUR', number: 0, color: 'success' },
     { text: '1k HOTEL', number: 0, color: 'success' },
   ]);
+  const [badgeToDelete, setBadgeToDelete] = useState<number | null>(null);
 
   const handleBadgeClick = (badgeIndex: number) => {
     // Toggle activeBadge
     setActiveBadge(prevActiveBadge =>
       prevActiveBadge === badgeIndex ? 0 : badgeIndex
     );
-
+  
     /*
     // Update badge number
     setBadges(prevBadges => {
@@ -112,28 +114,56 @@ const Form4 = () => {
       return updatedBadges;
     });*/
   };
+  const handleBadgeDelete = (index: number) => {
+    setBadgeToDelete(index);
+    setModalVisible2(true);
+  };
 
+  const confirmDeleteBadge = () => {
+    if (badgeToDelete !== null) {
+      setBadges(prevBadges => 
+        prevBadges.filter((_, index) => index !== badgeToDelete)
+      );
+      
+      // Reset active badge if needed
+      if (badges.length === 1) {
+        setActiveBadge(0);
+      } else if (activeBadge === badgeToDelete + 1) {
+        setActiveBadge(0);
+      }
+
+      setModalVisible2(false);
+      setBadgeToDelete(null);
+    }
+  };
   return <SafeAreaView >
     <View style={styles.container}>
 
-      {badges.map((badge, index) => (
-        (activeBadge === 0 || activeBadge === index + 1) &&
-        <Badge
-          key={index}
-          text={badge.text}
-          badgeNumber={badge.number}
-          badgeColor={badge.color} // Assuming your Badge component accepts a badgeColor prop
-          onPress={() => handleBadgeClick(index + 1)}
-
-
+    {badges.map((badge, index) => (
+          (activeBadge === 0 || activeBadge === index + 1) &&
+          <Badge
+            key={index}
+            text={badge.text}
+            badgeNumber={badge.number}
+            badgeColor={badge.color}
+            onPress={() => handleBadgeClick(index + 1)}
+            onDelete={() => handleBadgeDelete(index)}
+            isActive={activeBadge === index + 1}
+          />
+        ))}
+          <ConfirmationModal
+          visible={modalVisible2}
+          onClose={() => setModalVisible2(false)}
+          onConfirm={confirmDeleteBadge}
+          onCancel={() => setModalVisible2(false)}
+          message="Voulez-vous vraiment supprimer ce badge ?"
         />
-      ))}
       {
         activeBadge !== 0 && <>
           <View style={{ borderWidth: 1, borderColor: "#000", borderRadius: 10 }} >
-            <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 3 }}>
 
-              <Button flex={1} gradient={gradients.success} marginBottom={sizes.base / 2} rounded={false} round={false} >
+            <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 3 }}>
+              <Button flex={1} gradient={gradients.success} rounded={false} round={false} >
                 <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                   envoyer
                 </Text>
@@ -141,7 +171,20 @@ const Form4 = () => {
                   Demander
                 </Text>
               </Button>
-              <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base / 2} rounded={false} round={false}>
+              <View style={{ flex: 1, flexDirection: "column", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 3 }}>
+                <Text black size={getFontSize(12)} bold style={{ marginRight: 3, textTransform: "uppercase", textAlign: "center" }}  >
+                  DEMANDE ENVOYée LE
+                </Text>
+                <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%', textAlign: "center" }} >
+                  12/01/2024
+                </Text>
+              </View>
+            </View>
+
+            <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 3 }}>
+
+
+              <Button flex={1} gradient={gradients.secondary} rounded={false} round={false}>
                 <Text white bold transform="uppercase" size={getFontSize(13)}>
                   Inserer
                 </Text>
@@ -149,34 +192,21 @@ const Form4 = () => {
                   devis
                 </Text>
               </Button>
-              <Button flex={0.2} gradient={gradients.danger} marginBottom={sizes.base / 2} rounded={false} round={false}>
-                <Icon name='trash' size={getFontSize(30)} style={{ color: "#fff" }}></Icon>
-              </Button>
-
-            </View>
-            <View style={{ flex: 1, flexDirection: "row", marginHorizontal: 2, gap: 3 }}>
-              <View style={{ flex: 0.7, flexDirection: "row", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 4 }}>
-                <Text black size={getFontSize(13)} bold style={{ marginRight: 3 }} >
-                  inserer le
+              <View style={{ flex: 1, flexDirection: "column", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 3 }}>
+                <Text black size={getFontSize(12)} bold style={{ marginRight: 3, textTransform: "uppercase", textAlign: "center" }}  >
+                  DEVIS REcu LE
                 </Text>
-                <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%' }} >
+                <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%', textAlign: "center" }} >
                   12/01/2024
                 </Text>
               </View>
-              <View style={{ flex: 1, flexDirection: "row", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 4 }}>
-                <Text black size={getFontSize(13)} bold style={{ marginRight: 2 }}>
-                  inserer le
-                </Text>
-                <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%' }}>
-                  13/01/2024 à 14h00
-                </Text>
-              </View>
 
             </View>
-            <View>
+
+            <View style={{ flex: 1 }}>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginTop: 15 }}>
 
-                <Button flex={0.8} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
+                <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
                   <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                     ouvrir
                   </Text>
@@ -184,38 +214,38 @@ const Form4 = () => {
                     un devis
                   </Text>
                 </Button>
-                <Button flex={0.6} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
+                {false && <Button flex={0.6} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
                   <Text white bold transform="uppercase" size={getFontSize(12)}>
                     Telecharger
                   </Text>
                   <Text white size={getFontSize(12)} bold style={{ textTransform: 'uppercase' }}>
                     devis
                   </Text>
-                </Button>
+                </Button>}
 
-                <View style={{ flex: 1, flexDirection: "row", width:"100%",alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
-                  {selectedOption ? <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }} >{selectedOption}</Text> : <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }}>valider</Text>}
+                <View style={{ flex: 1, flexDirection: "row", width: "100%", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10, marginBottom: 5, height: getFontSize(48) }}>
+                  {selectedOption ? <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "center" }} >{selectedOption}</Text> : <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "center" }}>valider</Text>}
 
-                
 
-                    <Picker
-                      style={{ width: "25%" ,marginLeft:5}}
-                      selectedValue={selectedOption}
-                      onValueChange={(itemValue) => handleOptionSelect(itemValue, 1)}
-                    // mode='dropdown'
-                    >
 
-                      {options.map((option, index) => (
-                        <Picker.Item key={index} label={option.label} value={option.label} />
-                      ))}
-                    </Picker>
-              
+                  <Picker
+                    style={{ width: "10%", marginLeft: 5 }}
+                    selectedValue={selectedOption}
+                    onValueChange={(itemValue) => handleOptionSelect(itemValue, 1)}
+
+                  >
+
+                    {options.map((option, index) => (
+                      <Picker.Item key={index} label={option.label} value={option.label} />
+                    ))}
+                  </Picker>
+
                 </View>
 
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }} >
 
-                <Button flex={0.8} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false}  >
+                <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false}  >
                   <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                     ouvrir
                   </Text>
@@ -223,37 +253,37 @@ const Form4 = () => {
                     brochure
                   </Text>
                 </Button>
-                <Button flex={0.6} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
+                {false && <Button flex={0.6} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
                   <Text white bold transform="uppercase" size={getFontSize(12)}>
                     Telecharger
                   </Text>
                   <Text white size={getFontSize(12)} bold style={{ textTransform: 'uppercase' }}>
                     brochure
                   </Text>
-                </Button>
+                </Button>}
 
-                <View style={{ flex: 1, flexDirection: "row", width:"100%",alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10 ,marginBottom:5, height:getFontSize(48)}}>
-                  {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width:'75%', marginLeft: 6 ,textAlign: "left" }}>valider</Text>}
+                <View style={{ flex: 1, flexDirection: "row", width: "100%", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10, marginBottom: 5, height: getFontSize(48) }}>
+                  {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "center" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "center" }}>valider</Text>}
 
-                
 
-                    <Picker
-                      style={{ width: "25%" ,marginLeft:5}}
-                      selectedValue={selectedOption2}
-                      onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
-                    // mode='dropdown'
-                    >
 
-                      {options.map((option, index) => (
-                        <Picker.Item key={index} label={option.label} value={option.label} />
-                      ))}
-                    </Picker>
-              
+                  <Picker
+                    style={{ width: "10%", marginLeft: 5 }}
+                    selectedValue={selectedOption2}
+                    onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
+                  // mode='dropdown'
+                  >
+
+                    {options.map((option, index) => (
+                      <Picker.Item key={index} label={option.label} value={option.label} />
+                    ))}
+                  </Picker>
+
                 </View>
               </View>
-              <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
+              <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
 
-                <Button flex={0.26} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
+                <Button flex={1} gradient={gradients.info} rounded={false} round={false} >
                   <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                     Galerie
                   </Text>
@@ -261,7 +291,23 @@ const Form4 = () => {
                     photo
                   </Text>
                 </Button>
+                <View style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  justifyContent: "center",
+                  alignItems: 'center',
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  borderRadius: 5,
 
+                  paddingVertical: 5,
+                  marginBottom: 2,
+                  width: "46%"
+
+                }}>
+                  <Text color={colors.primary} bold style={{ fontSize: 20 }}>12000$</Text>
+
+                </View>
 
               </View>
 
@@ -273,7 +319,7 @@ const Form4 = () => {
                 message="vous ete sur le point de supprimer ?"
               />
             </View>
-            <View style={{ flex: 1, flexDirection: 'row', marginTop: 6 }}>
+            <View style={{ flex: 1, flexDirection: 'row',alignItems: "center", justifyContent: "center",marginTop: 6, marginHorizontal: 5,gap: 10 }}>
               <View style={{
                 flexDirection: 'row',
                 justifyContent: "center",
@@ -281,9 +327,9 @@ const Form4 = () => {
                 borderWidth: 1,
                 borderColor: '#ccc',
                 borderRadius: 5,
-
+                flex: 1,
                 paddingVertical: 5,
-                marginHorizontal: 4,
+              
                 marginBottom: 2,
                 width: "50%",
                 gap: 5
@@ -298,24 +344,7 @@ const Form4 = () => {
                 />
               </View>
               <View style={{
-                flexDirection: 'row',
-                justifyContent: "center",
-                alignItems: 'center',
-                borderWidth: 1,
-                borderColor: '#ccc',
-                borderRadius: 5,
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                marginBottom: 2,
-                width: "46%"
-
-              }}>
-                <Text color={colors.primary} bold style={{ fontSize: 20 }}>12000$</Text>
-
-              </View>
-            </View>
-            <View style={{ flex: 1, flexDirection: 'row', marginTop: 6 }}>
-              <View style={{
+                  flex: 0.75,
                 flexDirection: 'row',
 
                 justifyContent: 'center',
@@ -324,17 +353,20 @@ const Form4 = () => {
                 borderColor: '#ccc',
                 borderRadius: 5,
 
-                paddingVertical: 5,
-                marginHorizontal: 4,
+                padding: 3,
+                
                 marginBottom: 2,
-                flex: 0.4,
-                gap: 5
+              
+               
 
               }}>
 
                 <Font6 name='thumbs-down' color={colors.danger} size={getFontSize(23)}></Font6>
 
               </View>
+            </View>
+            <View style={{ flex: 1, flexDirection: 'row', marginTop: 6,gap: 10 }}>
+
               <View style={{
                 flexDirection: 'row',
                 justifyContent: "center",
@@ -345,8 +377,9 @@ const Form4 = () => {
                 paddingHorizontal: 10,
                 paddingVertical: 5,
                 marginBottom: 2,
-                flex: 0.4,
+                flex: 1,
               }}>
+                <Text color={colors.dark} bold style={{ fontSize: 20 }}>Commission: </Text>
                 <Text color={colors.primary} bold style={{ fontSize: 20 }}>0.5%</Text>
 
               </View>
@@ -361,11 +394,11 @@ const Form4 = () => {
                 paddingVertical: 5,
                 marginBottom: 2,
                 marginHorizontal: 4,
-                flex: 1,
+                flex: 0.75,
 
               }}>
-                <Text black bold size={getFontSize(16)}>Option : </Text>
-                <Text color={colors.primary} bold style={{ fontSize: 20 }}>Multi-Option</Text>
+                <Text black bold size={getFontSize(12)}>Option : </Text>
+                <Text color={colors.primary} bold size={getFontSize(12)}>Multi-Option</Text>
 
               </View>
             </View>
