@@ -103,6 +103,21 @@ export const AuthProvider = ({ children }) => {
   );
   };
 
+  const validForm = (data, cb) => {
+    data.append('token',usertoken);
+    data.append('action','save-all-datas');  
+    ApiAction(data, (res) => {
+      cb(res.data);
+    }, 
+    undefined, 
+    {
+      headers: { 
+        Accept: 'application/json', 
+        'Content-Type': 'multipart/form-data' 
+      },
+    });
+  };
+
   const getUserData = (token) => {
     ApiAction({
       action: 'get-user-data',
@@ -164,6 +179,7 @@ export const AuthProvider = ({ children }) => {
         Login,
         Logout,
         getUserData,
+        validForm
       }}>
       {children}
     </AuthContext.Provider>
