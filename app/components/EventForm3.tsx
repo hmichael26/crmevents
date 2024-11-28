@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, Text } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
@@ -16,17 +16,47 @@ const { width, height } = Dimensions.get('window');
 
 type Form3Props = {
   item: any;
+  onDataChange: (data: any,type:string) => void;
+  
 };
 
-const Form3: React.FC<Form3Props> = ({ item }) => {
+type FormData = {
+  commission_10?: boolean;
+  commission_12?: boolean;
+  commission_15?: boolean;
+};
+
+const Form3: React.FC<Form3Props> = ({ item, onDataChange }) => {
   const { assets, colors, gradients, sizes } = useTheme();
   const [switch1, setSwitch1] = useState(true);
   const [switch2, setSwitch2] = useState(true);
   const [switch3, setSwitch3] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+
+  const [formData, setFormData] = useState<FormData>({
+
+    commission_10: item.commission_10 || true,
+    commission_12: item.commission_12 || true,
+    commission_15: item.commission_15 || false
+  });
+  useEffect(() => {
+    onDataChange(formData,'form3');
+  }, [formData]);
+
   const handleSelectionChange = (selectedIds: string[]) => {
     setSelectedOptions(selectedIds);
   };
+
+  const updateFormField = (field: keyof FormData, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  
+
+
 
   return <View style={styles.container}>
 
@@ -35,15 +65,15 @@ const Form3: React.FC<Form3Props> = ({ item }) => {
 
     <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
       <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>10% HT sur le Total HT facturé</Text>
-      <Switch checked={switch1}  onPress={(checked) => setSwitch1(checked)} />
+      <Switch checked={switch1}  onPress={(checked) => {setSwitch1(checked), updateFormField('commission_10', checked)}} />
    </View>
    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
       <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>12% HT sur le Total HT facturé</Text>
-      <Switch checked={switch2}  onPress={(checked) => setSwitch2(checked)} />
+      <Switch checked={switch2}  onPress={(checked) => {setSwitch2(checked) , updateFormField('commission_12', checked)}} />
    </View>
    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
       <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>15% HT sur le Total HT facturé</Text>
-      <Switch checked={switch3}  onPress={(checked) => setSwitch3(checked)} />
+      <Switch checked={switch3}  onPress={(checked) => {setSwitch3(checked) , updateFormField('commission_15', checked)}} />
    </View>
 
 

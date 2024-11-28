@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated,PixelRatio } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated, PixelRatio } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons'; // Remplacez 'Ionicons' par l'icône de votre choix
 import Select from 'react-select'
@@ -40,25 +40,61 @@ const options = [
   { id: '3', label: 'Option 3' },
   // Add more options as needed
 ];
+
+
+type FormData1 = {
+  evt?: string;
+  date_reception?: any;
+  ref?: string;
+  pax?: string;
+  zone?: string;
+  types_evts?: any;
+  date_deb?: any;
+  date_fin?:  any;
+  flexible_dates?: boolean;
+  budget?: string;
+  commentaires_dates?: string;
+  format?: string;
+};
+
+type FormData2 = {
+  clt?: string;
+  ent?: string;
+  clt_email?: string;
+  clt_telfix?: string;
+  clt_telport?: string;
+  clt_infos?: string;
+  publish_as_company?: any;
+  clients?: object[];
+};
+
+type FormData3 = {
+  commission_10?: boolean;
+  commission_12?: boolean;
+  commission_15?: boolean;
+};
+
 const fontScale = PixelRatio.getFontScale();
 
 const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
-  const { userdata } = useContext(AuthContext);
- 
+  const { userdata,validForm } = useContext(AuthContext);
 
-  const eventTypes  = userdata.all_types_evts;
- // console.log(eventTypes)
+
+  const eventTypes = userdata.all_types_evts;
+  // console.log(eventTypes)
   const { item } = route.params; // Récupérer l'item depuis les paramètres
   const navigation = useNavigation();
 
- // console.log(item)
+  // console.log(item)
+
+
 
   const getButtonSize = () => {
     const buttonWidth = width * 0.3; // 30% de la largeur de l'écran
     const buttonHeight = height * 0.06; // 6% de la hauteur de l'écran
     return { width: buttonWidth, height: buttonHeight };
   };
-  
+
   const getFontSize = (size: number) => size / fontScale;
 
   const { assets, colors, gradients, sizes } = useTheme();
@@ -67,31 +103,123 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(1)).current; 
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  const [formData, setFormData] = useState({
-   
-    clients: []
-  });
-
-  const FormIds = formData.clients
-    .map(client => client?.id.toString())
-    .join(',');
-  
-  
+  const [formData, setFormData] = useState<FormData1>({});
+  const [formData2, setFormData2] = useState<FormData2>({});
+  const [formData3, setFormData3] = useState<FormData3>({});
  
-  const handleForm5DataChange = (data: any) => {
+
+
+  const FormIds =  (data: any) => {
+    if(data){
+      return  data.map((item: any) => item.id).join(",");
+    }
+    return '';
+  }
+   
+
+
+
+  const handleForm5DataChange = (data: any,type:string) => {
+    if(type==='form2'){
+      setFormData2(prevData => ({
+        ...prevData,
+        ...data
+      }));
+      return
+    }
+    if(type==='form3'){
+      setFormData3(prevData => ({
+        ...prevData,
+        ...data
+      }));
+      return
+    } 
     setFormData(prevData => ({
       ...prevData,
-      clients: data
+      ...data
     }));
   };
 
+ 
+  const createFormDataObject = (
+    formData:FormData1,
+    formData2: FormData2,
+    formData3: FormData3
+  ): Record<string, any> | null => {
+    // Vérifiez si toutes les sources sont valides
+    if (!formData || !formData2 || !formData3) {
+      return null;
+    }
+  
+    const combinedData: Record<string, any> = {
+      nom: formData.evt,
+      date_reception: formData.date_reception,
+      ref: formData.ref,
+      pax: formData.pax,
+      zone: formData.zone,
+      types_evts: formData.types_evts,
+      date_deb: formData.date_deb,
+      date_fin: formData.date_fin,
+      flexible_dates: formData.flexible_dates,
+      budget: formData.budget,
+      commentaires_dates: formData.commentaires_dates,
+      format: formData.format,
+      fk_client: formData2.clt,
+      fk_entreprise: formData2.ent,
+      email: formData2.clt_email,
+      tel_fixe: formData2.clt_telfix,
+      tel_port: formData2.clt_telport,
+      infos: formData2.clt_infos,
+      afficher_nom_client: formData2.publish_as_company,
+      "10pourcent": formData3.commission_10,
+      "12pourcent": formData3.commission_12,
+      "15pourcent": formData3.commission_15,
+      clients: FormIds(formData2.clients),
+    };
+  
+    // Supprimer les clés avec des valeurs nulles ou indéfinies
+    Object.keys(combinedData).forEach(
+      (key) =>
+        (combinedData[key] === null || combinedData[key] === undefined) &&
+        delete combinedData[key]
+    );
+  
+    return combinedData;
+  };
+  
+  // Utilisation de la fonction
+  const formDataObj = createFormDataObject(formData, formData2, formData3);
+     
+ 
+   
+  
+  const createFormData = (data: Record<string, any>): any => {
+    const formData = new FormData();
+  
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        // Sérialiser les objets ou tableaux
+        if (typeof value === "object" && !(value instanceof File)) {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, value);
+        }
+      }
+    });
+  
+    return formData;
+  };
+  
+  
   const handleSaveForm = () => {
-    // Maintenant formData contient à la fois le titre et les champs
+
+     validForm(formDataObj);
+   
     Alert.alert(
       "Données du formulaire",
-      JSON.stringify(FormIds, null, 2),
+      JSON.stringify(formDataObj, null, 2),
       [{ text: "OK" }]
     );
   };
@@ -160,11 +288,11 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
 
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
-     
-        {step === "date" && <Form1 item={item} eventTypes={eventTypes} />}
-        {step === "clients" && <Form2 item={item}  onDataChange={handleForm5DataChange} clients={formData.clients}  clientData={userdata.all_clts} />}
-        {step === "com" && <Form3 item={item} />}
-    
+
+      {step === "date" && <Form1 item={item} eventTypes={eventTypes} onDataChange={handleForm5DataChange}   />}
+      {step === "clients" && <Form2 item={item} onDataChange={handleForm5DataChange} clients={formData?.clients} clientData={userdata.all_clts} />}
+      {step === "com" && <Form3 item={item}  onDataChange={handleForm5DataChange} />}
+
 
     </ScrollView>
 
@@ -191,7 +319,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
             </Text>
           </Button>
 
-        </View> 
+        </View>
       </Animated.View>)}
   </SafeAreaView>;
 }

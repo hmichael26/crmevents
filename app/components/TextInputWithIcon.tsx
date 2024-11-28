@@ -39,24 +39,27 @@ const TextInputWithIcon: React.FC<TextInputWithIconProps> = ({
 };
 
 // SwitchTextBox Component
-interface SwitchTextBoxProps extends TextInputProps {
+interface SwitchTextBoxProps extends Partial<TextInputProps> {
   label: string;
   onToggle: (value: boolean) => void;
+  toogleValue?: boolean;
 }
 
 const SwitchTextBox: React.FC<SwitchTextBoxProps> = ({
   label,
   onToggle,
   style,
+  toogleValue,
   ...props
 }) => {
   const [isEnabled, setIsEnabled] = useState(false);
-  const [switch1, setSwitch1] = useState(true);
+  const [switch1, setSwitch1] = useState(toogleValue);
 
   const toggleSwitch = () => {
-    setIsEnabled(previousState => !previousState);
-    onToggle(!isEnabled);
-  };
+    const newValue = !switch1;
+    setSwitch1(newValue);
+    onToggle(newValue);
+  };    
 
   return (
     <View style={[styles.switchContainer, style]}>
@@ -64,7 +67,7 @@ const SwitchTextBox: React.FC<SwitchTextBoxProps> = ({
         <Text style={styles.label}>{label}</Text>
         <Switch
             checked={switch1}
-            onPress={(checked) => setSwitch1(checked)}
+            onPress={toggleSwitch}
           />
       </View>
     
