@@ -26,7 +26,7 @@ const options = [
 const fontScale = PixelRatio.getFontScale();
 
 const EventPresta: React.FC = () => {
-  const { userdata } = useContext(AuthContext);
+  const { userdata , validForm} = useContext(AuthContext);
   const eventTypes = userdata.all_types_evts;
 
   const options = Array.isArray(eventTypes)
@@ -73,7 +73,8 @@ const EventPresta: React.FC = () => {
   };
 
   const handleSaveForm = () => {
-    // Maintenant formData contient à la fois le titre et les champs
+    
+    validForm(formData);
     Alert.alert(
       "Données du formulaire",
       JSON.stringify(formData, null, 2),
