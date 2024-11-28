@@ -14,6 +14,7 @@ import Input from './Input';
 import ConfirmationModal from './ConfirmModal';
 
 import { Picker } from '@react-native-picker/picker';
+import ModalForm from './ModalForm';
 
 
 
@@ -31,6 +32,12 @@ const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
 const Form4 = () => {
+  const [modalFormDevis, setModalFormDevis] = useState(false);
+
+  const handleSubmit = (data: any) => {
+    console.log(data);
+    // Traitez les données du formulaire ici
+  };
   const [selectedOption, setSelectedOption] = useState('');
   const [selectedOption2, setSelectedOption2] = useState('');
   const { assets, colors, gradients, sizes } = useTheme();
@@ -105,7 +112,7 @@ const Form4 = () => {
     setActiveBadge(prevActiveBadge =>
       prevActiveBadge === badgeIndex ? 0 : badgeIndex
     );
-  
+
     /*
     // Update badge number
     setBadges(prevBadges => {
@@ -121,10 +128,10 @@ const Form4 = () => {
 
   const confirmDeleteBadge = () => {
     if (badgeToDelete !== null) {
-      setBadges(prevBadges => 
+      setBadges(prevBadges =>
         prevBadges.filter((_, index) => index !== badgeToDelete)
       );
-      
+
       // Reset active badge if needed
       if (badges.length === 1) {
         setActiveBadge(0);
@@ -139,25 +146,25 @@ const Form4 = () => {
   return <SafeAreaView >
     <View style={styles.container}>
 
-    {badges.map((badge, index) => (
-          (activeBadge === 0 || activeBadge === index + 1) &&
-          <Badge
-            key={index}
-            text={badge.text}
-            badgeNumber={badge.number}
-            badgeColor={badge.color}
-            onPress={() => handleBadgeClick(index + 1)}
-            onDelete={() => handleBadgeDelete(index)}
-            isActive={activeBadge === index + 1}
-          />
-        ))}
-          <ConfirmationModal
-          visible={modalVisible2}
-          onClose={() => setModalVisible2(false)}
-          onConfirm={confirmDeleteBadge}
-          onCancel={() => setModalVisible2(false)}
-          message="Voulez-vous vraiment supprimer ce badge ?"
+      {badges.map((badge, index) => (
+        (activeBadge === 0 || activeBadge === index + 1) &&
+        <Badge
+          key={index}
+          text={badge.text}
+          badgeNumber={badge.number}
+          badgeColor={badge.color}
+          onPress={() => handleBadgeClick(index + 1)}
+          onDelete={() => handleBadgeDelete(index)}
+          isActive={activeBadge === index + 1}
         />
+      ))}
+      <ConfirmationModal
+        visible={modalVisible2}
+        onClose={() => setModalVisible2(false)}
+        onConfirm={confirmDeleteBadge}
+        onCancel={() => setModalVisible2(false)}
+        message="Voulez-vous vraiment supprimer ce badge ?"
+      />
       {
         activeBadge !== 0 && <>
           <View style={{ borderWidth: 1, borderColor: "#000", borderRadius: 10 }} >
@@ -184,7 +191,7 @@ const Form4 = () => {
             <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 3 }}>
 
 
-              <Button flex={1} gradient={gradients.secondary} rounded={false} round={false}>
+              <Button flex={1} gradient={gradients.secondary} rounded={false} round={false} onPress={() => setModalFormDevis(true)}>
                 <Text white bold transform="uppercase" size={getFontSize(13)}>
                   Inserer
                 </Text>
@@ -319,7 +326,7 @@ const Form4 = () => {
                 message="vous ete sur le point de supprimer ?"
               />
             </View>
-            <View style={{ flex: 1, flexDirection: 'row',alignItems: "center", justifyContent: "center",marginTop: 6, marginHorizontal: 5,gap: 10 }}>
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: "center", justifyContent: "center", marginTop: 6, marginHorizontal: 5, gap: 10 }}>
               <View style={{
                 flexDirection: 'row',
                 justifyContent: "center",
@@ -329,7 +336,7 @@ const Form4 = () => {
                 borderRadius: 5,
                 flex: 1,
                 paddingVertical: 5,
-              
+
                 marginBottom: 2,
                 width: "50%",
                 gap: 5
@@ -344,7 +351,7 @@ const Form4 = () => {
                 />
               </View>
               <View style={{
-                  flex: 0.75,
+                flex: 0.75,
                 flexDirection: 'row',
 
                 justifyContent: 'center',
@@ -354,10 +361,10 @@ const Form4 = () => {
                 borderRadius: 5,
 
                 padding: 3,
-                
+
                 marginBottom: 2,
-              
-               
+
+
 
               }}>
 
@@ -365,7 +372,7 @@ const Form4 = () => {
 
               </View>
             </View>
-            <View style={{ flex: 1, flexDirection: 'row', marginTop: 6,gap: 10 }}>
+            <View style={{ flex: 1, flexDirection: 'row', marginTop: 6, gap: 10 }}>
 
               <View style={{
                 flexDirection: 'row',
@@ -470,7 +477,11 @@ const Form4 = () => {
         </Button>
       </View>
     }
-
+    <ModalForm
+      visible={modalFormDevis}
+      onClose={() => setModalFormDevis(false)}
+      onSubmit={handleSubmit}
+    />
 
   </SafeAreaView>
     ;

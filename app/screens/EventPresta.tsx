@@ -8,10 +8,7 @@ import { useTheme } from '../hooks';
 import { Block, Button, Input, Image, Switch, Modal, Text } from '../components';
 import { SwitchTextBox, TextInputWithIcon } from '../components/TextInputWithIcon';
 import MultiSelect from '../components/MultiSelectBox';
-import form1 from '../components/EventForm1';
-import Form1 from '../components/EventForm1';
-import Form2 from '../components/EventForm2';
-import Form3 from '../components/EventForm3';
+
 import Form4 from '../components/EventForm4';
 import Form5 from '../components/EventForm5';
 import { AuthContext } from '../context/AuthContext';
