@@ -215,7 +215,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   
   const handleSaveForm = () => {
 
-     validForm(createFormData(formDataObj));
+     validForm(formDataObj);
    
     Alert.alert(
       "Données du formulaire",

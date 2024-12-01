@@ -71,6 +71,8 @@ export const AuthProvider = ({ children }) => {
     } else {
       console.log('CONNECTED ACTION (' + prms.action + ') ');
       axios.post(appBaseUrl + 'api/api.php', prms, { headers }).then((res) => {
+
+        console.log(prms)
         setIsLoading(false);
         if (res.data.code == 'SUCCESS') callback(res);
         else if (res.data.code == 'LOGOUT') Logout();
@@ -81,6 +83,7 @@ export const AuthProvider = ({ children }) => {
         }
       }).catch((e) => {
         alert(`Erreur à la connexion : ${e}`);
+        console.log(e);
         setIsLoading(false);
       });
     }
@@ -104,16 +107,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   const validForm = (data, cb) => {
-    data.append('token',usertoken);
+   /* data.append('token',usertoken);
     data.append('action','save-all-datas');  
+     */
+
+    data = {...data, action: 'save-all-datas', token: usertoken};
+    console.log(
+      data
+    )
+    
     ApiAction(data, (res) => {
-      cb(res.data);
+     // cb(res.data);
+
+     alert('jai envoyer le formulaire');
     }, 
     undefined, 
     {
       headers: { 
         Accept: 'application/json', 
-        'Content-Type': 'multipart/form-data' 
+        'Content-Type': 'application/json'
       },
     });
   };
