@@ -27,7 +27,7 @@ type FormData = {
 };
 
 type Form1Props = {
-  item: FormData;
+  item: any;
   eventTypes: EventType[] | EventType;
   onDataChange: (data: FormData, type: string) => void;
 };

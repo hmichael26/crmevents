@@ -32,7 +32,7 @@ interface FormData {
 }
 
 type Form2Props = {
-  item?: FormData;
+  item?: any;
   onDataChange: (data: FormData,type:string) => void;
   clients?: Client[];
   clientData?: any[];
