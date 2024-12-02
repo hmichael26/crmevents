@@ -23,7 +23,7 @@ const options = [
 const fontScale = PixelRatio.getFontScale();
 
 const EventPresta: React.FC = () => {
-  const { userdata , validForm} = useContext(AuthContext);
+  const { userdata, validForm } = useContext(AuthContext);
   const eventTypes = userdata.all_types_evts;
 
   const options = Array.isArray(eventTypes)
@@ -70,13 +70,13 @@ const EventPresta: React.FC = () => {
   };
 
   const handleSaveForm = () => {
-    
-    validForm(formData);
     Alert.alert(
       "Données du formulaire",
       JSON.stringify(formData, null, 2),
       [{ text: "OK" }]
     );
+    validForm({ data: formData });
+   
   };
 
   useEffect(() => {
@@ -123,7 +123,7 @@ const EventPresta: React.FC = () => {
       <View style={{ flexDirection: "row", justifyContent: "space-around", gap: 10, marginHorizontal: 5, marginVertical: 10 }}>
         <Button flex={0.4} gradient={gradients.secondary} marginBottom={sizes.base} rounded={true} round={false} style={{ borderColor: "#000" }} onPress={() => setStep("deroule")}>
           <Text white transform="uppercase" size={15}  >
-           {derouleTitle ? derouleTitle : "Déroulé"}
+            {derouleTitle ? derouleTitle : "Déroulé"}
           </Text>
         </Button>
         <Button flex={1} gradient={gradients.info} marginBottom={sizes.base} rounded={false} round={false} onPress={() => setStep("Presta")}>
