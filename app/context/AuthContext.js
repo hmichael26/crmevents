@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
     await AsyncStorage.setItem(key, value);
   }
 
-  const ApiAction = async (prms, callback, cberror, headers = {}, force = false) => {
+  const ApiAction = async (prms, callback, cberror, headers = {}, force = false, action = 'save-all-datas') => {
     setIsLoading(true);
 
     console.log('ApiAction params:', prms);
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
       setIsLoading(false);
     } else {
-      console.log('CONNECTED ACTION (' + prms.action + ') ');
+      console.log('CONNECTED ACTION (' + prms.action ? prms.action : action + ') ');
       axios.post(appBaseUrl + 'api/api.php', prms, { headers }).then((res) => {
 
         console.log(prms)
@@ -101,33 +101,54 @@ export const AuthProvider = ({ children }) => {
       StoreSave("usertoken", res.data.token);
       AsyncSave("userdata", JSON.stringify(res.data.user));
     },
-    undefined,
-    customHeaders
-  );
+      undefined,
+      customHeaders
+    );
   };
 
   const validForm = (data, cb) => {
-   /* data.append('token',usertoken);
-    data.append('action','save-all-datas');  
-     */
+    /* data.append('token',usertoken);
+     data.append('action','save-all-datas');  
+      */
 
-    data = {...data, action: 'save-all-datas', token: usertoken};
+    data = { ...data, action: 'save-all-datas', token: usertoken };
     console.log(
       data
     )
-    
-    ApiAction(data, (res) => {
-     // cb(res.data);
 
-     alert('jai envoyer le formulaire');
-    }, 
-    undefined, 
-    {
-      headers: { 
-        Accept: 'application/json', 
-        'Content-Type': 'application/json'
-      },
-    });
+    ApiAction(data, (res) => {
+      // cb(res.data);
+
+      alert('jai envoyer le formulaire');
+    },
+      undefined,
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+      });
+  };
+
+
+  const validFormMultiPart = (data, cb) => {
+    /* data.append('token',usertoken);
+    data.append('action','save-all-datas');  
+     */
+
+    data = { ...data, action: 'save-all-datas', token: usertoken };
+    ApiAction(data, (res) => {
+      /*  cb(res.data);*/
+
+      alert('jai envoyer le formulaire');
+    },
+      undefined,
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'multipart/form-data'
+        },
+      });
   };
 
   const getUserData = (token) => {
@@ -191,7 +212,8 @@ export const AuthProvider = ({ children }) => {
         Login,
         Logout,
         getUserData,
-        validForm
+        validForm,
+        validFormMultiPart
       }}>
       {children}
     </AuthContext.Provider>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as TextBlock } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
@@ -15,6 +15,7 @@ import ConfirmationModal from './ConfirmModal';
 
 import { Picker } from '@react-native-picker/picker';
 import ModalForm from './ModalForm';
+import { AuthContext } from '../context/AuthContext';
 
 
 
@@ -32,10 +33,21 @@ const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
 const Form4 = () => {
+  const { validFormMultiPart, usertoken } = useContext(AuthContext);
   const [modalFormDevis, setModalFormDevis] = useState(false);
 
   const handleSubmit = (data: any) => {
-    console.log(data);
+    const formData = new FormData();
+    // formData.append('token', usertoken);
+    // formData.append('action', 'save-all-datas');
+    formData.append('amount', data.amount);
+    formData.append('email', data.email);
+    formData.append('phone', data.phone);
+    formData.append('commission', data.commission);
+    formData.append('comment', data.comment);
+    formData.append('fichiers', data.fichiers);
+
+    validFormMultiPart(formData);
     // Traitez les données du formulaire ici
   };
   const [selectedOption, setSelectedOption] = useState('');

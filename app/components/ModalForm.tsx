@@ -19,8 +19,7 @@ import { useTheme } from '../hooks';
 
 
 const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit, badge }) => {
-    const [nom, setNom] = useState<string>('');
-    const [prenom, setPrenom] = useState<string>('');
+
     const [selectedFiles, setSelectedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [commission, setCommission] = useState<number>(10);
@@ -40,8 +39,8 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit, badge
     }, []);
 
     const handleSubmit = async () => {
-        if (!nom.trim() || !prenom.trim()) {
-            Alert.alert('Erreur', 'Veuillez remplir les champs Nom et Prénom');
+        if (!amount.trim() || !email.trim() || !phone.trim()) {
+            Alert.alert('Erreur', 'Veuillez remplir les champs Montant, Mail et Tel');
             return;
         }
 
@@ -56,8 +55,9 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit, badge
             setIsSubmitting(true);
 
             const formData: FormData = {
-                nom,
-                prenom,
+                amount,
+                email,
+                phone,
                 commission,
                 comment,
                 fichiers: selectedFiles
@@ -74,8 +74,9 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit, badge
     };
 
     const resetForm = () => {
-        setNom('');
-        setPrenom('');
+        setAmount('');
+        setEmail('');
+        setPhone('');
         setSelectedFiles([]);
         setCommission(10);
         setComment('');

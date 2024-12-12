@@ -1,11 +1,12 @@
 import * as DocumentPicker from 'expo-document-picker';
 
 export interface FormData {
-    nom: string;
-    prenom: string;
+    amount: string;
+    email: string;
+    phone: any;
     commission: number;
     comment: string;
-    fichiers: DocumentPicker.DocumentPickerResult[];
+    fichiers: any;
 }
 
 export interface ModalFormProps {
