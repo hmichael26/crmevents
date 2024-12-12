@@ -122,7 +122,7 @@ export const Prestataire = () => {
                         </View>
 
 
-                        <Text style={styles.resultCount}>Resultat de recherche : <Text style={{ color: '#9932CC', fontWeight: 'bold', fontSize: 25 }}>5528</Text> prestataires.</Text>
+                        <Text style={styles.resultCount}>Resultat de recherche : <Text style={{ color: '#9932CC', fontWeight: 'bold', fontSize: 20 }}>5528</Text> prestataires.</Text>
 
                         {/* Provider Card */}
                         <View style={styles.providerCard}>
