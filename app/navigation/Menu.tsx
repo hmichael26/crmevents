@@ -44,7 +44,7 @@ const ScreensStack = () => {
 
   return (
     <Screens />
- 
+
   );
 };
 
@@ -55,9 +55,9 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
   // const { t } = useTranslation();
   const [active, setActive] = useState('Home');
   const { assets, colors, gradients, sizes } = useTheme();
-  
+
   const { Logout, usertoken, userdata } = useContext(AuthContext);
-  
+
   const labelColor = isDark ? colors.white : colors.text;
 
   const handleNavigation = useCallback(
@@ -82,6 +82,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
     { name: "t('screens.extra')", to: 'Extra', icon: assets.extras },
     { name: "t('screens.eventdetails')", to: 'Eventdetails', icon: assets.register },
     { name: "t('screens.eventPresta')", to: 'EventPresta', icon: assets.register },
+    { name: "t('screens.presataire')", to: 'Prestataire', icon: assets.register },
 
   ];
 
@@ -212,9 +213,9 @@ export default () => {
             backgroundColor: 'transparent',
           },
         }}
-           drawerContent={(props) => <DrawerContent {...props} />}
+        drawerContent={(props) => <DrawerContent {...props} />}
       >
-        <Drawer.Screen name="Screens" component={ScreensStack} options={{headerShown:false}}/>
+        <Drawer.Screen name="Screens" component={ScreensStack} options={{ headerShown: false }} />
       </Drawer.Navigator>
     </Block>
   );

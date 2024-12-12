@@ -5,77 +5,81 @@ import {
     TextInput,
     TouchableOpacity,
     Modal,
-    StyleSheet,
-    Platform
+    ScrollView,
+    Alert,
+    Animated
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { styles } from './styles';
+import { FormData, ModalFormProps } from './types';
+import { handleFileUpload, removeFile } from './fileHandlers';
+import { useTheme } from '../hooks';
 
-// Types for form data and component props
-interface FormData {
-    nom: string;
-    prenom: string;
-    fichier?: DocumentPicker.DocumentPickerResult;
-}
 
-interface ModalFormProps {
-    visible: boolean;
-    onClose: () => void;
-    onSubmit: (data: FormData) => void;
-}
 
-const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit }) => {
+const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit, badge }) => {
     const [nom, setNom] = useState<string>('');
     const [prenom, setPrenom] = useState<string>('');
-    const [selectedFile, setSelectedFile] = useState<any>(null);
+    const [selectedFiles, setSelectedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [commission, setCommission] = useState<number>(10);
 
-    const handleFileUpload = async () => {
-        try {
-            const result = await DocumentPicker.getDocumentAsync({
-                type: '*/*', // Allow all file types
-                copyToCacheDirectory: true,
-            });
-            console.log(result)
+    const [fadeAnim] = useState(new Animated.Value(0));
+    const [amount, setAmount] = useState('12 000€ HT');
+    const [email, setEmail] = useState('jack.j@hilton.com');
+    const [phone, setPhone] = useState('01 01 01 01 01');
+    const [selectedCommission, setSelectedCommission] = useState(10);
+    const [comment, setComment] = useState('');
+    React.useEffect(() => {
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+    }, []);
 
-            if (result.canceled === false) {
-                setSelectedFile(result.assets[0]);
-            }
-        } catch (err) {
-            console.error('Erreur de sélection de fichier:', err);
+    const handleSubmit = async () => {
+        if (!nom.trim() || !prenom.trim()) {
+            Alert.alert('Erreur', 'Veuillez remplir les champs Nom et Prénom');
+            return;
         }
-    };
 
-    const handleSubmit = () => {
-        console.log(
-            nom.trim() && prenom.trim() && selectedFile
-        )
-        // Validate form before submission
-        if (nom.trim() && prenom.trim()) {
-            onSubmit({
+        if (selectedFiles.length === 0) {
+            Alert.alert('Erreur', 'Veuillez sélectionner au moins un devis');
+            return;
+        }
+
+        if (isSubmitting) return;
+
+        try {
+            setIsSubmitting(true);
+
+            const formData: FormData = {
                 nom,
                 prenom,
-                fichier: selectedFile
-            });
-            // Reset form
-            setNom('');
-            setPrenom('');
-            setSelectedFile(null);
-            onClose();
-        } else {
-            alert('Veuillez remplir tous les champs obligatoires');
+                commission,
+                comment,
+                fichiers: selectedFiles
+            };
+
+            await onSubmit(formData);
+            resetForm();
+        } catch (error) {
+            console.error('Erreur de soumission:', error);
+            Alert.alert('Erreur', 'Impossible de soumettre le formulaire');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    const getFileUploadButtonStyle = () => {
-        return selectedFile 
-            ? [styles.fileUploadButton, styles.fileUploadButtonSuccess] 
-            : styles.fileUploadButton;
-    };
-
-    const getFileUploadButtonTextStyle = () => {
-        return selectedFile 
-            ? [styles.fileUploadButtonText, styles.fileUploadButtonTextSuccess] 
-            : styles.fileUploadButtonText;
+    const resetForm = () => {
+        setNom('');
+        setPrenom('');
+        setSelectedFiles([]);
+        setCommission(10);
+        setComment('');
+        onClose();
     };
 
     return (
@@ -86,43 +90,120 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit }) => 
             onRequestClose={onClose}
         >
             <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                    <Text style={styles.modalTitle}>Formulaire</Text>
+                <Animated.View style={[styles.modalView, { opacity: fadeAnim }]}>
+                    <Text style={styles.modalTitle}>Inserer devis pour</Text>
+                    <View style={styles.hotelNameContainer}>
+                        <Text style={styles.hotelName}>{badge}</Text>
+                    </View>
+                    <View style={styles.formSection}>
 
-                    {/* Champ Nom */}
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Nom"
-                        value={nom}
-                        onChangeText={setNom}
-                    />
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Montant du devis HT :</Text>
+                            <TextInput
+                                style={[styles.input, { width: '50%' }]}
+                                value={amount}
+                                onChangeText={setAmount}
+                                keyboardType="numeric"
+                            />
+                        </View>
 
-                    {/* Champ Prénom */}
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Prénom"
-                        value={prenom}
-                        onChangeText={setPrenom}
-                    />
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Mail du prestataire :</Text>
+                            <TextInput
+                                style={[styles.input, { width: '50%' }]}
+                                value={email}
+                                onChangeText={setEmail}
+                                keyboardType="email-address"
+                            />
+                        </View>
 
-                    {/* Bouton Upload Fichier */}
-                    <TouchableOpacity
-                        style={getFileUploadButtonStyle()}
-                        onPress={handleFileUpload}
-                    >
-                        <Ionicons
-                            name={selectedFile ? "checkmark-circle" : "cloud-upload-outline"}
-                            size={24}
-                            color="white"
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Tel du prestataire :</Text>
+                            <TextInput
+                                style={[styles.input, { width: '50%' }]}
+                                value={phone}
+                                onChangeText={setPhone}
+                                keyboardType="phone-pad"
+                            />
+                        </View>
+
+                    </View>
+
+                    <View style={[styles.formSection, { justifyContent: 'center', alignItems: 'center' }]}>
+
+                        <TouchableOpacity
+                            style={[styles.fileUploadButton, { backgroundColor: useTheme().colors.info }]}
+                            onPress={() => handleFileUpload(selectedFiles).then(setSelectedFiles)}
+                        >
+                            <Ionicons
+                                name="cloud-upload-outline"
+                                size={24}
+                                color="white"
+                            />
+                            <Text style={styles.fileUploadButtonText}>
+                                Ajouter des devis
+                            </Text>
+                        </TouchableOpacity>
+
+                        <ScrollView
+                            style={styles.fileListContainer}
+                            contentContainerStyle={styles.fileListContent}
+                        >
+                            {selectedFiles.map((file, index) => (
+                                <View key={file.uri} style={styles.fileItem}>
+                                    <Text style={styles.fileItemText}>
+                                        Devis {index + 1}: {file.name}
+                                    </Text>
+                                    <TouchableOpacity
+                                        onPress={() => setSelectedFiles(prevFiles => removeFile(prevFiles, file.uri))}
+                                        style={styles.fileRemoveButton}
+                                    >
+                                        <Ionicons
+                                            name="close-circle"
+                                            size={24}
+                                            color="#dc3545"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </ScrollView>
+                    </View>
+
+                    <View style={[styles.formSection, { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }]}>
+                        <Text style={styles.sectionTitle}>Commission :</Text>
+                        <View style={styles.commissionButtons}>
+                            {[10, 12, 15].map((rate) => (
+                                <TouchableOpacity
+                                    key={rate}
+                                    style={[
+                                        styles.commissionButton,
+                                        commission === rate && { backgroundColor: useTheme().colors.warning }
+                                    ]}
+                                    onPress={() => setCommission(rate)}
+                                >
+                                    <Text style={[
+                                        styles.commissionButtonText,
+                                        commission === rate && { color: 'white' }
+                                    ]}>
+                                        {rate}%
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+
+                    <View style={styles.formSection}>
+
+                        <TextInput
+                            style={styles.commentInput}
+                            value={comment}
+                            onChangeText={setComment}
+                            placeholder="commentaire de commission"
+                            multiline
+                            numberOfLines={3}
                         />
-                        <Text style={getFileUploadButtonTextStyle()}>
-                            {selectedFile
-                                ? `Fichier uploadé: ${selectedFile.name}`
-                                : 'Dévis à uploader'}
-                        </Text>
-                    </TouchableOpacity>
+                    </View>
 
-                    {/* Boutons d'action */}
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
                             style={[styles.button, styles.buttonCancel]}
@@ -132,100 +213,20 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit }) => 
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={[styles.button, styles.buttonSubmit]}
+                            style={[styles.button, styles.buttonSubmit, { backgroundColor: useTheme().colors.warning }]}
                             onPress={handleSubmit}
+                            disabled={isSubmitting}
                         >
-                            <Text style={styles.buttonTextSubmit}>Soumettre</Text>
+                            <Text style={[styles.buttonTextSubmit]}>
+                                {isSubmitting ? 'Envoi en cours...' : 'Soumettre'}
+                            </Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </Animated.View>
             </View>
         </Modal>
     );
 };
 
-const styles = StyleSheet.create({
-    centeredView: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)'
-    },
-    modalView: {
-        width: '90%',
-        backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 15
-    },
-    input: {
-        width: '100%',
-        borderWidth: 1,
-        borderColor: '#ddd',
-        padding: 10,
-        marginBottom: 15,
-        borderRadius: 10
-    },
-    fileUploadButton: {
-        flexDirection: 'row',
-        backgroundColor: '#007bff',
-        padding: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 15,
-        width: '100%'
-    },
-    fileUploadButtonSuccess: {
-        backgroundColor: '#28a745'
-    },
-    fileUploadButtonText: {
-        color: 'white',
-        marginLeft: 10
-    },
-    fileUploadButtonTextSuccess: {
-        color: 'white',
-        marginLeft: 10,
-        textDecorationLine: 'underline'
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%'
-    },
-    button: {
-        padding: 10,
-        borderRadius: 10,
-        width: '48%',
-        alignItems: 'center'
-    },
-    buttonCancel: {
-        backgroundColor: '#6c757d'
-    },
-    buttonSubmit: {
-        backgroundColor: '#28a745'
-    },
-    buttonTextCancel: {
-        color: 'white',
-        fontWeight: 'bold'
-    },
-    buttonTextSubmit: {
-        color: 'white',
-        fontWeight: 'bold'
-    }
-});
-
 export default ModalForm;
+

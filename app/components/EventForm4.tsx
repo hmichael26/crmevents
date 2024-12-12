@@ -477,11 +477,16 @@ const Form4 = () => {
         </Button>
       </View>
     }
-    <ModalForm
-      visible={modalFormDevis}
-      onClose={() => setModalFormDevis(false)}
-      onSubmit={handleSubmit}
-    />
+
+    {badges.map((badge, index) => (
+      (activeBadge === 0 || activeBadge === index + 1) &&
+      <ModalForm
+        visible={activeBadge !== 0 && modalFormDevis}
+        onClose={() => setModalFormDevis(false)}
+        onSubmit={handleSubmit}
+        badge={badge.text}
+      />
+    ))}
 
   </SafeAreaView>
     ;

@@ -26,6 +26,7 @@ import {
 } from '../screens';
 
 import { useScreenOptions } from '../hooks';
+import Prestataire from '../screens/Prestataire';
 
 const Stack = createStackNavigator();
 
@@ -138,7 +139,7 @@ export default () => {
       <Stack.Screen
         name="Eventdetails"
         component={EventDetails}
-        options={{title: "t('Details')", ...screenOptions.eventDetail, headerRight: () => null}}
+        options={{ title: "t('Details')", ...screenOptions.eventDetail, headerRight: () => null }}
       />
 
       <Stack.Screen
@@ -146,13 +147,17 @@ export default () => {
         component={EventPresta}
         options={screenOptions.eventPresta}
       />
-      
+      <Stack.Screen
+        name="Prestataire"
+        component={Prestataire}
+        options={screenOptions.eventPresta}
+      />
 
       <Stack.Screen
         name="EventMenu"
         component={EventMenu}
         // options={screenOptions.eventMenu}
-        options={{ title: "t('Open Project')", ...screenOptions.eventMenu, headerRight: () => null}}
+        options={{ title: "t('Open Project')", ...screenOptions.eventMenu, headerRight: () => null }}
       />
 
     </Stack.Navigator>
