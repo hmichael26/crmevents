@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as TextBlock } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as TextBlock, Modal, Image } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
 import { useTheme } from '../hooks';
@@ -26,7 +26,12 @@ const options = [
   { id: '3', label: 'supprimer' },
   // Add more options as needed
 ];
-
+const images = [
+  'https://example.com/image1.jpg',
+  'https://example.com/image2.jpg',
+  'https://example.com/image3.jpg',
+  // Add more images as needed
+];
 
 const { width, height } = Dimensions.get('window');
 const fontScale = PixelRatio.getFontScale();
@@ -35,6 +40,8 @@ const getFontSize = (size: number) => size / fontScale;
 const Form4 = () => {
   const { validFormMultiPart, usertoken } = useContext(AuthContext);
   const [modalFormDevis, setModalFormDevis] = useState(false);
+  const [modalimage, setModalimage] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const handleSubmit = (data: any) => {
     const formData = new FormData();
@@ -79,6 +86,18 @@ const Form4 = () => {
       }
     }
   };
+
+  const openModalImage = () => setModalimage(true);
+  const closeModalimage = () => setModalimage(false);
+
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+  };
+
 
   const handleConfirm = () => {
     // Si le formulaire 1 est actif et confirmé
@@ -302,7 +321,7 @@ const Form4 = () => {
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }}>
 
-                <Button flex={1} gradient={gradients.info} rounded={false} round={false} >
+                <Button flex={1} gradient={gradients.info} rounded={false} round={false} onPress={openModalImage}>
                   <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                     Galerie
                   </Text>
@@ -329,7 +348,32 @@ const Form4 = () => {
                 </View>
 
               </View>
-
+              <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalimage}
+                onRequestClose={closeModalimage}
+              >
+                <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]} />
+                <View style={styles.modalContainer}>
+                  <Image
+                    source={{ uri: images[currentImageIndex] }}
+                    style={styles.image}
+                    resizeMode="contain"
+                  />
+                  <View style={styles.navigationContainer}>
+                    <TouchableOpacity onPress={prevImage} style={styles.navButton}>
+                      <Text white size={getFontSize(16)} bold>Précédent</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={nextImage} style={styles.navButton}>
+                      <Text white size={getFontSize(16)} bold>Suivant</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity onPress={closeModalimage} style={styles.closeButton}>
+                    <Text white size={getFontSize(16)} bold>Fermer</Text>
+                  </TouchableOpacity>
+                </View>
+              </Modal>
               <ConfirmationModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
@@ -568,6 +612,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: "center"
+  }, modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  image: {
+    width: width * 0.9,
+    height: height * 0.6,
+    borderRadius: 10,
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 20,
+    position: 'absolute',
+    bottom: 50,
+  },
+  navButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 5,
   },
 })
 export default Form4;

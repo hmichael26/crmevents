@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
       setIsLoading(false);
     } else {
-      console.log('CONNECTED ACTION (' + prms.action ? prms.action : action + ') ');
+      //console.log('CONNECTED ACTION (' + prms.action ? prms.action : action + ') ');
       axios.post(appBaseUrl + 'api/api.php', prms, { headers }).then((res) => {
 
         console.log(prms)
