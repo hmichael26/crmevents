@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
     View,
     Text,
@@ -12,17 +12,21 @@ import {
 import * as DocumentPicker from 'expo-document-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { styles } from './styles';
-import { FormData, ModalFormProps } from './types';
+import { ModalFormProps } from './types';
 import { handleFileUpload, removeFile } from './fileHandlers';
 import { useTheme } from '../hooks';
+import { AuthContext } from '../context/AuthContext';
+//var FormData = require('form-data');
 
 
 
-const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit, badge }) => {
 
-    const [selectedFiles, setSelectedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
+const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
+
+    const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [commission, setCommission] = useState<number>(10);
+    const { validFormMultiPart, usertoken } = useContext(AuthContext);
 
     const [fadeAnim] = useState(new Animated.Value(0));
     const [amount, setAmount] = useState('12 000€ HT');
@@ -30,6 +34,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit, badge
     const [phone, setPhone] = useState('01 01 01 01 01');
     const [selectedCommission, setSelectedCommission] = useState(10);
     const [comment, setComment] = useState('');
+
     React.useEffect(() => {
         Animated.timing(fadeAnim, {
             toValue: 1,
@@ -54,16 +59,24 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, onSubmit, badge
         try {
             setIsSubmitting(true);
 
-            const formData: FormData = {
-                amount,
-                email,
-                phone,
-                commission,
-                comment,
-                fichiers: selectedFiles
-            };
+            let data = new FormData();
+            data.append('token', usertoken);
+            data.append('action', 'save-all-datas');
+            data.append('amount', amount);
+            data.append('email', email);
+            data.append('phone', phone);
+            data.append('commission', commission.toString());
+            data.append('comment', comment);
+            // Ajouter les fichiers un par un
+            selectedFiles.forEach((file, index) => {
+                data.append(`fichiers[${index}]`, {
+                    uri: file.uri,
+                    name: file.name,
+                    type: file.mimeType || 'application/octet-stream',
+                });
+            });
 
-            await onSubmit(formData);
+            await validFormMultiPart(data);
             resetForm();
         } catch (error) {
             console.error('Erreur de soumission:', error);

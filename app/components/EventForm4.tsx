@@ -38,25 +38,10 @@ const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
 const Form4 = () => {
-  const { validFormMultiPart, usertoken } = useContext(AuthContext);
   const [modalFormDevis, setModalFormDevis] = useState(false);
   const [modalimage, setModalimage] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const handleSubmit = (data: any) => {
-    const formData = new FormData();
-    // formData.append('token', usertoken);
-    // formData.append('action', 'save-all-datas');
-    formData.append('amount', data.amount);
-    formData.append('email', data.email);
-    formData.append('phone', data.phone);
-    formData.append('commission', data.commission);
-    formData.append('comment', data.comment);
-    formData.append('fichiers', data.fichiers);
-
-    validFormMultiPart(formData);
-    // Traitez les données du formulaire ici
-  };
   const [selectedOption, setSelectedOption] = useState('');
   const [selectedOption2, setSelectedOption2] = useState('');
   const { assets, colors, gradients, sizes } = useTheme();
@@ -539,7 +524,7 @@ const Form4 = () => {
       <ModalForm
         visible={activeBadge !== 0 && modalFormDevis}
         onClose={() => setModalFormDevis(false)}
-        onSubmit={handleSubmit}
+        //   onSubmit={handleSubmit}
         badge={badge.text}
       />
     ))}

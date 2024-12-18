@@ -32,61 +32,25 @@ export const AuthProvider = ({ children }) => {
     console.log('ApiAction params:', prms);
     console.log('Headers:', headers);
 
-    if (!isConnected && !force) {
-      console.log('DISCONNECTED ACTION');
-      let obj = { type: '' };
-      let curFilename = '';
-      if (headers?.headers['Content-Type'].indexOf("multipart/form-data") > -1) {
-        const action = prms._parts.find((part) => part[0] === 'action')[1];
-        prms._parts.forEach((part) => {
-          if (part[0].indexOf("doc") > -1) {
-            curFilename += (curFilename != '' ? ',' : '') + part[1].uri;
-          }
-        });
-      } else if (['send-rdv-step-quest', 'rdv-finish', 'save-satisfaction'].indexOf(prms.action) > -1) {
-        obj.type = 'json';
-        obj.data = prms;
-      }
 
-      if (obj.type != '') {
-        try {
-          let localData = await getAsyncStoreData("localData");
-          localData = localData !== null ? JSON.parse(localData) : [];
-          if (localData) {
-            localData.push(obj);
-            AsyncSave("localData", JSON.stringify(localData));
+    console.log('CONNECTED ACTION ' + prms.action);
+    axios.post(appBaseUrl + 'api/api.php', prms, { headers }).then((res) => {
 
-            localData = await getAsyncStoreData("localData");
-            const resp = {};
-            if (obj.type == 'formdata') resp.data = { filename: curFilename };
-
-            callback(resp);
-          }
-        } catch (e) {
-          console.log(`getStoredData #localData apiaction error : ${e}`);
-        }
-      } else if (['save-push-token'].indexOf(prms.action) == -1) alert('Vous ne pouvez pas faire cette operation, veuillez verifier votre connexion internet (' + prms.action + ')');
-
+      console.log(prms)
       setIsLoading(false);
-    } else {
-      //console.log('CONNECTED ACTION (' + prms.action ? prms.action : action + ') ');
-      axios.post(appBaseUrl + 'api/api.php', prms, { headers }).then((res) => {
+      if (res.data.code == 'SUCCESS') callback(res);
+      else if (res.data.code == 'LOGOUT') Logout();
+      else if (cberror != undefined) cberror();
+      else {
+        console.log(res);
+        alert(res);
+      }
+    }).catch((e) => {
+      alert(`Erreur à la connexion : ${e}`);
+      console.log(e);
+      setIsLoading(false);
+    });
 
-        console.log(prms)
-        setIsLoading(false);
-        if (res.data.code == 'SUCCESS') callback(res);
-        else if (res.data.code == 'LOGOUT') Logout();
-        else if (cberror != undefined) cberror();
-        else {
-          console.log(res);
-          alert(res);
-        }
-      }).catch((e) => {
-        alert(`Erreur à la connexion : ${e}`);
-        console.log(e);
-        setIsLoading(false);
-      });
-    }
   };
 
   const Login = data => {
@@ -132,23 +96,29 @@ export const AuthProvider = ({ children }) => {
 
 
   const validFormMultiPart = (data, cb) => {
-    /* data.append('token',usertoken);
-    data.append('action','save-all-datas');  
-     */
 
-    data = { ...data, action: 'save-all-datas', token: usertoken };
-    ApiAction(data, (res) => {
-      /*  cb(res.data);*/
+    if (!(data instanceof FormData)) {
+      console.error('Data must be a FormData object');
+      return;
+    }
 
-      alert('jai envoyer le formulaire');
-    },
-      undefined,
+    // data.append('token', usertoken);
+    // data.append('action', 'save-all-datas');
+    // data = { ...data, action: 'save-all-datas', token: usertoken };
+    ApiAction(
+      data,
+      (res) => {
+        if (cb) cb(res.data);
+        alert('Form submitted successfully');
+      },
+      (error) => {
+        console.error('Form submission error:', error);
+        alert('Failed to submit form');
+      },
       {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'multipart/form-data'
-        },
-      });
+        'Content-Type': 'multipart/form-data'
+      }
+    );
   };
 
   const getUserData = (token) => {
