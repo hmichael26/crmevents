@@ -102,9 +102,7 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    // data.append('token', usertoken);
-    // data.append('action', 'save-all-datas');
-    // data = { ...data, action: 'save-all-datas', token: usertoken };
+
     ApiAction(
       data,
       (res) => {
