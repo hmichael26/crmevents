@@ -16,7 +16,9 @@ import ConfirmationModal from './ConfirmModal';
 import { Picker } from '@react-native-picker/picker';
 import ModalForm from './ModalForm';
 import { AuthContext } from '../context/AuthContext';
-import Pdf from 'react-native-pdf';
+import { PdfViewer, downloadPdf } from '../components/PdfViewer';
+import PdfModal from './PdfModal';
+
 
 
 
@@ -33,6 +35,10 @@ const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
 const Form4 = ({ item }) => {
+
+  const [pdfModalVisible, setPdfModalVisible] = useState(false);
+  const [pdfUri, setPdfUri] = useState(null);
+
   const [modalFormDevis, setModalFormDevis] = useState(false);
   const [modalimage, setModalimage] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -121,10 +127,17 @@ const Form4 = ({ item }) => {
   }, [item]);
 
 
-
-  const source = { uri: activeBadgeData?.lien_brochure, cache: true };
-
-
+  const openDocument = async () => {
+    try {
+      const uri = await downloadPdf(activeBadgeData?.lien_brochure, 'document');
+      //   console.log(uri)
+      setPdfUri(uri);
+      setPdfModalVisible(true);
+    } catch (error) {
+      console.error('Erreur lors du chargement du PDF:', error);
+      Alert.alert('Erreur', 'Impossible de charger le PDF');
+    }
+  };
 
   const [badgeToDelete, setBadgeToDelete] = useState<number | null>(null);
 
@@ -530,6 +543,11 @@ const Form4 = ({ item }) => {
       />
     ))}
 
+    <PdfModal
+      visible={pdfModalVisible}
+      onClose={() => setPdfModalVisible(false)}
+      pdfUri={pdfUri}
+    />
 
 
   </SafeAreaView>
