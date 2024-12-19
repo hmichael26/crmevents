@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
     View,
     Text,
@@ -7,19 +7,86 @@ import {
     StyleSheet,
     ScrollView,
     SafeAreaView,
+    ActivityIndicator,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { AuthContext } from '../context/AuthContext';
+import { useApi } from '../context/useApi';
+import { ProviderCard } from '../components/ProviderCard';
 
 export const Prestataire = () => {
-    const [region, setRegion] = useState('');
-    const [department, setDepartment] = useState('');
-    const [city, setCity] = useState('');
-    const [providerType, setProviderType] = useState('');
-    const [postalCode, setPostalCode] = useState('');
-    const [minRooms, setMinRooms] = useState('');
-    const [maxRooms, setMaxRooms] = useState('');
-    const [providerName, setProviderName] = useState('');
+    const { loading, getPrestaBy, error } = useApi();
+
+    const { userdata } = useContext(AuthContext);
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [searchResults, setSearchResults] = useState<[] | null>(null);
+
+    const [selectForm, setSelectForm] = useState({
+        region: '',
+        department: '',
+        city: '',
+        providerType: '',
+        postalCode: '',
+        minRooms: '',
+        maxRooms: '',
+        nom: ''
+    });
+
+    const submit = async () => {
+        setIsLoading(true);
+        try {
+            // Filtrer les champs non-nuls
+            const filteredForm = Object.fromEntries(
+                Object.entries(selectForm).filter(([_, value]) =>
+                    value !== null && value !== undefined && value !== ''
+                )
+            );
+
+            // Renommer les clés si nécessaire pour correspondre au format attendu
+            const mappedKeys = {
+                providerType: 'fk_type',
+                postalCode: 'cp',
+                minRooms: 'nb_chbre',
+                maxRooms: 'nb_salle',
+                nom: 'nom',
+                city: 'fk_ville',
+                department: 'fk_departement',
+                region: 'fk_region'
+
+
+            };
+
+            const formattedData = Object.entries(filteredForm).reduce((acc, [key, value]) => {
+                const newKey = mappedKeys[key] || key;
+                acc[newKey] = value;
+                return acc;
+            }, {});
+
+            console.log(formattedData);
+            // Appel à l'API
+            const response = await getPrestaBy(formattedData);
+            //    console.log(response.data.all_prests);
+
+            setSearchResults(Array.isArray(response.data.all_prests) ? response.data.all_prests : 0);
+
+            // Mettre à jour les résultats avec la réponse de l'API
+            //setSearchResults(response. || 0);
+
+            // Vous pouvez aussi stocker les prestataires si nécessaire
+            // setPrestataires(response);
+
+        } catch (e) {
+            console.log(error)
+
+            console.error('Erreur lors de la recherche:', e);
+            // Gérer l'erreur ici (par exemple, afficher un message à l'utilisateur)
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -32,75 +99,80 @@ export const Prestataire = () => {
                         <View style={{ flexDirection: 'row', gap: 5 }}>
                             <View style={[styles.pickerContainer, { width: '50%' }]}>
                                 <Picker
-                                    selectedValue={region}
-                                    onValueChange={setRegion}
+                                    selectedValue={selectForm.region}
+                                    onValueChange={(itemValue) => setSelectForm({ ...selectForm, region: itemValue })}
                                     style={styles.picker}
                                 >
-                                    <Picker.Item label="Région" value="" />
-                                    <Picker.Item label="Loire atlantique" value="loire" />
+                                    <Picker.Item label="Sélectionner une région" value="" />
+                                    {userdata.all_regions.map((item, index) => (
+                                        <Picker.Item label={item.name} value={item.id} key={index} />
+                                    ))}
                                 </Picker>
                             </View>
 
                             <View style={[styles.pickerContainer, { width: '50%' }]}>
                                 <Picker
-                                    selectedValue={department}
-                                    onValueChange={setDepartment}
+                                    selectedValue={selectForm.department}
+                                    onValueChange={(itemValue) => setSelectForm({ ...selectForm, department: itemValue })}
                                     style={styles.picker}
                                 >
-                                    <Picker.Item label="Département" value="" />
-                                    <Picker.Item label="Loire-Atlantique" value="44" />
+                                    <Picker.Item label="Sélectionner un département" value="" />
+                                    {userdata.all_depts.map((item, index) => (
+                                        <Picker.Item label={item.name} value={item.id} key={index} />
+                                    ))}
                                 </Picker>
                             </View>
-
                         </View>
 
                         <View style={{ flexDirection: 'row', gap: 5 }}>
-
                             <View style={[styles.pickerContainer, { width: '50%' }]}>
                                 <Picker
-                                    selectedValue={city}
-                                    onValueChange={setCity}
+                                    selectedValue={selectForm.city}
+                                    onValueChange={(itemValue) => setSelectForm({ ...selectForm, city: itemValue })}
                                     style={styles.picker}
                                 >
-                                    <Picker.Item label="Ville" value="" />
-                                    <Picker.Item label="Nantes" value="nantes" />
+                                    <Picker.Item label="Sélectionner une ville" value="" />
+                                    {userdata.all_cities.map((item, index) => (
+                                        <Picker.Item label={item.name} value={item.id} key={index} />
+                                    ))}
                                 </Picker>
                             </View>
 
                             <View style={[styles.pickerContainer, { width: '50%' }]}>
                                 <Picker
-                                    selectedValue={providerType}
-                                    onValueChange={setProviderType}
+                                    selectedValue={selectForm.providerType}
+                                    onValueChange={(itemValue) => setSelectForm({ ...selectForm, providerType: itemValue })}
                                     style={styles.picker}
                                 >
                                     <Picker.Item label="Type de prestataire" value="" />
-                                    <Picker.Item label="Hôtel" value="hotel" />
+                                    {userdata.all_categories.map((item, index) => (
+                                        <Picker.Item label={item.libelle} value={item.id} key={index} />
+                                    ))}
                                 </Picker>
                             </View>
-
-
                         </View>
 
+                        {/* Rest of the form inputs remain the same */}
                         <View style={styles.row}>
                             <TextInput
                                 style={[styles.input, styles.inputHalf]}
                                 placeholder="Code Postal"
-                                value={postalCode}
-                                onChangeText={setPostalCode}
+                                value={selectForm.postalCode}
+                                onChangeText={(text) => setSelectForm({ ...selectForm, postalCode: text })}
                                 keyboardType="numeric"
                             />
                             <TextInput
                                 style={[styles.input, styles.inputHalf]}
                                 placeholder="Nb de chambre min."
-                                value={minRooms}
-                                onChangeText={setMinRooms}
+                                value={selectForm.minRooms}
+                                onChangeText={(text) => setSelectForm({ ...selectForm, minRooms: text })}
                                 keyboardType="numeric"
                             />
                             <TextInput
                                 style={[styles.input, styles.inputHalf]}
                                 placeholder="Nb de salle min."
-                                value={maxRooms}
-                                onChangeText={setMaxRooms}
+                                value={selectForm.maxRooms}
+                                onChangeText={(text) => setSelectForm({ ...selectForm, maxRooms: text })}
                                 keyboardType="numeric"
                             />
                         </View>
@@ -108,65 +180,38 @@ export const Prestataire = () => {
                         <TextInput
                             style={[styles.input, { fontSize: 16 }]}
                             placeholder="Nom du prestataire"
-                            value={providerName}
-                            onChangeText={setProviderName}
+                            value={selectForm.nom}
+                            onChangeText={(text) => setSelectForm({ ...selectForm, nom: text })}
                         />
 
                         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 12, alignItems: 'center' }}>
-                            <TouchableOpacity style={[styles.searchButton, { paddingHorizontal: 25 }]}>
-                                <Text style={styles.searchButtonText}>Rechercher</Text>
+                            <TouchableOpacity
+                                style={[styles.searchButton, { paddingHorizontal: 25 }]}
+                                onPress={submit}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <ActivityIndicator color="white" />
+                                ) : (
+                                    <Text style={styles.searchButtonText}>Rechercher</Text>
+                                )}
                             </TouchableOpacity>
                             <TouchableOpacity style={[]}>
                                 <Icon name="search" size={30} color="#9932CC" />
                             </TouchableOpacity>
                         </View>
 
-
-                        <Text style={styles.resultCount}>Resultat de recherche : <Text style={{ color: '#9932CC', fontWeight: 'bold', fontSize: 20 }}>5528</Text> prestataires.</Text>
+                        {searchResults !== null && (
+                            <Text style={styles.resultCount}>
+                                Resultat de recherche : <Text style={{ color: '#9932CC', fontWeight: 'bold', fontSize: 20 }}>{searchResults.length}</Text> prestataires.
+                            </Text>
+                        )}
 
                         {/* Provider Card */}
-                        <View style={styles.providerCard}>
-                            <Text style={styles.providerName}>HÔTEL CRILLON</Text>
+                        {searchResults !== null && searchResults.length > 0 && searchResults.map((provider: any, index: any) => (
+                            <ProviderCard provider={provider} onModify={() => console.log('Modifier')} onDelete={() => console.log('Supprimer')} />
+                        ))}
 
-                            <View style={styles.tagContainer}>
-                                <View style={styles.tag}>
-                                    <Text style={styles.tagText}>06 06 06 06 06</Text>
-                                </View>
-                                <View style={styles.tag}>
-                                    <Text style={styles.tagText}>contact@hotelcrillon</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.tagContainer}>
-                                <View style={styles.tag}>
-                                    <Text style={styles.tagText}>2 salles</Text>
-                                </View>
-                                <View style={styles.tag}>
-                                    <Text style={styles.tagText}>128 ch.</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.tagContainer}>
-                                <View style={styles.tag}>
-                                    <Text style={styles.tagText}>Loire atlantique</Text>
-                                </View>
-                                <View style={styles.tag}>
-                                    <Text style={styles.tagText}>Nantes</Text>
-                                </View>
-                                <View style={styles.tag}>
-                                    <Text style={styles.tagText}>Pays de la Loire</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.actionButtons}>
-                                <TouchableOpacity style={styles.modifyButton}>
-                                    <Text style={styles.modifyButtonText}>Modifier</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.deleteButton}>
-                                    <Text style={styles.deleteButtonText}>Supprimer</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
                     </View>
                 </View>
             </ScrollView>

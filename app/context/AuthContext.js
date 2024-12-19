@@ -7,6 +7,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [userdata, setUserData] = useState(null);
+  const [presta, setPresta] = useState(null);
   const [isloading, setIsLoading] = useState(false);
   const [usertoken, setUserToken] = useState(null);
   const [isConnected, setIsConnected] = useState(true);
@@ -129,6 +130,17 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const getAllPrestaData = (data) => {
+    ApiAction({
+      action: 'get-presta-by',
+      token: usertoken,
+      ...data
+    }, (res) => {
+      setPresta(res.data.data);
+      return res.data.data;
+      //    AsyncSave("userdata", JSON.stringify(res.data.data));
+    });
+  };
   const Logout = async () => {
     setUserToken(null);
     setUserData(null);
@@ -181,7 +193,9 @@ export const AuthProvider = ({ children }) => {
         Logout,
         getUserData,
         validForm,
-        validFormMultiPart
+        validFormMultiPart,
+        getAllPrestaData,
+        presta
       }}>
       {children}
     </AuthContext.Provider>
