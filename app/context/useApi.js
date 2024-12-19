@@ -57,6 +57,8 @@ export const useApi = () => {
 
     // Fonctions d'aide prédéfinies pour les actions communes
     const getPrestaBy = (data) => makeRequest('get-presta-by', data);
+    const getDerouler = (data) => makeRequest('get-deroule', data);
+    const getUserData = (data) => makeRequest('get-presta-prms', data);
 
     // Ajoutez d'autres actions communes ici
 
@@ -66,6 +68,8 @@ export const useApi = () => {
         makeRequest,
         // Actions prédéfinies
         getPrestaBy,
+        getDerouler,
+        getUserData
 
         // ... autres actions
     };

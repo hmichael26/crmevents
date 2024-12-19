@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as TextBlock, Modal, Image } from 'react-native';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as TextBlock, Modal, Image, Linking } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
 import { useTheme } from '../hooks';
@@ -16,6 +16,7 @@ import ConfirmationModal from './ConfirmModal';
 import { Picker } from '@react-native-picker/picker';
 import ModalForm from './ModalForm';
 import { AuthContext } from '../context/AuthContext';
+import Pdf from 'react-native-pdf';
 
 
 
@@ -26,18 +27,12 @@ const options = [
   { id: '3', label: 'supprimer' },
   // Add more options as needed
 ];
-const images = [
-  'https://example.com/image1.jpg',
-  'https://example.com/image2.jpg',
-  'https://example.com/image3.jpg',
-  // Add more images as needed
-];
 
 const { width, height } = Dimensions.get('window');
 const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
-const Form4 = () => {
+const Form4 = ({ item }) => {
   const [modalFormDevis, setModalFormDevis] = useState(false);
   const [modalimage, setModalimage] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -56,6 +51,8 @@ const Form4 = () => {
 
   const [currentForm, setCurrentForm] = useState<number | null>(null); // 1 pour Form1, 2 pour Form2
   ;
+
+
   const handleOptionSelect = (option: React.SetStateAction<string>, type: number) => {
     if (type == 1) {
       if (option === 'supprimer') {
@@ -76,11 +73,11 @@ const Form4 = () => {
   const closeModalimage = () => setModalimage(false);
 
   const nextImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % activeBadgeData?.all_imgs?.length);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + activeBadgeData?.all_imgs?.length) % activeBadgeData?.all_imgs?.length);
   };
 
 
@@ -110,24 +107,33 @@ const Form4 = () => {
   };
 
   const [activeBadge, setActiveBadge] = useState<number | null>(0);
-  const [badges, setBadges] = useState([
-    { text: 'Hotel NORMANDY', number: 0, color: 'success' },
-    { text: 'CHATEAU MONTVILLARGENNE', number: 0, color: 'black' },
-    { text: 'PULMANN TOUR EIFFEL', number: 0, color: 'secondary' },
+  const [activeBadgeData, setActiveBadgeData] = useState<any>(null);
+  const [badges, setBadges] = useState([]);
 
-    { text: 'LE COLLECTIONNEUR', number: 0, color: 'secondary' },
-    { text: 'BARRIERE ENGHIEN', number: 0, color: 'secondary' },
-    { text: 'LE BRACH', number: 0, color: 'black' },
-    { text: 'CHATEAU DE LA TOUR', number: 0, color: 'success' },
-    { text: '1k HOTEL', number: 0, color: 'success' },
-  ]);
+  useEffect(() => {
+    if (item) {
+      const badges = item?.all_presta_interroges?.map((item: any, index: number) => (
+        { text: item.nom_presta, number: 0, color: item.color }
+      ))
+
+      setBadges(badges);
+    }
+  }, [item]);
+
+
+
+  const source = { uri: activeBadgeData?.lien_brochure, cache: true };
+
+
+
   const [badgeToDelete, setBadgeToDelete] = useState<number | null>(null);
 
-  const handleBadgeClick = (badgeIndex: number) => {
+  const handleBadgeClick = (badgeIndex: number, value: any) => {
     // Toggle activeBadge
     setActiveBadge(prevActiveBadge =>
       prevActiveBadge === badgeIndex ? 0 : badgeIndex
     );
+    setActiveBadgeData(item.all_presta_interroges.find(presta => presta.nom_presta === value.text));
 
     /*
     // Update badge number
@@ -162,14 +168,19 @@ const Form4 = () => {
   return <SafeAreaView >
     <View style={styles.container}>
 
-      {badges.map((badge, index) => (
+
+      {badges.length === 0 && <Text style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>chargement ...</Text>}
+
+
+
+      {badges.length > 0 && badges.map((badge, index) => (
         (activeBadge === 0 || activeBadge === index + 1) &&
         <Badge
           key={index}
           text={badge.text}
           badgeNumber={badge.number}
           badgeColor={badge.color}
-          onPress={() => handleBadgeClick(index + 1)}
+          onPress={() => handleBadgeClick(index + 1, badge)}
           onDelete={() => handleBadgeDelete(index)}
           isActive={activeBadge === index + 1}
         />
@@ -268,7 +279,7 @@ const Form4 = () => {
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }} >
 
-                <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false}  >
+                <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} onPress={() => openDocument(activeBadgeData)}>
                   <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                     ouvrir
                   </Text>
@@ -339,13 +350,23 @@ const Form4 = () => {
                 visible={modalimage}
                 onRequestClose={closeModalimage}
               >
+
                 <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]} />
+
                 <View style={styles.modalContainer}>
-                  <Image
-                    source={{ uri: images[currentImageIndex] }}
-                    style={styles.image}
-                    resizeMode="contain"
-                  />
+                  {activeBadgeData?.all_imgs && activeBadgeData?.all_imgs.length > 0 &&
+                    <Image
+                      source={{ uri: activeBadgeData?.all_imgs[currentImageIndex].image }}
+                      style={styles.image}
+                      resizeMode="contain"
+                    />
+                  }
+                  {
+                    !activeBadgeData?.all_imgs || activeBadgeData?.all_imgs.length === 0 &&
+                    <View style={styles.modalContainer}>
+                      <Text white size={getFontSize(16)} bold> image indisponible</Text>
+                    </View>
+                  }
                   <View style={styles.navigationContainer}>
                     <TouchableOpacity onPress={prevImage} style={styles.navButton}>
                       <Text white size={getFontSize(16)} bold>Précédent</Text>
@@ -358,7 +379,9 @@ const Form4 = () => {
                     <Text white size={getFontSize(16)} bold>Fermer</Text>
                   </TouchableOpacity>
                 </View>
+
               </Modal>
+
               <ConfirmationModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
@@ -368,31 +391,9 @@ const Form4 = () => {
               />
             </View>
             <View style={{ flex: 1, flexDirection: 'row', alignItems: "center", justifyContent: "center", marginTop: 6, marginHorizontal: 5, gap: 10 }}>
+
               <View style={{
-                flexDirection: 'row',
-                justifyContent: "center",
-                alignItems: 'center',
-                borderWidth: 1,
-                borderColor: '#ccc',
-                borderRadius: 5,
                 flex: 1,
-                paddingVertical: 5,
-
-                marginBottom: 2,
-                width: "50%",
-                gap: 5
-
-              }}>
-                <Text black bold style={{ fontSize: 15 }}>Comparateur</Text>
-                <Switch
-                  checked={switch1}
-                  switchStyle={{}}
-
-                  onPress={(checked) => setSwitch1(checked)}
-                />
-              </View>
-              <View style={{
-                flex: 0.75,
                 flexDirection: 'row',
 
                 justifyContent: 'center',
@@ -528,6 +529,8 @@ const Form4 = () => {
         badge={badge.text}
       />
     ))}
+
+
 
   </SafeAreaView>
     ;

@@ -8,6 +8,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "app/components/DraggleDropdown.jsx"  ]
+    "expo-env.d.ts",
+    "app/components/DraggleDropdown.jsx",
+    "app/context/uselocation.js"
+  ]
 }

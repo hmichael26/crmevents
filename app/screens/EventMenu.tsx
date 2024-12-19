@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useNavigation } from '@react-navigation/native';
@@ -10,6 +10,7 @@ import { Block, Button, Text } from '../components/';
 type RootStackParamList = {
   EventMenu: { item: ItemType };
   Eventdetails: { item: ItemType };
+  EventPresta: { item: ItemType };
   // Ajouter d'autres écrans si nécessaire
 };
 
@@ -19,6 +20,7 @@ interface ItemType {
   ref: number;
   name: string;
   description: string;
+  arrderoules: any[];
 }
 
 type EventMenuNavigationProp = DrawerNavigationProp<RootStackParamList, 'EventMenu'>;
@@ -37,6 +39,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
   const { gradients, sizes } = useTheme();
   const [active, setActive] = useState('');
 
+  const arrderoules = item?.arrderoules;
   const handleNavigation = useCallback(
     (to: keyof RootStackParamList, item: ItemType) => {
       setActive(to);
@@ -44,6 +47,27 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
     },
     [navigation]
   );
+
+  const gradientKeys = useMemo(() => {
+    return Object.keys(gradients).filter(key =>
+      gradients[key] &&
+      ['primary', 'secondary', 'tertiary', 'gray', 'danger', 'warning', 'success', 'info'].includes(key) &&
+      gradients[key].length > 0
+    );
+  }, [gradients]);
+
+  // Fonction pour obtenir un gradient aléatoire
+  const getRandomGradient = useMemo(() => {
+    return () => {
+      const randomIndex = Math.floor(Math.random() * gradientKeys.length);
+      return gradientKeys[randomIndex];
+    };
+  }, [gradientKeys]);
+
+  // Assignation de gradients aléatoires fixes pour chaque élément
+  const itemGradients = useMemo(() => {
+    return arrderoules.map(() => getRandomGradient());
+  }, [arrderoules, getRandomGradient]);
 
   const goToEvtsScreen = () => {
     Alert.alert(
@@ -70,36 +94,23 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
           Detail de l'Evenement
         </Text>
       </Button>
-      <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base}>
-        <Text white bold transform="uppercase">
-          Lieux Disponibles
-        </Text>
-      </Button>
-      <Button flex={1} gradient={gradients.info} marginBottom={sizes.base}>
-        <Text white bold transform="uppercase">
-          Team Building
-        </Text>
-      </Button>
-      <Button flex={1} gradient={gradients.success} marginBottom={sizes.base}>
-        <Text white bold transform="uppercase">
-          Soiree
-        </Text>
-      </Button>
-      <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base}>
-        <Text white bold transform="uppercase">
-          Transfert Bus
-        </Text>
-      </Button>
-      <Button flex={1} gradient={gradients.light} marginBottom={sizes.base}>
+
+      {arrderoules.length > 0 && arrderoules.map((item: any, index: number) => (
+        <Button flex={1} gradient={gradients[itemGradients[index]]} marginBottom={sizes.base} onPress={() => handleNavigation('EventPresta', item)}>
+          <Text white bold transform="uppercase">
+            {item.titre_deroule}
+          </Text>
+        </Button>
+      ))}
+
+
+
+      <Button flex={1} gradient={gradients.light} marginBottom={sizes.base} onPress={() => handleNavigation('EventPresta', item)}>
         <Text bold transform="uppercase">
           + Ajouter un Deroule
         </Text>
       </Button>
-      <Button flex={1} gradient={gradients.danger} marginBottom={sizes.base}>
-        <Text white bold transform="uppercase">
-          Tableau Comparateur
-        </Text>
-      </Button>
+
     </Block>
   );
 };

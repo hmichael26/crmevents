@@ -13,77 +13,77 @@ interface BadgeProps {
   isActive: boolean;
 }
 
-const Badge: React.FC<BadgeProps> = ({ 
-  badgeNumber, 
-  text, 
-  badgeColor, 
-  onPress, 
+const Badge: React.FC<BadgeProps> = ({
+  badgeNumber,
+  text,
+  badgeColor,
+  onPress,
   onDelete,
 
   isActive
-  
+
 }) => {
   const { assets, colors, gradients, sizes } = useTheme();
 
-  const buttonGradient = badgeColor && gradients[badgeColor] 
-    ? gradients[badgeColor] 
-    : gradients.success;
+  const buttonGradient = badgeColor && gradients[badgeColor]
+    ? gradients[badgeColor]
+    : gradients.secondary;
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <Button 
-        flex={1} 
-        gradient={buttonGradient} 
-        marginBottom={sizes.base / 3} 
-        rounded={false} 
-        round={false} 
+      <Button
+        flex={1}
+        gradient={buttonGradient}
+        marginBottom={sizes.base / 3}
+        rounded={false}
+        round={false}
         style={[
-          { 
-            marginHorizontal: 10, 
+          {
+            marginHorizontal: 10,
             marginTop: 3,
           },
           isActive && { paddingRight: 40 } // Ajouter un style conditionnel si `isActive` est vrai
-        ]} 
+        ]}
         onPress={onPress}
       >
         {badgeNumber != 0 && (
-          <View style={{ 
-            position: "absolute", 
-            backgroundColor: colors.danger, 
-            right: -23, 
-            top: -23, 
-            margin: 20, 
-            width: 30, 
-            height: 25, 
-            borderRadius: 55, 
-            display: "flex", 
-            justifyContent: "center", 
-            alignItems: "center" 
+          <View style={{
+            position: "absolute",
+            backgroundColor: colors.danger,
+            right: -23,
+            top: -23,
+            margin: 20,
+            width: 30,
+            height: 25,
+            borderRadius: 55,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
           }}>
             <Text style={{ color: "#fff", fontWeight: "bold" }}>
               {badgeNumber}
             </Text>
           </View>
         )}
-        <Text style={{ 
-          color: "#fff", 
-          fontSize: 20, 
-          fontWeight: "bold", 
-          textTransform: "uppercase" 
+        <Text style={{
+          color: "#fff",
+          fontSize: 20,
+          fontWeight: "bold",
+          textTransform: "uppercase"
         }}>
           {text}
         </Text>
       </Button>
-      
-      {isActive && onDelete  && (
-        <TouchableOpacity 
-          style={{ 
-            position: 'absolute', 
-            right: 0, 
-            top: 10, 
+
+      {isActive && onDelete && (
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 10,
             padding: 10
-            
-          }} 
+
+          }}
           onPress={onDelete}
         >
           <Icon name="trash" size={20} color={colors.danger} />
