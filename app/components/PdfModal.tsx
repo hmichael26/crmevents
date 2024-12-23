@@ -1,65 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, View, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Dimensions, Modal, TouchableOpacity, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
-import * as FileSystem from 'expo-file-system';
-import Text from './Text'; // Composant personnalisé pour le texte
+
+const { width, height } = Dimensions.get('window');
 
 const PdfModal = ({ visible, onClose, pdfUri }) => {
-    const [localPdf, setLocalPdf] = useState(null);
+    if (!pdfUri) return null;
 
-
-    useEffect(() => {
-        const loadPdf = async () => {
-            if (pdfUri && visible) {
-                const localUri = `${FileSystem.documentDirectory}temp.pdf`;
-                await FileSystem.downloadAsync(pdfUri, localUri);
-                setLocalPdf(localUri);
-            }
-        };
-        loadPdf();
-    }, [pdfUri, visible]);
+    const googleDocsUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfUri)}`;
 
     return (
         <Modal
-            animationType="slide"
-            transparent={false}
             visible={visible}
+            animationType="slide"
+            transparent={true}
             onRequestClose={onClose}
         >
-            <View style={styles.container}>
-                {localPdf ? (
+            <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
                     <WebView
-                        source={{ uri: localPdf }}
+                        source={{ uri: googleDocsUrl }}
                         style={styles.webview}
                         startInLoadingState={true}
+                        scalesPageToFit={true}
+                        javaScriptEnabled={true}
+                        domStorageEnabled={true}
                     />
-                ) : (
-                    <Text>Chargement...</Text>
-                )}
-                <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                    <Text white bold>Fermer</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={onClose}
+                    >
+                        <Text style={styles.closeText}>✕</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </Modal>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    modalOverlay: {
         flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    modalContent: {
+        width: width * 0.9,
+        height: height * 0.8,
         backgroundColor: 'white',
+        borderRadius: 10,
+        overflow: 'hidden'
     },
     webview: {
-        flex: 1,
+        flex: 1
     },
     closeButton: {
         position: 'absolute',
-        top: 40,
-        right: 20,
+        top: 10,
+        right: 10,
+        width: 30,
+        height: 30,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        padding: 10,
-        borderRadius: 5,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
+    closeText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold'
+    }
 });
 
 export default PdfModal;

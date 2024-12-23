@@ -12,12 +12,14 @@ import Fontisto from 'react-native-vector-icons/Fontisto';
 import Font6 from 'react-native-vector-icons/FontAwesome6';
 import Input from './Input';
 import ConfirmationModal from './ConfirmModal';
-
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { Picker } from '@react-native-picker/picker';
 import ModalForm from './ModalForm';
 import { AuthContext } from '../context/AuthContext';
-import { PdfViewer, downloadPdf } from '../components/PdfViewer';
+
 import PdfModal from './PdfModal';
+
 
 
 
@@ -57,8 +59,11 @@ const Form4 = ({ item }) => {
 
   const [currentForm, setCurrentForm] = useState<number | null>(null); // 1 pour Form1, 2 pour Form2
   ;
+  const [activeBadge, setActiveBadge] = useState<number | null>(0);
+  const [activeBadgeData, setActiveBadgeData] = useState<any>(null);
+  const [badges, setBadges] = useState([]);
 
-
+  console.log(activeBadgeData)
   const handleOptionSelect = (option: React.SetStateAction<string>, type: number) => {
     if (type == 1) {
       if (option === 'supprimer') {
@@ -112,9 +117,7 @@ const Form4 = ({ item }) => {
     setModalVisible(true); // Ouvre le modal de confirmation
   };
 
-  const [activeBadge, setActiveBadge] = useState<number | null>(0);
-  const [activeBadgeData, setActiveBadgeData] = useState<any>(null);
-  const [badges, setBadges] = useState([]);
+
 
   useEffect(() => {
     if (item) {
@@ -125,17 +128,32 @@ const Form4 = ({ item }) => {
       setBadges(badges);
     }
   }, [item]);
-
-
-  const openDocument = async () => {
+  const handleOpenPdf = async (pdfUri) => {
     try {
-      const uri = await downloadPdf(activeBadgeData?.lien_brochure, 'document');
-      //   console.log(uri)
-      setPdfUri(uri);
-      setPdfModalVisible(true);
+      let uriToOpen = pdfUri;
+
+      // Si le PDF est une URL distante, téléchargez-le d'abord
+      if (pdfUri.startsWith('http://') || pdfUri.startsWith('https://')) {
+        const localUri = `${FileSystem.documentDirectory}temp.pdf`;
+        const { uri } = await FileSystem.downloadAsync(pdfUri, localUri);
+        uriToOpen = uri; // Mettre à jour l'URI pour pointer vers le fichier local téléchargé
+      }
+
+      // Vérifier si le partage est disponible sur l'appareil
+      if (await Sharing.isAvailableAsync()) {
+        // Ouvrir le fichier PDF en utilisant le gestionnaire de partage
+        await Sharing.shareAsync(uriToOpen);
+      } else {
+        console.log('Le partage n\'est pas disponible sur cet appareil');
+      }
     } catch (error) {
-      console.error('Erreur lors du chargement du PDF:', error);
-      Alert.alert('Erreur', 'Impossible de charger le PDF');
+      console.error('Erreur lors de l\'ouverture du PDF :', error);
+    }
+  };
+  const openDocument = async () => {
+    if (activeBadgeData?.lien_brochure) {
+      setPdfUri(activeBadgeData.lien_brochure);
+      setPdfModalVisible(true);
     }
   };
 
@@ -178,8 +196,16 @@ const Form4 = ({ item }) => {
       setBadgeToDelete(null);
     }
   };
+
+
   return <SafeAreaView >
+    <PdfModal
+      visible={pdfModalVisible}
+      onClose={() => setPdfModalVisible(false)}
+      pdfUri={pdfUri}
+    />
     <View style={styles.container}>
+
 
 
       {badges.length === 0 && <Text style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>chargement ...</Text>}
@@ -480,14 +506,10 @@ const Form4 = ({ item }) => {
             </View>
             <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", margin: 3 }}>
               <TextInputWithIcon
-
-
+                value={activeBadgeData?.email}
+                onChangeText={(text) => setActiveBadgeData({ ...activeBadgeData, email: text })}
                 placeholder="email prestataire"
-
-
                 style={{ width: "50%" }}
-
-
               />
 
 
@@ -521,6 +543,7 @@ const Form4 = ({ item }) => {
 
 
     </View>
+
     {
       activeBadge !== 0 &&
       <View style={{ flex: 1, flexDirection: "row", alignContent: "center", justifyContent: "center", marginHorizontal: 100 }}>
@@ -543,11 +566,7 @@ const Form4 = ({ item }) => {
       />
     ))}
 
-    <PdfModal
-      visible={pdfModalVisible}
-      onClose={() => setPdfModalVisible(false)}
-      pdfUri={pdfUri}
-    />
+
 
 
   </SafeAreaView>

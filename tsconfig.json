@@ -10,6 +10,7 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "app/components/DraggleDropdown.jsx",
-    "app/context/uselocation.js"
+    "app/context/uselocation.js",
+    "app/components/PdfView.jsx"
   ]
 }

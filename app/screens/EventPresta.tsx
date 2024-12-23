@@ -8,8 +8,7 @@ import { useTheme } from '../hooks';
 import { Block, Button, Input, Image, Switch, Modal, Text } from '../components';
 import { SwitchTextBox, TextInputWithIcon } from '../components/TextInputWithIcon';
 import MultiSelect from '../components/MultiSelectBox';
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
+
 import Form4 from '../components/EventForm4';
 import Form5 from '../components/EventForm5';
 import { AuthContext } from '../context/AuthContext';
