@@ -54,7 +54,7 @@ export const Prestataire = () => {
         setCurrentPage(1);
         setHasMore(true);
         try {
-            await fetchData(1);
+            await fetchData(1, true);
         } finally {
             setIsLoading(false);
         }
@@ -86,8 +86,8 @@ export const Prestataire = () => {
                 "current_page": page
             };
 
+
             const response = await getPrestaBy(formattedData);
-            console.log(response.all_prests)
 
             if (!response.data) {
                 setHasMore(false);
@@ -101,7 +101,7 @@ export const Prestataire = () => {
             } else {
                 setSearchResults(prev => ({
                     nb_tot_presta: newData.nb_tot_presta,
-                    all_prests: [...newData.all_prests]
+                    all_prests: [...(prev?.all_prests || []), ...newData.all_prests]
                 }));
             }
 
@@ -115,22 +115,47 @@ export const Prestataire = () => {
         }
     };
 
+
+
     const handleScroll = useCallback(async (event: any) => {
-        if (isLoadingMore || !hasMore) return;
+        if (isLoadingMore || !hasMore) {
+            console.log('Loading more or no more data available');
+            return;
+        }
 
         const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-        const paddingToBottom = 20;
-        const isCloseToBottom = layoutMeasurement.height + contentOffset.y >=
-            contentSize.height - paddingToBottom;
+
+        /*    // Ajout des logs pour déboguer
+            console.log('Scroll Metrics:', {
+                layoutHeight: layoutMeasurement.height,
+                offsetY: contentOffset.y,
+                contentHeight: contentSize.height,
+                currentPosition: layoutMeasurement.height + contentOffset.y,
+                threshold: contentSize.height * 0.8 // 80% du contenu
+            });*/
+
+        // Nouvelle méthode de calcul avec un seuil de 80%
+        const isCloseToBottom =
+            (layoutMeasurement.height + contentOffset.y) >=
+            (contentSize.height * 0.8);
+
+        //     console.log('Is close to bottom:', isCloseToBottom);
 
         if (isCloseToBottom) {
-            setIsLoadingMore(true);
-            const nextPage = currentPage + 1;
-            await fetchData(nextPage);
-            setCurrentPage(nextPage);
-            setIsLoadingMore(false);
+            try {
+                setIsLoadingMore(true);
+                console.log('Loading more data...');
+                const nextPage = currentPage + 1;
+                await fetchData(nextPage, false);
+                setCurrentPage(nextPage);
+            } catch (error) {
+                console.error('Error loading more data:', error);
+            } finally {
+                setIsLoadingMore(false);
+            }
         }
     }, [currentPage, hasMore, isLoadingMore]);
+
 
     const renderPickerItem = useCallback((item: any, index: number) => (
         <Picker.Item label={item.name || item.libelle} value={item.id} key={index} />
@@ -148,7 +173,10 @@ export const Prestataire = () => {
             <ScrollView style={styles.scrollView}
                 ref={scrollViewRef}
                 onScroll={handleScroll}
-                scrollEventThrottle={400} >
+                scrollEventThrottle={16} // Réduit à 16 pour une détection plus précise
+                onScrollEndDrag={handleScroll} // Ajout de la détection de fin de scroll
+                onMomentumScrollEnd={handleScroll} // Ajout de la détection de fin d'inertie
+            >
                 <View style={styles.content}>
                     <Text style={styles.title}>PRESTATAIRES</Text>
 
@@ -246,7 +274,7 @@ export const Prestataire = () => {
                                         onDelete={() => console.log('Supprimer')}
                                     />
                                 ))}
-                                {isLoadingMore && (
+                                {isLoadingMore && hasMore && (
                                     <View style={styles.loadingMore}>
                                         <ActivityIndicator color="#9932CC" />
                                         <Text>Chargement...</Text>
