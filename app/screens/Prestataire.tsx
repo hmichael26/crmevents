@@ -87,6 +87,7 @@ export const Prestataire = () => {
             };
 
             const response = await getPrestaBy(formattedData);
+            console.log(response.all_prests)
 
             if (!response.data) {
                 setHasMore(false);
@@ -100,7 +101,7 @@ export const Prestataire = () => {
             } else {
                 setSearchResults(prev => ({
                     nb_tot_presta: newData.nb_tot_presta,
-                    all_prests: [...(prev?.all_prests || []), ...newData.all_prests]
+                    all_prests: [...newData.all_prests]
                 }));
             }
 

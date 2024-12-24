@@ -276,83 +276,38 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
           {renderField(field, index)}
         </View>
       ))}
+
       {item && item.length > 0 && fields.length === 0 && (
         <View style={styles.fieldContainer}>
           <Text style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>chargement ...</Text>
         </View>
       )}
 
-      <View style={styles.buttonContainer}>
-        <Button gradient={gradients.secondary} style={styles.button} onPress={() => addRandomField(0)}>
-          <View style={styles.buttonContent}>
-            <Text style={[styles.buttonText, styles.centerText]}>Champ DATE</Text>
-            <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
-          </View>
-        </Button>
-        <Button gradient={gradients.info} style={styles.button} onPress={() => addRandomField(1)}>
-          <View style={styles.buttonContent}>
-            <Text style={[styles.buttonText, styles.centerText]}>Champ TEXT</Text>
-            <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
-          </View>
-        </Button>
-        <Button gradient={gradients.success} style={styles.button} onPress={() => addRandomField(2)}>
-          <View style={styles.buttonContent}>
-            <Text style={[styles.buttonText, styles.centerText]}>Champ DYNAMIQUE</Text>
-            <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
-          </View>
-        </Button>
-        {/* <Button gradient={gradients.info} style={styles.button} onPress={() => setShowOptionsModal(true)}>
-          <Text style={styles.buttonText}>Gérer les options du select box</Text>
-        </Button>*/}
-      </View>
 
-
-      {/*  <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showOptionsModal}
-        onRequestClose={() => setShowOptionsModal(false)}
-        
-      >
-        <View style={styles.modalView}>
-          <View style={styles.modalOpen}>
-
-          
-          <Text style={styles.modalTitle}>Gérer les options du select box</Text>
-          {dynamicOptions.map((option, index) => (
-            <View key={index} style={styles.optionContainer}>
-              <Text>{option.label} ({option.value})</Text>
-              <TouchableOpacity onPress={() => removeOption(index)}>
-                <Text style={styles.removeButton}>Supprimer</Text>
-              </TouchableOpacity>
+      {item && (
+        <View style={styles.buttonContainer}>
+          <Button gradient={gradients.secondary} style={styles.button} onPress={() => addRandomField(0)}>
+            <View style={styles.buttonContent}>
+              <Text style={[styles.buttonText, styles.centerText]}>Champ DATE</Text>
+              <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
             </View>
-          ))}
-          <TextInput
-            style={styles.input}
-            value={newOptionLabel}
-            onChangeText={setNewOptionLabel}
-            placeholder="Nouveau label"
-          />
-          <TextInput
-            style={styles.input}
-            value={newOptionValue}
-            onChangeText={setNewOptionValue}
-            placeholder="Nouvelle valeur"
-          />
+          </Button>
+          <Button gradient={gradients.info} style={styles.button} onPress={() => addRandomField(1)}>
+            <View style={styles.buttonContent}>
+              <Text style={[styles.buttonText, styles.centerText]}>Champ TEXT</Text>
+              <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
+            </View>
+          </Button>
+          <Button gradient={gradients.success} style={styles.button} onPress={() => addRandomField(2)}>
+            <View style={styles.buttonContent}>
+              <Text style={[styles.buttonText, styles.centerText]}>Champ DYNAMIQUE</Text>
+              <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
+            </View>
+          </Button>
+        </View>)}
 
-          <View style={{ flex:0.2,flexDirection: "row", justifyContent: "space-around", gap: 10, marginHorizontal: 5, marginVertical: 10 }}>
-          <Button flex={1} gradient={gradients.success} style={styles.button} onPress={addOption}>
-            <Text style={styles.buttonText}>Ajouter une option</Text>
-          </Button>
-          <Button flex={1} gradient={gradients.danger} style={styles.button} onPress={() => setShowOptionsModal(false)}>
-            <Text style={styles.buttonText}>Fermer</Text>
-          </Button>
-          </View>
-          
-          </View>
-        </View>
-      
-      </Modal>*/}
+
+
     </ScrollView>
   );
 };
