@@ -19,6 +19,7 @@ import ModalForm from './ModalForm';
 import { AuthContext } from '../context/AuthContext';
 
 import PdfModal from './PdfModal';
+import { useApi } from '../context/useApi';
 
 
 
@@ -37,6 +38,8 @@ const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
 const Form4 = ({ item, onDataChange }) => {
+
+
 
 
   const [prestataireModifications, setPrestataireModifications] = useState({});
@@ -267,6 +270,21 @@ const Form4 = ({ item, onDataChange }) => {
   };
 
 
+  const onModify = () => {
+
+    fetchData(currentPage, true);
+  };
+
+
+  {
+    if (badges.length === 0)
+      return (
+        <View >
+          <TextBlock style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>chargement ...</TextBlock>
+        </View>)
+  }
+
+
   return <SafeAreaView >
     <PdfModal
       visible={pdfModalVisible}
@@ -275,9 +293,7 @@ const Form4 = ({ item, onDataChange }) => {
     />
 
 
-    {badges.length === 0 && <View >
-      <TextBlock style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>chargement ...</TextBlock>
-    </View>}
+
     <View style={styles.container}>
 
 

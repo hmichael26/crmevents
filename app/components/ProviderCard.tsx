@@ -1,22 +1,66 @@
 
 
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native';
+import { useApi } from '../context/useApi';
+import { useTheme } from '../hooks';
 
 export const ProviderCard = ({ provider, onModify, onDelete }) => {
+
+    const { deletepresta } = useApi();
+    const [isLoading, setIsLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editedProvider, setEditedProvider] = useState(provider);
 
-    const handleModify = () => {
+    const handleModify = async () => {
         if (isEditing) {
-            onModify(editedProvider);
+            setIsLoading(true); // Démarrer le chargement
+            try {
+                const data = { ...editedProvider, id_presta: provider.id };
+                await onModify(data); // Assurez-vous que `onModify` est une fonction asynchrone
+            } catch (error) {
+                console.error("Erreur lors de la modification :", error);
+            } finally {
+                setIsLoading(false); // Terminer le chargement
+            }
         }
         setIsEditing(!isEditing);
     };
 
+    const handleDelete = async () => {
+        if (!provider.id) return;
+
+        Alert.alert(
+            "Supprimer prestataire",
+            "Êtes-vous sûr de vouloir supprimer ce prestataire ?",
+            [
+                { text: "Annuler", style: "cancel" },
+                {
+                    text: "Supprimer",
+                    onPress: async () => {
+                        setIsLoading(true); // Démarrer le chargement
+                        try {
+                            await onDelete({ id_presta: provider.id }); // Assurez-vous que `onDelete` est une fonction asynchrone
+                        } catch (error) {
+                            console.error("Erreur lors de la suppression :", error);
+                        } finally {
+                            setIsLoading(false); // Terminer le chargement
+                        }
+                    },
+                    style: "destructive"
+                },
+            ],
+            { cancelable: false }
+        );
+    };
+
+
+
     const handleInputChange = (field, value) => {
         setEditedProvider(prev => ({ ...prev, [field]: value }));
     };
+
+
 
     const renderEditableField = (field, placeholder) => (
         <TextInput
@@ -92,21 +136,27 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
 
             <View style={styles.actionButtons}>
                 <TouchableOpacity
-                    style={styles.modifyButton}
+                    style={[styles.modifyButton, { backgroundColor: useTheme().colors.primary }]}
                     onPress={handleModify}
+                    disabled={isLoading} // Désactiver le bouton pendant le chargement
                 >
                     <Text style={styles.modifyButtonText}>
-                        {isEditing ? 'Enregistrer' : 'Modifier'}
+                        {isLoading && isEditing ? 'En cours...' : isEditing ? 'Enregistrer' : 'Modifier'}
                     </Text>
                 </TouchableOpacity>
+
                 {!isEditing && (
                     <TouchableOpacity
-                        style={styles.deleteButton}
-                        onPress={() => onDelete(provider)}
+                        style={[styles.deleteButton, { backgroundColor: useTheme().colors.danger }]}
+                        onPress={handleDelete}
+                        disabled={isLoading} // Désactiver le bouton pendant le chargement
                     >
-                        <Text style={styles.deleteButtonText}>Supprimer</Text>
+                        <Text style={styles.deleteButtonText}>
+                            {isLoading ? 'Suppression...' : 'Supprimer'}
+                        </Text>
                     </TouchableOpacity>
                 )}
+
             </View>
         </View>
     );
@@ -154,7 +204,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     modifyButton: {
-        backgroundColor: '#FFA500',
+
         borderRadius: 20,
         paddingVertical: 8,
         paddingHorizontal: 16,
@@ -166,7 +216,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     deleteButton: {
-        backgroundColor: '#FF6B6B',
+
         borderRadius: 20,
         paddingVertical: 8,
         paddingHorizontal: 16,

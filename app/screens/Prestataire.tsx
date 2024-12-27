@@ -28,7 +28,8 @@ const initialFormState = {
 const PAGE_SIZE = 30;
 
 export const Prestataire = () => {
-    const { loading, getPrestaBy, error } = useApi();
+
+    const { loading, getPrestaBy, error, updatepresta, deletepresta } = useApi();
     const { userdata } = useContext(AuthContext);
 
 
@@ -168,6 +169,34 @@ export const Prestataire = () => {
         providerType: userdata.all_categories.map(renderPickerItem)
     }), [userdata, renderPickerItem]);
 
+
+    const onModify = async (data) => {
+        try {
+            const response = await updatepresta(data);
+            if (response) {
+                await fetchData(currentPage, true);
+
+            }
+
+        } catch (error) {
+            console.error("Erreur lors de la modification:", error);
+        }
+    };
+
+
+    const onDelete = async (data) => {
+        try {
+            deletepresta(data);
+
+            await fetchData(currentPage, true);
+
+
+
+        } catch (error) {
+            console.error("Erreur lors de la suppression:", error);
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView style={styles.scrollView}
@@ -270,8 +299,9 @@ export const Prestataire = () => {
                                     <ProviderCard
                                         key={`${provider.id}-${index}`}
                                         provider={provider}
-                                        onModify={() => console.log('Modifier')}
-                                        onDelete={() => console.log('Supprimer')}
+                                        onModify={onModify}
+                                        onDelete={onDelete}
+
                                     />
                                 ))}
                                 {isLoadingMore && hasMore && (
@@ -461,4 +491,3 @@ const styles = StyleSheet.create({
 });
 
 export default React.memo(Prestataire);
-
