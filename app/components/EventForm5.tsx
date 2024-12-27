@@ -108,7 +108,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
 
   useEffect(() => {
     if (item) {
-      console.log("Initializing fields with item:", item);
+
       if (Array.isArray(item) && item.length > 0) {
         const initializedFields = item.map((fieldItem: any) => {
           const fieldType = determineFieldType(fieldItem);

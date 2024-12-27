@@ -161,11 +161,11 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
 
                         <ScrollView
                             style={styles.fileListContainer}
-                            contentContainerStyle={styles.fileListContent}
+                            contentContainerStyle={[styles.fileListContent, { backgroundColor: 'transparent' }]}
                         >
                             {selectedFiles.map((file, index) => (
                                 <View key={file.uri} style={styles.fileItem}>
-                                    <Text style={styles.fileItemText}>
+                                    <Text style={[styles.fileItemText, { color: useTheme().colors.primary }]}>
                                         Devis {index + 1}: {file.name}
                                     </Text>
                                     <TouchableOpacity
@@ -175,7 +175,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
                                         <Ionicons
                                             name="close-circle"
                                             size={24}
-                                            color="#dc3545"
+                                            color={useTheme().colors.primary}
                                         />
                                     </TouchableOpacity>
                                 </View>
@@ -191,7 +191,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
                                     key={rate}
                                     style={[
                                         styles.commissionButton,
-                                        commission === rate && { backgroundColor: useTheme().colors.warning }
+                                        commission === rate && { backgroundColor: useTheme().colors.primary }
                                     ]}
                                     onPress={() => setCommission(rate)}
                                 >
@@ -220,14 +220,14 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
 
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                            style={[styles.button, styles.buttonCancel]}
+                            style={[styles.button, { backgroundColor: useTheme().colors.text }]}
                             onPress={onClose}
                         >
                             <Text style={styles.buttonTextCancel}>Annuler</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={[styles.button, styles.buttonSubmit, { backgroundColor: useTheme().colors.warning }]}
+                            style={[styles.button, styles.buttonSubmit, { backgroundColor: useTheme().colors.primary }]}
                             onPress={handleSubmit}
                             disabled={isSubmitting}
                         >

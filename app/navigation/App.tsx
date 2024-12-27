@@ -1,3 +1,4 @@
+
 import React, { useEffect, useContext } from 'react';
 import { Platform, StatusBar } from 'react-native';
 import { useFonts } from 'expo-font';
@@ -9,10 +10,13 @@ import Login from '../screens/Login';
 import { useData, ThemeProvider } from '../hooks';
 import { AuthContext, AuthProvider } from '../context/AuthContext';
 import 'intl-pluralrules';
+import { useTranslation } from 'react-i18next';
 
 
 const App = () => {
   const { isDark, theme, setTheme } = useData();
+  const { t } = useTranslation();
+
 
   const Stack = createNativeStackNavigator();
 
@@ -21,10 +25,10 @@ const App = () => {
 
   const SecureNavigator = () => {
     const { usertoken, userdata } = useContext(AuthContext);
-    
+
     console.log(usertoken)
-   // if (false /*usertoken === null || usertoken === '' || userdata === null*/) {
-    if ( usertoken === null || usertoken === '' || userdata === null) {
+    // if (false /*usertoken === null || usertoken === '' || userdata === null*/) {
+    if (usertoken === null || usertoken === '' || userdata === null) {
       return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Login" component={Login} />

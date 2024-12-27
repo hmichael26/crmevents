@@ -9,11 +9,15 @@ import Screens from './Screens';
 import { Block, Text, Switch, Button, Image } from '../components';
 import { useData, useTheme } from '../hooks';
 import { AuthContext } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+
 
 const Drawer = createDrawerNavigator();
 
 /* drawer menu screens navigation */
 const ScreensStack = () => {
+  const { t } = useTranslation();
+
   const { colors } = useTheme();
   // const isDrawerOpen = useIsDrawerOpen();
   const isDrawerOpen = true;
@@ -50,6 +54,14 @@ const ScreensStack = () => {
 
 /* custom drawer menu */
 const DrawerContent = (props: DrawerContentComponentProps) => {
+  const { t, i18n } = useTranslation();
+  useEffect(() => {
+    console.log('Test traductions :');
+    console.log('fr:', i18n.t('en.app.name', { lng: 'fr' }));
+    console.log('en:', i18n.t('app.name', { lng: 'en' }));
+    console.log('Current store:', i18n.store.data);
+  }, []);
+
   const { navigation } = props;
   const { isDark, handleIsDark } = useData();
   // const { t } = useTranslation();
@@ -72,18 +84,17 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
 
   // screen list for Drawer menu
   const screens = [
-    { name: "t('screens.home')", to: 'Home', icon: assets.home },
-    { name: "t('screens.components')", to: 'Components', icon: assets.components },
-    { name: "t('screens.articles')", to: 'Articles', icon: assets.document },
-    { name: "t('screens.rental')", to: 'Rentals', icon: assets.rental },
-    { name: "t('screens.profile')", to: 'Profile', icon: assets.profile },
-    { name: "t('screens.settings')", to: 'Settings', icon: assets.settings },
-    { name: "t('screens.register')", to: 'Register', icon: assets.register },
-    { name: "t('screens.extra')", to: 'Extra', icon: assets.extras },
-    { name: "t('screens.eventdetails')", to: 'Eventdetails', icon: assets.register },
-    { name: "t('screens.eventPresta')", to: 'EventPresta', icon: assets.register },
-    { name: "t('screens.presataire')", to: 'Prestataire', icon: assets.register },
-
+    { name: t('screens.home'), to: 'Home', icon: assets.home },
+    { name: t('screens.components'), to: 'Components', icon: assets.components },
+    { name: t('screens.articles'), to: 'Articles', icon: assets.document },
+    { name: t('screens.rental'), to: 'Rentals', icon: assets.rental },
+    { name: t('screens.profile'), to: 'Profile', icon: assets.profile },
+    { name: t('screens.settings'), to: 'Settings', icon: assets.settings },
+    { name: t('screens.register'), to: 'Register', icon: assets.register },
+    { name: t('screens.extra'), to: 'Extra', icon: assets.extras },
+    { name: t('screens.eventdetails'), to: 'Eventdetails', icon: assets.register },
+    { name: t('screens.eventPresta'), to: 'EventPresta', icon: assets.register },
+    { name: t('screens.presataire'), to: 'Prestataire', icon: assets.register },
   ];
 
   return (
@@ -105,10 +116,10 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
           />
           <Block>
             <Text size={12} semibold>
-              {"t('app.name')"}
+              {t('app.name')}
             </Text>
             <Text size={12} semibold>
-              {"t('app.native')"}
+              {t('app.native')}
             </Text>
           </Block>
         </Block>

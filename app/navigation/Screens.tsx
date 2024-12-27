@@ -27,11 +27,12 @@ import {
 
 import { useScreenOptions } from '../hooks';
 import Prestataire from '../screens/Prestataire';
+import { useTranslation } from 'react-i18next';
 
 const Stack = createStackNavigator();
 
 export default () => {
-  // const {t} = useTranslation();
+  const { t } = useTranslation();
   const screenOptions = useScreenOptions();
 
   return (
@@ -39,7 +40,7 @@ export default () => {
       <Stack.Screen
         name="Home"
         component={Home}
-        options={{ title: "t('navigation.home')" }}
+        options={{ title: t('navigation.home') }}
       />
 
       <Stack.Screen
@@ -51,28 +52,28 @@ export default () => {
       <Stack.Screen
         name="Articles"
         component={Articles}
-        options={{ title: "t('navigation.articles')" }}
+        options={{ title: t('navigation.articles') }}
       />
 
       <Stack.Screen
         name="Rentals"
         component={Rentals}
-        options={{ title: "t('navigation.rentals')", ...screenOptions.profile }}
+        options={{ title: t('navigation.rentals'), ...screenOptions.profile }}
       />
       <Stack.Screen
         name="Rental"
         component={Rental}
-        options={{ title: "t('navigation.rental')", ...screenOptions.rental }}
+        options={{ title: t('navigation.rental'), ...screenOptions.rental }}
       />
       <Stack.Screen
         name="Booking"
         component={Booking}
-        options={{ title: "t('navigation.booking')", ...screenOptions.rental }}
+        options={{ title: t('navigation.booking'), ...screenOptions.rental }}
       />
       <Stack.Screen
         name="Chat"
         component={Chat}
-        options={{ title: "t('navigation.chat')", ...screenOptions.chat }}
+        options={{ title: t('navigation.chat'), ...screenOptions.chat }}
       />
 
       <Stack.Screen
@@ -84,32 +85,32 @@ export default () => {
       <Stack.Screen
         name="Settings"
         component={Settings}
-        options={{ title: "t('navigation.settings')", ...screenOptions.profile }}
+        options={{ title: t('navigation.settings'), ...screenOptions.profile }}
       />
       <Stack.Screen
         name="NotificationsSettings"
         component={NotificationsSettings}
-        options={{ title: "t('navigation.notifications')", ...screenOptions.back }}
+        options={{ title: t('navigation.notifications'), ...screenOptions.back }}
       />
       <Stack.Screen
         name="Notifications"
         component={Notifications}
-        options={{ title: "t('navigation.notifications')", ...screenOptions.back }}
+        options={{ title: t('navigation.notifications'), ...screenOptions.back }}
       />
       <Stack.Screen
         name="Agreement"
         component={Agreement}
-        options={{ title: "t('navigation.agreement')", ...screenOptions.back }}
+        options={{ title: t('navigation.agreement'), ...screenOptions.back }}
       />
       <Stack.Screen
         name="About"
         component={About}
-        options={{ title: "t('navigation.about')", ...screenOptions.back }}
+        options={{ title: t('navigation.about'), ...screenOptions.back }}
       />
       <Stack.Screen
         name="Privacy"
         component={Privacy}
-        options={{ title: "t('navigation.privacy')", ...screenOptions.back }}
+        options={{ title: t('navigation.privacy'), ...screenOptions.back }}
       />
 
       <Stack.Screen
@@ -127,19 +128,19 @@ export default () => {
       <Stack.Screen
         name="Extra"
         component={Extras}
-        options={{ title: "t('navigation.extra')", headerRight: () => null }}
+        options={{ title: t('navigation.extra'), headerRight: () => null }}
       />
 
       <Stack.Screen
         name="Shopping"
         component={Shopping}
-        options={{ title: "t('navigation.shopping')", ...screenOptions.back }}
+        options={{ title: t('navigation.shopping'), ...screenOptions.back }}
       />
 
       <Stack.Screen
         name="Eventdetails"
         component={EventDetails}
-        options={{ title: "t('Details')", ...screenOptions.eventDetail, headerRight: () => null }}
+        options={{ title: t('Details'), ...screenOptions.eventDetail, headerRight: () => null }}
       />
 
       <Stack.Screen
@@ -157,7 +158,7 @@ export default () => {
         name="EventMenu"
         component={EventMenu}
         // options={screenOptions.eventMenu}
-        options={{ title: "t('Open Project')", ...screenOptions.eventMenu, headerRight: () => null }}
+        options={{ title: t('Open Project'), ...screenOptions.eventMenu, headerRight: () => null }}
       />
 
     </Stack.Navigator>

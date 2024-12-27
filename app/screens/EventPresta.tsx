@@ -87,13 +87,17 @@ const EventPresta: React.FC = ({ route }) => {
     }));
   };
 
+  const handleForm4DataChange = (data: any) => {
+    setFormData(data);
+  };
+
   const handleSaveForm = () => {
     Alert.alert(
       "Données du formulaire",
       JSON.stringify(formData, null, 2),
       [{ text: "OK" }]
     );
-    validForm({ data: formData });
+    //validForm({ data: formData });
 
   };
 
@@ -185,7 +189,7 @@ const EventPresta: React.FC = ({ route }) => {
 
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
       {step === "deroule" && <Form5 options={options} onDataChange={handleForm5DataChange} item={data0?.fields} />}
-      {step === "Presta" && <Form4 item={data0} />}
+      {step === "Presta" && <Form4 item={data0} onDataChange={handleForm4DataChange} />}
     </ScrollView>
 
     {

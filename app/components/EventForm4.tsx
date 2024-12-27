@@ -36,7 +36,17 @@ const { width, height } = Dimensions.get('window');
 const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
-const Form4 = ({ item }) => {
+const Form4 = ({ item, onDataChange }) => {
+
+
+  const [prestataireModifications, setPrestataireModifications] = useState({});
+
+  const [formFields, setFormFields] = useState({
+    comment: activeBadgeData?.comment || '',
+    email: activeBadgeData?.email || '',
+    tel: activeBadgeData?.tel || ''
+  });
+
 
   const [pdfModalVisible, setPdfModalVisible] = useState(false);
   const [pdfUri, setPdfUri] = useState(null);
@@ -63,7 +73,7 @@ const Form4 = ({ item }) => {
   const [activeBadgeData, setActiveBadgeData] = useState<any>(null);
   const [badges, setBadges] = useState([]);
 
-  console.log(activeBadgeData)
+
   const handleOptionSelect = (option: React.SetStateAction<string>, type: number) => {
     if (type == 1) {
       if (option === 'supprimer') {
@@ -121,13 +131,72 @@ const Form4 = ({ item }) => {
 
   useEffect(() => {
     if (item) {
-      const badges = item?.all_presta_interroges?.map((item: any, index: number) => (
-        { text: item.nom_presta, number: 0, color: item.color }
-      ))
-
+      const badges = item?.all_presta_interroges?.map((item) => ({
+        text: item.nom_presta,
+        number: 0,
+        color: item.color
+      }));
       setBadges(badges);
     }
   }, [item]);
+
+  // Mettre à jour les champs quand on change de prestataire actif
+  useEffect(() => {
+    if (activeBadgeData) {
+      // Charger soit les modifications sauvegardées, soit les données originales
+      const savedModifications = prestataireModifications[activeBadgeData.nom_presta];
+      setFormFields({
+        comment: savedModifications?.comment || activeBadgeData.comment || '',
+        email: savedModifications?.email || activeBadgeData.email || '',
+        tel: savedModifications?.contact || activeBadgeData.contact || ''
+      });
+    }
+  }, [activeBadgeData]);
+
+
+  useEffect(() => {
+    if (prestataireModifications) {
+      onDataChange(prestataireModifications);
+    }
+  }, [prestataireModifications]);
+
+  const handleFieldChange = (field, value) => {
+    setFormFields(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const saveCurrentChanges = () => {
+    if (activeBadgeData) {
+      const hasChanges = Object.values(formFields).some(value => value !== '');
+
+      if (hasChanges) {
+        setPrestataireModifications(prev => ({
+          ...prev,
+          [activeBadgeData.nom_presta]: {
+            ...formFields,
+          }
+        }));
+      }
+    }
+  };
+
+  // Obtenir toutes les modifications pour l'envoi
+  const getAllModifications = () => {
+    // Sauvegarder les modifications actuelles avant de retourner
+    saveCurrentChanges();
+    return Object.values(prestataireModifications);
+  };
+
+  // Fonction pour soumettre toutes les modifications
+  const handleSubmitAll = () => {
+    const allModifications = getAllModifications();
+    console.log("Modifications à envoyer:", allModifications);
+    // Ici vous pouvez ajouter la logique pour envoyer les données
+  };
+
+
   const handleOpenPdf = async (pdfUri) => {
     try {
       let uriToOpen = pdfUri;
@@ -159,20 +228,20 @@ const Form4 = ({ item }) => {
 
   const [badgeToDelete, setBadgeToDelete] = useState<number | null>(null);
 
-  const handleBadgeClick = (badgeIndex: number, value: any) => {
-    // Toggle activeBadge
+  const handleBadgeClick = (badgeIndex, value) => {
+    // Sauvegarder les modifications du prestataire actuel avant de changer
+    if (activeBadgeData) {
+      saveCurrentChanges();
+    }
+
     setActiveBadge(prevActiveBadge =>
       prevActiveBadge === badgeIndex ? 0 : badgeIndex
     );
-    setActiveBadgeData(item.all_presta_interroges.find(presta => presta.nom_presta === value.text));
 
-    /*
-    // Update badge number
-    setBadges(prevBadges => {
-      const updatedBadges = [...prevBadges];
-      updatedBadges[badgeIndex - 1].number += 1; // No need to subtract 1 from index
-      return updatedBadges;
-    });*/
+    const selectedPresta = item.all_presta_interroges.find(
+      presta => presta.nom_presta === value.text
+    );
+    setActiveBadgeData(selectedPresta);
   };
   const handleBadgeDelete = (index: number) => {
     setBadgeToDelete(index);
@@ -204,11 +273,16 @@ const Form4 = ({ item }) => {
       onClose={() => setPdfModalVisible(false)}
       pdfUri={pdfUri}
     />
+
+
+    {badges.length === 0 && <View >
+      <TextBlock style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>chargement ...</TextBlock>
+    </View>}
     <View style={styles.container}>
 
 
 
-      {badges.length === 0 && <Text style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>chargement ...</Text>}
+
 
 
 
@@ -499,27 +573,29 @@ const Form4 = ({ item }) => {
                   height: 70,
                   marginHorizontal: 4
                 }}
-                placeholder='Autreproposition de commission && Commentaires prestataire'
-              >
-
-              </Input>
+                value={formFields.comment}
+                onChangeText={(text) => handleFieldChange('comment', text)}
+                placeholder='Autre proposition de commission && Commentaires prestataire'
+              />
             </View>
             <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", margin: 3 }}>
-              <TextInputWithIcon
-                value={activeBadgeData?.email}
-                onChangeText={(text) => setActiveBadgeData({ ...activeBadgeData, email: text })}
-                placeholder="email prestataire"
-                style={{ width: "50%" }}
-              />
+              <View style={{ width: "50%" }}>
 
+                <TextInputWithIcon
+                  value={formFields.email}
+                  onChangeText={(text) => handleFieldChange('email', text)}
+                  placeholder="email prestataire"
+                />
+              </View>
 
-              <TextInputWithIcon
+              <View style={{ width: "50%" }}>
 
-
-                placeholder="Prenom & Telephone"
-                style={{ width: "50%" }}
-
-              />
+                <TextInputWithIcon
+                  value={formFields.contact}
+                  onChangeText={(text) => handleFieldChange('contact', text)}
+                  placeholder="Prenom & Telephone"
+                />
+              </View>
             </View>
           </View>
 
@@ -531,7 +607,7 @@ const Form4 = ({ item }) => {
                 text={badge.text}
                 badgeNumber={badge.number}
                 badgeColor={badge.color} // Si le composant Badge accepte badgeColor
-                onPress={() => handleBadgeClick(index + 1)} // Vous pouvez enlever le +1 si handleBadgeClick gère l'index correctement
+                onPress={() => handleBadgeClick(index + 1, badge)} // Vous pouvez enlever le +1 si handleBadgeClick gère l'index correctement
               />
             )
           ))}
