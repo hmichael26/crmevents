@@ -18,10 +18,7 @@ import { useTranslation } from 'react-i18next';
 //const Home = () => {
 const Home = (props: DrawerContentComponentProps) => {
   const { t, i18n } = useTranslation();
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
   const { navigation } = props;
   const data = useData();
   const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(null);
@@ -111,11 +108,8 @@ const Home = (props: DrawerContentComponentProps) => {
     <Block>
       {/* search input */}
       <Block color={colors.card} flex={0} padding={sizes.padding}>
-<<<<<<< Updated upstream
-        <Input search value={InputValue} onChange={handleTextChange} placeholder={t('common.search')} />
-=======
+
         <Input search value={InputValue} onChange={handleTextChange} placeholder={i18n.t('common.search')} />
->>>>>>> Stashed changes
       </Block>
 
       {/* toggle products list */}
