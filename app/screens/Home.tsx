@@ -4,7 +4,6 @@ import { useData, useTheme } from '../hooks/';
 import { Block, Button, Input, Text } from '../components/';
 import { ICategory } from '../constants/types';
 import { AuthContext } from '../context/AuthContext';
-import { useTranslation } from 'react-i18next';
 
 // import EventDetails from './EventDetails';
 import _ from 'lodash';
