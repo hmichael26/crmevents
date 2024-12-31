@@ -43,6 +43,7 @@ const options = [
 
 
 type FormData1 = {
+  idevt?:Number;
   evt?: string;
   date_reception?: any;
   ref?: string;
@@ -58,6 +59,7 @@ type FormData1 = {
 };
 
 type FormData2 = {
+  idevt?:Number;
   clt?: string;
   ent?: string;
   clt_email?: string;
@@ -69,6 +71,7 @@ type FormData2 = {
 };
 
 type FormData3 = {
+  idevt?:Number;
   commission_10?: boolean;
   commission_12?: boolean;
   commission_15?: boolean;
@@ -154,6 +157,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     }
   
     const combinedData: Record<string, any> = {
+      idevt: formData.idevt,
       nom: formData.evt,
       date_reception: formData.date_reception,
       ref: formData.ref,
