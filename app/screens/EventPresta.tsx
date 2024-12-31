@@ -97,7 +97,7 @@ const EventPresta: React.FC = ({ route }) => {
       JSON.stringify(formData, null, 2),
       [{ text: "OK" }]
     );
-    //validForm({ data: formData });
+    validForm({ data: formData });
 
   };
 

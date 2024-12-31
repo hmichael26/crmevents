@@ -189,7 +189,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
             />
           </Block>
           <Text p color={labelColor}>
-            {"t('Deconnexion')"}
+            {t('Deconnexion')}
           </Text>
         </Button>
 

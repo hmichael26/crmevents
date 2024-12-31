@@ -4,6 +4,8 @@ import {useData, useTheme} from '../hooks/';
 import {Block, Button, Input, Text} from '../components/';
 import {ICategory} from '../constants/types';
 import { AuthContext } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+
 // import EventDetails from './EventDetails';
 import _ from 'lodash';
 import {
@@ -14,6 +16,7 @@ import {
 
 //const Home = () => {
 const Home = (props: DrawerContentComponentProps) => {
+  const { t, i18n } = useTranslation();
   const { navigation } = props;
   const data = useData();
   const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(null);
@@ -42,6 +45,7 @@ const Home = (props: DrawerContentComponentProps) => {
   }, [data.categories]);
 
   useEffect(() => {
+    console.log('fr:', i18n.t('common.search', { lng: 'fr' }));
     if (Array.isArray(userdata?.newevts)) {
       const filteredEvents = userdata.newevts.filter((event: any) => {
         const eventEvt = event.evt ? event.evt.toString().toLowerCase() : '';
@@ -102,7 +106,7 @@ const Home = (props: DrawerContentComponentProps) => {
     <Block>
       {/* search input */}
       <Block color={colors.card} flex={0} padding={sizes.padding}>
-        <Input search value={InputValue} onChange={handleTextChange} placeholder={"t('common.search')"} />
+        <Input search value={InputValue} onChange={handleTextChange} placeholder={t('common.search')} />
       </Block>
 
       {/* toggle products list */}
