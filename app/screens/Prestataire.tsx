@@ -32,7 +32,7 @@ export const Prestataire = () => {
     const { loading, getPrestaBy, error, updatepresta, deletepresta } = useApi();
     const { userdata } = useContext(AuthContext);
 
-
+    //  if ($_POST['searchby'])//recherche specifique : region, ville, dept, categ
     const scrollViewRef = useRef(null);
 
 

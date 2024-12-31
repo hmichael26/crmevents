@@ -61,6 +61,8 @@ export const useApi = () => {
     const getUserData = (data) => makeRequest('get-presta-prms', data);
     const updatepresta = (data) => makeRequest('save-presta', data);
     const deletepresta = (data) => makeRequest('delete-presta', data);
+    const searchby = (data) => makeRequest('searchby', data);
+
 
     // Ajoutez d'autres actions communes ici
 
@@ -73,7 +75,8 @@ export const useApi = () => {
         getDerouler,
         getUserData,
         updatepresta,
-        deletepresta
+        deletepresta,
+        searchby
 
         // ... autres actions
     };

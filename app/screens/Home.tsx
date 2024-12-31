@@ -1,10 +1,9 @@
-import React, {useCallback, useState, useContext, useEffect} from 'react';
+import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { FlatList, View, Image, TouchableWithoutFeedback, Alert } from 'react-native';
-import {useData, useTheme} from '../hooks/';
-import {Block, Button, Input, Text} from '../components/';
-import {ICategory} from '../constants/types';
+import { useData, useTheme } from '../hooks/';
+import { Block, Button, Input, Text } from '../components/';
+import { ICategory } from '../constants/types';
 import { AuthContext } from '../context/AuthContext';
-import { useTranslation } from 'react-i18next';
 
 // import EventDetails from './EventDetails';
 import _ from 'lodash';
@@ -13,18 +12,20 @@ import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
+import { useTranslation } from 'react-i18next';
 
 //const Home = () => {
 const Home = (props: DrawerContentComponentProps) => {
   const { t, i18n } = useTranslation();
+
   const { navigation } = props;
   const data = useData();
   const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(null);
   const [tab, setTab] = useState<number>(0);
-  const {following, trending} = useData();
+  const { following, trending } = useData();
   const [products, setProducts] = useState(following);
-  const {colors, gradients, sizes} = useTheme();
-  const {isloading, location, userdata, usertoken, setUserData, getUserData} = useContext(AuthContext);
+  const { colors, gradients, sizes } = useTheme();
+  const { isloading, location, userdata, usertoken, setUserData, getUserData } = useContext(AuthContext);
   const [keyword, setKeyword] = useState('');
   const [InputValue, setInputValue] = useState('');
   const [filteredEvents, setFilteredEvents] = useState([]);
@@ -106,7 +107,8 @@ const Home = (props: DrawerContentComponentProps) => {
     <Block>
       {/* search input */}
       <Block color={colors.card} flex={0} padding={sizes.padding}>
-        <Input search value={InputValue} onChange={handleTextChange} placeholder={t('common.search')} />
+
+        <Input search value={InputValue} onChange={handleTextChange} placeholder={i18n.t('common.search')} />
       </Block>
 
       {/* toggle products list */}
@@ -117,7 +119,7 @@ const Home = (props: DrawerContentComponentProps) => {
           horizontal
           renderToHardwareTextureAndroid
           showsHorizontalScrollIndicator={false}
-          contentOffset={{x: -sizes.padding, y: 0}}>
+          contentOffset={{ x: -sizes.padding, y: 0 }}>
           {categories?.map((category) => {
             const isSelected = category?.id === selectedCategory?.id;
             return (
@@ -148,32 +150,32 @@ const Home = (props: DrawerContentComponentProps) => {
           data={filteredEvents}
           showsVerticalScrollIndicator={true}
           keyExtractor={(item, index) => index.toString()}
-          style={{paddingHorizontal: sizes.padding}}
-          contentContainerStyle={{paddingBottom: sizes.l}}
+          style={{ paddingHorizontal: sizes.padding }}
+          contentContainerStyle={{ paddingBottom: sizes.l }}
           renderItem={({ item }) => (
             <TouchableWithoutFeedback onPress={() => goToEvtsScreen(item)}>
-            <Block card padding={sizes.sm} marginTop={sizes.sm}>
-            <View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10 }}>
-                <Image 
-                  source={{ uri: 'https://www.goseminaire.com/crm/upload/'+ (item as any).logo }}// Afficher l'image du logo
-                  style={{ 
-                    width: 40,  // Taille de l'image (largeur)
-                    height: 40,  // Taille de l'image (hauteur)
-                    borderRadius: 20,  // Rend l'image circulaire (la moitié de la taille)
-                    overflow: 'hidden',  // S'assure que l'image est coupée au bord
-                    marginRight: 10,  // Espace entre l'image et le texte
-                  }}
-                  resizeMode="cover"  // Garde l'image proportionnée tout en remplissant le contour
-                />
-                <Text style={{ fontWeight: 'bold', fontSize: 13 }}>
-                  {(item as any).ent} - {(item as any).com} - {(item as any).ref}
-                </Text>
-              </View>
-              <Text style={{ fontWeight: 'bold', paddingHorizontal: 10, fontSize: 13 }}>{(item as any).evt}</Text>
-              <Text style={{ fontWeight: 'bold', paddingHorizontal: 10, fontSize: 13 }}>{(item as any).clt}</Text>
-            </View>
-            </Block>
+              <Block card padding={sizes.sm} marginTop={sizes.sm}>
+                <View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10 }}>
+                    <Image
+                      source={{ uri: 'https://www.goseminaire.com/crm/upload/' + (item as any).logo }}// Afficher l'image du logo
+                      style={{
+                        width: 40,  // Taille de l'image (largeur)
+                        height: 40,  // Taille de l'image (hauteur)
+                        borderRadius: 20,  // Rend l'image circulaire (la moitié de la taille)
+                        overflow: 'hidden',  // S'assure que l'image est coupée au bord
+                        marginRight: 10,  // Espace entre l'image et le texte
+                      }}
+                      resizeMode="cover"  // Garde l'image proportionnée tout en remplissant le contour
+                    />
+                    <Text style={{ fontWeight: 'bold', fontSize: 13 }}>
+                      {(item as any).ent} - {(item as any).com} - {(item as any).ref}
+                    </Text>
+                  </View>
+                  <Text style={{ fontWeight: 'bold', paddingHorizontal: 10, fontSize: 13 }}>{(item as any).evt}</Text>
+                  <Text style={{ fontWeight: 'bold', paddingHorizontal: 10, fontSize: 13 }}>{(item as any).clt}</Text>
+                </View>
+              </Block>
             </TouchableWithoutFeedback>
           )}
         />
