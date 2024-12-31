@@ -16,7 +16,6 @@ const Drawer = createDrawerNavigator();
 
 /* drawer menu screens navigation */
 const ScreensStack = () => {
-  const { t } = useTranslation();
 
   const { colors } = useTheme();
   // const isDrawerOpen = useIsDrawerOpen();
@@ -57,7 +56,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
   const { t, i18n } = useTranslation();
   useEffect(() => {
     console.log('Test traductions :');
-    console.log('fr:', i18n.t('en.app.name', { lng: 'fr' }));
+    console.log('fr:', i18n.t('app.name', { lng: 'fr' }));
     console.log('en:', i18n.t('app.name', { lng: 'en' }));
     console.log('Current store:', i18n.store.data);
   }, []);

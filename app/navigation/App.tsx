@@ -9,13 +9,10 @@ import Menu from './Menu';
 import Login from '../screens/Login';
 import { useData, ThemeProvider } from '../hooks';
 import { AuthContext, AuthProvider } from '../context/AuthContext';
-import 'intl-pluralrules';
-import { useTranslation } from 'react-i18next';
 
 
 const App = () => {
   const { isDark, theme, setTheme } = useData();
-  const { t } = useTranslation();
 
 
   const Stack = createNativeStackNavigator();
