@@ -43,7 +43,7 @@ const options = [
 
 
 type FormData1 = {
-  idevt?:Number;
+  idevt?: Number;
   evt?: string;
   date_reception?: any;
   ref?: string;
@@ -51,7 +51,7 @@ type FormData1 = {
   zone?: string;
   types_evts?: any;
   date_deb?: any;
-  date_fin?:  any;
+  date_fin?: any;
   flexible_dates?: boolean;
   budget?: string;
   commentaires_dates?: string;
@@ -59,7 +59,7 @@ type FormData1 = {
 };
 
 type FormData2 = {
-  idevt?:Number;
+  idevt?: Number;
   clt?: string;
   ent?: string;
   clt_email?: string;
@@ -71,7 +71,7 @@ type FormData2 = {
 };
 
 type FormData3 = {
-  idevt?:Number;
+  idevt?: Number;
   commission_10?: boolean;
   commission_12?: boolean;
   commission_15?: boolean;
@@ -80,7 +80,7 @@ type FormData3 = {
 const fontScale = PixelRatio.getFontScale();
 
 const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
-  const { userdata,validForm } = useContext(AuthContext);
+  const { userdata, validForm } = useContext(AuthContext);
 
 
   const eventTypes = userdata.all_types_evts;
@@ -89,6 +89,27 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   const navigation = useNavigation();
 
   // console.log(item)
+
+  // Helper function to convert date-like input to Date object
+  const parseDate = (date?: Date | string): Date => {
+    if (date instanceof Date) return date;
+    if (typeof date === 'string') {
+      const parsedDate = new Date(date);
+      return isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+    }
+    return new Date();
+  };
+
+
+  const parseSelectedIds = (typesEvts: string | null | undefined): string[] => {
+    // Cas null ou undefined
+    if (!typesEvts) return [];
+
+    return typesEvts
+      .split(',') // Sépare les éléments par la virgule
+      .map(id => id.trim()) // Enlève les espaces autour de chaque élément
+      .filter(id => id !== ""); // Supprime les éléments vides
+  };
 
 
 
@@ -108,46 +129,113 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  const [formData, setFormData] = useState<FormData1>({});
-  const [formData2, setFormData2] = useState<FormData2>({});
-  const [formData3, setFormData3] = useState<FormData3>({});
- 
+  const [formData, setFormData] = useState<FormData1>(() => {
+    if (item) {
+      return {
+        idevt: item.idevt || '',
+        evt: item.evt || '',
+        date_reception: item.date_reception instanceof Date
+          ? item.date_reception // Si c'est déjà une date, utilise-la
+          : item.date_reception
+            ? parseDate(item.date_reception) // Sinon, applique le parsing
+            : null, // Si aucune date, retourne null
+
+        ref: item.ref || '',
+        pax: item.pax || '',
+        zone: item.zone || '',
+        types_evts: Array.isArray(item?.types_evts)
+          ? item.types_evts // Si c'est déjà un tableau, utilise-le directement
+          : item.types_evts
+            ? parseSelectedIds(item?.types_evts) // Sinon, applique le parsing
+            : [],
+        date_deb: item.date_reception instanceof Date
+          ? item.date_reception // Si c'est déjà une date, utilise-la
+          : item.date_reception
+            ? parseDate(item.date_deb) // Sinon, applique le parsing
+            : null,
+        date_fin: item.date_reception instanceof Date
+          ? item.date_reception // Si c'est déjà une date, utilise-la
+          : item.date_reception
+            ? parseDate(item.date_fin) // Sinon, applique le parsing
+            : null,
+        flexible_dates: item.flexible_dates || false,
+        budget: item.budget || '',
+        commentaires_dates: item.commentaires_dates || '',
+        format: item.format || ''
+      }
+    }
+    return {
+    };
+  }
 
 
-  const FormIds =  (data: any) => {
-    if(data){
-      return  data.map((item: any) => item.id).join(",");
+  );
+  const [formData2, setFormData2] = useState<FormData2>(() => {
+    if (item) {
+      return {
+        idevt: item.idevt || '',
+        clt: item.clt || '',
+        ent: item.ent || '',
+        clt_email: item.clt_email || '',
+        clt_telfix: item.clt_telfix || '',
+        clt_telport: item.clt_telport || '',
+        clt_infos: item.clt_infos || '',
+        publish_as_company: item.publish_as_company || false,
+        clients: item.clients || [],
+      }
+    }
+    return {
+    };
+  });
+  const [formData3, setFormData3] = useState<FormData3>(() => {
+    if (item) {
+      return {
+        idevt: item.idevt || '',
+        commission_10: item.commission_10 || false,
+        commission_12: item.commission_12 || false,
+        commission_15: item.commission_15 || false,
+      }
+    }
+    return {
+    };
+  });
+
+
+
+  const FormIds = (data: any) => {
+    if (data) {
+      return data.map((item: any) => item.id).join(",");
     }
     return '';
   }
-   
 
 
 
-  const handleForm5DataChange = (data: any,type:string) => {
-    if(type==='form2'){
+
+  const handleForm5DataChange = (data: any, type: string) => {
+    if (type === 'form2') {
       setFormData2(prevData => ({
         ...prevData,
         ...data
       }));
       return
     }
-    if(type==='form3'){
+    if (type === 'form3') {
       setFormData3(prevData => ({
         ...prevData,
         ...data
       }));
       return
-    } 
+    }
     setFormData(prevData => ({
       ...prevData,
       ...data
     }));
   };
 
- 
+
   const createFormDataObject = (
-    formData:FormData1,
+    formData: FormData1,
     formData2: FormData2,
     formData3: FormData3
   ): Record<string, any> | null => {
@@ -155,7 +243,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     if (!formData || !formData2 || !formData3) {
       return null;
     }
-  
+
     const combinedData: Record<string, any> = {
       idevt: formData.idevt,
       nom: formData.evt,
@@ -182,26 +270,26 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       "15pourcent": formData3.commission_15,
       clients: FormIds(formData2.clients),
     };
-  
+
     // Supprimer les clés avec des valeurs nulles ou indéfinies
     Object.keys(combinedData).forEach(
       (key) =>
         (combinedData[key] === null || combinedData[key] === undefined) &&
         delete combinedData[key]
     );
-  
+
     return combinedData;
   };
-  
+
   // Utilisation de la fonction
   const formDataObj = createFormDataObject(formData, formData2, formData3);
-     
- 
-   
-  
+
+
+
+
   const createFormData = (data: Record<string, any>): any => {
     const formData = new FormData();
-  
+
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
         // Sérialiser les objets ou tableaux
@@ -212,15 +300,15 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
         }
       }
     });
-  
+
     return formData;
   };
-  
-  
+
+
   const handleSaveForm = () => {
 
-     validForm(formDataObj);
-   
+    //  validForm(formDataObj);
+
     Alert.alert(
       "Données du formulaire",
       JSON.stringify(formDataObj, null, 2),
@@ -293,9 +381,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
 
-      {step === "date" && <Form1 item={item} eventTypes={eventTypes} onDataChange={handleForm5DataChange}   />}
-      {step === "clients" && <Form2 item={item} onDataChange={handleForm5DataChange} clients={formData?.clients} clientData={userdata.all_clts} />}
-      {step === "com" && <Form3 item={item}  onDataChange={handleForm5DataChange} />}
+      {step === "date" && <Form1 item={formData} eventTypes={eventTypes} onDataChange={handleForm5DataChange} />}
+      {step === "clients" && <Form2 item={formData2} onDataChange={handleForm5DataChange} clients={formData?.clients} clientData={userdata.all_clts} />}
+      {step === "com" && <Form3 item={formData3} onDataChange={handleForm5DataChange} />}
 
 
     </ScrollView>

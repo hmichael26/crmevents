@@ -1,19 +1,19 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import en from './en.json';
-import fr from './fr.json';
 
 i18n
   .use(initReactI18next)
   .init({
+    debug: true, // Activez les logs
     resources: {
       en: {
-        translation: en
+        translation: require('./en.json')
       },
       fr: {
-        translation: fr
+        translation: require('./fr.json')
       }
-    },
+    }
+    ,
     lng: 'fr', // langue par défaut
     fallbackLng: 'en', // langue de secours
     interpolation: {

@@ -1,4 +1,4 @@
-import 'intl-pluralrules';
+
 //import '@formatjs/intl-pluralrules/polyfill'
 import './app/constants/translations';
 
@@ -10,8 +10,7 @@ import { DataProvider } from './app/hooks';
 import AppNavigation from './app/navigation/App';
 import { View, Text, Image, StyleSheet, FlatList } from 'react-native';
 import Menu from './app/navigation/Menu';
-import { useTranslation } from 'react-i18next';
-
+import 'intl-pluralrules';
 
 export default function App() {
 

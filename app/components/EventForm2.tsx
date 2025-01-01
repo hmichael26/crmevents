@@ -21,7 +21,7 @@ interface Client {
 }
 
 interface FormData {
-  idevt?:Number;
+  idevt?: Number;
   clt?: string;
   ent?: string;
   clt_email?: string;
@@ -34,7 +34,7 @@ interface FormData {
 
 type Form2Props = {
   item?: any;
-  onDataChange: (data: FormData,type:string) => void;
+  onDataChange: (data: FormData, type: string) => void;
   clients?: Client[];
   clientData?: any[];
 };
@@ -46,7 +46,7 @@ const Form2: React.FC<Form2Props> = ({
   clientData = []
 }) => {
   const { assets, colors, gradients, sizes } = useTheme();
-  
+
   // State to manage form data
   const [formData, setFormData] = useState<FormData>({
     idevt: item.idevt || '',
@@ -70,7 +70,7 @@ const Form2: React.FC<Form2Props> = ({
     onDataChange({
       ...formData,
       clients
-    },'form2');
+    }, 'form2');
   }, [formData, clients]);
 
   // Update a specific field in form data
@@ -114,7 +114,7 @@ const Form2: React.FC<Form2Props> = ({
         onSelectClient={(selectedClient) => updateClientSelection(selectedClient, client.id)}
         initialClient={client}
       />
-      <TouchableOpacity onPress={() => removeClient(client.id)} style={{ paddingHorizontal: 10 , paddingBottom: 5 }}>
+      <TouchableOpacity onPress={() => removeClient(client.id)} style={{ paddingHorizontal: 10, paddingBottom: 5 }}>
         <Text style={{ fontSize: 23, color: colors.primary, fontWeight: "bold" }}>x</Text>
       </TouchableOpacity>
     </View>
@@ -165,7 +165,7 @@ const Form2: React.FC<Form2Props> = ({
           placeholder="Enter notification details"
           style={{ width: "100%" }}
           toogleValue={formData.publish_as_company}
-          onToggle={(value) =>{ updateFormField('publish_as_company', value) ,console.log(value)}}
+          onToggle={(value) => { updateFormField('publish_as_company', value) }}
         />
       </View>
 
