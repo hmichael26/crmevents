@@ -21,6 +21,7 @@ interface Client {
 }
 
 interface FormData {
+  idevt?:Number;
   clt?: string;
   ent?: string;
   clt_email?: string;
@@ -48,6 +49,7 @@ const Form2: React.FC<Form2Props> = ({
   
   // State to manage form data
   const [formData, setFormData] = useState<FormData>({
+    idevt: item.idevt || '',
     clt: item.clt || '',
     ent: item.ent || '',
     clt_email: item.clt_email || '',

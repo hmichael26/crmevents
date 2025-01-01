@@ -12,6 +12,7 @@ type EventType = {
 };
 
 type FormData = {
+  idevt?:Number;
   evt?: string;
   date_reception?: any;
   ref?: string;
@@ -56,6 +57,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
   };
     
   const [formData, setFormData] = useState<FormData>({
+    idevt: item.idevt || '',
     evt: item.evt || '',
     date_reception: parseDate(item.date_reception),
     ref: item.ref || '',

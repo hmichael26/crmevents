@@ -82,6 +82,8 @@ export const AuthProvider = ({ children }) => {
     )
 
     ApiAction(data, (res) => {
+
+      // getUserData(res.token)
       // cb(res.data);
 
       alert('jai envoyer le formulaire');

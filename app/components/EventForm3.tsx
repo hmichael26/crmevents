@@ -21,6 +21,7 @@ type Form3Props = {
 };
 
 type FormData = {
+  idevt?:Number;
   commission_10?: boolean;
   commission_12?: boolean;
   commission_15?: boolean;
@@ -34,7 +35,7 @@ const Form3: React.FC<Form3Props> = ({ item, onDataChange }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
-
+    idevt: item.idevt || '',
     commission_10: item.commission_10 || true,
     commission_12: item.commission_12 || true,
     commission_15: item.commission_15 || false
