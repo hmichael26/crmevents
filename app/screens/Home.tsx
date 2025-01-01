@@ -107,7 +107,6 @@ const Home = (props: DrawerContentComponentProps) => {
     <Block>
       {/* search input */}
       <Block color={colors.card} flex={0} padding={sizes.padding}>
-
         <Input search value={InputValue} onChange={handleTextChange} placeholder={i18n.t('common.search')} />
       </Block>
 

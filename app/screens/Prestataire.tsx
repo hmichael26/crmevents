@@ -29,12 +29,77 @@ const PAGE_SIZE = 30;
 
 export const Prestataire = () => {
 
-    const { loading, getPrestaBy, error, updatepresta, deletepresta } = useApi();
-    const { userdata } = useContext(AuthContext);
+    const { loading, getPrestaBy, error, updatepresta, deletepresta, getprestaprms } = useApi();
+    // const { userdata } = useContext(AuthContext);
 
     //  if ($_POST['searchby'])//recherche specifique : region, ville, dept, categ
     const scrollViewRef = useRef(null);
 
+    // State for each dropdown's data
+    const [regions, setRegions] = useState([]);
+    const [departments, setDepartments] = useState([]);
+    const [cities, setCities] = useState([]);
+    const [providerTypes, setProviderTypes] = useState([]);
+
+    // Loading states for each dropdown
+    const [loadingRegions, setLoadingRegions] = useState(false);
+    const [loadingDepartments, setLoadingDepartments] = useState(false);
+    const [loadingCities, setLoadingCities] = useState(false);
+    const [loadingProviderTypes, setLoadingProviderTypes] = useState(false);
+
+    // Handlers for each dropdown's focus
+    const handleRegionFocus = useCallback(async () => {
+        if (regions.length > 0 || loadingRegions) return;
+        setLoadingRegions(true);
+        try {
+            const response = await getprestaprms({ searchby: 'region' });
+            // console.log(response.data.all_regions);
+            setRegions(response.data.all_regions || []);
+        } catch (error) {
+            console.error("Erreur lors du chargement des régions:", error);
+        } finally {
+            setLoadingRegions(false);
+        }
+    }, [regions, loadingRegions]);
+
+    const handleDepartmentFocus = useCallback(async () => {
+        if (departments.length > 0 || loadingDepartments) return;
+        setLoadingDepartments(true);
+        try {
+            const response = await getprestaprms({ searchby: 'dept' });
+            setDepartments(response.data.all_depts || []);
+        } catch (error) {
+            console.error("Erreur lors du chargement des départements:", error);
+        } finally {
+            setLoadingDepartments(false);
+        }
+    }, [departments, loadingDepartments]);
+
+    const handleCityFocus = useCallback(async () => {
+        if (cities.length > 0 || loadingCities) return;
+        setLoadingCities(true);
+        try {
+            const response = await getprestaprms({ searchby: 'ville' });
+            setCities(response.data.all_cities || []);
+        } catch (error) {
+            console.error("Erreur lors du chargement des villes:", error);
+        } finally {
+            setLoadingCities(false);
+        }
+    }, [cities, loadingCities]);
+
+    const handleProviderTypeFocus = useCallback(async () => {
+        if (providerTypes.length > 0 || loadingProviderTypes) return;
+        setLoadingProviderTypes(true);
+        try {
+            const response = await getprestaprms({ searchby: 'categ' });
+            setProviderTypes(response.data.all_categories || []);
+        } catch (error) {
+            console.error("Erreur lors du chargement des types de prestataires:", error);
+        } finally {
+            setLoadingProviderTypes(false);
+        }
+    }, [providerTypes, loadingProviderTypes]);
 
     const [isLoading, setIsLoading] = useState(false);
     const [searchResults, setSearchResults] = useState<{
@@ -162,12 +227,12 @@ export const Prestataire = () => {
         <Picker.Item label={item.name || item.libelle} value={item.id} key={index} />
     ), []);
 
-    const memoizedPickers = useMemo(() => ({
-        region: userdata.all_regions.map(renderPickerItem),
-        department: userdata.all_depts.map(renderPickerItem),
-        city: userdata.all_cities.map(renderPickerItem),
-        providerType: userdata.all_categories.map(renderPickerItem)
-    }), [userdata, renderPickerItem]);
+    /* const memoizedPickers = useMemo(() => ({
+         region: userdata.all_regions.map(renderPickerItem),
+         department: userdata.all_depts.map(renderPickerItem),
+         city: userdata.all_cities.map(renderPickerItem),
+         providerType: userdata.all_categories.map(renderPickerItem)
+     }), [userdata, renderPickerItem]);*/
 
 
     const onModify = async (data) => {
@@ -214,14 +279,18 @@ export const Prestataire = () => {
                             <PickerWrapper
                                 selectedValue={selectForm.region}
                                 onValueChange={(value) => handleInputChange('region', value)}
-                                items={memoizedPickers.region}
+                                items={regions}
                                 placeholder="Sélectionner une région"
+                                onFocus={handleRegionFocus}
+                                loading={loadingRegions}
                             />
                             <PickerWrapper
                                 selectedValue={selectForm.department}
                                 onValueChange={(value) => handleInputChange('department', value)}
-                                items={memoizedPickers.department}
+                                items={departments}
                                 placeholder="Sélectionner un département"
+                                onFocus={handleDepartmentFocus}
+                                loading={loadingDepartments}
                             />
                         </View>
 
@@ -229,14 +298,18 @@ export const Prestataire = () => {
                             <PickerWrapper
                                 selectedValue={selectForm.city}
                                 onValueChange={(value) => handleInputChange('city', value)}
-                                items={memoizedPickers.city}
+                                items={cities}
                                 placeholder="Sélectionner une ville"
+                                onFocus={handleCityFocus}
+                                loading={loadingCities}
                             />
                             <PickerWrapper
                                 selectedValue={selectForm.providerType}
                                 onValueChange={(value) => handleInputChange('providerType', value)}
-                                items={memoizedPickers.providerType}
+                                items={providerTypes}
                                 placeholder="Type de prestataire"
+                                onFocus={handleProviderTypeFocus}
+                                loading={loadingProviderTypes}
                             />
                         </View>
 
@@ -319,19 +392,39 @@ export const Prestataire = () => {
     );
 };
 
-const PickerWrapper = React.memo(({ selectedValue, onValueChange, items, placeholder }: any) => (
+const PickerWrapper = React.memo(({
+    selectedValue,
+    onValueChange,
+    items,
+    placeholder,
+    onFocus,
+    loading
+}) => (
     <View style={[styles.pickerContainer, { width: '50%' }]}>
         <Picker
             selectedValue={selectedValue}
             onValueChange={onValueChange}
             style={styles.picker}
+            onFocus={onFocus}
         >
-            <Picker.Item label={placeholder} value="" />
-            {items}
+            <Picker.Item label={loading ? "Chargement..." : placeholder} value="" />
+            {!loading && items.map((item, index) => (
+                <Picker.Item
+                    label={item.name || item.libelle}
+                    value={item.id}
+                    key={index}
+                />
+            ))}
         </Picker>
+        {loading && (
+            <ActivityIndicator
+                style={styles.pickerLoading}
+                color="#9932CC"
+                size="small"
+            />
+        )}
     </View>
 ));
-
 const CustomTextInput = React.memo(({ ...props }: any) => (
     <TextInput
         style={[styles.input, styles.inputHalf]}
@@ -359,6 +452,11 @@ const styles = StyleSheet.create({
     },
     searchSection: {
         gap: 8,
+    },
+    pickerLoading: {
+        position: 'absolute',
+        right: 30,
+        top: 5,
     },
     loadingMore: {
         padding: 16,
