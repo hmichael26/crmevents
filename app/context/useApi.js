@@ -62,6 +62,10 @@ export const useApi = () => {
     const updatepresta = (data) => makeRequest('save-presta', data);
     const deletepresta = (data) => makeRequest('delete-presta', data);
     const getprestaprms = (data) => makeRequest('get-presta-prms', data);
+    const validdevis = (data) => makeRequest('valid-devis', data);
+    const validbrochure = (data) => makeRequest('valid-brochure', data);
+    const sendDemande = (data) => makeRequest('send-demand', data);
+
 
 
     // Ajoutez d'autres actions communes ici
@@ -76,7 +80,10 @@ export const useApi = () => {
         getUserData,
         updatepresta,
         deletepresta,
-        getprestaprms
+        getprestaprms,
+        validdevis,
+        validbrochure,
+        sendDemande
 
         // ... autres actions
     };

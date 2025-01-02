@@ -58,6 +58,7 @@ const EventPresta: React.FC = ({ route }) => {
   const [derouleTitle, setDerouleTitle] = useState("");
 
   const [formData, setFormData] = useState({
+    id_deroule: item?.id || 0,
     derouleTitle: '',
     fields: []
   });
@@ -97,7 +98,7 @@ const EventPresta: React.FC = ({ route }) => {
       JSON.stringify(formData, null, 2),
       [{ text: "OK" }]
     );
-    validForm({ data: formData });
+    // validForm({ data: formData });
 
   };
 
@@ -166,7 +167,7 @@ const EventPresta: React.FC = ({ route }) => {
     </View>
 
     {
-      step === "deroule" && item?.titre_deroule === undefined && <View style={{ borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10, marginHorizontal: 30 }}>
+      step === "deroule" && <View style={{ borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10, marginHorizontal: 30 }}>
 
         <TextInput
           style={{
@@ -176,7 +177,7 @@ const EventPresta: React.FC = ({ route }) => {
             width: '100%',
             textAlign: "center",
           }}
-          placeholder="saisissez le titre de votre deroule"
+          placeholder={item?.titre_deroule ? item.titre_deroule : "saisissez le titre de votre deroule"}
           placeholderTextColor="#000"
           value={derouleTitle}
           onChangeText={handleDerouleTitleChange}

@@ -1,3 +1,4 @@
+import '../constants/translations';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Animated, Linking, StyleSheet } from 'react-native';
 import {
@@ -55,10 +56,7 @@ const ScreensStack = () => {
 const DrawerContent = (props: DrawerContentComponentProps) => {
   const { t, i18n } = useTranslation();
   useEffect(() => {
-    console.log('Test traductions :');
-    console.log('fr:', i18n.t('app.name', { lng: 'fr' }));
-    console.log('en:', i18n.t('app.name', { lng: 'en' }));
-    console.log('Current store:', i18n.store.data);
+
   }, []);
 
   const { navigation } = props;

@@ -20,6 +20,7 @@ import { AuthContext } from '../context/AuthContext';
 
 import PdfModal from './PdfModal';
 import { useApi } from '../context/useApi';
+import DevisInterface from './DevisInterface';
 
 
 
@@ -38,6 +39,12 @@ const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
 const Form4 = ({ item, onDataChange }) => {
+
+
+  // console.log(item.id_deroule)
+
+
+  const { validdevis, validbrochure, sendDemande } = useApi();
 
 
 
@@ -77,17 +84,23 @@ const Form4 = ({ item, onDataChange }) => {
   const [badges, setBadges] = useState([]);
 
 
-  const handleOptionSelect = (option: React.SetStateAction<string>, type: number) => {
+  const handleOptionSelect = async (option: React.SetStateAction<string>, type: number) => {
     if (type == 1) {
       if (option === 'supprimer') {
         validateForm(1); // Ouvre le modal pour confirmer la suppression
       } else {
+
+
         setSelectedOption(option); // Met à jour directement l'option sélectionnée
       }
     } else {
       if (option === 'supprimer') {
         validateForm(2); // Ouvre le modal pour confirmer la suppression
       } else {
+        await validbrochure({
+          id_presta: activeBadgeData.id_presta,
+          valid: option
+        });
         setSelectedOption2(option); // Met à jour directement l'option sélectionnée
       }
     }
@@ -105,12 +118,16 @@ const Form4 = ({ item, onDataChange }) => {
   };
 
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     // Si le formulaire 1 est actif et confirmé
     if (currentForm === 1) {
       setSelectedOption('supprimer'); // Applique la suppression
       console.log('Formulaire 1 supprimé');
     } else if (currentForm === 2) {
+      await validbrochure({
+        id_presta: activeBadgeData?.id_presta,
+        valid: 'supprimer'
+      });
       setSelectedOption2('supprimer'); // Applique la suppression
       console.log('Formulaire 2 supprimé');
     }
@@ -222,12 +239,28 @@ const Form4 = ({ item, onDataChange }) => {
       console.error('Erreur lors de l\'ouverture du PDF :', error);
     }
   };
+
   const openDocument = async () => {
     if (activeBadgeData?.lien_brochure) {
+      /*
       setPdfUri(activeBadgeData.lien_brochure);
-      setPdfModalVisible(true);
+      setPdfModalVisible(true);*/
+
+      Linking.openURL(activeBadgeData?.lien_brochure);
     }
   };
+
+
+
+  const openDevis = async (link) => {
+    if (link) {
+      Linking.openURL(link);
+    }
+
+
+  };
+
+  console.log(activeBadgeData);
 
   const [badgeToDelete, setBadgeToDelete] = useState<number | null>(null);
 
@@ -269,11 +302,20 @@ const Form4 = ({ item, onDataChange }) => {
     }
   };
 
-
+  // console.log(item?.id_deroule)
   const onModify = () => {
 
     fetchData(currentPage, true);
   };
+
+  {
+    if (item?.id_deroule && item?.all_presta_interroges?.length === 0)
+      return (
+        <View >
+          <TextBlock style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>Aucun prestataire associé à ce deroule</TextBlock>
+        </View>)
+  }
+
 
 
   {
@@ -285,14 +327,16 @@ const Form4 = ({ item, onDataChange }) => {
   }
 
 
+
+
   return <SafeAreaView >
-    <PdfModal
+    {false && <PdfModal
       visible={pdfModalVisible}
       onClose={() => setPdfModalVisible(false)}
       pdfUri={pdfUri}
     />
 
-
+    }
 
     <View style={styles.container}>
 
@@ -326,7 +370,10 @@ const Form4 = ({ item, onDataChange }) => {
           <View style={{ borderWidth: 1, borderColor: "#000", borderRadius: 10 }} >
 
             <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 3 }}>
-              <Button flex={1} gradient={gradients.success} rounded={false} round={false} >
+              <Button flex={1} gradient={gradients.success} rounded={false} round={false} onPress={async () => sendDemande({
+                id_presta: activeBadgeData?.id_presta,
+                id_deroule: item?.id_deroule
+              })}>
                 <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                   envoyer
                 </Text>
@@ -366,46 +413,18 @@ const Form4 = ({ item, onDataChange }) => {
 
             </View>
 
+
             <View style={{ flex: 1 }}>
-              <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginTop: 15 }}>
 
-                <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} >
-                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-                    ouvrir
-                  </Text>
-                  <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
-                    un devis
-                  </Text>
-                </Button>
-                {false && <Button flex={0.6} gradient={gradients.warning} marginBottom={sizes.base / 2} rounded={false} round={false}>
-                  <Text white bold transform="uppercase" size={getFontSize(12)}>
-                    Telecharger
-                  </Text>
-                  <Text white size={getFontSize(12)} bold style={{ textTransform: 'uppercase' }}>
-                    devis
-                  </Text>
-                </Button>}
-
-                <View style={{ flex: 1, flexDirection: "row", width: "100%", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10, marginBottom: 5, height: getFontSize(48) }}>
-                  {selectedOption ? <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "center" }} >{selectedOption}</Text> : <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "center" }}>valider</Text>}
+              <DevisInterface
+                activeBadgeData={activeBadgeData}
+                gradients={gradients}
+                sizes={sizes}
+                getFontSize={getFontSize}
+                openDevis={openDevis}
+              />
 
 
-
-                  <Picker
-                    style={{ width: "10%", marginLeft: 5 }}
-                    selectedValue={selectedOption}
-                    onValueChange={(itemValue) => handleOptionSelect(itemValue, 1)}
-
-                  >
-
-                    {options.map((option, index) => (
-                      <Picker.Item key={index} label={option.label} value={option.label} />
-                    ))}
-                  </Picker>
-
-                </View>
-
-              </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 5, marginVertical: 0 }} >
 
                 <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 2} rounded={false} round={false} onPress={() => openDocument(activeBadgeData)}>
@@ -468,7 +487,7 @@ const Form4 = ({ item, onDataChange }) => {
                   width: "46%"
 
                 }}>
-                  <Text color={colors.primary} bold style={{ fontSize: 20 }}>12000$</Text>
+                  <Text color={colors.primary} bold style={{ fontSize: 20 }}>{activeBadgeData?.budget} eur</Text>
 
                 </View>
 
@@ -519,6 +538,7 @@ const Form4 = ({ item, onDataChange }) => {
                 message="vous ete sur le point de supprimer ?"
               />
             </View>
+
             <View style={{ flex: 1, flexDirection: 'row', alignItems: "center", justifyContent: "center", marginTop: 6, marginHorizontal: 5, gap: 10 }}>
 
               <View style={{
@@ -617,7 +637,7 @@ const Form4 = ({ item, onDataChange }) => {
 
           {badges.map((badge, index) => (
 
-            (index === activeBadge) && ( // condition pour afficher uniquement le badge suivant
+            (index != activeBadge - 1) && ( // condition pour afficher uniquement le badge suivant
               <Badge
                 key={index}
                 text={badge.text}
