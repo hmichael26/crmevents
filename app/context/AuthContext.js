@@ -63,6 +63,7 @@ export const AuthProvider = ({ children }) => {
       console.log(res.data)
       setUserData(res.data.data);
       setUserToken(res.data.token);
+
       StoreSave("usertoken", res.data.token);
       AsyncSave("userdata", JSON.stringify(res.data.user));
     },
@@ -77,13 +78,14 @@ export const AuthProvider = ({ children }) => {
       */
 
     data = { ...data, action: 'save-all-datas', token: usertoken };
-    console.log(
-      data
-    )
+    /* console.log(
+       data
+     )*/
+
 
     ApiAction(data, (res) => {
 
-      // getUserData(res.token)
+      getUserData()
       // cb(res.data);
 
       alert('jai envoyer le formulaire');
@@ -97,6 +99,21 @@ export const AuthProvider = ({ children }) => {
       });
   };
 
+  useEffect(() => {
+    userTokens();
+  }, []);
+
+  const userTokens = async () => {
+    try {
+      let ut = await SecureStore.getItemAsync("usertoken");
+      setUserToken(ut);
+      if (ut != '' && ut != null && ut != 'undefined') {
+        getUserData(ut);
+      }
+    } catch (e) {
+      console.log(`getStoredData #1 error : ${e}`);
+    }
+  };
 
   const validFormMultiPart = (data, cb) => {
 
@@ -122,10 +139,10 @@ export const AuthProvider = ({ children }) => {
     );
   };
 
-  const getUserData = (token) => {
+  const getUserData = () => {
     ApiAction({
       action: 'get-user-data',
-      token: token
+      token: usertoken
     }, (res) => {
       setUserData(res.data.data);
       AsyncSave("userdata", JSON.stringify(res.data.data));
@@ -140,7 +157,8 @@ export const AuthProvider = ({ children }) => {
     }, (res) => {
       setPresta(res.data.data);
       return res.data.data;
-      //    AsyncSave("userdata", JSON.stringify(res.data.data));
+
+
     });
   };
   const Logout = async () => {

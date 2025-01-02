@@ -65,6 +65,7 @@ export const useApi = () => {
     const validdevis = (data) => makeRequest('valid-devis', data);
     const validbrochure = (data) => makeRequest('valid-brochure', data);
     const sendDemande = (data) => makeRequest('send-demand', data);
+    const getUserDatas = (data) => makeRequest('get-user-data', data);
 
 
 
@@ -83,7 +84,8 @@ export const useApi = () => {
         getprestaprms,
         validdevis,
         validbrochure,
-        sendDemande
+        sendDemande,
+        getUserDatas
 
         // ... autres actions
     };
