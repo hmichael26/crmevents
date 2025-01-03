@@ -113,6 +113,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
 
 
+
+
   const getButtonSize = () => {
     const buttonWidth = width * 0.3; // 30% de la largeur de l'écran
     const buttonHeight = height * 0.06; // 6% de la hauteur de l'écran
@@ -307,7 +309,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
   const handleSaveForm = () => {
 
-    //  validForm(formDataObj);
+    validForm(formDataObj);
 
     Alert.alert(
       "Données du formulaire",

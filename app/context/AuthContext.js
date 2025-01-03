@@ -1,9 +1,19 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { debounce } from 'lodash';
 
 export const AuthContext = createContext();
+
+// Configuration axios
+const axiosInstance = axios.create({
+  baseURL: 'https://www.goseminaire.com/crm/api/',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  }
+});
 
 export const AuthProvider = ({ children }) => {
   const [userdata, setUserData] = useState(null);
@@ -12,197 +22,214 @@ export const AuthProvider = ({ children }) => {
   const [usertoken, setUserToken] = useState(null);
   const [isConnected, setIsConnected] = useState(true);
 
-  const appBaseUrl = 'https://www.goseminaire.com/crm/';
+  const debouncedSetLoading = debounce(setIsLoading, 300);
 
-  const customHeaders = {
-    'Content-Type': 'application/json',
-    // ajoutez d'autres en-têtes nécessaires ici
+  // Utilitaires de stockage
+  const StoreSave = async (key, value) => {
+    try {
+      await SecureStore.setItemAsync(key, value);
+    } catch (error) {
+      console.error('StoreSave error:', error);
+    }
   };
 
-  async function StoreSave(key, value) {
-    await SecureStore.setItemAsync(key, value);
-  }
-
-  async function AsyncSave(key, value) {
-    await AsyncStorage.setItem(key, value);
-  }
-
-  const ApiAction = async (prms, callback, cberror, headers = {}, force = false, action = 'save-all-datas') => {
-    setIsLoading(true);
-
-    console.log('ApiAction params:', prms);
-    console.log('Headers:', headers);
-
-
-    console.log('CONNECTED ACTION ' + prms.action);
-    axios.post(appBaseUrl + 'api/api.php', prms, { headers }).then((res) => {
-
-      console.log(prms)
-      setIsLoading(false);
-      if (res.data.code == 'SUCCESS') callback(res);
-      else if (res.data.code == 'LOGOUT') Logout();
-      else if (cberror != undefined) cberror();
-      else {
-        console.log(res);
-        alert(res);
-      }
-    }).catch((e) => {
-      alert(`Erreur à la connexion : ${e}`);
-      console.log(e);
-      setIsLoading(false);
-    });
-
+  const AsyncSave = async (key, value) => {
+    try {
+      await AsyncStorage.setItem(key, value);
+    } catch (error) {
+      console.error('AsyncSave error:', error);
+    }
   };
 
-  const Login = data => {
-    ApiAction({
-      email: data.email,
-      action: 'login-api',
-      password: data.password,
-    }, (res) => {
-      console.log(res.data)
-      setUserData(res.data.data);
-      setUserToken(res.data.token);
+  // Fonction API optimisée
+  const ApiAction = useCallback(async (params, callback, errorCallback, headers = {}) => {
+    try {
+      debouncedSetLoading(true);
 
-      StoreSave("usertoken", res.data.token);
-      AsyncSave("userdata", JSON.stringify(res.data.user));
-    },
-      undefined,
-      customHeaders
-    );
-  };
-
-  const validForm = (data, cb) => {
-    /* data.append('token',usertoken);
-     data.append('action','save-all-datas');  
-      */
-
-    data = { ...data, action: 'save-all-datas', token: usertoken };
-    /* console.log(
-       data
-     )*/
-
-
-    ApiAction(data, (res) => {
-
-      getUserData()
-      // cb(res.data);
-
-      alert('jai envoyer le formulaire');
-    },
-      undefined,
-      {
+      const config = {
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
+          ...axiosInstance.defaults.headers,
+          ...headers,
+          ...(usertoken && { Authorization: `Bearer ${usertoken}` })
+        }
+      };
+
+      console.log('ApiAction params:', params);
+      const response = await axiosInstance.post('api.php', params, config);
+
+      switch (response.data.code) {
+        case 'SUCCESS':
+          callback?.(response);
+          break;
+        case 'LOGOUT':
+          await Logout();
+          break;
+        default:
+          if (errorCallback) {
+            errorCallback(response.data);
+          } else {
+            console.error('API Error:', response.data);
+            throw new Error(response.data.message || 'Une erreur est survenue');
+          }
+      }
+
+      return response;
+    } catch (error) {
+      console.error('API Request Error:', error);
+      if (errorCallback) {
+        errorCallback(error);
+      } else {
+        alert(`Erreur de connexion : ${error.message}`);
+      }
+      throw error;
+    } finally {
+      debouncedSetLoading(false);
+    }
+  }, [usertoken]);
+
+  // Login optimisé
+  const Login = async (data) => {
+    try {
+      const response = await ApiAction({
+        email: data.email,
+        action: 'login-api',
+        password: data.password,
+      }, async (res) => {
+        const { data: { data, token, user } } = res;
+        setUserData(data);
+        setUserToken(token);
+        await Promise.all([
+          StoreSave("usertoken", token),
+          AsyncSave("userdata", JSON.stringify(user))
+        ]);
       });
+      return response;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   };
 
-  useEffect(() => {
-    userTokens();
+  // Fonction getUserData optimisée
+  const getUserData = useCallback(async () => {
+    try {
+      const token = await SecureStore.getItemAsync("usertoken");
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      const response = await ApiAction({
+        action: 'get-user-data',
+        token
+      }, async (res) => {
+        const userData = res.data.data;
+        setUserData(userData);
+        await AsyncSave("userdata", JSON.stringify(userData));
+        return userData;
+      });
+
+      return response.data.data;
+    } catch (error) {
+      console.error('GetUserData error:', error);
+      throw error;
+    }
+  }, [ApiAction]);
+
+  // Fonction validForm optimisée
+  const validForm = async (data, callback) => {
+    try {
+      const formData = {
+        ...data,
+        action: 'save-all-datas',
+        token: usertoken
+      };
+
+      await ApiAction(formData, async () => {
+        await getUserData();
+        alert('Formulaire envoyé avec succès');
+        callback?.();
+      });
+    } catch (error) {
+      console.error('ValidForm error:', error);
+      throw error;
+    }
+  };
+
+  // Fonction validFormMultiPart optimisée
+  const validFormMultiPart = async (data, callback) => {
+    if (!(data instanceof FormData)) {
+      throw new Error('Data must be a FormData object');
+    }
+
+    try {
+      await ApiAction(data,
+        (res) => {
+          callback?.(res.data);
+          alert('Formulaire envoyé avec succès');
+        },
+        undefined,
+        { 'Content-Type': 'multipart/form-data' }
+      );
+    } catch (error) {
+      console.error('ValidFormMultiPart error:', error);
+      throw error;
+    }
+  };
+
+  // Fonction getAllPrestaData optimisée
+  const getAllPrestaData = useCallback(async (data) => {
+    try {
+      const response = await ApiAction({
+        action: 'get-presta-by',
+        token: usertoken,
+        ...data
+      }, (res) => {
+        setPresta(res.data.data);
+        return res.data.data;
+      });
+      return response.data.data;
+    } catch (error) {
+      console.error('GetAllPrestaData error:', error);
+      throw error;
+    }
+  }, [usertoken, ApiAction]);
+
+  // Fonction Logout optimisée
+  const Logout = useCallback(async () => {
+    try {
+      setUserToken(null);
+      setUserData(null);
+      setIsLoading(false);
+      await Promise.all([
+        SecureStore.deleteItemAsync("usertoken"),
+        AsyncStorage.removeItem("userdata")
+      ]);
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw error;
+    }
   }, []);
 
-  const userTokens = async () => {
-    try {
-      let ut = await SecureStore.getItemAsync("usertoken");
-      setUserToken(ut);
-      if (ut != '' && ut != null && ut != 'undefined') {
-        getUserData(ut);
-      }
-    } catch (e) {
-      console.log(`getStoredData #1 error : ${e}`);
-    }
-  };
-
-  const validFormMultiPart = (data, cb) => {
-
-    if (!(data instanceof FormData)) {
-      console.error('Data must be a FormData object');
-      return;
-    }
-
-
-    ApiAction(
-      data,
-      (res) => {
-        if (cb) cb(res.data);
-        alert('Form submitted successfully');
-      },
-      (error) => {
-        console.error('Form submission error:', error);
-        alert('Failed to submit form');
-      },
-      {
-        'Content-Type': 'multipart/form-data'
-      }
-    );
-  };
-
-  const getUserData = () => {
-    ApiAction({
-      action: 'get-user-data',
-      token: usertoken
-    }, (res) => {
-      setUserData(res.data.data);
-      AsyncSave("userdata", JSON.stringify(res.data.data));
-    });
-  };
-
-  const getAllPrestaData = (data) => {
-    ApiAction({
-      action: 'get-presta-by',
-      token: usertoken,
-      ...data
-    }, (res) => {
-      setPresta(res.data.data);
-      return res.data.data;
-
-
-    });
-  };
-  const Logout = async () => {
-    setUserToken(null);
-    setUserData(null);
-    setIsLoading(false);
-    SecureStore.deleteItemAsync("usertoken");
-    AsyncStorage.removeItem("userdata");
-  };
-
-  const getAsyncStoreData = (key) => {
-    return AsyncStorage.getItem(key);
-  };
-
-  const getStoredData = async () => {
-    try {
-      let userinfo = await getAsyncStoreData("userdata");
-      userinfo = JSON.parse(userinfo);
-      if (userinfo) {
-        setUserData(userinfo);
-      }
-    } catch (e) {
-      console.log(`getStoredData #2 error : ${e}`);
-    }
-
-    try {
-      var ut = await SecureStore.getItemAsync("usertoken");
-      setUserToken(ut);
-      if (ut != '' && ut != null && ut != 'undefined') {
-        getUserData(ut);
-      }
-    } catch (e) {
-      console.log(`getStoredData #1 error : ${e}`);
-    }
-  };
-
+  // Initialisation des données au démarrage
   useEffect(() => {
-    // getStoredData();
+    const initializeAuth = async () => {
+      try {
+        const storedToken = await SecureStore.getItemAsync("usertoken");
+        if (storedToken) {
+          setUserToken(storedToken);
+          await getUserData();
+        }
+      } catch (error) {
+        console.error('Initialize Auth error:', error);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   return (
     <AuthContext.Provider
       value={{
-        appBaseUrl,
         userdata,
         isloading,
         usertoken,
@@ -219,5 +246,7 @@ export const AuthProvider = ({ children }) => {
       }}>
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
+
+export default AuthProvider;
