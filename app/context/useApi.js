@@ -3,6 +3,10 @@ import axios from 'axios';
 import { useContext } from 'react';
 import { AuthContext } from './AuthContext';
 const API_URL = 'https://www.goseminaire.com/crm/api/api.php';
+import * as SecureStore from 'expo-secure-store';
+
+const storedToken = await SecureStore.getItemAsync("usertoken");
+
 
 export const useApi = () => {
     const [loading, setLoading] = useState(false);
@@ -66,6 +70,7 @@ export const useApi = () => {
     const validbrochure = (data) => makeRequest('valid-brochure', data);
     const sendDemande = (data) => makeRequest('send-demand', data);
     const getUserDatas = (data) => makeRequest('get-user-data', data);
+    const getevent = (data) => makeRequest('get-event', { ...data, token: storedToken });
 
 
 
@@ -85,7 +90,8 @@ export const useApi = () => {
         validdevis,
         validbrochure,
         sendDemande,
-        getUserDatas
+        getUserDatas,
+        getevent
 
         // ... autres actions
     };

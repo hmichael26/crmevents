@@ -80,7 +80,7 @@ type FormData3 = {
 const fontScale = PixelRatio.getFontScale();
 
 const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
-  const { userdata, validForm } = useContext(AuthContext);
+  const { userdata, validForm, getUserData } = useContext(AuthContext);
 
 
   const eventTypes = userdata.all_types_evts;

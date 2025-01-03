@@ -46,7 +46,7 @@ const Home = (props: DrawerContentComponentProps) => {
   }, [data.categories]);
 
   useEffect(() => {
-    console.log('fr:', i18n.t('common.search', { lng: 'fr' }));
+
     if (Array.isArray(userdata?.newevts)) {
       const filteredEvents = userdata.newevts.filter((event: any) => {
         const eventEvt = event.evt ? event.evt.toString().toLowerCase() : '';

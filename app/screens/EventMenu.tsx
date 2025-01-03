@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useNavigation } from '@react-navigation/native';
@@ -6,6 +6,8 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 import { useTheme } from '../hooks/';
 import { Block, Button, Text } from '../components/';
+import AuthContext from '../context/AuthContext';
+import { useApi } from '../context/useApi';
 
 type RootStackParamList = {
   EventMenu: { item: ItemType };
@@ -36,10 +38,25 @@ interface ButtonsProps {
 }
 
 const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
+
+  // console.log(item)
+
+  const { getevent } = useApi();
+
   const { gradients, sizes } = useTheme();
   const [active, setActive] = useState('');
+  const [data, setData] = useState<ItemType | null>(null);
 
-  const arrderoules = item?.arrderoules;
+  useEffect(() => {
+    if (item?.idevt) {
+      getevent({ idevt: item.idevt }).then(response => {
+        console.log(response.data.arrderoules);
+        setData(response.data);
+      });
+    }
+  }, [item])
+
+  const arrderoules = data?.arrderoules;
   const handleNavigation = useCallback(
     (to: keyof RootStackParamList, item: ItemType) => {
       setActive(to);
@@ -64,10 +81,10 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
     };
   }, [gradientKeys]);
 
-  // Assignation de gradients aléatoires fixes pour chaque élément
   const itemGradients = useMemo(() => {
-    return arrderoules.map(() => getRandomGradient());
-  }, [arrderoules, getRandomGradient]);
+    if (!data?.arrderoules) return [];
+    return data.arrderoules.map(() => getRandomGradient());
+  }, [data?.arrderoules, getRandomGradient]);
 
   const goToEvtsScreen = () => {
     Alert.alert(
@@ -87,16 +104,27 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
     );
   };
 
+
+
+  if (!data) {
+    return <Text p>Chargement...</Text>;
+  }
+
+  if (!data.arrderoules || data.arrderoules.length === 0) {
+    return <Text p>Aucun deroule associé à cet évènement</Text>;
+  }
+
+
   return (
     <Block paddingHorizontal={sizes.padding}>
-      <Button flex={1} gradient={gradients.primary} marginBottom={sizes.base} onPress={() => handleNavigation('Eventdetails', item)} >
+      <Button flex={1} gradient={gradients.primary} marginBottom={sizes.base} onPress={() => handleNavigation('Eventdetails', data)} >
         <Text white bold transform="uppercase">
           Detail de l'Evenement
         </Text>
       </Button>
 
-      {arrderoules.length > 0 && arrderoules.map((item: any, index: number) => (
-        <Button flex={1} gradient={gradients[itemGradients[index]]} marginBottom={sizes.base} onPress={() => handleNavigation('EventPresta', item)}>
+      {data && data.arrderoules.map((item: any, index: number) => (
+        <Button flex={1} gradient={gradients[itemGradients[index]]} key={item.id || index} marginBottom={sizes.base} onPress={() => handleNavigation('EventPresta', data)}>
           <Text white bold transform="uppercase">
             {item.titre_deroule}
           </Text>

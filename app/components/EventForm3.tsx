@@ -16,32 +16,33 @@ const { width, height } = Dimensions.get('window');
 
 type Form3Props = {
   item: any;
-  onDataChange: (data: any,type:string) => void;
-  
+  onDataChange: (data: any, type: string) => void;
+
 };
 
 type FormData = {
-  idevt?:Number;
+  idevt?: Number;
   commission_10?: boolean;
   commission_12?: boolean;
   commission_15?: boolean;
 };
 
 const Form3: React.FC<Form3Props> = ({ item, onDataChange }) => {
+  console.log(item)
   const { assets, colors, gradients, sizes } = useTheme();
-  const [switch1, setSwitch1] = useState(true);
-  const [switch2, setSwitch2] = useState(true);
-  const [switch3, setSwitch3] = useState(false);
+  const [switch1, setSwitch1] = useState(formData?.commission_10);
+  const [switch2, setSwitch2] = useState(formData?.commission_12);
+  const [switch3, setSwitch3] = useState(formData?.commission_15);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
     idevt: item.idevt || '',
-    commission_10: item.commission_10 || true,
-    commission_12: item.commission_12 || true,
-    commission_15: item.commission_15 || false
+    commission_10: item.commission_10,
+    commission_12: item.commission_12,
+    commission_15: item.commission_15,
   });
   useEffect(() => {
-    onDataChange(formData,'form3');
+    onDataChange(formData, 'form3');
   }, [formData]);
 
   const handleSelectionChange = (selectedIds: string[]) => {
@@ -55,7 +56,7 @@ const Form3: React.FC<Form3Props> = ({ item, onDataChange }) => {
     }));
   };
 
-  
+
 
 
 
@@ -66,16 +67,16 @@ const Form3: React.FC<Form3Props> = ({ item, onDataChange }) => {
 
     <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
       <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>10% HT sur le Total HT facturé</Text>
-      <Switch checked={switch1}  onPress={(checked) => {setSwitch1(checked), updateFormField('commission_10', checked)}} />
-   </View>
-   <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
+      <Switch checked={switch1} onPress={(checked) => { setSwitch1(checked), updateFormField('commission_10', checked) }} />
+    </View>
+    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
       <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>12% HT sur le Total HT facturé</Text>
-      <Switch checked={switch2}  onPress={(checked) => {setSwitch2(checked) , updateFormField('commission_12', checked)}} />
-   </View>
-   <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
+      <Switch checked={switch2} onPress={(checked) => { setSwitch2(checked), updateFormField('commission_12', checked) }} />
+    </View>
+    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
       <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>15% HT sur le Total HT facturé</Text>
-      <Switch checked={switch3}  onPress={(checked) => {setSwitch3(checked) , updateFormField('commission_15', checked)}} />
-   </View>
+      <Switch checked={switch3} onPress={(checked) => { setSwitch3(checked), updateFormField('commission_15', checked) }} />
+    </View>
 
 
   </View>;
