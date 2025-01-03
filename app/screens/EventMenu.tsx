@@ -54,7 +54,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
         setData(response.data);
       });
     }
-  }, [item])
+  }, [])
 
   const arrderoules = data?.arrderoules;
   const handleNavigation = useCallback(
