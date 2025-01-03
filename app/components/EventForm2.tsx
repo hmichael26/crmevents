@@ -20,6 +20,11 @@ interface Client {
   nom: string;
 }
 
+interface ExistingClient {
+  id_client: string;
+  nom_client: string;
+  prenom_client: string;
+}
 interface FormData {
   idevt?: Number;
   clt?: string;
@@ -47,6 +52,14 @@ const Form2: React.FC<Form2Props> = ({
 }) => {
   const { assets, colors, gradients, sizes } = useTheme();
 
+
+
+  const convertExistingClientsToFormat = (clients: ExistingClient[]): Client[] => {
+    return clients.map(client => ({
+      id: parseInt(client.id_client),
+      nom: `${client.prenom_client} ${client.nom_client}`.trim()
+    }));
+  };
   // State to manage form data
   const [formData, setFormData] = useState<FormData>({
     idevt: item.idevt || '',
@@ -60,9 +73,10 @@ const Form2: React.FC<Form2Props> = ({
     clients: initialClients || []
   });
 
+  // console.log(formData.clients)
   // State for client management
   const [clients, setClients] = useState<Client[]>(() => {
-    return formData.clients || [];
+    return convertExistingClientsToFormat(formData.clients || []);
   });
 
   // Effect to update parent component whenever form data changes

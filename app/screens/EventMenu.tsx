@@ -8,6 +8,7 @@ import { useTheme } from '../hooks/';
 import { Block, Button, Text } from '../components/';
 import AuthContext from '../context/AuthContext';
 import { useApi } from '../context/useApi';
+import * as SecureStore from 'expo-secure-store';
 
 type RootStackParamList = {
   EventMenu: { item: ItemType };
@@ -39,6 +40,17 @@ interface ButtonsProps {
 
 const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 
+
+
+  const storedToken = async () => {
+    try {
+      const value = await SecureStore.getItemAsync('accessToken');
+      return value;
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   // console.log(item)
 
   const { getevent } = useApi();
@@ -49,8 +61,8 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 
   useEffect(() => {
     if (item?.idevt) {
-      getevent({ idevt: item.idevt }).then(response => {
-        console.log(response.data.arrderoules);
+      getevent({ idevt: item.idevt, token: storedToken }).then(response => {
+
         setData(response.data);
       });
     }
@@ -106,6 +118,26 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 
 
 
+  async function handlepush(): Promise<void> {
+    try {
+      const value = await getevent({ idevt: item.idevt, token: storedToken });
+
+
+      if (value.data) {
+
+        // console.log(value.data)
+        handleNavigation('Eventdetails', value.data);
+        return;
+      } else {
+
+        return;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+
   if (!data) {
     return <Text p>Chargement...</Text>;
   }
@@ -117,7 +149,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 
   return (
     <Block paddingHorizontal={sizes.padding}>
-      <Button flex={1} gradient={gradients.primary} marginBottom={sizes.base} onPress={() => handleNavigation('Eventdetails', data)} >
+      <Button flex={1} gradient={gradients.primary} marginBottom={sizes.base} onPress={() => handlepush()} >
         <Text white bold transform="uppercase">
           Detail de l'Evenement
         </Text>

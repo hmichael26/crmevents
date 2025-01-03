@@ -172,6 +172,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
 
   );
+
   const [formData2, setFormData2] = useState<FormData2>(() => {
     if (item) {
       return {
@@ -183,7 +184,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
         clt_telport: item.clt_telport || '',
         clt_infos: item.clt_infos || '',
         publish_as_company: item.publish_as_company || false,
-        clients: item.clients || [],
+        clients: item.list_clients || [],
       }
     }
     return {
@@ -384,7 +385,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
 
       {step === "date" && <Form1 item={formData} eventTypes={eventTypes} onDataChange={handleForm5DataChange} />}
-      {step === "clients" && <Form2 item={formData2} onDataChange={handleForm5DataChange} clients={formData?.clients} clientData={userdata.all_clts} />}
+      {step === "clients" && <Form2 item={formData2} onDataChange={handleForm5DataChange} clients={formData2?.clients} clientData={userdata.all_clts} />}
       {step === "com" && <Form3 item={formData3} onDataChange={handleForm5DataChange} />}
 
 

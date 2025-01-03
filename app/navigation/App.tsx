@@ -31,7 +31,7 @@ const App = () => {
     useEffect(() => {
       const loadUserData = async () => {
         try {
-          //await getUserData();
+          await getUserData();
           setIsError(false);
         } catch (error) {
           console.log('Error loading user data:', error);
