@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { debounce } from 'lodash';
 
 export const AuthContext = createContext();
@@ -24,7 +23,7 @@ export const AuthProvider = ({ children }) => {
 
   const debouncedSetLoading = debounce(setIsLoading, 300);
 
-  // Utilitaires de stockage
+  // Utilitaire de stockage sécurisé
   const StoreSave = async (key, value) => {
     try {
       await SecureStore.setItemAsync(key, value);
@@ -33,11 +32,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const AsyncSave = async (key, value) => {
+  const StoreDelete = async (key) => {
     try {
-      await AsyncStorage.setItem(key, value);
+      await SecureStore.deleteItemAsync(key);
     } catch (error) {
-      console.error('AsyncSave error:', error);
+      console.error('StoreDelete error:', error);
+    }
+  };
+
+  const StoreGet = async (key) => {
+    try {
+      return await SecureStore.getItemAsync(key);
+    } catch (error) {
+      console.error('StoreGet error:', error);
+      return null;
     }
   };
 
@@ -54,7 +62,6 @@ export const AuthProvider = ({ children }) => {
         }
       };
 
-      console.log('ApiAction params:', params);
       const response = await axiosInstance.post('api.php', params, config);
 
       switch (response.data.code) {
@@ -98,10 +105,7 @@ export const AuthProvider = ({ children }) => {
         const { data: { data, token, user } } = res;
         setUserData(data);
         setUserToken(token);
-        await Promise.all([
-          StoreSave("usertoken", token),
-          AsyncSave("userdata", JSON.stringify(user))
-        ]);
+        await StoreSave("usertoken", token);
       });
       return response;
     } catch (error) {
@@ -113,7 +117,7 @@ export const AuthProvider = ({ children }) => {
   // Fonction getUserData optimisée
   const getUserData = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync("usertoken");
+      const token = await StoreGet("usertoken");
       if (!token) {
         throw new Error('No token found');
       }
@@ -124,7 +128,6 @@ export const AuthProvider = ({ children }) => {
       }, async (res) => {
         const userData = res.data.data;
         setUserData(userData);
-        await AsyncSave("userdata", JSON.stringify(userData));
         return userData;
       });
 
@@ -200,10 +203,7 @@ export const AuthProvider = ({ children }) => {
       setUserToken(null);
       setUserData(null);
       setIsLoading(false);
-      await Promise.all([
-        SecureStore.deleteItemAsync("usertoken"),
-        AsyncStorage.removeItem("userdata")
-      ]);
+      await StoreDelete("usertoken");
     } catch (error) {
       console.error('Logout error:', error);
       throw error;
@@ -214,7 +214,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const storedToken = await SecureStore.getItemAsync("usertoken");
+        const storedToken = await StoreGet("usertoken");
         if (storedToken) {
           setUserToken(storedToken);
           await getUserData();

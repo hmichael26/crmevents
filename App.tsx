@@ -1,5 +1,4 @@
 
-//import '@formatjs/intl-pluralrules/polyfill'
 import './app/constants/translations';
 
 import 'react-native-gesture-handler';

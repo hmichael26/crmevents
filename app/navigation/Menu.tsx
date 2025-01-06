@@ -1,4 +1,3 @@
-import '../constants/translations';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Animated, Linking, StyleSheet } from 'react-native';
 import {
