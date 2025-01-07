@@ -14,6 +14,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { AuthContext } from '../context/AuthContext';
 import { useApi } from '../context/useApi';
 import { ProviderCard } from '../components/ProviderCard';
+import { Button } from '../components';
+import { useTheme } from '../hooks';
 
 const initialFormState = {
     region: '',
@@ -34,6 +36,8 @@ export const Prestataire = () => {
 
     //  if ($_POST['searchby'])//recherche specifique : region, ville, dept, categ
     const scrollViewRef = useRef(null);
+    const { assets, colors, gradients, sizes } = useTheme();
+
 
     // State for each dropdown's data
     const [regions, setRegions] = useState([]);
@@ -341,8 +345,10 @@ export const Prestataire = () => {
                         />
 
                         <View style={styles.buttonContainer}>
-                            <TouchableOpacity
+                            <Button
+                                gradient={gradients.primary}
                                 style={styles.searchButton}
+
                                 onPressIn={submit}
                                 onPressOut={submit}
                                 onPress={submit}
@@ -354,7 +360,7 @@ export const Prestataire = () => {
                                 ) : (
                                     <Text style={styles.searchButtonText}>Rechercher</Text>
                                 )}
-                            </TouchableOpacity>
+                            </Button>
                             <TouchableOpacity>
                                 <Icon name="search" size={30} color="#9932CC" />
                             </TouchableOpacity>

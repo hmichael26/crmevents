@@ -16,6 +16,7 @@ import { ModalFormProps } from './types';
 import { handleFileUpload, removeFile } from './fileHandlers';
 import { useTheme } from '../hooks';
 import { AuthContext } from '../context/AuthContext';
+import Button from './Button';
 //var FormData = require('form-data');
 
 
@@ -34,6 +35,8 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
     const [phone, setPhone] = useState('01 01 01 01 01');
     const [selectedCommission, setSelectedCommission] = useState(10);
     const [comment, setComment] = useState('');
+    const { assets, colors, gradients, sizes } = useTheme();
+
 
     React.useEffect(() => {
         Animated.timing(fadeAnim, {
@@ -145,8 +148,14 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
 
                     <View style={[styles.formSection, { justifyContent: 'center', alignItems: 'center' }]}>
 
-                        <TouchableOpacity
+                        <Button
                             style={[styles.fileUploadButton, { backgroundColor: useTheme().colors.info }]}
+                            gradient={gradients.info}
+                            marginBottom={sizes.base / 2}
+                            // height={sizes.xl}
+                            padding={sizes.base}
+                            rounded={true}
+                            round={false}
                             onPress={() => handleFileUpload(selectedFiles).then(setSelectedFiles)}
                         >
                             <Ionicons
@@ -157,7 +166,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
                             <Text style={styles.fileUploadButtonText}>
                                 Ajouter des devis
                             </Text>
-                        </TouchableOpacity>
+                        </Button>
 
                         <ScrollView
                             style={styles.fileListContainer}
@@ -219,14 +228,16 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
                     </View>
 
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity
+                        <Button
+                            gradient={gradients.secondary}
                             style={[styles.button, { backgroundColor: useTheme().colors.text }]}
                             onPress={onClose}
                         >
                             <Text style={styles.buttonTextCancel}>Annuler</Text>
-                        </TouchableOpacity>
+                        </Button>
 
-                        <TouchableOpacity
+                        <Button
+                            gradient={gradients.primary}
                             style={[styles.button, styles.buttonSubmit, { backgroundColor: useTheme().colors.primary }]}
                             onPress={handleSubmit}
                             disabled={isSubmitting}
@@ -234,7 +245,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
                             <Text style={[styles.buttonTextSubmit]}>
                                 {isSubmitting ? 'Envoi en cours...' : 'Soumettre'}
                             </Text>
-                        </TouchableOpacity>
+                        </Button>
                     </View>
                 </Animated.View>
             </View>

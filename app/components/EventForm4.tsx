@@ -386,7 +386,7 @@ const Form4 = ({ item, onDataChange }) => {
                   DEMANDE ENVOYée LE
                 </Text>
                 <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%', textAlign: "center" }} >
-                  12/01/2024
+                  {new Date(activeBadgeData?.date_demande_envoye).toLocaleDateString()}
                 </Text>
               </View>
             </View>
@@ -407,7 +407,7 @@ const Form4 = ({ item, onDataChange }) => {
                   DEVIS REcu LE
                 </Text>
                 <Text color={colors.primary} size={width * 0.027} bold style={{ maxWidth: '100%', textAlign: "center" }} >
-                  12/01/2024
+                  {new Date(activeBadgeData?.date_devis_recu).toLocaleDateString()}
                 </Text>
               </View>
 

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native';
 import { useApi } from '../context/useApi';
 import { useTheme } from '../hooks';
+import Button from './Button';
 
 export const ProviderCard = ({ provider, onModify, onDelete }) => {
 
@@ -135,7 +136,11 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
             )}
 
             <View style={styles.actionButtons}>
-                <TouchableOpacity
+                <Button
+                    gradient={useTheme().gradients.primary}
+                    height={40}
+                    padding={0}
+
                     style={[styles.modifyButton, { backgroundColor: useTheme().colors.primary }]}
                     onPress={handleModify}
                     disabled={isLoading} // Désactiver le bouton pendant le chargement
@@ -143,10 +148,13 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
                     <Text style={styles.modifyButtonText}>
                         {isLoading && isEditing ? 'En cours...' : isEditing ? 'Enregistrer' : 'Modifier'}
                     </Text>
-                </TouchableOpacity>
+                </Button>
 
                 {!isEditing && (
-                    <TouchableOpacity
+                    <Button
+                        gradient={useTheme().gradients.danger}
+                        height={40}
+                        flex={1}
                         style={[styles.deleteButton, { backgroundColor: useTheme().colors.danger }]}
                         onPress={handleDelete}
                         disabled={isLoading} // Désactiver le bouton pendant le chargement
@@ -154,7 +162,7 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
                         <Text style={styles.deleteButtonText}>
                             {isLoading ? 'Suppression...' : 'Supprimer'}
                         </Text>
-                    </TouchableOpacity>
+                    </Button>
                 )}
 
             </View>
@@ -199,9 +207,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     actionButtons: {
+        flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: 8,
+        gap: 4,
     },
     modifyButton: {
 

@@ -115,8 +115,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
       { cancelable: true }
     );
   };
-
-
+  // console.log(data)
 
   async function handlepush(): Promise<void> {
     try {
@@ -156,7 +155,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
       </Button>
 
       {data && data.arrderoules.map((item: any, index: number) => (
-        <Button flex={1} gradient={gradients[itemGradients[index]]} key={item.id || index} marginBottom={sizes.base} onPress={() => handleNavigation('EventPresta', data)}>
+        <Button flex={1} gradient={gradients[itemGradients[index]]} key={item.id || index} marginBottom={sizes.base} onPress={() => handleNavigation('EventPresta', item)}>
           <Text white bold transform="uppercase">
             {item.titre_deroule}
           </Text>

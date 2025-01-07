@@ -63,6 +63,7 @@ const EventPresta: React.FC = ({ route }) => {
     fields: []
   });
 
+  console.log(item)
   useEffect(() => {
     if (item) {
       getDerouler({ id_deroule: item.id }).then(response => {
