@@ -131,6 +131,13 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
+  const convertExistingClientsToFormat = (clients: any[]) => {
+    return clients.map(client => ({
+      id: parseInt(client.id_client),
+      nom: `${client.prenom_client} ${client.nom_client}`.trim()
+    }));
+  };
+
   const [formData, setFormData] = useState<FormData1>(() => {
     if (item) {
       return {
@@ -184,7 +191,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
         clt_telport: item.clt_telport || '',
         clt_infos: item.clt_infos || '',
         publish_as_company: item.publish_as_company || false,
-        clients: item.list_clients || [],
+        clients: convertExistingClientsToFormat(item.list_clients) || [],
       }
     }
     return {

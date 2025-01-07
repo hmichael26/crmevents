@@ -55,12 +55,7 @@ const Form2: React.FC<Form2Props> = ({
 
 
 
-  const convertExistingClientsToFormat = (clients: ExistingClient[]): Client[] => {
-    return clients.map(client => ({
-      id: parseInt(client.id_client),
-      nom: `${client.prenom_client} ${client.nom_client}`.trim()
-    }));
-  };
+
   // State to manage form data
   const [formData, setFormData] = useState<FormData>({
     idevt: item.idevt || '',
@@ -218,7 +213,7 @@ const Form2: React.FC<Form2Props> = ({
       <FlatList
         data={clients}
         renderItem={renderClientItem}
-        keyExtractor={(client) => client.id.toString()}
+        keyExtractor={(client) => client.id}
         contentContainerStyle={styles.clientListContainer}
       />
     </KeyboardAvoidingView>

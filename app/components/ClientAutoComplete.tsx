@@ -46,7 +46,8 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
     client.nom.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  console.log(initialClient)
+
+  //onsole.log(initialClient)
 
   const renderClientItem = ({ item }: { item: Client }) => (
     <View style={styles.clientItemContainer}>
