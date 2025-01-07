@@ -32,7 +32,7 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
   onSelectClient,
   onEditClient,
   onDeleteClient,
-    initialClient
+  initialClient
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,11 +40,13 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
     initialClient || null
   );
 
- 
+
 
   const filteredClients = clients.filter(client =>
     client.nom.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  console.log(initialClient)
 
   const renderClientItem = ({ item }: { item: Client }) => (
     <View style={styles.clientItemContainer}>
@@ -106,7 +108,7 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
 
 
         <Text style={styles.clientName}>
-          {(selectedClient && selectedClient.nom !="" ) ? selectedClient.nom : 'Sélectionner un client'}
+          {(selectedClient && selectedClient.nom != "") ? selectedClient.nom : 'Sélectionner un client'}
         </Text>
 
 

@@ -190,6 +190,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     return {
     };
   });
+
+
+
   const [formData3, setFormData3] = useState<FormData3>(() => {
     if (item) {
       return {

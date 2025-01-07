@@ -50,6 +50,7 @@ const Form2: React.FC<Form2Props> = ({
   clients: initialClients,
   clientData = []
 }) => {
+
   const { assets, colors, gradients, sizes } = useTheme();
 
 
@@ -76,8 +77,10 @@ const Form2: React.FC<Form2Props> = ({
   // console.log(formData.clients)
   // State for client management
   const [clients, setClients] = useState<Client[]>(() => {
-    return convertExistingClientsToFormat(formData.clients || []);
+    return formData.clients || [];
   });
+
+  //console.log(clientData)
 
   // Effect to update parent component whenever form data changes
   useEffect(() => {
@@ -134,6 +137,7 @@ const Form2: React.FC<Form2Props> = ({
     </View>
   );
 
+  console.log(clients)
   return (
     <KeyboardAvoidingView style={styles.container}>
       <TextInputWithIcon
