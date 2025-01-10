@@ -132,7 +132,7 @@ const Form2: React.FC<Form2Props> = ({
     </View>
   );
 
-  console.log(clients)
+
   return (
     <KeyboardAvoidingView style={styles.container}>
       <TextInputWithIcon

@@ -28,19 +28,21 @@ type FormData = {
 };
 
 const Form3: React.FC<Form3Props> = ({ item, onDataChange }) => {
-  console.log(item)
+
   const { assets, colors, gradients, sizes } = useTheme();
-  const [switch1, setSwitch1] = useState(formData?.commission_10);
-  const [switch2, setSwitch2] = useState(formData?.commission_12);
-  const [switch3, setSwitch3] = useState(formData?.commission_15);
+  const [switch1, setSwitch1] = useState(item?.commission_10);
+  const [switch2, setSwitch2] = useState(item?.commission_12);
+  const [switch3, setSwitch3] = useState(item?.commission_15);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
-    idevt: item.idevt || '',
+
     commission_10: item.commission_10,
     commission_12: item.commission_12,
     commission_15: item.commission_15,
   });
+
+  //console.log(formData, "c'est le form data")
   useEffect(() => {
     onDataChange(formData, 'form3');
   }, [formData]);

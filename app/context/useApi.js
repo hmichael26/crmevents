@@ -69,7 +69,8 @@ export const useApi = () => {
     const validbrochure = (data) => makeRequest('valid-brochure', data);
     const sendDemande = (data) => makeRequest('send-demand', data);
     const getUserDatas = (data) => makeRequest('get-user-data', data);
-    const getevent = (data) => makeRequest('get-event',data );
+    const getevent = (data) => makeRequest('get-event', data);
+    const deletePresta = (data) => makeRequest('del-presta-interroge', data);
 
 
 
@@ -90,7 +91,8 @@ export const useApi = () => {
         validbrochure,
         sendDemande,
         getUserDatas,
-        getevent
+        getevent,
+        deletePresta
 
         // ... autres actions
     };

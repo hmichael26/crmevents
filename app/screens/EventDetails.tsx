@@ -84,11 +84,11 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
 
   const eventTypes = userdata.all_types_evts;
-  // console.log(eventTypes)
+
   const { item } = route.params; // Récupérer l'item depuis les paramètres
   const navigation = useNavigation();
 
-  // console.log(item)
+
 
   // Helper function to convert date-like input to Date object
   const parseDate = (date?: Date | string): Date => {
@@ -215,6 +215,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
 
 
+
   const FormIds = (data: any) => {
     if (data) {
       return data.map((item: any) => item.id).join(",");
@@ -278,9 +279,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       tel_port: formData2.clt_telport,
       infos: formData2.clt_infos,
       afficher_nom_client: formData2.publish_as_company,
-      "10pourcent": formData3.commission_10,
-      "12pourcent": formData3.commission_12,
-      "15pourcent": formData3.commission_15,
+      commission_10: formData3.commission_10,
+      commission_12: formData3.commission_12,
+      commission_15: formData3.commission_15,
       clients: FormIds(formData2.clients),
     };
 

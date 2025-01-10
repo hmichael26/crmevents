@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as TextBlock, Modal, Image, Linking } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, PixelRatio, SafeAreaView, Text as TextBlock, Modal, Image, Linking, ActivityIndicator } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
 import { useTheme } from '../hooks';
@@ -38,13 +38,14 @@ const { width, height } = Dimensions.get('window');
 const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
-const Form4 = ({ item, onDataChange }) => {
+const Form4 = ({ item, onDataChange, getData0 }) => {
+
 
 
   // console.log(item.id_deroule)
 
 
-  const { validdevis, validbrochure, sendDemande } = useApi();
+  const { validdevis, validbrochure, sendDemande, deletePresta } = useApi();
 
 
 
@@ -82,6 +83,7 @@ const Form4 = ({ item, onDataChange }) => {
   const [activeBadge, setActiveBadge] = useState<number | null>(0);
   const [activeBadgeData, setActiveBadgeData] = useState<any>(null);
   const [badges, setBadges] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
 
   const handleOptionSelect = async (option: React.SetStateAction<string>, type: number) => {
@@ -122,14 +124,14 @@ const Form4 = ({ item, onDataChange }) => {
     // Si le formulaire 1 est actif et confirmé
     if (currentForm === 1) {
       setSelectedOption('supprimer'); // Applique la suppression
-      console.log('Formulaire 1 supprimé');
+      // console.log('Formulaire 1 supprimé');
     } else if (currentForm === 2) {
       await validbrochure({
         id_presta: activeBadgeData?.id_presta,
         valid: 'supprimer'
       });
       setSelectedOption2('supprimer'); // Applique la suppression
-      console.log('Formulaire 2 supprimé');
+      // console.log('Formulaire 2 supprimé');
     }
 
     setModalVisible(false); // Ferme le modal après la confirmation
@@ -139,7 +141,7 @@ const Form4 = ({ item, onDataChange }) => {
   const handleCancel = () => {
     setModalVisible(false); // Ferme le modal sans rien faire
     setCurrentForm(null); // Réinitialise le formulaire actif
-    console.log('Suppression annulée');
+    // console.log('Suppression annulée');
   };
 
   const validateForm = (formNumber: number) => {
@@ -260,7 +262,6 @@ const Form4 = ({ item, onDataChange }) => {
 
   };
 
-  console.log(activeBadgeData);
 
   const [badgeToDelete, setBadgeToDelete] = useState<number | null>(null);
 
@@ -282,20 +283,46 @@ const Form4 = ({ item, onDataChange }) => {
   const handleBadgeDelete = (index: number) => {
     setBadgeToDelete(index);
     setModalVisible2(true);
+
   };
 
-  const confirmDeleteBadge = () => {
+
+  const deleteBadgeFromApi = async () => {
+    try {
+      setIsLoading(true);
+      // console.log({ id_deroule: item?.id_deroule, id_presta: activeBadgeData?.id_presta })
+      // Appeler l'API pour supprimer le badge
+      await deletePresta({ id_deroule: item?.id_deroule, id_presta: activeBadgeData?.id_presta }); // Remplacez `deleteBadgeAPI` par votre fonction d'API réelle
+      Alert.alert("Succès", "Le badge a été supprimé avec succès.");
+    } catch (error) {
+      console.error("Erreur lors de la suppression du badge :", error);
+      Alert.alert("Erreur", "La suppression du badge a échoué. Veuillez réessayer.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const confirmDeleteBadge = async () => {
     if (badgeToDelete !== null) {
-      setBadges(prevBadges =>
+
+
+
+
+
+      // Mettre à jour l'état local pour refléter la suppression
+      setBadges((prevBadges) =>
         prevBadges.filter((_, index) => index !== badgeToDelete)
       );
-
-      // Reset active badge if needed
+      await deleteBadgeFromApi();
+      // Réinitialiser l'indicateur de badge actif si nécessaire
       if (badges.length === 1) {
         setActiveBadge(0);
       } else if (activeBadge === badgeToDelete + 1) {
         setActiveBadge(0);
       }
+
+
+      await getData0();
 
       setModalVisible2(false);
       setBadgeToDelete(null);
@@ -450,7 +477,7 @@ const Form4 = ({ item, onDataChange }) => {
 
 
                   <Picker
-                    style={{ width: "10%", marginLeft: 5 }}
+                    style={{ width: "10%", marginLeft: 5, padding: 10, height: 50 }}
                     selectedValue={selectedOption2}
                     onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
                   // mode='dropdown'

@@ -102,7 +102,10 @@ export const AuthProvider = ({ children }) => {
         action: 'login-api',
         password: data.password,
       }, async (res) => {
-        const { data: { data, token, user } } = res;
+
+
+        const { data, token, user } = res.data;
+
         setUserData(data);
         setUserToken(token);
         await StoreSave("usertoken", token);

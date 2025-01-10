@@ -13,6 +13,7 @@ import Form4 from '../components/EventForm4';
 import Form5 from '../components/EventForm5';
 import { AuthContext } from '../context/AuthContext';
 import { useApi } from '../context/useApi';
+
 // import { Container } from './styles';
 const { width, height } = Dimensions.get('window');
 const options = [
@@ -23,9 +24,12 @@ const options = [
 ];
 const fontScale = PixelRatio.getFontScale();
 
-const EventPresta: React.FC = ({ route }) => {
-  const { item } = route.params; // Récupérer l'item depuis les paramètres
-  //console.log(item.id)
+const EventPresta: React.FC = ({ route, navigation }) => {
+  const { item } = route.params;
+
+  const handleGoBack = () => {
+    navigation.goBack(); // Retourne à l'écran précédent
+  };
   const { getDerouler } = useApi();
   const [data0, setData0] = React.useState([]);
 
@@ -39,7 +43,8 @@ const EventPresta: React.FC = ({ route }) => {
     id: index + 1,
     libelle
   }));
-  console.log(options)
+
+
   const getButtonSize = () => {
     const buttonWidth = width * 0.3; // 30% de la largeur de l'écran
     const buttonHeight = height * 0.06; // 6% de la hauteur de l'écran
@@ -55,22 +60,32 @@ const EventPresta: React.FC = ({ route }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current; // Valeur d'animation initiale
-  const [derouleTitle, setDerouleTitle] = useState("");
+  const [derouleTitle, setDerouleTitle] = useState(item?.titre_deroule || "");
 
   const [formData, setFormData] = useState({
     id_deroule: item?.id || 0,
-    derouleTitle: '',
+    derouleTitle: item?.titre_deroule || "",
+    numero_deroule: item?.numero_deroule,
     fields: []
   });
 
-  console.log(item)
+  const getDerouleData0 = async () => {
+    try {
+      const response = await getDerouler({ id_deroule: item.id });
+      console.log(response.data);
+      setData0(response.data);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des données :", error);
+      Alert.alert("Erreur", "Impossible de récupérer les données du déroulé. Veuillez réessayer.");
+    }
+  };
+
   useEffect(() => {
-    if (item) {
-      getDerouler({ id_deroule: item.id }).then(response => {
-        setData0(response.data);
-      });
+    if (item?.id) {
+      getDerouleData0();
     }
   }, [item]);
+
 
   // console.log(data0)
   const handleDerouleTitleChange = (title: string) => {
@@ -83,22 +98,26 @@ const EventPresta: React.FC = ({ route }) => {
   };
 
   const handleForm5DataChange = (data: any) => {
-    setFormData(prevData => ({
-      ...prevData,
+    setFormData({
+
+      id_deroule: item?.id || 0,
+      derouleTitle: item?.titre_deroule || "",
+      numero_deroule: item?.numero_deroule,
       fields: data.fields
-    }));
+    });
   };
+
 
   const handleForm4DataChange = (data: any) => {
     setFormData(data);
   };
 
   const handleSaveForm = () => {
-    Alert.alert(
-      "Données du formulaire",
-      JSON.stringify(formData, null, 2),
-      [{ text: "OK" }]
-    );
+    /*  Alert.alert(
+        "Données du formulaire",
+        JSON.stringify(formData, null, 2),
+        [{ text: "OK" }]
+      );*/
     validForm({ data: formData });
 
   };
@@ -138,17 +157,11 @@ const EventPresta: React.FC = ({ route }) => {
   return <SafeAreaView style={{ flex: 1, backgroundColor: "#fff", marginTop: -sizes.sm, flexDirection: "column" }}>
 
     <View style={{ marginHorizontal: 30 }}>
-      {
-        item?.titre_deroule ? (<Button gradient={gradients.primary} marginBottom={sizes.base} >
-          <Text white transform="uppercase" size={20}>
-            {item.titre_deroule}
-          </Text>
-        </Button>) : (<Button gradient={gradients.primary} marginBottom={sizes.base} >
-          <Text white transform="uppercase" size={20}>
-            {derouleTitle ? derouleTitle : "Ajouter un deroulé"}
-          </Text>
-        </Button>)
-      }
+      <Button gradient={gradients.primary} marginBottom={sizes.base} >
+        <Text white transform="uppercase" size={20}>
+          {derouleTitle || "Ajouter un déroulé"}
+        </Text>
+      </Button>
 
 
 
@@ -167,31 +180,27 @@ const EventPresta: React.FC = ({ route }) => {
       </View>
     </View>
 
-    {
-      step === "deroule" && <View style={{ borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10, marginHorizontal: 30 }}>
-
+    {step === "deroule" && (
+      <View style={{ padding: 10, borderRadius: 10, marginHorizontal: 30, borderColor: "#ccc", borderWidth: 1 }}>
         <TextInput
           style={{
-            color: 'black',
+            color: "black",
             fontSize: 18,
-            textTransform: 'uppercase',
-            width: '100%',
+            textTransform: "uppercase",
             textAlign: "center",
           }}
-          placeholder={item?.titre_deroule ? item.titre_deroule : "saisissez le titre de votre deroule"}
+          placeholder="Saisissez le titre de votre déroulé"
           placeholderTextColor="#000"
           value={derouleTitle}
           onChangeText={handleDerouleTitleChange}
         />
-
       </View>
-
-    }
+    )}
 
 
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
       {step === "deroule" && <Form5 options={options} onDataChange={handleForm5DataChange} item={data0?.fields} />}
-      {step === "Presta" && <Form4 item={data0} onDataChange={handleForm4DataChange} />}
+      {step === "Presta" && <Form4 item={data0} onDataChange={handleForm4DataChange} getData0={getDerouleData0} />}
     </ScrollView>
 
     {
@@ -199,7 +208,7 @@ const EventPresta: React.FC = ({ route }) => {
         <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>
           <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 20, marginBottom: -15 }}>
 
-            <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base / 1.5} rounded={false} round={false} height={35}>
+            <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base / 1.5} rounded={false} round={false} height={35} onPress={handleGoBack}>
               <Text white size={getFontSize(13)} bold >
                 Retour
               </Text>

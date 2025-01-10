@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, View, Text as Text2 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -138,12 +138,16 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 
 
   if (!data) {
-    return <Text p>Chargement...</Text>;
+    return (<View style={{ marginBottom: 10 }}>
+      <Text2 style={{ color: "red", fontSize: 20, textAlign: 'center' }}>chargement ...</Text2>
+    </View>);
   }
 
   if (!data.arrderoules || data.arrderoules.length === 0) {
     return <Text p>Aucun deroule associé à cet évènement</Text>;
   }
+
+  console.log(data.arrderoules)
 
 
   return (
