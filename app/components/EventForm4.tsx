@@ -21,6 +21,7 @@ import { AuthContext } from '../context/AuthContext';
 import PdfModal from './PdfModal';
 import { useApi } from '../context/useApi';
 import DevisInterface from './DevisInterface';
+import Dropdown from './Dropdown';
 
 
 
@@ -471,22 +472,19 @@ const Form4 = ({ item, onDataChange, getData0 }) => {
                   </Text>
                 </Button>}
 
-                <View style={{ flex: 1, flexDirection: "row", width: "100%", alignItems: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10, marginBottom: 5, height: getFontSize(48) }}>
-                  {selectedOption2 ? <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "center" }} >{selectedOption2}</Text> : <Text black bold size={getFontSize(12)} style={{ width: '75%', marginLeft: 6, textAlign: "center" }}>valider</Text>}
+                <View style={{ flex: 1, flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 1, borderRadius: 10, marginBottom: 5, height: getFontSize(48) }}>
+
+
+                  <Dropdown
+                    data={options}
+                    onChange={(item) => handleOptionSelect(item.label, 2)}
+                    placeholder="valider"
+
+                  />
 
 
 
-                  <Picker
-                    style={{ width: "10%", marginLeft: 5, padding: 10, height: 50 }}
-                    selectedValue={selectedOption2}
-                    onValueChange={(itemValue) => handleOptionSelect(itemValue, 2)}
-                  // mode='dropdown'
-                  >
 
-                    {options.map((option, index) => (
-                      <Picker.Item key={index} label={option.label} value={option.label} />
-                    ))}
-                  </Picker>
 
                 </View>
               </View>

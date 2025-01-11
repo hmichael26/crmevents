@@ -5,6 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import Text from './Text';
 import { useApi } from '../context/useApi';
 import ConfirmationModal from './ConfirmModal';
+import Dropdown from './Dropdown';
 
 const DevisInterface = ({
     activeBadgeData,
@@ -16,6 +17,7 @@ const DevisInterface = ({
     const [devisSelections, setDevisSelections] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [modalVisible2, setModalVisible2] = useState(false);
+    const [selectedDevisId, setSelectedDevisId] = useState(null);
 
     const { validdevis } = useApi();
     const options = [
@@ -34,77 +36,40 @@ const DevisInterface = ({
         setDevisSelections(initialSelections);
     }, [activeBadgeData]);
 
-    /*  const handleOptionSelect = (devisId, itemValue) => {
-          setDevisSelections(prev => ({
-              ...prev,
-              [devisId]: itemValue
-          }));
-      };*/
+    console.log(devisSelections)
 
     const updateDevisStatus = async (devisId, status) => {
         setIsSubmitting(true);
         try {
-            console.log('Updating status for devis:', devisId, status);
-
-
-
-            const response = await validdevis({
-                id_devis: devisId,
-                valid: status
-            });
-
-            /*  if (!response.success) {
-                  throw new Error('Failed to update devis status');
-              }*/
-
-
-
-
-            setDevisSelections(prev => ({
-                ...prev,
-                [devisId]: status
-            }));
-
-            Alert.alert(
-                "Confirmation",
-                "Votre devis a été mis à jour avec succès",
-                [
-                    {
-                        text: "OK",
-                        onPress: () => {
-                            // TODO: Handle success state
-                            console.log('Devis updated successfully:', response);
-                        }
-                    }
-                ],
-                { cancelable: false }
-            );
-
-
-            // TODO: Handle success state
-            console.log('Devis updated successfully:', response);
+            const response = await validdevis({ id_devis: devisId, valid: status });
+            setDevisSelections(prev => ({ ...prev, [devisId]: status }));
+            Alert.alert("Confirmation", "Votre devis a été mis à jour avec succès");
         } catch (error) {
-            console.error('Error updating devis:', error);
-            // Revert selection on error
-            setDevisSelections(prev => ({
-                ...prev,
-                [devisId]: prev[devisId]
-            }));
+            console.error('Erreur lors de la mise à jour du devis:', error);
         } finally {
             setIsSubmitting(false);
         }
     };
+
     const handleOptionSelect = (devisId, itemValue) => {
         if (itemValue === 'supprimer') {
-            setModalVisible2(true);
-            return;
+            setSelectedDevisId(devisId);
+            setModalVisible2(true); // Ouvre la modale pour demander confirmation
+        } else {
+            updateDevisStatus(devisId, itemValue);
         }
-        updateDevisStatus(devisId, itemValue);
+    };
+
+    const confirmDeletion = () => {
+        if (selectedDevisId) {
+            updateDevisStatus(selectedDevisId, 'supprimer');
+            setModalVisible2(false);
+        }
     };
 
     return (
         <>
-            {activeBadgeData?.all_devis && activeBadgeData.all_devis.length > 0 &&
+            {activeBadgeData?.all_devis &&
                 activeBadgeData.all_devis.map((item, index) => (
                     <View
                         key={item.id_devis || index}
@@ -115,7 +80,7 @@ const DevisInterface = ({
                             justifyContent: "center",
                             gap: 10,
                             marginHorizontal: 5,
-                            marginTop: 5
+                            marginTop: 5,
                         }}
                     >
                         <Button
@@ -126,20 +91,10 @@ const DevisInterface = ({
                             round={false}
                             onPress={() => openDevis(item.lien_devis)}
                         >
-                            <Text
-                                white
-                                size={getFontSize(13)}
-                                bold
-                                style={{ textTransform: 'uppercase' }}
-                            >
+                            <Text white size={getFontSize(13)} bold style={{ textTransform: 'uppercase' }}>
                                 ouvrir
                             </Text>
-                            <Text
-                                white
-                                size={getFontSize(13)}
-                                bold
-                                style={{ textTransform: 'uppercase' }}
-                            >
+                            <Text white size={getFontSize(12)} bold style={{ textTransform: 'uppercase' }}>
                                 devis {index + 1}
                             </Text>
                         </Button>
@@ -149,54 +104,34 @@ const DevisInterface = ({
                             flexDirection: "row",
                             width: "100%",
                             alignItems: "center",
+                            justifyContent: "center",
                             borderWidth: 1,
                             borderColor: "#ccc",
                             paddingHorizontal: 1,
                             borderRadius: 10,
                             marginBottom: 5,
-                            height: getFontSize(48)
+                            height: getFontSize(48),
                         }}>
-                            <Text
-                                black
-                                bold
-                                size={getFontSize(12)}
-                                style={{
-                                    width: '75%',
-                                    marginLeft: 6,
-                                    textAlign: "center"
-                                }}
-                            >
-                                {devisSelections[item.id_devis] || 'valider'}
-                            </Text>
-
-                            <Picker
-                                style={{ width: "10%", marginLeft: 5 }}
-                                selectedValue={devisSelections[item.id_devis]}
-                                onValueChange={(itemValue) => handleOptionSelect(item.id_devis, itemValue)}
-                            >
-                                {options.map((option) => (
-                                    <Picker.Item
-                                        key={option.id}
-                                        label={option.label}
-                                        value={option.label}
-                                    />
-                                ))}
-                            </Picker>
+                            <Dropdown
+                                data={options}
+                                onChange={(item) => handleOptionSelect(item.id_devis, item.label)}
+                                placeholder="valider"
+                                defaultValue={{ [item.id_devis]: devisSelections[item.id_devis] }}
+                            />
                         </View>
-                        <ConfirmationModal
-                            visible={modalVisible2}
-                            onClose={() => setModalVisible2(false)}
-                            onConfirm={() => handleOptionSelect(item.id_devis, 'supprimer')}
-                            onCancel={() => setModalVisible2(false)}
-                            message={`Voulez-vous vraiment supprimer ce devis ?`}
-                        />
                     </View>
                 ))
-
             }
-
+            <ConfirmationModal
+                visible={modalVisible2}
+                onClose={() => setModalVisible2(false)}
+                onConfirm={confirmDeletion}
+                message="Voulez-vous vraiment supprimer ce devis ?"
+                onCancel={() => setModalVisible2(false)}
+            />
         </>
     );
 };
+
 
 export default DevisInterface;
