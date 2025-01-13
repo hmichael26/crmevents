@@ -60,17 +60,22 @@ export const useApi = () => {
 
     // Fonctions d'aide prédéfinies pour les actions communes
     const getPrestaBy = (data) => makeRequest('get-presta-by', data);
+    const getClientBy = (data) => makeRequest('get-client-by', data);
     const getDerouler = (data) => makeRequest('get-deroule', data);
     const getUserData = (data) => makeRequest('get-presta-prms', data);
     const updatepresta = (data) => makeRequest('save-presta', data);
+    const updateClient = (data) => makeRequest('save-client', data);
     const deletepresta = (data) => makeRequest('delete-presta', data);
+    const deleteClient = (data) => makeRequest('delete-client', data);
     const getprestaprms = (data) => makeRequest('get-presta-prms', data);
+    const getClientPrms = (data) => makeRequest('get-client-prms', data);
     const validdevis = (data) => makeRequest('valid-devis', data);
     const validbrochure = (data) => makeRequest('valid-brochure', data);
     const sendDemande = (data) => makeRequest('send-demand', data);
     const getUserDatas = (data) => makeRequest('get-user-data', data);
     const getevent = (data) => makeRequest('get-event', data);
     const deletePresta = (data) => makeRequest('del-presta-interroge', data);
+    const addPresta = (data) => makeRequest('add-presta-interroge', data);
 
 
 
@@ -82,11 +87,15 @@ export const useApi = () => {
         makeRequest,
         // Actions prédéfinies
         getPrestaBy,
+        getClientBy,
         getDerouler,
         getUserData,
         updatepresta,
+        updateClient,
         deletepresta,
+        deleteClient,
         getprestaprms,
+        getClientPrms,
         validdevis,
         validbrochure,
         sendDemande,

@@ -81,16 +81,17 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
   // screen list for Drawer menu
   const screens = [
     { name: t('screens.home'), to: 'Home', icon: assets.home },
-    { name: t('screens.components'), to: 'Components', icon: assets.components },
-    { name: t('screens.articles'), to: 'Articles', icon: assets.document },
-    { name: t('screens.rental'), to: 'Rentals', icon: assets.rental },
-    { name: t('screens.profile'), to: 'Profile', icon: assets.profile },
-    { name: t('screens.settings'), to: 'Settings', icon: assets.settings },
-    { name: t('screens.register'), to: 'Register', icon: assets.register },
-    { name: t('screens.extra'), to: 'Extra', icon: assets.extras },
-    { name: t('screens.eventdetails'), to: 'Eventdetails', icon: assets.register },
-    { name: t('screens.eventPresta'), to: 'EventPresta', icon: assets.register },
+    // { name: t('screens.components'), to: 'Components', icon: assets.components },
+    // { name: t('screens.articles'), to: 'Articles', icon: assets.document },
+    // { name: t('screens.rental'), to: 'Rentals', icon: assets.rental },
+    // { name: t('screens.profile'), to: 'Profile', icon: assets.profile },
+    // { name: t('screens.settings'), to: 'Settings', icon: assets.settings },
+    // { name: t('screens.register'), to: 'Register', icon: assets.register },
+    // { name: t('screens.extra'), to: 'Extra', icon: assets.extras },
+    // { name: t('screens.eventdetails'), to: 'Eventdetails', icon: assets.register },
+    // { name: t('screens.eventPresta'), to: 'EventPresta', icon: assets.register },
     { name: t('screens.presataire'), to: 'Prestataire', icon: assets.register },
+    { name: t('screens.clients'), to: 'Client', icon: assets.register },
   ];
 
   return (

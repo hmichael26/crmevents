@@ -27,6 +27,7 @@ import {
 
 import { useScreenOptions } from '../hooks';
 import Prestataire from '../screens/Prestataire';
+import Client from '../screens/Client';
 import { useTranslation } from 'react-i18next';
 
 const Stack = createStackNavigator();
@@ -159,6 +160,12 @@ export default () => {
         component={EventMenu}
         // options={screenOptions.eventMenu}
         options={{ title: t('Open Project'), ...screenOptions.eventMenu, headerRight: () => null }}
+      />
+
+      <Stack.Screen
+        name="Client"
+        component={Client}
+        options={{ title: t('Clients'), ...screenOptions.Client, headerRight: () => null }}
       />
 
     </Stack.Navigator>
