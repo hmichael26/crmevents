@@ -78,25 +78,36 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
   );
 
   const gradientKeys = useMemo(() => {
-    return Object.keys(gradients).filter(key =>
-      gradients[key] &&
-      ['primary', 'secondary', 'tertiary', 'gray', 'danger', 'warning', 'success', 'info'].includes(key) &&
-      gradients[key].length > 0
+    const predefinedOrder = ['success', 'info', 'secondary', 'tertiary', 'danger', 'warning'];
+  
+    return predefinedOrder.filter(
+      (key) => gradients[key] && gradients[key].length > 0
     );
   }, [gradients]);
 
-  // Fonction pour obtenir un gradient aléatoire
-  const getRandomGradient = useMemo(() => {
-    return () => {
-      const randomIndex = Math.floor(Math.random() * gradientKeys.length);
-      return gradientKeys[randomIndex];
-    };
-  }, [gradientKeys]);
+  // Ancienne Fonction pour obtenir un gradient aléatoire
+  // const getRandomGradient = useMemo(() => {
+  //   return () => {
+  //     const randomIndex = Math.floor(Math.random() * gradientKeys.length);
+  //     return gradientKeys[randomIndex];
+  //   };
+  // }, [gradientKeys]);
+
+  // const itemGradients = useMemo(() => {
+  //   if (!data?.arrderoules) return [];
+  //   return data.arrderoules.map(() => getRandomGradient());
+  // }, [data?.arrderoules, getRandomGradient]);
+
+  // Fonction pour obtenir le gradient correspondant de manière cyclique
+  const getGradientByIndex = useCallback(
+    (index) => gradientKeys[index % gradientKeys.length],
+    [gradientKeys]
+  );
 
   const itemGradients = useMemo(() => {
     if (!data?.arrderoules) return [];
-    return data.arrderoules.map(() => getRandomGradient());
-  }, [data?.arrderoules, getRandomGradient]);
+    return data.arrderoules.map((_, index) => getGradientByIndex(index));
+  }, [data?.arrderoules, getGradientByIndex]);
 
   const goToEvtsScreen = () => {
     Alert.alert(

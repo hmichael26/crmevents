@@ -209,18 +209,18 @@ const EventPresta: React.FC = ({ route, navigation }) => {
           <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 20, marginBottom: -15 }}>
 
             <Button flex={1} gradient={gradients.secondary} marginBottom={sizes.base / 1.5} rounded={false} round={false} height={35} onPress={handleGoBack}>
-              <Text white size={getFontSize(13)} bold >
+              <Text white transform="uppercase" size={getFontSize(13)} >
                 Retour
               </Text>
 
             </Button>
             <Button flex={1} gradient={gradients.warning} marginBottom={sizes.base / 1.5} rounded={false} round={false} height={35} onPress={handleSaveForm}>
-              <Text white bold transform="uppercase" size={getFontSize(13)}>
+              <Text white transform="uppercase" size={getFontSize(13)}>
                 Sauvegarder
               </Text>
             </Button>
-            <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 1.5} rounded={false} round={false} height={35}>
-              <Text white bold transform="uppercase" size={getFontSize(13)}>
+            <Button flex={1} gradient={gradients.info} marginBottom={sizes.base / 1.5} rounded={false} round={false} height={35} onPress={() => navigation.navigate('Chat')}>
+              <Text white transform="uppercase" size={getFontSize(13)}>
                 CHat
               </Text>
             </Button>
