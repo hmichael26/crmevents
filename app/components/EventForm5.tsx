@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, StyleSheet, TextInput, Dimensions, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { View, StyleSheet, TextInput, Dimensions, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useTheme } from '../hooks';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
@@ -40,6 +40,7 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange }) => {
     </View>
   );
 };
+
 interface FormData {
   fields: {
     type: FieldType;
@@ -60,23 +61,19 @@ interface Field {
   value: Date | string;
 }
 
-
 interface Form5Props {
   options: Option[];
   onDataChange: (data: any) => void;
-  item: any;
+  item?: any; // Made item optional
 }
 
 const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
-  // console.log(item)
-
   const { userdata } = useContext(AuthContext);
   const { gradients, colors } = useTheme();
-  // Fonction helper pour parser la date
+
   const parseDate = (dateStr: string): Date => {
     if (!dateStr) return new Date();
 
-    // Pour le format "DD/MM/YYYY"
     const parts = dateStr.split('/');
     if (parts.length === 3) {
       const [day, month, year] = parts;
@@ -86,42 +83,34 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     return new Date(dateStr);
   };
 
-  // Fonction helper pour déterminer le type réel
   const determineFieldType = (fieldItem: any): FieldType => {
-    // Si le type est explicitement défini et valide
     if (fieldItem.type === 'date' || fieldItem.type === 'text' || fieldItem.type === 'dynamic') {
       return fieldItem.type;
     }
 
-    // Si la valeur ressemble à une date (DD/MM/YYYY)
     if (typeof fieldItem.value === 'string' && fieldItem.value.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
       return 'date';
     }
 
-    // Par défaut, on considère que c'est un champ texte
     return 'text';
   };
 
   const [fields, setFields] = useState<Field[]>([]);
-
   const [dynamicOptions, setDynamicOptions] = useState<Option[]>([]);
 
   useEffect(() => {
-    if (item) {
-
-      if (Array.isArray(item) && item.length > 0) {
-        const initializedFields = item.map((fieldItem: any) => {
-          const fieldType = determineFieldType(fieldItem);
-          return {
-            type: fieldType,
-            value: fieldType === 'date' ? parseDate(fieldItem.value) : fieldItem.value || '',
-          };
-        });
-        setFields(initializedFields);
-      }
-
+    if (item && Array.isArray(item) && item.length > 0) {
+      const initializedFields = item.map((fieldItem: any) => {
+        const fieldType = determineFieldType(fieldItem);
+        return {
+          type: fieldType,
+          value: fieldType === 'date' ? parseDate(fieldItem.value) : fieldItem.value || '',
+        };
+      });
+      setFields(initializedFields);
     }
   }, [item]);
+
   useEffect(() => {
     if (Array.isArray(options) && options.length > 0) {
       setDynamicOptions(options);
@@ -139,11 +128,6 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     };
     onDataChange(formData);
   }, [fields]);
-
-
-  const [showOptionsModal, setShowOptionsModal] = useState(false);
-  const [newOptionLabel, setNewOptionLabel] = useState('');
-  const [newOptionValue, setNewOptionValue] = useState('');
 
   const addRandomField = (option: number): void => {
     const fieldTypes: FieldType[] = ['date', 'text', 'dynamic'];
@@ -175,30 +159,16 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     setFields([...fields, newField]);
   };
 
-
-
   const updateField = (index: number, newValue: Date | string): void => {
     const newFields = [...fields];
     newFields[index].value = newValue;
     setFields(newFields);
   };
+
   const removeField = (index: number): void => {
     const newFields = [...fields];
-    newFields.splice(index, 1); // Remove one item at the specified index
+    newFields.splice(index, 1);
     setFields(newFields);
-  };
-
-  const addOption = () => {
-    if (newOptionLabel && newOptionValue) {
-      setDynamicOptions([...dynamicOptions, { id: newOptionLabel, libelle: newOptionValue }]);
-      setNewOptionLabel('');
-      setNewOptionValue('');
-    }
-  };
-
-  const removeOption = (index: number) => {
-    const newOptions = dynamicOptions.filter((_, i) => i !== index);
-    setDynamicOptions(newOptions);
   };
 
   const renderField = (field: Field, index: number) => {
@@ -227,10 +197,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               onChangeText={(newText: string) => updateField(index, newText)}
               placeholder="Enter text"
             />
-
           </View>
-
-
         );
       case 'dynamic':
         return (
@@ -269,13 +236,12 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     }
   };
 
-  {
-    if (item && item.length > 0 && fields.length === 0)
-      return (
-        <View style={styles.fieldContainer}>
-          <Text style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>chargement ...</Text>
-        </View>
-      )
+  if (item && item.length > 0 && fields.length === 0) {
+    return (
+      <View style={styles.fieldContainer}>
+        <Text style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>chargement ...</Text>
+      </View>
+    );
   }
 
   return (
@@ -286,33 +252,26 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         </View>
       ))}
 
-
-
-
-      {item && (
-        <View style={styles.buttonContainer}>
-          <Button gradient={gradients.secondary} style={styles.button} onPress={() => addRandomField(0)}>
-            <View style={styles.buttonContent}>
-              <Text style={[styles.buttonText, styles.centerText]}>Champ DATE</Text>
-              <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
-            </View>
-          </Button>
-          <Button gradient={gradients.info} style={styles.button} onPress={() => addRandomField(1)}>
-            <View style={styles.buttonContent}>
-              <Text style={[styles.buttonText, styles.centerText]}>Champ TEXT</Text>
-              <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
-            </View>
-          </Button>
-          <Button gradient={gradients.success} style={styles.button} onPress={() => addRandomField(2)}>
-            <View style={styles.buttonContent}>
-              <Text style={[styles.buttonText, styles.centerText]}>Champ DYNAMIQUE</Text>
-              <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
-            </View>
-          </Button>
-        </View>)}
-
-
-
+      <View style={styles.buttonContainer}>
+        <Button gradient={gradients.secondary} style={styles.button} onPress={() => addRandomField(0)}>
+          <View style={styles.buttonContent}>
+            <Text style={[styles.buttonText, styles.centerText]}>Champ DATE</Text>
+            <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
+          </View>
+        </Button>
+        <Button gradient={gradients.info} style={styles.button} onPress={() => addRandomField(1)}>
+          <View style={styles.buttonContent}>
+            <Text style={[styles.buttonText, styles.centerText]}>Champ TEXT</Text>
+            <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
+          </View>
+        </Button>
+        <Button gradient={gradients.success} style={styles.button} onPress={() => addRandomField(2)}>
+          <View style={styles.buttonContent}>
+            <Text style={[styles.buttonText, styles.centerText]}>Champ DYNAMIQUE</Text>
+            <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
+          </View>
+        </Button>
+      </View>
     </ScrollView>
   );
 };
@@ -326,14 +285,7 @@ const styles = StyleSheet.create({
   fieldContainer: {
     marginBottom: 10,
   },
-  input: {
-
-
-
-
-  },
   picker: {
-
     borderColor: '#000',
     borderWidth: 1,
     borderRadius: 10,
@@ -343,9 +295,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10
   },
   button: {
-
-
-
     marginBottom: 5,
   },
   buttonText: {
@@ -353,54 +302,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "white",
   },
-  modalView: {
-    flex: 1,
-
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-
-  },
-  modalTitle: {
-    marginBottom: 15,
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 18,
-  },
-  optionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 10,
-  },
-  removeButton: {
-    color: 'red',
-  },
-  modalOpen: {
-    margin: 10,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 2,
-  },
   buttonContent: {
-    flexDirection: 'row', // Arrange children horizontally
-    alignItems: 'center',  // Vertically center children
-    justifyContent: 'space-between', // Space out children evenly
-    width: '100%', // Make the View take up the full button width
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   centerText: {
-    textAlign: 'center', // Center the text horizontally
-    flex: 1, // Allow the text to expand and take up available space
+    textAlign: 'center',
+    flex: 1,
   },
 });
 

@@ -1,11 +1,11 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
-import {Linking, Platform} from 'react-native';
-import {useNavigation} from '@react-navigation/core';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, Linking, Platform } from 'react-native';
+import { useNavigation } from '@react-navigation/core';
 import { AuthContext } from '../context/AuthContext';
-import {useData, useTheme} from '../hooks/';
+import { useData, useTheme } from '../hooks/';
 import { useForm } from 'react-hook-form';
 import * as regex from '../constants/regex';
-import {Block, Button, Input, Image, Text, Checkbox} from '../components/';
+import { Block, Button, Input, Image, Text, Checkbox } from '../components/';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
@@ -23,16 +23,16 @@ const translations = {
 };
 
 i18n
-.use(initReactI18next)
-.init({
-  resources: translations,
-  lng: 'fr',  // langue par défaut
-  fallbackLng: 'fr',
-  compatibilityJSON: 'v3', // Utiliser le format de compatibilité v3
-  interpolation: {
-    escapeValue: false,  // React se charge déjà de l'échappement des valeurs
-  },
-});
+  .use(initReactI18next)
+  .init({
+    resources: translations,
+    lng: 'fr',  // langue par défaut
+    fallbackLng: 'fr',
+    compatibilityJSON: 'v3', // Utiliser le format de compatibilité v3
+    interpolation: {
+      escapeValue: false,  // React se charge déjà de l'échappement des valeurs
+    },
+  });
 
 const isAndroid = Platform.OS === 'android';
 
@@ -48,55 +48,55 @@ interface ILoginValidation {
 }
 
 const Login = () => {
-  const {isDark} = useData();
-  // const {t} = useTranslation();
   const navigation = useNavigation();
-  const [error, setError] = useState<string>('');
-  const [isValid, setIsValid] = useState<ILoginValidation>({
-    email: false,
-    password: false,
-    agreed: false,
-  });
-  const [login, setLoginData] = useState<ILogin>({
+  const { assets, colors, gradients, sizes } = useTheme();
+  const { Login, isloading } = useContext(AuthContext);
+
+  const [loginData, setLoginData] = useState({
     email: '',
     password: '',
     agreed: false,
   });
-  const {assets, colors, gradients, sizes} = useTheme();
-  const {Login, isloading} = useContext(AuthContext);
+  const [isValid, setIsValid] = useState({
+    email: false,
+    password: false,
+    agreed: false,
+  });
+  const [error, setError] = useState('');
 
-  const handleChange = useCallback(
-    (value : any) => {
-      setLoginData((state) => ({...state, ...value}));
-    },
-    [setLoginData],
-  );
+  // Gestion des changements dans les champs de formulaire
+  const handleChange = useCallback((value) => {
+    setLoginData((state) => ({ ...state, ...value }));
+  }, []);
 
-  const handleSignIn = useCallback(() => {
-    /** send/save registratin data */
-    console.log('handleSignIn', login);
-    if(!regex.password.test(login.password)){
-      setError('Veuillez entrer un email et un mot de passe correctes!');
-      return;
-    }else{
-      
-      Login(login);
-    }
-  }, [login]);
-
+  // Validation des champs
   useEffect(() => {
-    setIsValid((state) => ({
-      ...state,
-      email: regex.email.test(login.email),
-      password: regex.password.test(login.password),
-      agreed: login.agreed,
-    }));
-  }, [login, setIsValid]);
+    setIsValid({
+      email: regex.email.test(loginData.email),
+      password: regex.password.test(loginData.password),
+      agreed: loginData.agreed,
+    });
+  }, [loginData]);
+
+  // Gestion de la connexion
+  const handleSignIn = useCallback(async () => {
+    if (!isValid.email || !isValid.password || !isValid.agreed) {
+      setError('Veuillez remplir tous les champs correctement.');
+      return;
+    }
+
+    try {
+      await Login(loginData);
+      navigation.navigate('Menu'); // Redirection après connexion réussie
+    } catch (err) {
+      setError('Échec de la connexion. Vérifiez vos identifiants.');
+    }
+  }, [isValid, loginData, Login, navigation]);
 
   return (
     <Block safe marginTop={sizes.md}>
       <Block paddingHorizontal={sizes.s}>
-        <Block flex={0} style={{zIndex: 0}}>
+        <Block flex={0} style={{ zIndex: 0 }}>
           <Image
             background
             resizeMode="cover"
@@ -208,53 +208,54 @@ const Login = () => {
                 <Input
                   label="Email"
                   autoCapitalize="none"
-                  marginBottom={sizes.m}
                   keyboardType="email-address"
                   placeholder="Entrez votre adresse e-mail"
-                  success={Boolean(login.email && isValid.email)}
-                  danger={Boolean(login.email && !isValid.email)}
-                  onChangeText={(value) => handleChange({email: value})}
+                  value={loginData.email}
+                  onChangeText={(value) => handleChange({ email: value })}
+                  success={Boolean(loginData.email && isValid.email)}
+                  danger={Boolean(loginData.email && !isValid.email)}
                 />
                 <Input
-                  secureTextEntry
                   label="Mot de Passe"
+                  secureTextEntry
                   autoCapitalize="none"
-                  marginBottom={sizes.m}
-                  placeholder="Entrer un mot de passe"
-                  onChangeText={(value) => handleChange({password: value})}
-                  success={Boolean(login.password && isValid.password)}
-                  danger={Boolean(login.password && !isValid.password)}
+                  placeholder="Entrez votre mot de passe"
+                  value={loginData.password}
+                  onChangeText={(value) => handleChange({ password: value })}
+                  success={Boolean(loginData.password && isValid.password)}
+                  danger={Boolean(loginData.password && !isValid.password)}
                 />
               </Block>
               {/* checkbox terms */}
-              <Block row flex={0} align="center" paddingHorizontal={sizes.sm}>
+              {/* Checkbox des termes et conditions */}
+              <Block row align="center" marginVertical={sizes.sm} marginHorizontal={sizes.sm}>
                 <Checkbox
                   marginRight={sizes.sm}
-                  checked={login?.agreed}
-                  onPress={(value) => handleChange({agreed: value})}
+                  checked={loginData.agreed}
+                  onPress={(value) => handleChange({ agreed: value })}
                 />
-                <Text paddingRight={sizes.s}>
-                Je suis d'accord avec les 
+                <Text>
+                  J'accepte les{' '}
                   <Text
                     semibold
-                    onPress={() => {
-                      Linking.openURL('https://www.creative-tim.com/terms');
-                    }}> Termes et Conditions
+                    onPress={() => Linking.openURL('https://www.example.com/terms')}>
+                    Termes et Conditions
                   </Text>
                 </Text>
               </Block>
               <Button
-                onPress={handleSignIn}
-                //onPress={handleSubmit(Login)}
-                marginVertical={sizes.s}
-                marginHorizontal={sizes.sm}
                 gradient={gradients.primary}
-                disabled={Object.values(isValid).includes(false)}>
-                <Text bold white transform="uppercase">
-                S'identifier
-                </Text>
+                onPress={handleSignIn}
+                disabled={Object.values(isValid).includes(false) || isloading}>
+                {isloading ? (
+                  <ActivityIndicator color={colors.white} />
+                ) : (
+                  <Text bold white transform="uppercase">
+                    Se connecter
+                  </Text>
+                )}
               </Button>
-              {error !== '' && <Text style={{ color: 'red' }}>{error}</Text>}
+              {error ? <Text color="red" center marginTop={sizes.s}>{error}</Text> : null}
             </Block>
           </Block>
         </Block>

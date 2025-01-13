@@ -215,7 +215,7 @@ const Form4 = ({ item, onDataChange, getData0 }) => {
   // Fonction pour soumettre toutes les modifications
   const handleSubmitAll = () => {
     const allModifications = getAllModifications();
-    console.log("Modifications à envoyer:", allModifications);
+    //console.log("Modifications à envoyer:", allModifications);
     // Ici vous pouvez ajouter la logique pour envoyer les données
   };
 
@@ -336,12 +336,27 @@ const Form4 = ({ item, onDataChange, getData0 }) => {
     fetchData(currentPage, true);
   };
 
-  {
-    if (item?.id_deroule && item?.all_presta_interroges?.length === 0)
-      return (
-        <View >
-          <TextBlock style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>Aucun prestataire associé à ce deroule</TextBlock>
-        </View>)
+  const getNextBadge = (badges, activeBadgeIndex) => {
+    return badges.slice(activeBadgeIndex + 1);
+  };
+
+
+  const getPrevBadge = (badges, activeBadgeIndex) => {
+    return badges.slice(0, activeBadgeIndex);
+  };
+
+
+
+
+
+  if (!item.all_presta_interroges || item.all_presta_interroges.length === 0) {
+    return (
+      <View >
+        <TextBlock style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}>
+          Aucun prestataire associé à ce deroule
+        </TextBlock>
+      </View>
+    );
   }
 
 
@@ -369,24 +384,35 @@ const Form4 = ({ item, onDataChange, getData0 }) => {
     <View style={styles.container}>
 
 
+      {activeBadge > 0 && getPrevBadge(badges, activeBadge - 1)?.map((badge, index) => (
 
-
-
-
-
-      {badges.length > 0 && badges.map((badge, index) => (
-        (activeBadge === 0 || activeBadge === index + 1) &&
+        // condition pour afficher uniquement le badge suivant
         <Badge
           key={index}
           text={badge.text}
           badgeNumber={badge.number}
-          badgeColor={badge.color}
-          onPress={() => handleBadgeClick(index + 1, badge)}
-          onDelete={() => handleBadgeDelete(index)}
-          isActive={activeBadge === index + 1}
-        />
+          badgeColor={badge.color} // Si le composant Badge accepte badgeColor
+          onPress={() => handleBadgeClick(index + 1, badge)} // Vous pouvez enlever le +1 si handleBadgeClick gère l'index correctement
+          isActive={false} />
       ))}
-      <ConfirmationModal
+
+
+
+      {
+        badges.length > 0 && badges.map((badge, index) => (
+          (activeBadge === 0 || activeBadge === index + 1) &&
+          <Badge
+            key={index}
+            text={badge.text}
+            badgeNumber={badge.number}
+            badgeColor={badge.color}
+            onPress={() => handleBadgeClick(index + 1, badge)}
+            onDelete={() => handleBadgeDelete(index)}
+            isActive={activeBadge === index + 1}
+          />
+        ))
+      }
+      < ConfirmationModal
         visible={modalVisible2}
         onClose={() => setModalVisible2(false)}
         onConfirm={confirmDeleteBadge}
@@ -660,18 +686,18 @@ const Form4 = ({ item, onDataChange, getData0 }) => {
             </View>
           </View>
 
-          {badges.map((badge, index) => (
+          {activeBadge > 0 && getNextBadge(badges, activeBadge - 1)?.map((badge, index) => (
 
-            (index != activeBadge - 1) && ( // condition pour afficher uniquement le badge suivant
-              <Badge
-                key={index}
-                text={badge.text}
-                badgeNumber={badge.number}
-                badgeColor={badge.color} // Si le composant Badge accepte badgeColor
-                onPress={() => handleBadgeClick(index + 1, badge)} // Vous pouvez enlever le +1 si handleBadgeClick gère l'index correctement
-              />
-            )
-          ))}
+            // condition pour afficher uniquement le badge suivant
+            <Badge
+              key={index}
+              text={badge.text}
+              badgeNumber={badge.number}
+              badgeColor={badge.color} // Si le composant Badge accepte badgeColor
+              onPress={() => handleBadgeClick(activeBadge + index + 1, badge)} // Vous pouvez enlever le +1 si handleBadgeClick gère l'index correctement
+              isActive={false} />
+          )
+          )}
 
 
 

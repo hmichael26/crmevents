@@ -1,74 +1,71 @@
-
-import React, { useEffect, useContext, useState } from 'react';
-import { Platform, StatusBar } from 'react-native';
-import { useFonts } from 'expo-font';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import React, { useEffect, useState, useContext } from 'react';
+import { StatusBar, Platform } from 'react-native';
+import { DefaultTheme, NavigationContainer, ThemeProvider } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as SplashScreen from 'expo-splash-screen';
-import Menu from './Menu';
-import Login from '../screens/Login';
-import { useData, ThemeProvider } from '../hooks';
+import { useFonts } from 'expo-font';
 import { AuthContext, AuthProvider } from '../context/AuthContext';
+import { useData } from '../hooks';
+import { Login } from '../screens';
 import ModernSplashScreen from '../screens/ModernSplashScreen';
+import Menu from './Menu';
+import { initializeI18n } from '../constants/translations'; // Import de l'initialisation i18n
 
+SplashScreen.preventAutoHideAsync();
+
+
+
+const Stack = createNativeStackNavigator();
+
+const SecureNavigator = () => {
+  const { usertoken, userdata, isLoading } = useContext(AuthContext);
+  const [isReady, setIsReady] = useState(false);
+
+  if (isLoading) {
+    return <ModernSplashScreen />;
+  }
+
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {usertoken ? (
+        <Stack.Screen name="Menu" component={Menu} />
+      ) : (
+        <Stack.Screen name="Login" component={Login} />
+      )}
+    </Stack.Navigator>
+  );
+};
 
 const App = () => {
   const { isDark, theme, setTheme } = useData();
-  const [isLoading, setIsLoading] = useState(true);
 
+  const [isReady, setIsReady] = useState(false);
 
+  const [fontsLoaded] = useFonts({
+    'OpenSans-Light': require('../assets/fonts/OpenSans-Light.ttf'),
+    'OpenSans-Regular': require('../assets/fonts/OpenSans-Regular.ttf'),
+    'OpenSans-SemiBold': require('../assets/fonts/OpenSans-SemiBold.ttf'),
+    'OpenSans-ExtraBold': require('../assets/fonts/OpenSans-ExtraBold.ttf'),
+    'OpenSans-Bold': require('../assets/fonts/OpenSans-Bold.ttf'),
+  });
 
-  const Stack = createNativeStackNavigator();
-
-
-
-
-  const SecureNavigator = () => {
-    const { usertoken, userdata, getUserData } = useContext(AuthContext);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isError, setIsError] = useState(false);
-
-    useEffect(() => {
-      const loadUserData = async () => {
-        try {
-          await getUserData();
-          setIsError(false);
-        } catch (error) {
-          console.log('Error loading user data:', error);
-          setIsError(true);
-        } finally {
-          setIsLoading(false);
+  useEffect(() => {
+    const prepareApp = async () => {
+      try {
+        // Initialiser les traductions
+        await initializeI18n();
+        if (fontsLoaded) {
+          await SplashScreen.hideAsync(); // Masquer le splash une fois prêt
         }
-      };
-
-      loadUserData();
-    }, []);
-
-    const handleFinish = () => {
-      // Cette fonction est appelée quand l'animation du splash screen est terminée
-      // On ne fait rien ici car le chargement est géré par loadUserData
+      } catch (error) {
+        console.error('Error preparing app:', error);
+      } finally {
+        setIsReady(true); // Définir l'application comme prête
+      }
     };
 
-    if (isLoading) {
-      return <ModernSplashScreen handleFinish={handleFinish} />;
-    }
-
-    // Si le chargement est terminé et qu'il n'y a pas d'erreur et qu'on a les données utilisateur
-    if (!isLoading && !isError && userdata) {
-      return (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Menu" component={Menu} />
-        </Stack.Navigator>
-      );
-    }
-
-    // Si le chargement est terminé mais qu'il y a eu une erreur ou pas de données utilisateur
-    return (
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={Login} />
-      </Stack.Navigator>
-    );
-  };
+    prepareApp();
+  }, [fontsLoaded]);
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -80,25 +77,9 @@ const App = () => {
     };
   }, [isDark]);
 
-  const [fontsLoaded] = useFonts({
-    'OpenSans-Light': theme.assets.OpenSansLight,
-    'OpenSans-Regular': theme.assets.OpenSansRegular,
-    'OpenSans-SemiBold': theme.assets.OpenSansSemiBold,
-    'OpenSans-ExtraBold': theme.assets.OpenSansExtraBold,
-    'OpenSans-Bold': theme.assets.OpenSansBold,
-  });
-
-  useEffect(() => {
-    if (fontsLoaded) {
-      const hideSplash = async () => {
-        await SplashScreen.hideAsync();
-      };
-      hideSplash();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) {
-    return null;
+  // Afficher le splash screen jusqu'à ce que l'application soit prête
+  if (!isReady) {
+    return <ModernSplashScreen onAnimationEnd={() => setIsReady(true)} />;
   }
 
   const navigationTheme = {
@@ -114,9 +95,6 @@ const App = () => {
       background: String(theme.colors.background),
     },
   };
-
-
-
 
   return (
     <ThemeProvider theme={theme} setTheme={setTheme}>

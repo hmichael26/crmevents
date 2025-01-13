@@ -1,42 +1,29 @@
 import React, { createContext, useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import { debounce } from 'lodash';
 
 export const AuthContext = createContext();
 
-// Configuration axios
 const axiosInstance = axios.create({
   baseURL: 'https://www.goseminaire.com/crm/api/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 });
 
 export const AuthProvider = ({ children }) => {
+  const [usertoken, setUserToken] = useState(null);
   const [userdata, setUserData] = useState(null);
   const [presta, setPresta] = useState(null);
-  const [isloading, setIsLoading] = useState(false);
-  const [usertoken, setUserToken] = useState(null);
-  const [isConnected, setIsConnected] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const debouncedSetLoading = debounce(setIsLoading, 300);
-
-  // Utilitaire de stockage sécurisé
+  /** Utility Functions */
   const StoreSave = async (key, value) => {
     try {
       await SecureStore.setItemAsync(key, value);
     } catch (error) {
-      console.error('StoreSave error:', error);
-    }
-  };
-
-  const StoreDelete = async (key) => {
-    try {
-      await SecureStore.deleteItemAsync(key);
-    } catch (error) {
-      console.error('StoreDelete error:', error);
+      console.error('Error saving to SecureStore:', error);
     }
   };
 
@@ -44,212 +31,164 @@ export const AuthProvider = ({ children }) => {
     try {
       return await SecureStore.getItemAsync(key);
     } catch (error) {
-      console.error('StoreGet error:', error);
+      console.error('Error getting from SecureStore:', error);
       return null;
     }
   };
 
-  // Fonction API optimisée
-  const ApiAction = useCallback(async (params, callback, errorCallback, headers = {}) => {
+  const StoreDelete = async (key) => {
     try {
-      debouncedSetLoading(true);
-
-      const config = {
-        headers: {
-          ...axiosInstance.defaults.headers,
-          ...headers,
-          ...(usertoken && { Authorization: `Bearer ${usertoken}` })
-        }
-      };
-
-      const response = await axiosInstance.post('api.php', params, config);
-
-      switch (response.data.code) {
-        case 'SUCCESS':
-          callback?.(response);
-          break;
-        case 'LOGOUT':
-          await Logout();
-          break;
-        default:
-          if (errorCallback) {
-            errorCallback(response.data);
-          } else {
-            console.error('API Error:', response.data);
-            throw new Error(response.data.message || 'Une erreur est survenue');
-          }
-      }
-
-      return response;
+      await SecureStore.deleteItemAsync(key);
     } catch (error) {
-      console.error('API Request Error:', error);
-      if (errorCallback) {
-        errorCallback(error);
-      } else {
-        alert(`Erreur de connexion : ${error.message}`);
-      }
-      throw error;
-    } finally {
-      debouncedSetLoading(false);
-    }
-  }, [usertoken]);
-
-  // Login optimisé
-  const Login = async (data) => {
-    try {
-      const response = await ApiAction({
-        email: data.email,
-        action: 'login-api',
-        password: data.password,
-      }, async (res) => {
-
-
-        const { data, token, user } = res.data;
-
-        setUserData(data);
-        setUserToken(token);
-        await StoreSave("usertoken", token);
-      });
-      return response;
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+      console.error('Error deleting from SecureStore:', error);
     }
   };
 
-  // Fonction getUserData optimisée
-  const getUserData = useCallback(async () => {
+  /** Core Functions */
+
+  // Initialize Authentication
+  const initializeAuth = useCallback(async () => {
     try {
-      const token = await StoreGet("usertoken");
-      if (!token) {
-        throw new Error('No token found');
+      const token = await StoreGet('usertoken');
+      if (token) {
+        setUserToken(token);
+        await getUserData(token);
       }
-
-      const response = await ApiAction({
-        action: 'get-user-data',
-        token
-      }, async (res) => {
-        const userData = res.data.data;
-        setUserData(userData);
-        return userData;
-      });
-
-      return response.data.data;
     } catch (error) {
-      console.error('GetUserData error:', error);
-      throw error;
+      console.error('Error initializing auth:', error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [ApiAction]);
+  }, []);
 
-  // Fonction validForm optimisée
+  // Get User Data
+  const getUserData = async (token) => {
+    try {
+      const response = await axiosInstance.post('api.php', {
+        action: 'get-user-data',
+        token,
+      });
+      setUserData(response.data.data);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setUserToken(null);
+    }
+  };
+
+  // Login
+  const Login = async ({ email, password }) => {
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post('api.php', {
+        email,
+        password,
+        action: 'login-api',
+      });
+      const { token, data } = response.data;
+      setUserToken(token);
+      setUserData(data);
+      await StoreSave('usertoken', token);
+    } catch (error) {
+      console.error('Login error:', error);
+      throw new Error('Login failed. Check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Logout
+  const Logout = async () => {
+    setIsLoading(true);
+    try {
+      setUserToken(null);
+      setUserData(null);
+      await StoreDelete('usertoken');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Submit Form Data
   const validForm = async (data, callback) => {
     try {
       const formData = {
         ...data,
         action: 'save-all-datas',
-        token: usertoken
+        token: usertoken,
       };
-
-      await ApiAction(formData, async () => {
-        await getUserData();
-        alert('Formulaire envoyé avec succès');
+      const response = await axiosInstance.post('api.php', formData);
+      if (response.data.code === 'SUCCESS') {
+        await getUserData(usertoken);
         callback?.();
-      });
+      } else {
+        throw new Error(response.data.message || 'Error submitting form');
+      }
     } catch (error) {
       console.error('ValidForm error:', error);
       throw error;
     }
   };
 
-  // Fonction validFormMultiPart optimisée
+  // Submit Multipart Form Data
   const validFormMultiPart = async (data, callback) => {
     if (!(data instanceof FormData)) {
       throw new Error('Data must be a FormData object');
     }
-
     try {
-      await ApiAction(data,
-        (res) => {
-          callback?.(res.data);
-          alert('Formulaire envoyé avec succès');
+      const response = await axiosInstance.post('api.php', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          // Authorization: `Bearer ${usertoken}`,
         },
-        undefined,
-        { 'Content-Type': 'multipart/form-data' }
-      );
+      });
+      if (response.data.code === 'SUCCESS') {
+        callback?.(response.data);
+      } else {
+        throw new Error(response.data.message || 'Error submitting multipart form');
+      }
     } catch (error) {
       console.error('ValidFormMultiPart error:', error);
       throw error;
     }
   };
 
-  // Fonction getAllPrestaData optimisée
-  const getAllPrestaData = useCallback(async (data) => {
+  // Get All Presta Data
+  const getAllPrestaData = useCallback(async (params) => {
     try {
-      const response = await ApiAction({
+      const response = await axiosInstance.post('api.php', {
         action: 'get-presta-by',
         token: usertoken,
-        ...data
-      }, (res) => {
-        setPresta(res.data.data);
-        return res.data.data;
+        ...params,
       });
+      setPresta(response.data.data);
       return response.data.data;
     } catch (error) {
       console.error('GetAllPrestaData error:', error);
       throw error;
     }
-  }, [usertoken, ApiAction]);
+  }, [usertoken]);
 
-  // Fonction Logout optimisée
-  const Logout = useCallback(async () => {
-    try {
-      setUserToken(null);
-      setUserData(null);
-      setIsLoading(false);
-      await StoreDelete("usertoken");
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw error;
-    }
-  }, []);
-
-  // Initialisation des données au démarrage
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const storedToken = await StoreGet("usertoken");
-        if (storedToken) {
-          setUserToken(storedToken);
-          await getUserData();
-        }
-      } catch (error) {
-        console.error('Initialize Auth error:', error);
-      }
-    };
-
     initializeAuth();
-  }, []);
+  }, [initializeAuth]);
 
   return (
     <AuthContext.Provider
       value={{
-        userdata,
-        isloading,
         usertoken,
-        isConnected,
-        setIsConnected,
-        setUserData,
+        userdata,
+        isLoading,
+        presta,
         Login,
         Logout,
         getUserData,
         validForm,
         validFormMultiPart,
         getAllPrestaData,
-        presta
       }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-export default AuthProvider;
