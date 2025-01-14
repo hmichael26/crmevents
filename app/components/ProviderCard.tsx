@@ -5,6 +5,8 @@ import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'reac
 import { useApi } from '../context/useApi';
 import { useTheme } from '../hooks';
 import Button from './Button';
+import SelectionModal from './SelectionModal';
+import { Colors } from '../constants/Colors';
 
 export const ProviderCard = ({ provider, onModify, onDelete }) => {
 
@@ -12,6 +14,9 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editedProvider, setEditedProvider] = useState(provider);
+    const [modal, setModal] = useState(false);
+    const [modalField, setModalField] = useState('');
+
 
     const handleModify = async () => {
         if (isEditing) {
@@ -57,20 +62,60 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
 
 
 
+
+
     const handleInputChange = (field, value) => {
+
+
+
         setEditedProvider(prev => ({ ...prev, [field]: value }));
+    };
+
+    const openModal = (field) => {
+        setModalField(field);
+        setModal(true);
+
     };
 
 
 
-    const renderEditableField = (field, placeholder) => (
-        <TextInput
-            style={styles.input}
-            value={editedProvider[field]}
-            onChangeText={(text) => handleInputChange(field, text)}
-            placeholder={placeholder}
-        />
-    );
+    const renderEditableField = (field, placeholder) => {
+
+        if (field === 'fk_departement' || field === 'fk_ville' || field === 'fk_region') {
+            return (
+                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', width: '100%', gap: 10, alignContent: 'center' }}>
+                    <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#666', marginRight: 10 }}>{placeholder}</Text>
+                    <TextInput
+                        style={[styles.input, { flex: 1 }]}
+                        placeholder={placeholder}
+                        value={editedProvider[field]}
+                        editable={false} // Make the TextInput non-editable
+                    />
+                    <TouchableOpacity style={[styles.button, { backgroundColor: "#ccc", marginBottom: 7 }]} onPress={() => openModal(field)}>
+                        <Text style={styles.buttonText}>Select</Text>
+                    </TouchableOpacity>
+                </View>)
+        }
+
+
+
+        return (
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', width: '100%', alignContent: 'center' }}>
+                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#666', marginRight: 10 }}>{placeholder}</Text>
+                <TextInput
+                    style={[styles.input, { flex: 1 }]}
+                    value={editedProvider[field]}
+                    onChangeText={(text) => handleInputChange(field, text)}
+                    placeholder={placeholder}
+
+                />
+            </View>
+
+        );
+    };
+
+
+
 
     return (
         <View style={styles.providerCard}>
@@ -82,7 +127,7 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
                     {renderEditableField('nb_salle', 'Nombre de salles')}
                     {renderEditableField('nb_chbre', 'Nombre de chambres')}
                     {renderEditableField('fk_departement', 'Département')}
-                    {renderEditableField('ville', 'Ville')}
+                    {renderEditableField('fk_ville', 'Ville')}
                     {renderEditableField('fk_region', 'Région')}
                 </>
             ) : (
@@ -121,9 +166,9 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
                                 <Text style={styles.tagText}>{provider.fk_departement}</Text>
                             </View>
                         )}
-                        {provider.ville && (
+                        {provider.fk_ville && (
                             <View style={styles.tag}>
-                                <Text style={styles.tagText}>{provider.ville}</Text>
+                                <Text style={styles.tagText}>{provider.fk_ville}</Text>
                             </View>
                         )}
                         {provider.fk_region && (
@@ -138,26 +183,44 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
             <View style={styles.actionButtons}>
                 <Button
                     gradient={useTheme().gradients.primary}
-                    height={40}
-                    padding={0}
 
                     style={[styles.modifyButton, { backgroundColor: useTheme().colors.primary }]}
                     onPress={handleModify}
                     disabled={isLoading} // Désactiver le bouton pendant le chargement
                 >
-                    <Text style={styles.modifyButtonText}>
+                    <Text style={[styles.modifyButtonText, { padding: 0 }]}>
                         {isLoading && isEditing ? 'En cours...' : isEditing ? 'Enregistrer' : 'Modifier'}
                     </Text>
+
                 </Button>
+                {isEditing && <Button
+                    gradient={useTheme().gradients.secondary}
+
+
+                    style={[styles.modifyButton, { backgroundColor: useTheme().colors.primary }]}
+                    onPress={() => {
+                        setIsEditing(false);
+                    }}
+                    disabled={isLoading} // Désactiver le bouton pendant le chargement
+                >
+                    <Text style={styles.modifyButtonText}>
+                        Annuler
+                    </Text>
+
+                </Button>}
+
 
                 {!isEditing && (
                     <Button
                         gradient={useTheme().gradients.danger}
-                        height={40}
+
+
                         flex={1}
-                        style={[styles.deleteButton, { backgroundColor: useTheme().colors.danger }]}
+                        //style={[styles.deleteButton]}
+
                         onPress={handleDelete}
-                        disabled={isLoading} // Désactiver le bouton pendant le chargement
+                        disabled={isLoading}
+
                     >
                         <Text style={styles.deleteButtonText}>
                             {isLoading ? 'Suppression...' : 'Supprimer'}
@@ -166,7 +229,18 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
                 )}
 
             </View>
+            <SelectionModal
+                visible={modal}
+                field={modalField}
+                onSelectItem={(item) => (handleInputChange(modalField, item.id), setModal(false))}
+                onClose={() => setModal(false)}
+
+
+
+            />
+
         </View>
+
     );
 };
 
@@ -191,7 +265,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'nowrap',
         gap: 8,
-        justifyContent: 'space-between',
+        //  justifyContent: 'center',
+        alignItems: 'center',
     },
     tag: {
         backgroundColor: '#fff',
@@ -201,21 +276,27 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ddd',
         flex: 1,
+
+        justifyContent: 'center',
+
     },
     tagText: {
         color: '#666',
         fontSize: 14,
+        textAlign: 'center',
     },
     actionButtons: {
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         gap: 4,
+        height: 40,
+
     },
     modifyButton: {
 
         borderRadius: 20,
-        paddingVertical: 8,
+        paddingVertical: 0,
         paddingHorizontal: 16,
         flex: 1,
     },
@@ -244,6 +325,15 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ddd',
         marginBottom: 8,
+    },
+    button: {
+
+        padding: 10,
+        borderRadius: 5,
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
     },
 });
 

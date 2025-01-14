@@ -87,6 +87,20 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   }, [item]);
 
 
+  const handleDerouleTitleChange = (title: string) => {
+    // Log pour surveiller l'entrée utilisateur
+    console.log("Titre saisi :", title);
+
+    setDerouleTitle(title);
+    setFormData(prevData => {
+      const updatedData = { ...prevData, derouleTitle: title };
+      console.log("Mise à jour de formData :", updatedData); // Débogage
+      return updatedData;
+    });
+  };
+
+
+  /*
   // console.log(data0)
   const handleDerouleTitleChange = (title: string) => {
     setDerouleTitle(title);
@@ -95,7 +109,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       ...prevData,
       derouleTitle: title
     }));
-  };
+  };*/
 
   const handleForm5DataChange = (data: any) => {
     setFormData({
@@ -113,11 +127,11 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   };
 
   const handleSaveForm = () => {
-    /*  Alert.alert(
-        "Données du formulaire",
-        JSON.stringify(formData, null, 2),
-        [{ text: "OK" }]
-      );*/
+    Alert.alert(
+      "Données du formulaire",
+      JSON.stringify(formData, null, 2),
+      [{ text: "OK" }]
+    );
     validForm({ data: formData });
 
   };

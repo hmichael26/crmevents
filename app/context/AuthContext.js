@@ -68,6 +68,16 @@ export const AuthProvider = ({ children }) => {
         action: 'get-user-data',
         token,
       });
+
+      if (response.data.code === 'ERROR' && response.data.data.includes('utilisateur non reconnu')) {
+        console.error('Utilisateur non reconnu. Déconnexion en cours...');
+        setUserToken(null);
+        setUserData(null);
+        await StoreDelete('usertoken');
+        return;             // Arrête l'exécution ici
+      }
+
+      // console.log(response.data.data);
       setUserData(response.data.data);
     } catch (error) {
       console.error('Error fetching user data:', error);

@@ -114,7 +114,7 @@ const DevisInterface = ({
                         }}>
                             <Dropdown
                                 data={options}
-                                onChange={(item) => handleOptionSelect(item.id_devis, item.label)}
+                                onChange={(value) => handleOptionSelect(item.id_devis, value.label)}
                                 placeholder="valider"
                                 defaultValue={{ [item.id_devis]: devisSelections[item.id_devis] }}
                             />
