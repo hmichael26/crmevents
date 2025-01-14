@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated, PixelRatio } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, ScrollView, Keyboard, Platform, Animated, PixelRatio, FlatList, Text as TextField } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons'; // Remplacez 'Ionicons' par l'icône de votre choix
 import Select from 'react-select'
@@ -13,6 +13,7 @@ import Form4 from '../components/EventForm4';
 import Form5 from '../components/EventForm5';
 import { AuthContext } from '../context/AuthContext';
 import { useApi } from '../context/useApi';
+import ModalPresta from '../components/ModalPresta';
 
 // import { Container } from './styles';
 const { width, height } = Dimensions.get('window');
@@ -72,7 +73,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const getDerouleData0 = async () => {
     try {
       const response = await getDerouler({ id_deroule: item.id });
-      console.log(response.data);
+      // console.log(response.data);
       setData0(response.data);
     } catch (error) {
       console.error("Erreur lors de la récupération des données :", error);
@@ -167,6 +168,58 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     };
   }, [fadeAnim]);
 
+  const [prestataire, setPrestataire] = useState<any>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const addPrestataire = () => {
+    const newPrestataires = [...prestataire, { id: Date.now(), name: '' }];
+    setPrestataire(newPrestataires);
+
+  };
+
+  const removePrestataire = (id: number) => {
+    console.log(id)
+    const newPrestataires = prestataire.filter(prest => prest.id !== id);
+    setPrestataire(newPrestataires);
+    console.log(prestataire);
+  };
+
+  const updatePrestataire = (selectedClient: any, currentClientId: number) => {
+
+    const newPrestataires = prestataire.map(presta =>
+      presta.id === currentClientId
+        ? {
+          id: selectedClient.id,
+          ...presta
+        } : presta
+    );
+    setPrestataire(newPrestataires);
+  };
+
+
+
+
+  const renderClientItem = ({ item: data }: { item: any }) => (
+
+    <View
+      key={data.id}
+      style={styles.clientContainer}
+    >
+      <ModalPresta
+        onSelectItem={(presta) => console.log(presta)}
+        onClose={() => console.log("close")}
+
+
+      />
+      <TouchableOpacity onPress={() => { removePrestataire(data.id), console.log(data) }} style={{ paddingHorizontal: 10, paddingBottom: 5 }}>
+        <TextField style={{ fontSize: 23, color: colors.primary, fontWeight: "bold" }}>x</TextField>
+      </TouchableOpacity>
+    </View>
+  );
+
 
   return <SafeAreaView style={{ flex: 1, backgroundColor: "#fff", marginTop: -sizes.sm, flexDirection: "column" }}>
 
@@ -215,8 +268,38 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     <ScrollView style={{ flex: 1, paddingBottom: 25 }} contentContainerStyle={styles.scrollViewContent}>
       {step === "deroule" && <Form5 options={options} onDataChange={handleForm5DataChange} item={data0?.fields} />}
       {step === "Presta" && <Form4 item={data0} onDataChange={handleForm4DataChange} getData0={getDerouleData0} />}
-    </ScrollView>
 
+
+      {
+        step === "Presta" && (
+          <>
+            <View style={{ flexDirection: "row", gap: 2, alignItems: "center", justifyContent: "space-around", }}>
+              <TextField style={{ fontSize: 16, color: colors.primary }} color={colors.primary}>Ajouter un prestataire interrogé</TextField>
+              <Button
+                flex={0.6}
+                gradient={gradients.warning}
+                marginBottom={sizes.base}
+                rounded={false}
+                round={false}
+                style={{ marginTop: 10 }}
+                onPress={addPrestataire}
+
+              >
+                <TextField style={{ fontSize: 16, color: "white" }} white> + Ajouter</TextField>
+              </Button>
+            </View>
+
+            <FlatList
+              data={prestataire}
+              renderItem={renderClientItem}
+              keyExtractor={(client) => client.id}
+              contentContainerStyle={styles.clientListContainer}
+            />
+          </>
+        )
+      }
+
+    </ScrollView>
     {
       !isKeyboardVisible && (
         <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>
@@ -270,6 +353,32 @@ const styles = StyleSheet.create({
 
 
 
+  }, inputContainer2: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 0,
+    width: "100%",
+    gap: 4
+  },
+  clientListContainer: {
+    paddingBottom: 20
+  },
+  clientContainer: {
+    flexDirection: "row",
+    alignContent: "center",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 10,
+    marginVertical: 5,
+    marginHorizontal: 25,
+    flex: 1,
+  },
+  clientInput: {
+    flex: 1,
+    marginRight: 10
   },
   inputContainer: {
 
