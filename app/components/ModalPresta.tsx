@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, TextInput, FlatList, Button } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, TextInput, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useApi } from '../context/useApi';
+import useTheme from './../hooks/useTheme';
+import Button from './Button';
 
 // Define an interface for Item for better type checking
 interface Item {
@@ -12,12 +14,14 @@ interface Item {
 interface ModalPrestaProps {
     onClose: () => void;
     onSelectItem: (item: Item) => void;
+    nom?: string;
 }
-
 const ModalPresta: React.FC<ModalPrestaProps> = ({
     onClose,
     onSelectItem,
+    nom
 }) => {
+    const { gradients } = useTheme();
     const { getPrestaBy } = useApi();
     const [modalVisible, setModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -26,20 +30,43 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [selectPresta, setSelectPresta] = useState<any | null>(null);
+    const [timer, setTimer] = useState(null);
 
-    const fetchItems = useCallback(async (page: number) => {
+
+    const fetchItems = useCallback(async (page: number, query?: string) => {
+
         setIsLoading(true);
-        try {
-            const response = await getPrestaBy({ "current_page": page });
-            setItems(response.data.all_prests || []);
 
-            setTotalPages((response.data.nb_tot_presta / 30).toFixed(0));
+
+        try {
+            const params = {
+                current_page: page,
+                /*  ...(query ? { search: query } : {})*/
+            };
+            const response = await getPrestaBy(params);
+            setItems(response.data.all_prests || []);
+            setTotalPages(Math.ceil(response.data.nb_tot_presta / 30));
         } catch (error) {
             console.error("Error loading items:", error);
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [getPrestaBy]);
+
+    useEffect(() => {
+        if (!modalVisible) return;
+
+        if (searchQuery) {
+            const debounceTimeout = setTimeout(() => {
+                setCurrentPage(1); // Reset to first page when searching
+                fetchItems(1, searchQuery);
+            }, 2000); // 2 seconds debounce
+            return () => clearTimeout(debounceTimeout);
+        }
+
+
+
+    }, [searchQuery, modalVisible, fetchItems]);
 
     useEffect(() => {
         if (modalVisible) {
@@ -48,9 +75,10 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
     }, [modalVisible, currentPage]);
 
     const handleSelectItem = (item: Item) => {
-        console.log(item);
-        setSelectPresta(item);
+        //  console.log(item);
+
         onSelectItem(item);
+        //    setSelectPresta(item);
         setModalVisible(false);
     };
 
@@ -66,6 +94,21 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
         }
     };
 
+
+
+    const handleSearch = (query: string) => {
+        // Perform the search operation
+        console.log("Searching for:", query);
+        // Add your search function here
+    };
+
+    function formatName(name) {
+        const maxLength = 25;
+        if (name.length > maxLength) {
+            name = name.substring(0, maxLength); // Truncate to 25 characters
+        }
+        return name.padEnd(maxLength, '-'); // Fill with dashes if less than 25 characters
+    }
     return (
         <View>
             <TouchableOpacity
@@ -76,7 +119,7 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
 
 
                 <Text style={styles.clientName}>
-                    {selectPresta ? selectPresta.nom : "Select Prestataire"}
+                    {nom ? formatName(nom) : "Select Prestataire"}
                 </Text>
 
 
@@ -114,13 +157,27 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
                                             style={styles.itemContainer}
                                         >
                                             <Text style={styles.itemName}>{item.nom}</Text>
+                                            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 10, flexWrap: "wrap" }}>
+                                                <Text style={{ color: "#666", fontSize: 14, marginTop: 2 }}>departement: {item.fk_departement}</Text>
+                                                <Text style={{ color: "#666", fontSize: 14, marginTop: 2 }}>ville: {item.ville}</Text>
+                                                <Text style={{ color: "#666", fontSize: 14, marginTop: 2 }}>region: {item.region}</Text>
+                                            </View>
+
                                         </TouchableOpacity>
                                     )}
                                 />
                                 <View style={styles.paginationContainer}>
-                                    <Button title="Prev" onPress={handlePreviousPage} disabled={currentPage <= 1} />
+                                    <Button onPress={handlePreviousPage} disabled={currentPage <= 1} gradient={gradients.secondary}
+
+                                    >
+
+                                        <Text style={{ color: "white", textAlign: "center", fontWeight: "bold" }}>Prev</Text>
+                                    </Button>
                                     <Text>{currentPage} of {totalPages}</Text>
-                                    <Button title="Next" onPress={handleNextPage} disabled={currentPage >= totalPages} />
+                                    <Button onPress={handleNextPage} disabled={currentPage >= totalPages} gradient={gradients.secondary}  >
+
+                                        <Text style={{ color: "white", textAlign: "center", fontWeight: "bold" }}>Next</Text>
+                                    </Button>
                                 </View>
                                 <TouchableOpacity
                                     style={styles.closeButton}
@@ -177,6 +234,20 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 15,
         padding: 15,
+    }, containerR: {
+        flexDirection: "row",      // Align children in a row
+        justifyContent: "space-between", // Space out children evenly across the container
+        alignItems: "center",      // Center items vertically within the row
+        marginTop: 10,             // Top margin
+        flexWrap: "wrap",          // Allow items to wrap to next line on overflow
+    },
+    text: {
+        color: "#666",             // Text color
+        fontSize: 14,              // Text font size
+        marginTop: 2,              // Top margin for each text
+        flex: 1,                   // Give each text box an equal opportunity to grow
+        minWidth: 100,             // Minimum width for each text element to avoid squeezing too much
+        textAlign: 'center'        // Center-align text
     },
     searchContainer: {
         flexDirection: 'row',

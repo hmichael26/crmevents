@@ -63,7 +63,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current; // Valeur d'animation initiale
   const [derouleTitle, setDerouleTitle] = useState(item?.titre_deroule || "");
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     id_deroule: item?.id || 0,
     derouleTitle: item?.titre_deroule || "",
     numero_deroule: item?.numero_deroule,
@@ -111,23 +111,42 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       derouleTitle: title
     }));
   };*/
+  function getIds(items) {
+    return items
+      .map(item => item.id) // Map array to only ids
+      .filter(id => id !== undefined && id !== null) // Filter out undefined or null ids
+      .join(','); // Join ids with commas
+  }
+
 
   const handleForm5DataChange = (data: any) => {
     setFormData({
 
       id_deroule: item?.id || 0,
-      derouleTitle: item?.titre_deroule || "",
+      derouleTitle: derouleTitle || "",
       numero_deroule: item?.numero_deroule,
-      fields: data.fields
+      fields: data.fields,
+      newPresta: getIds(prestataire)
+
+
     });
   };
 
 
   const handleForm4DataChange = (data: any) => {
-    setFormData(data);
+    setFormData({ ...data, newPresta: getIds(prestataire), derouleTitle: derouleTitle || "" });
   };
 
   const handleSaveForm = () => {
+
+    if (formData.derouleTitle === "") {
+      Alert.alert(
+        "Erreur",
+        "Le titre de la déroulé est obligatoire",
+        [{ text: "OK" }]
+      );
+      return;
+    }
     Alert.alert(
       "Données du formulaire",
       JSON.stringify(formData, null, 2),
@@ -173,6 +192,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  console.log(prestataire)
 
   const addPrestataire = () => {
     const newPrestataires = [...prestataire, { id: Date.now(), name: '' }];
@@ -188,13 +208,17 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   };
 
   const updatePrestataire = (selectedClient: any, currentClientId: number) => {
+    // console.log(selectedClient, currentClientId)
 
     const newPrestataires = prestataire.map(presta =>
       presta.id === currentClientId
         ? {
           id: selectedClient.id,
-          ...presta
-        } : presta
+          nom: selectedClient.nom,
+        } : {
+          id: presta.id,
+          nom: presta.nom
+        }
     );
     setPrestataire(newPrestataires);
   };
@@ -202,16 +226,16 @@ const EventPresta: React.FC = ({ route, navigation }) => {
 
 
 
-  const renderClientItem = ({ item: data }: { item: any }) => (
+  const renderClientItem = ({ item: data, index }: { item: any, index: number }) => (
 
     <View
-      key={data.id}
+      key={index}
       style={styles.clientContainer}
     >
       <ModalPresta
-        onSelectItem={(presta) => console.log(presta)}
+        nom={data.nom}
+        onSelectItem={(presta) => updatePrestataire(presta, data.id)}
         onClose={() => console.log("close")}
-
 
       />
       <TouchableOpacity onPress={() => { removePrestataire(data.id), console.log(data) }} style={{ paddingHorizontal: 10, paddingBottom: 5 }}>
