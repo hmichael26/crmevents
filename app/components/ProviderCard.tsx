@@ -31,6 +31,7 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
             }
         }
         setIsEditing(!isEditing);
+        console.log(editedProvider)
     };
 
     const handleDelete = async () => {
@@ -65,10 +66,22 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
 
 
     const handleInputChange = (field, value) => {
+        // console.log(field, value)
+
+        if (field === 'fk_departement') {
+            setEditedProvider(prev => ({ ...prev, dept: value.name }));
+            // editedProvider.dept = value.libelle;
+        }
+        if (field === 'fk_ville') {
+            setEditedProvider(prev => ({ ...prev, ville: value.name }));
+        }
+        if (field === 'fk_region') {
+            setEditedProvider(prev => ({ ...prev, region: value.name }));
+        }
 
 
 
-        setEditedProvider(prev => ({ ...prev, [field]: value }));
+        setEditedProvider(prev => ({ ...prev, [field]: value.id }));
     };
 
     const openModal = (field) => {
@@ -76,6 +89,7 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
         setModal(true);
 
     };
+
 
 
 
@@ -88,7 +102,7 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
                     <TextInput
                         style={[styles.input, { flex: 1 }]}
                         placeholder={placeholder}
-                        value={editedProvider[field]}
+                        value={field === 'fk_departement' ? editedProvider.dept : field === 'fk_ville' ? editedProvider.ville : field === 'fk_region' ? editedProvider.region : ""}
                         editable={false} // Make the TextInput non-editable
                     />
                     <TouchableOpacity style={[styles.button, { backgroundColor: "#ccc", marginBottom: 7 }]} onPress={() => openModal(field)}>
@@ -129,6 +143,8 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
                     {renderEditableField('fk_departement', 'Département')}
                     {renderEditableField('fk_ville', 'Ville')}
                     {renderEditableField('fk_region', 'Région')}
+
+
                 </>
             ) : (
                 <>
@@ -161,19 +177,19 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
                     </View>
 
                     <View style={styles.tagContainer}>
-                        {provider.fk_departement && (
+                        {provider.fk_departement && provider.dept && (
                             <View style={styles.tag}>
-                                <Text style={styles.tagText}>{provider.fk_departement}</Text>
+                                <Text style={styles.tagText}>{provider.dept}</Text>
                             </View>
                         )}
-                        {provider.fk_ville && (
+                        {provider.fk_ville && provider.ville && (
                             <View style={styles.tag}>
-                                <Text style={styles.tagText}>{provider.fk_ville}</Text>
+                                <Text style={styles.tagText}>{provider.ville}</Text>
                             </View>
                         )}
-                        {provider.fk_region && (
+                        {provider.fk_region && provider.region && (
                             <View style={styles.tag}>
-                                <Text style={styles.tagText}>{provider.fk_region}</Text>
+                                <Text style={styles.tagText}>{provider.region}</Text>
                             </View>
                         )}
                     </View>
@@ -232,7 +248,7 @@ export const ProviderCard = ({ provider, onModify, onDelete }) => {
             <SelectionModal
                 visible={modal}
                 field={modalField}
-                onSelectItem={(item) => (handleInputChange(modalField, item.id), setModal(false))}
+                onSelectItem={(item) => (handleInputChange(modalField, item), setModal(false))}
                 onClose={() => setModal(false)}
 
 
