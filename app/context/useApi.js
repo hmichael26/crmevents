@@ -75,6 +75,7 @@ export const useApi = () => {
     const getUserDatas = (data) => makeRequest('get-user-data', data);
     const getevent = (data) => makeRequest('get-event', data);
     const deletePresta = (data) => makeRequest('del-presta-interroge', data);
+    const searchPresta = (data) => makeRequest('search-presta', data);
     //   const addPresta = (data) => makeRequest('add-presta-interroge', data);
 
 
@@ -101,7 +102,8 @@ export const useApi = () => {
         sendDemande,
         getUserDatas,
         getevent,
-        deletePresta
+        deletePresta,
+        searchPresta,
 
         // ... autres actions
     };

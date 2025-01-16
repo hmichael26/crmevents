@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, TextInput, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useApi } from '../context/useApi';
@@ -21,8 +21,9 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
     onSelectItem,
     nom
 }) => {
+
     const { gradients } = useTheme();
-    const { getPrestaBy } = useApi();
+    const { getPrestaBy, searchPresta } = useApi();
     const [modalVisible, setModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [items, setItems] = useState<Item[]>([]);
@@ -31,19 +32,29 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
     const [totalPages, setTotalPages] = useState(0);
     const [selectPresta, setSelectPresta] = useState<any | null>(null);
     const [timer, setTimer] = useState(null);
+    const prevSearchQuery = useRef('');
+    const isFirstRender = useRef(true);
 
 
     const fetchItems = useCallback(async (page: number, query?: string) => {
-
         setIsLoading(true);
-
 
         try {
             const params = {
                 current_page: page,
-                /*  ...(query ? { search: query } : {})*/
+                ...(query ? { search: query } : {})
             };
-            const response = await getPrestaBy(params);
+
+            const response = query
+                ? await searchPresta(params)
+                : await getPrestaBy(params);
+
+            /* // Pour la pagination, on accumule les résultats si ce n'est pas une nouvelle recherche
+             if (page > 1 && query === prevSearchQuery.current) {
+                 setItems(prevItems => [...prevItems, ...(response.data.all_prests || [])]);
+             } else {
+                 setItems(response.data.all_prests || []);
+             }*/
             setItems(response.data.all_prests || []);
             setTotalPages(Math.ceil(response.data.nb_tot_presta / 30));
         } catch (error) {
@@ -51,28 +62,51 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
         } finally {
             setIsLoading(false);
         }
-    }, [getPrestaBy]);
+    }, [getPrestaBy, searchPresta]);
 
+    // console.log('ok', searchQuery, prevSearchQuery.current);
+    // Effet pour la recherche avec debounce
     useEffect(() => {
         if (!modalVisible) return;
 
-        if (searchQuery) {
+        // Skip the first render
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+
+        // Vérifier si la recherche a changé
+        if (searchQuery !== prevSearchQuery.current) {
             const debounceTimeout = setTimeout(() => {
-                setCurrentPage(1); // Reset to first page when searching
+                setCurrentPage(1);
                 fetchItems(1, searchQuery);
-            }, 2000); // 2 seconds debounce
+                prevSearchQuery.current = searchQuery;
+            }, 2000);
+
             return () => clearTimeout(debounceTimeout);
         }
-
-
-
     }, [searchQuery, modalVisible, fetchItems]);
 
+    // Effet pour la pagination
+    useEffect(() => {
+        if (!modalVisible) return;
+
+        // Ne pas déclencher de recherche si c'est la première page (déjà géré par l'effet de recherche)
+        if (currentPage >= 1) {
+            fetchItems(currentPage, prevSearchQuery.current);
+        }
+    }, [currentPage, modalVisible]);
+
+    // Effet pour charger les données initiales quand le modal s'ouvre
     useEffect(() => {
         if (modalVisible) {
-            fetchItems(currentPage);
+            setCurrentPage(1);
+            setSearchQuery('');
+            prevSearchQuery.current = '';
+            fetchItems(1);
         }
-    }, [modalVisible, currentPage]);
+    }, [modalVisible]);
 
     const handleSelectItem = (item: Item) => {
         //  console.log(item);
