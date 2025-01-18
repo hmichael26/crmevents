@@ -170,7 +170,7 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         {isLoading ? (
-                            <Text>Loading...</Text>
+                            <Text>chargement...</Text>
                         ) : (
                             <>
                                 <View style={styles.searchContainer}>
