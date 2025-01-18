@@ -169,19 +169,20 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        {isLoading ? (
-                            <Text>chargement...</Text>
-                        ) : (
-                            <>
-                                <View style={styles.searchContainer}>
-                                    <Icon name="search" color="#666" size={20} />
-                                    <TextInput
-                                        placeholder="Search for a provider"
-                                        style={styles.searchInput}
-                                        value={searchQuery}
-                                        onChangeText={setSearchQuery}
-                                    />
-                                </View>
+
+                        <>
+                            <View style={styles.searchContainer}>
+                                <Icon name="search" color="#666" size={20} />
+                                <TextInput
+                                    placeholder="Search for a provider"
+                                    style={styles.searchInput}
+                                    value={searchQuery}
+                                    onChangeText={setSearchQuery}
+                                />
+                            </View>
+                            {isLoading ? (
+                                <Text>chargement...</Text>
+                            ) : (
                                 <FlatList
                                     data={items}
                                     keyExtractor={(item) => item.id.toString()}
@@ -200,27 +201,28 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
                                         </TouchableOpacity>
                                     )}
                                 />
-                                <View style={styles.paginationContainer}>
-                                    <Button onPress={handlePreviousPage} disabled={currentPage <= 1} gradient={gradients.secondary}
+                            )}
+                            <View style={styles.paginationContainer}>
+                                <Button onPress={handlePreviousPage} disabled={currentPage <= 1} gradient={gradients.secondary}
 
-                                    >
-
-                                        <Text style={{ color: "white", textAlign: "center", fontWeight: "bold" }}>Prev</Text>
-                                    </Button>
-                                    <Text>{currentPage} of {totalPages}</Text>
-                                    <Button onPress={handleNextPage} disabled={currentPage >= totalPages} gradient={gradients.secondary}  >
-
-                                        <Text style={{ color: "white", textAlign: "center", fontWeight: "bold" }}>Next</Text>
-                                    </Button>
-                                </View>
-                                <TouchableOpacity
-                                    style={styles.closeButton}
-                                    onPress={() => setModalVisible(false)}
                                 >
-                                    <Text style={styles.closeButtonText}>Close</Text>
-                                </TouchableOpacity>
-                            </>
-                        )}
+
+                                    <Text style={{ color: "white", textAlign: "center", fontWeight: "bold" }}>Prev</Text>
+                                </Button>
+                                <Text>{currentPage} of {totalPages}</Text>
+                                <Button onPress={handleNextPage} disabled={currentPage >= totalPages} gradient={gradients.secondary}  >
+
+                                    <Text style={{ color: "white", textAlign: "center", fontWeight: "bold" }}>Next</Text>
+                                </Button>
+                            </View>
+                            <TouchableOpacity
+                                style={styles.closeButton}
+                                onPress={() => setModalVisible(false)}
+                            >
+                                <Text style={styles.closeButtonText}>Close</Text>
+                            </TouchableOpacity>
+                        </>
+
                     </View>
                 </View>
             </Modal>
