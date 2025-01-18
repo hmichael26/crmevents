@@ -181,7 +181,7 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
                                 />
                             </View>
                             {isLoading ? (
-                                <Text>chargement...</Text>
+                                <Text style={{ textAlign: "center", fontWeight: "bold" }}>Chargement...</Text>
                             ) : (
                                 <FlatList
                                     data={items}
