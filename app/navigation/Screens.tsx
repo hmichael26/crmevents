@@ -168,6 +168,7 @@ export default () => {
         options={{ title: t('Clients'), ...screenOptions.Client, headerRight: () => null }}
       />
 
+     
     </Stack.Navigator>
   );
 };
