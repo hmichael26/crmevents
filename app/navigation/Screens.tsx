@@ -1,5 +1,5 @@
-import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import React from 'react'
+import { createStackNavigator } from '@react-navigation/stack'
 
 import {
   About,
@@ -22,22 +22,26 @@ import {
   NotificationsSettings,
   EventPresta,
   EventDetails,
-  EventMenu
-} from '../screens';
+  EventMenu,
+} from '../screens'
 
-import { useScreenOptions } from '../hooks';
-import Prestataire from '../screens/Prestataire';
-import Client from '../screens/Client';
-import { useTranslation } from 'react-i18next';
+import { useScreenOptions } from '../hooks'
+import Prestataire from '../screens/Prestataire'
+import Client from '../screens/Client'
+import { useTranslation } from 'react-i18next'
+import ClientPresta from '../screens/ClientPresta'
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator()
 
 export default () => {
-  const { t } = useTranslation();
-  const screenOptions = useScreenOptions();
+  const { t } = useTranslation()
+  const screenOptions = useScreenOptions()
 
   return (
-    <Stack.Navigator initialRouteName='Home' screenOptions={screenOptions.stack} >
+    <Stack.Navigator
+      initialRouteName="Home"
+      screenOptions={screenOptions.stack}
+    >
       <Stack.Screen
         name="Home"
         component={Home}
@@ -91,12 +95,18 @@ export default () => {
       <Stack.Screen
         name="NotificationsSettings"
         component={NotificationsSettings}
-        options={{ title: t('navigation.notifications'), ...screenOptions.back }}
+        options={{
+          title: t('navigation.notifications'),
+          ...screenOptions.back,
+        }}
       />
       <Stack.Screen
         name="Notifications"
         component={Notifications}
-        options={{ title: t('navigation.notifications'), ...screenOptions.back }}
+        options={{
+          title: t('navigation.notifications'),
+          ...screenOptions.back,
+        }}
       />
       <Stack.Screen
         name="Agreement"
@@ -141,7 +151,11 @@ export default () => {
       <Stack.Screen
         name="Eventdetails"
         component={EventDetails}
-        options={{ title: t('Details'), ...screenOptions.eventDetail, headerRight: () => null }}
+        options={{
+          title: t('Details'),
+          ...screenOptions.eventDetail,
+          headerRight: () => null,
+        }}
       />
 
       <Stack.Screen
@@ -159,16 +173,28 @@ export default () => {
         name="EventMenu"
         component={EventMenu}
         // options={screenOptions.eventMenu}
-        options={{ title: t('Open Project'), ...screenOptions.eventMenu, headerRight: () => null }}
+        options={{
+          title: t('Open Project'),
+          ...screenOptions.eventMenu,
+          headerRight: () => null,
+        }}
       />
 
       <Stack.Screen
         name="Client"
         component={Client}
-        options={{ title: t('Clients'), ...screenOptions.Client, headerRight: () => null }}
+        options={{
+          title: t('Clients'),
+          ...screenOptions.Client,
+          headerRight: () => null,
+        }}
       />
 
-     
+      <Stack.Screen
+        name="ClientPresta"
+        component={ClientPresta}
+        options={{ title: t('navigation.clients'), ...screenOptions.back }}
+      />
     </Stack.Navigator>
-  );
-};
+  )
+}

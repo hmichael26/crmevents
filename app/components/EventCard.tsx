@@ -5,9 +5,10 @@ import { useTheme } from '../hooks'
 
 interface EventCardProps {
   item: any
+  navigation: any
 }
 
-export const EventCard: React.FC<EventCardProps> = ({ item }) => {
+export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
   const { colors, gradients, sizes } = useTheme()
 
   return (
@@ -42,7 +43,11 @@ export const EventCard: React.FC<EventCardProps> = ({ item }) => {
               <Text style={styles.infoText}>Ref: {item.ref || 'N/A'}</Text>
             </Button>
 
-            <Button gradient={gradients.info} style={styles.consultButton}>
+            <Button
+              gradient={gradients.info}
+              style={styles.consultButton}
+              onPress={() => navigation.navigate('ClientPresta', { item })}
+            >
               <Text style={styles.consultText}>Consulter</Text>
             </Button>
           </View>
@@ -65,15 +70,17 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   header: {
-    backgroundColor: '#8B3D88',
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     paddingVertical: 12,
+    borderBlockColor: '#8B3D88',
+
+    borderBottomWidth: 4,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#fff',
+    color: '#000',
     textAlign: 'center',
   },
   content: {

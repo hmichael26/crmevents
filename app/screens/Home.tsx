@@ -114,6 +114,8 @@ const Home = (props: DrawerContentComponentProps) => {
     )
   }
 
+  const newEvents = userdata?.newevts ? userdata?.newevts : []
+
   const handleTextChange = _.throttle((event) => {
     const text = event.nativeEvent.text
     setKeyword(text)
@@ -124,14 +126,14 @@ const Home = (props: DrawerContentComponentProps) => {
   if (userdata?.user?.admin == 0) {
     return (
       <FlatList
-        data={filteredEvents}
+        data={newEvents}
         showsVerticalScrollIndicator={true}
         keyExtractor={(item, index) => index.toString()}
         style={{ paddingVertical: sizes.padding }}
         contentContainerStyle={{ paddingBottom: sizes.l }}
         renderItem={({ item }) => (
           <View style={{ flex: 1 }}>
-            <EventCard item={item} />
+            <EventCard item={item} navigation={navigation} />
           </View>
         )}
       />
