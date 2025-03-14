@@ -13,6 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import ClientPrestaCard from '../components/ClientPrestaCard'
 import { DrawerContentComponentProps } from '@react-navigation/drawer'
 import { useApi } from '../context/useApi'
+import { Button } from '../components'
+import { useTheme } from '../hooks'
 
 interface Venue {
   id: string
@@ -27,6 +29,7 @@ interface VenueCardProps {
 }
 
 const ClientPresta: React.FC = ({ route, navigation }) => {
+  const { colors, sizes, gradients } = useTheme()
   const { item } = route.params
   const derouler = item?.arrderoules || []
 
@@ -51,11 +54,16 @@ const ClientPresta: React.FC = ({ route, navigation }) => {
     <View style={styles.container}>
       <View style={styles.tabContainer}>
         {derouler.map((deroule, index) => (
-          <TouchableOpacity
+          <Button
             key={index}
+            gradient={
+              deroule.id === activeDeroule.id
+                ? gradients.primary
+                : gradients.secondary
+            }
             style={[
               styles.tab,
-              deroule.id === activeDeroule.id ? styles.activeTab : null, // Applique activeTab si c'est l'élément actif
+              // Applique activeTab si c'est l'élément actif
             ]}
             onPress={() => {
               setActiveDeroule(deroule) // Mettre à jour l'index actif
@@ -69,7 +77,7 @@ const ClientPresta: React.FC = ({ route, navigation }) => {
             >
               {deroule.titre_deroule}
             </Text>
-          </TouchableOpacity>
+          </Button>
         ))}
       </View>
 
@@ -94,12 +102,12 @@ const styles = StyleSheet.create({
   },
   tab: {
     marginRight: 16,
-    paddingVertical: 6,
+    paddingVertical: 4,
   },
   tabText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#fff',
   },
   activeTab: {
     backgroundColor: '#ff3399',

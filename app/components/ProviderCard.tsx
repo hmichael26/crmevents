@@ -20,6 +20,7 @@ export const ProviderCard = ({
   onDelete,
   handleSelect,
   handleUnSelect,
+  isSelected,
 }) => {
   const { userdata } = useContext(AuthContext)
   const admin = userdata?.user?.admin
@@ -246,10 +247,8 @@ export const ProviderCard = ({
       <View style={styles.actionButtons}>
         <Button
           gradient={useTheme().gradients.primary}
-          style={[
-            styles.modifyButton,
-            { backgroundColor: useTheme().colors.primary },
-          ]}
+          style={[{ backgroundColor: useTheme().colors.primary }]}
+          flex={1}
           onPress={handleModify}
           disabled={isLoading} // Désactiver le bouton pendant le chargement
         >
@@ -264,10 +263,7 @@ export const ProviderCard = ({
         {isEditing && (
           <Button
             gradient={useTheme().gradients.secondary}
-            style={[
-              styles.modifyButton,
-              { backgroundColor: useTheme().colors.primary },
-            ]}
+            style={[{ backgroundColor: useTheme().colors.primary }]}
             onPress={() => {
               setIsEditing(false)
             }}
@@ -280,9 +276,8 @@ export const ProviderCard = ({
         {!isEditing && (
           <Button
             gradient={useTheme().gradients.danger}
-            flex={1}
             //style={[styles.deleteButton]}
-
+            flex={1}
             onPress={handleDelete}
             disabled={isLoading}
           >
@@ -291,47 +286,31 @@ export const ProviderCard = ({
             </Text>
           </Button>
         )}
-      </View>
-      <View
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          alignContent: 'center',
-          marginTop: 10,
-          marginHorizontal: 5,
-        }}
-      >
+
         {admin == 0 && (
           <>
             <Button
-              gradient={useTheme().gradients.info}
-              style={[
-                styles.modifyButton,
-                { backgroundColor: useTheme().colors.primary },
-              ]}
+              gradient={
+                isSelected(provider.id)
+                  ? useTheme().gradients.secondary
+                  : useTheme().gradients.info
+              }
               flex={1}
-              onPress={() => handleSelect(provider.id)}
+              onPress={() => {
+                isSelected(provider.id)
+                  ? handleUnSelect(provider.id)
+                  : handleSelect(provider.id)
+              }}
               disabled={isLoading}
             >
-              <Text style={styles.modifyButtonText}>selectionner</Text>
-            </Button>
-            <Button
-              gradient={useTheme().gradients.info}
-              style={[
-                styles.modifyButton,
-                { backgroundColor: useTheme().colors.primary },
-              ]}
-              flex={1}
-              onPress={() => handleUnSelect(provider.id)}
-              disabled={isLoading}
-            >
-              <Text style={styles.modifyButtonText}>retirer</Text>
+              <Text style={styles.modifyButtonText}>
+                {isSelected(provider.id) ? 'Désélectionner' : 'Sélectionner'}
+              </Text>
             </Button>
           </>
         )}
       </View>
+
       <SelectionModal
         visible={modal}
         field={modalField}
@@ -394,8 +373,7 @@ const styles = StyleSheet.create({
   modifyButton: {
     borderRadius: 20,
     paddingVertical: 0,
-    paddingHorizontal: 16,
-    flex: 1,
+    paddingHorizontal: 20,
   },
   modifyButtonText: {
     color: 'white',

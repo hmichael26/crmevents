@@ -15,6 +15,7 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  Alert,
 } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -23,6 +24,7 @@ import { useApi } from '../context/useApi'
 import { ProviderCard } from '../components/ProviderCard'
 import { Button } from '../components'
 import { useTheme } from '../hooks'
+import DeroulesModal from '../components/DeroulesModal'
 
 const initialFormState = {
   region: '',
@@ -129,6 +131,7 @@ export const Prestataire = () => {
   const [hasMore, setHasMore] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [selectPresta, setSelectPresta] = useState([])
+  const [modalShow, setModalShow] = useState(false)
   // Fonction pour ajouter un élément
   const handleSelect = (item) => {
     if (!selectPresta.includes(item)) {
@@ -144,6 +147,10 @@ export const Prestataire = () => {
       ) // Supprime l'élément
     }
   }
+  const isSelected = (id: any) => {
+    return selectPresta.some((selectId) => selectId == id)
+  }
+
   const handleInputChange = useCallback((name: string, value: string) => {
     setSelectForm((prev) => ({ ...prev, [name]: value }))
   }, [])
@@ -275,6 +282,42 @@ export const Prestataire = () => {
          providerType: userdata.all_categories.map(renderPickerItem)
      }), [userdata, renderPickerItem]);*/
 
+  const showModal = () => {
+    if (Array.isArray(selectPresta) && selectPresta.length > 0) {
+      const message = JSON.stringify(selectPresta, null, 2) // Formatage JSON lisible
+      Alert.alert('Valider la prestation', message)
+    } else {
+      Alert.alert('Erreur', 'Aucune prestation sélectionnée.')
+    }
+  }
+  const assignEvent = async (selectedArrDeroule, selectedDeroule) => {
+    try {
+      console.log(selectedArrDeroule, selectedDeroule)
+
+      // Simulation d'un délai de 5 secondes
+      await new Promise((resolve) => setTimeout(resolve, 5000))
+
+      // Création de l'objet JSON avec eventId et presta
+      const eventData = {
+        eventId: selectedDeroule.id, // ID de l'événement
+        presta: selectPresta, // Tableau des prestations
+      }
+
+      // Affichage de l'alerte après 5s
+      Alert.alert(
+        'Assignation terminée',
+        `L'événement a été assigné avec succès !\n\n${JSON.stringify(
+          eventData,
+          null,
+          2,
+        )}`, // Ajoute le JSON formaté au message
+      )
+    } catch (error) {
+      Alert.alert('Erreur', "Une erreur est survenue lors de l'assignation.")
+      console.error(error)
+    }
+  }
+
   const onModify = async (data) => {
     try {
       const response = await updatepresta(data)
@@ -294,6 +337,9 @@ export const Prestataire = () => {
     } catch (error) {
       console.error('Erreur lors de la suppression:', error)
     }
+  }
+  const closeModal = () => {
+    setModalShow(false)
   }
 
   return (
@@ -410,12 +456,31 @@ export const Prestataire = () => {
             )}
 
             {selectPresta && selectPresta.length > 0 && (
-              <Text style={{ marginTop: 2, textAlign: 'center' }}>
-                <Text style={styles.resultCountHighlight}>
-                  {selectPresta.length}
-                </Text>{' '}
-                prestataires sélectionnés.
-              </Text>
+              <View
+                style={{
+                  marginTop: 20,
+                  flexDirection: 'row',
+
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 10,
+                }}
+              >
+                <Text style={{ marginTop: 2, textAlign: 'center' }}>
+                  <Text style={styles.resultCountHighlight}>
+                    {selectPresta.length}
+                  </Text>{' '}
+                  prestataires sélectionnés.
+                </Text>
+
+                <Button
+                  gradient={gradients.primary}
+                  padding={5}
+                  onPress={() => setModalShow(true)}
+                >
+                  <Text style={styles.searchButtonText}>valider</Text>
+                </Button>
+              </View>
             )}
 
             {searchResults !== null && searchResults?.all_prests.length > 0 && (
@@ -429,6 +494,7 @@ export const Prestataire = () => {
                       onDelete={onDelete}
                       handleSelect={handleSelect}
                       handleUnSelect={handleUnselect}
+                      isSelected={isSelected}
                     />
                   ),
                 )}
@@ -443,6 +509,12 @@ export const Prestataire = () => {
           </View>
         </View>
       </ScrollView>
+
+      <DeroulesModal
+        isVisible={modalShow}
+        onClose={closeModal}
+        onAssign={assignEvent}
+      />
     </SafeAreaView>
   )
 }
