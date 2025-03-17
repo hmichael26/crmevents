@@ -127,7 +127,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
     ? dimensions.width * 0.6
     : isSmallDevice
     ? dimensions.width - 32
-    : dimensions.width * 0.65
+    : dimensions.width * 0.6
 
   return (
     <View style={cardStyles}>
@@ -337,6 +337,7 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     flex: 1,
+    backgroundColor: '#fff',
   },
   venueNameContainer: {
     marginVertical: 16,
@@ -397,6 +398,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   sideButtons: {
+    flex: 0.53,
     width: 120, // Width is adjusted dynamically
     flexDirection: 'column', // Direction is adjusted dynamically
     backgroundColor: '#fff',
