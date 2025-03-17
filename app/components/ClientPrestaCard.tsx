@@ -100,7 +100,6 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({ activeDerouler }) => {
 }
 
 const ClientPrestaCardRenderItem = ({ item }) => {
-  console.log(item)
   const dimensions = useWindowDimensions()
   const isLandscape = dimensions.width > dimensions.height
   const isSmallDevice = dimensions.width < 375
@@ -117,11 +116,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
   }
 
   // Adjust layout based on orientation and screen size
-  const cardStyles = [
-    styles.card,
-    isLandscape && { flexDirection: 'row' },
-    !isLandscape && { flexDirection: isSmallDevice ? 'column' : 'row' },
-  ]
+  const cardStyles = [styles.card, { flexDirection: 'row' }]
 
   const imageWidth = isLandscape
     ? dimensions.width * 0.6
@@ -143,9 +138,10 @@ const ClientPrestaCardRenderItem = ({ item }) => {
             styles.venueImage,
             {
               width: imageWidth,
-              height: isLandscape ? dimensions.height * 0.8 : 270,
+              height: imageWidth,
             },
           ]}
+          imageStyle={{ borderRadius: 10 }}
           resizeMode="cover"
         >
           <View style={styles.venueNameContainer}>
@@ -236,7 +232,6 @@ const ClientPrestaCardRenderItem = ({ item }) => {
           return (
             <View
               style={{
-                flex: 1,
                 gap: 2,
                 flexDirection: isHorizontalLayout ? 'row' : 'column',
                 justifyContent: isHorizontalLayout
@@ -249,8 +244,8 @@ const ClientPrestaCardRenderItem = ({ item }) => {
                   styles.sideButton,
                   isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
                 ]}
-                flex={0}
                 gradient={GRADIENTS.secondary}
+                width={110}
               >
                 <Text
                   style={[
@@ -266,7 +261,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
                   styles.sideButton,
                   isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
                 ]}
-                flex={0}
+                width={110}
                 gradient={GRADIENTS.secondary}
               >
                 <Text
@@ -289,6 +284,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
                         styles.sideButton,
                         isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
                       ]}
+                      width={110}
                     >
                       <Text
                         style={[
@@ -312,7 +308,6 @@ const ClientPrestaCardRenderItem = ({ item }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
   },
@@ -327,17 +322,19 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#f5f5f5',
+
+    backgroundColor: '#fff',
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
+
     minHeight: 200,
+    justifyContent: 'center',
+
     // flexDirection is set dynamically
   },
   cardContent: {
-    flex: 1,
     backgroundColor: '#fff',
+
+    borderRadius: 20,
   },
   venueNameContainer: {
     marginVertical: 16,
@@ -350,11 +347,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   venueImage: {
-    flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
-    borderRadius: 10,
+
     backgroundColor: '#fff',
+
     // width and height are set dynamically
   },
   priceTag: {
@@ -389,6 +386,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 4,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 10,
   },
   actionButton: {
     padding: 4,
@@ -398,7 +396,6 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   sideButtons: {
-    flex: 0.53,
     width: 120, // Width is adjusted dynamically
     flexDirection: 'column', // Direction is adjusted dynamically
     backgroundColor: '#fff',
