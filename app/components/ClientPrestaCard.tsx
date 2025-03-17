@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   StyleSheet,
   Text,
@@ -8,6 +8,10 @@ import {
   Alert,
   ImageBackground,
   Linking,
+  Dimensions,
+  useWindowDimensions,
+  Platform,
+  PixelRatio,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '../hooks'
@@ -20,11 +24,26 @@ interface VenueCardProps {
   activeDerouler: any
 }
 
+// Function to normalize font sizes across different screen sizes
+const normalize = (size: number) => {
+  const { width, height } = Dimensions.get('window')
+  const scale = width / 320 // base width
+  const newSize = size * scale
+
+  if (Platform.OS === 'ios') {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize))
+  } else {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
+  }
+}
+
 const ClientPrestaCard: React.FC<VenueCardProps> = ({ activeDerouler }) => {
   const { colors, sizes, gradients } = useTheme()
   const { getDerouler } = useApi()
   const [data0, setData0] = React.useState([])
   const PrestaInterroger = data0?.all_presta_interroges || []
+  const dimensions = useWindowDimensions()
+  const isSmallDevice = dimensions.width < 375
 
   const getDerouleData0 = async () => {
     try {
@@ -47,10 +66,8 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({ activeDerouler }) => {
 
   if (!activeDerouler) {
     return (
-      <View>
-        <Text
-          style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}
-        >
+      <View style={styles.container}>
+        <Text style={[styles.loadingText, { color: colors.danger }]}>
           chargement ...
         </Text>
       </View>
@@ -62,10 +79,8 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({ activeDerouler }) => {
     data0.all_presta_interroges.length === 0
   ) {
     return (
-      <View>
-        <Text
-          style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}
-        >
+      <View style={styles.container}>
+        <Text style={[styles.errorText, { color: colors.danger }]}>
           Aucun prestataire associé à ce deroule
         </Text>
       </View>
@@ -85,6 +100,10 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({ activeDerouler }) => {
 }
 
 const ClientPrestaCardRenderItem = ({ item }) => {
+  const dimensions = useWindowDimensions()
+  const isLandscape = dimensions.width > dimensions.height
+  const isSmallDevice = dimensions.width < 375
+
   const openGoogleMaps = (ggmap, location) => {
     const url = ggmap
       ? ggmap
@@ -96,24 +115,62 @@ const ClientPrestaCardRenderItem = ({ item }) => {
     )
   }
 
+  // Adjust layout based on orientation and screen size
+  const cardStyles = [
+    styles.card,
+    isLandscape && { flexDirection: 'row' },
+    !isLandscape && { flexDirection: isSmallDevice ? 'column' : 'row' },
+  ]
+
+  const imageWidth = isLandscape
+    ? dimensions.width * 0.6
+    : isSmallDevice
+    ? dimensions.width - 32
+    : dimensions.width * 0.65
+
   return (
-    <View style={styles.card}>
-      <View style={styles.cardContent}>
+    <View style={cardStyles}>
+      <View
+        style={[
+          styles.cardContent,
+          !isLandscape && isSmallDevice && { width: '100%' },
+        ]}
+      >
         <ImageBackground
           source={{ uri: item.lien_brochure }}
-          style={styles.venueImage}
+          style={[
+            styles.venueImage,
+            {
+              width: imageWidth,
+              height: isLandscape ? dimensions.height * 0.8 : 270,
+            },
+          ]}
           resizeMode="cover"
         >
           <View style={styles.venueNameContainer}>
-            <Text style={styles.venueName}>{item.nom_presta}</Text>
+            <Text
+              style={[
+                styles.venueName,
+                isSmallDevice && { fontSize: normalize(14) },
+              ]}
+            >
+              {item.nom_presta}
+            </Text>
           </View>
           {item.budget && (
             <Button
               gradient={GRADIENTS.info}
-              style={styles.priceTag}
-              width={70}
+              style={[styles.priceTag, isSmallDevice && { width: 60 }]}
+              width={isSmallDevice ? 60 : 70}
             >
-              <Text style={styles.priceText}>{item.budget} €</Text>
+              <Text
+                style={[
+                  styles.priceText,
+                  isSmallDevice && { fontSize: normalize(15) },
+                ]}
+              >
+                {item.budget} €
+              </Text>
             </Button>
           )}
 
@@ -122,51 +179,119 @@ const ClientPrestaCardRenderItem = ({ item }) => {
             style={styles.locationContainer}
             onPress={() => openGoogleMaps(item.ggmap, item.location)}
           >
-            <Text style={styles.locationText}>📍 {item.ville}</Text>
+            <Text
+              style={[
+                styles.locationText,
+                isSmallDevice && { fontSize: normalize(10) },
+              ]}
+            >
+              📍 {item.ville}
+            </Text>
           </TouchableOpacity>
           <View style={styles.actionButtons}>
             <TouchableOpacity style={styles.actionButton}>
-              <Icon name="like2" style={styles.actionButtonText}></Icon>
+              <Icon
+                name="like2"
+                style={[
+                  styles.actionButtonText,
+                  isSmallDevice && { fontSize: normalize(20) },
+                ]}
+              ></Icon>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton}>
-              <Icon name="dislike2" style={styles.actionButtonText}></Icon>
+              <Icon
+                name="dislike2"
+                style={[
+                  styles.actionButtonText,
+                  isSmallDevice && { fontSize: normalize(20) },
+                ]}
+              ></Icon>
             </TouchableOpacity>
           </View>
         </ImageBackground>
       </View>
 
-      <View style={styles.sideButtons}>
-        {/* Calculer le nombre total de boutons */}
+      <View
+        style={[
+          styles.sideButtons,
+          !isLandscape &&
+            isSmallDevice && {
+              width: '100%',
+              height: 50,
+              flexDirection: 'row',
+            },
+          isLandscape && { width: dimensions.width * 0.25 },
+        ]}
+      >
         {(() => {
           const totalButtons = 2 + (item?.all_devis?.length || 0) // Brochure + Photos + Devis
-          const buttonFlex = 1 / totalButtons // Distribuer l'espace équitablement
+          const isHorizontalLayout = !isLandscape && isSmallDevice
 
           return (
-            <View style={{ flex: 1, gap: 2 }}>
+            <View
+              style={{
+                flex: 1,
+                gap: 2,
+                flexDirection: isHorizontalLayout ? 'row' : 'column',
+                justifyContent: isHorizontalLayout
+                  ? 'space-between'
+                  : 'flex-start',
+              }}
+            >
               <Button
-                style={[styles.sideButton]}
+                style={[
+                  styles.sideButton,
+                  isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
+                ]}
                 flex={0}
                 gradient={GRADIENTS.secondary}
               >
-                <Text style={styles.sideButtonText}>Brochure</Text>
+                <Text
+                  style={[
+                    styles.sideButtonText,
+                    isSmallDevice && { fontSize: normalize(13) },
+                  ]}
+                >
+                  Brochure
+                </Text>
               </Button>
               <Button
-                style={[styles.sideButton]}
+                style={[
+                  styles.sideButton,
+                  isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
+                ]}
                 flex={0}
                 gradient={GRADIENTS.secondary}
               >
-                <Text style={styles.sideButtonText}>Photos</Text>
+                <Text
+                  style={[
+                    styles.sideButtonText,
+                    isSmallDevice && { fontSize: normalize(13) },
+                  ]}
+                >
+                  Photos
+                </Text>
               </Button>
               {item?.all_devis.map(
                 (_: any, index: React.Key | null | undefined) =>
-                  index <= 3 && (
+                  index <= (isHorizontalLayout ? 1 : 3) && (
                     <Button
                       key={index}
                       gradient={GRADIENTS.secondary}
                       flex={0}
-                      style={styles.sideButton}
+                      style={[
+                        styles.sideButton,
+                        isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
+                      ]}
                     >
-                      <Text style={styles.sideButtonText}>Devis </Text>
+                      <Text
+                        style={[
+                          styles.sideButtonText,
+                          isSmallDevice && { fontSize: normalize(13) },
+                        ]}
+                      >
+                        Devis
+                      </Text>
                     </Button>
                   ),
               )}
@@ -179,8 +304,21 @@ const ClientPrestaCardRenderItem = ({ item }) => {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  loadingText: {
+    fontSize: normalize(20),
+    textAlign: 'center',
+  },
+  errorText: {
+    fontSize: normalize(20),
+    textAlign: 'center',
+  },
   card: {
-    flexDirection: 'row',
     marginHorizontal: 16,
     marginVertical: 8,
     borderRadius: 8,
@@ -188,7 +326,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    minHeight: 200, // Définir une hauteur minimale pour la carte
+    minHeight: 200,
+    // flexDirection is set dynamically
   },
   cardContent: {
     flex: 1,
@@ -199,23 +338,24 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    maxWidth: '90%',
+    alignSelf: 'center',
   },
   venueName: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: normalize(16),
+    textAlign: 'center',
   },
   venueImage: {
-    width: 270,
-    height: 270,
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
     borderRadius: 10,
+    // width and height are set dynamically
   },
   priceTag: {
     backgroundColor: '#4ECCE6',
-
     paddingVertical: 6,
     borderRadius: 4,
     marginTop: 15,
@@ -223,7 +363,7 @@ const styles = StyleSheet.create({
   priceText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 17,
+    fontSize: normalize(17),
   },
   locationContainer: {
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -231,10 +371,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 4,
     marginTop: 20,
+    maxWidth: '80%',
   },
   locationText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: normalize(12),
   },
   actionButtons: {
     position: 'absolute',
@@ -250,12 +391,12 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   actionButtonText: {
-    fontSize: 22,
+    fontSize: normalize(22),
     color: '#fff',
   },
   sideButtons: {
-    width: 120,
-    flexDirection: 'column',
+    width: 120, // Width is adjusted dynamically
+    flexDirection: 'column', // Direction is adjusted dynamically
     backgroundColor: '#fff',
   },
   sideButton: {
@@ -263,10 +404,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#A9A9A9',
     marginVertical: 0.2,
+    paddingVertical: 10,
   },
   sideButtonText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: normalize(15),
   },
 })
 
