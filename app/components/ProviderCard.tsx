@@ -287,7 +287,7 @@ export const ProviderCard = ({
           </Button>
         )}
 
-        {admin == 0 && (
+        {admin == 1 && (
           <>
             <Button
               gradient={

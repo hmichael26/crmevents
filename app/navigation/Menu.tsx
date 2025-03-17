@@ -1,87 +1,88 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Animated, Linking, StyleSheet } from 'react-native';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import { Animated, Linking, StyleSheet } from 'react-native'
 import {
   createDrawerNavigator,
   DrawerContentComponentProps,
   DrawerContentScrollView,
-} from '@react-navigation/drawer';
-import Screens from './Screens';
-import { Block, Text, Switch, Button, Image } from '../components';
-import { useData, useTheme } from '../hooks';
-import { AuthContext } from '../context/AuthContext';
-import { useTranslation } from 'react-i18next';
+} from '@react-navigation/drawer'
+import Screens from './Screens'
+import { Block, Text, Switch, Button, Image } from '../components'
+import { useData, useTheme } from '../hooks'
+import { AuthContext } from '../context/AuthContext'
+import { useTranslation } from 'react-i18next'
 
-
-const Drawer = createDrawerNavigator();
+const Drawer = createDrawerNavigator()
 
 /* drawer menu screens navigation */
 const ScreensStack = () => {
-
-  const { colors } = useTheme();
+  const { colors } = useTheme()
   // const isDrawerOpen = useIsDrawerOpen();
-  const isDrawerOpen = true;
-  const animation = useRef(new Animated.Value(0)).current;
+  const isDrawerOpen = true
+  const animation = useRef(new Animated.Value(0)).current
 
   const scale = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [1, 0.88],
-  });
+  })
 
   const borderRadius = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 16],
-  });
+  })
 
   const animatedStyle = {
     borderRadius: borderRadius,
     transform: [{ scale: scale }],
-  };
+  }
 
   useEffect(() => {
     Animated.timing(animation, {
       duration: 200,
       useNativeDriver: true,
       toValue: isDrawerOpen ? 1 : 0,
-    }).start();
-  }, [isDrawerOpen, animation]);
+    }).start()
+  }, [isDrawerOpen, animation])
 
-  return (
-    <Screens />
-
-  );
-};
+  return <Screens />
+}
 
 /* custom drawer menu */
 const DrawerContent = (props: DrawerContentComponentProps) => {
-  const { t, i18n } = useTranslation();
-  useEffect(() => {
+  const admin = userdata?.user?.admin
 
-  }, []);
+  const { t, i18n } = useTranslation()
+  useEffect(() => {}, [])
 
-  const { navigation } = props;
-  const { isDark, handleIsDark } = useData();
+  const { navigation } = props
+  const { isDark, handleIsDark } = useData()
   // const { t } = useTranslation();
-  const [active, setActive] = useState('Home');
-  const { assets, colors, gradients, sizes } = useTheme();
+  const [active, setActive] = useState('Home')
+  const { assets, colors, gradients, sizes } = useTheme()
 
-  const { Logout, usertoken, userdata } = useContext(AuthContext);
+  const { Logout, usertoken, userdata } = useContext(AuthContext)
 
-  const labelColor = isDark ? colors.white : colors.text;
+  const labelColor = isDark ? colors.white : colors.text
 
   const handleNavigation = useCallback(
     (to: string) => {
-      setActive(to);
-      navigation.navigate(to);
+      setActive(to)
+      navigation.navigate(to)
     },
     [navigation, setActive],
-  );
+  )
 
-  const handleWebLink = useCallback((url: string) => Linking.openURL(url), []);
+  const handleWebLink = useCallback((url: string) => Linking.openURL(url), [])
 
   // screen list for Drawer menu
   const screens = [
     { name: t('screens.home'), to: 'Home', icon: assets.home },
-   
+
     // { name: t('screens.components'), to: 'Components', icon: assets.components },
     // { name: t('screens.articles'), to: 'Articles', icon: assets.document },
     // { name: t('screens.rental'), to: 'Rentals', icon: assets.rental },
@@ -91,9 +92,13 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
     // { name: t('screens.extra'), to: 'Extra', icon: assets.extras },
     // { name: t('screens.eventdetails'), to: 'Eventdetails', icon: assets.register },
     // { name: t('screens.eventPresta'), to: 'EventPresta', icon: assets.register },
-    { name: t('screens.presataire'), to: 'Prestataire', icon: assets.register },
+    admin == 1 && {
+      name: t('screens.presataire'),
+      to: 'Prestataire',
+      icon: assets.register,
+    },
     { name: t('screens.clients'), to: 'Client', icon: assets.register },
-  ];
+  ]
 
   return (
     <DrawerContentScrollView
@@ -101,7 +106,8 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
       scrollEnabled
       removeClippedSubviews
       renderToHardwareTextureAndroid
-      contentContainerStyle={{ paddingBottom: sizes.padding }}>
+      contentContainerStyle={{ paddingBottom: sizes.padding }}
+    >
       <Block paddingHorizontal={sizes.padding}>
         <Block flex={0} row align="center" marginBottom={sizes.l}>
           <Image
@@ -123,14 +129,15 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
         </Block>
 
         {screens?.map((screen, index) => {
-          const isActive = active === screen.to;
+          const isActive = active === screen.to
           return (
             <Button
               row
               justify="flex-start"
               marginBottom={sizes.s}
               key={`menu-screen-${screen.name}-${index}`}
-              onPress={() => handleNavigation(screen.to)}>
+              onPress={() => handleNavigation(screen.to)}
+            >
               <Block
                 flex={0}
                 radius={6}
@@ -139,7 +146,8 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
                 width={sizes.md}
                 height={sizes.md}
                 marginRight={sizes.s}
-                gradient={gradients[isActive ? 'primary' : 'white']}>
+                gradient={gradients[isActive ? 'primary' : 'white']}
+              >
                 <Image
                   radius={0}
                   width={14}
@@ -152,7 +160,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
                 {screen.name}
               </Text>
             </Button>
-          );
+          )
         })}
 
         <Block
@@ -168,7 +176,8 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
           justify="flex-start"
           marginTop={sizes.sm}
           marginBottom={sizes.s}
-          onPress={Logout}>
+          onPress={Logout}
+        >
           <Block
             flex={0}
             radius={6}
@@ -177,7 +186,8 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
             width={sizes.md}
             height={sizes.md}
             marginRight={sizes.s}
-            gradient={gradients.white}>
+            gradient={gradients.white}
+          >
             <Image
               radius={0}
               width={14}
@@ -200,13 +210,13 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
         </Block>
       </Block>
     </DrawerContentScrollView>
-  );
-};
+  )
+}
 
 /* drawer menu navigation */
 export default () => {
-  const { isDark } = useData();
-  const { gradients } = useTheme();
+  const { isDark } = useData()
+  const { gradients } = useTheme()
 
   return (
     <Block gradient={gradients[isDark ? 'dark' : 'light']}>
@@ -224,8 +234,12 @@ export default () => {
         }}
         drawerContent={(props) => <DrawerContent {...props} />}
       >
-        <Drawer.Screen name="Screens" component={ScreensStack} options={{ headerShown: false }} />
+        <Drawer.Screen
+          name="Screens"
+          component={ScreensStack}
+          options={{ headerShown: false }}
+        />
       </Drawer.Navigator>
     </Block>
-  );
-};
+  )
+}
