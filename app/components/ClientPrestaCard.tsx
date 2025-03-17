@@ -100,6 +100,7 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({ activeDerouler }) => {
 }
 
 const ClientPrestaCardRenderItem = ({ item }) => {
+  console.log(item)
   const dimensions = useWindowDimensions()
   const isLandscape = dimensions.width > dimensions.height
   const isSmallDevice = dimensions.width < 375
@@ -148,14 +149,19 @@ const ClientPrestaCardRenderItem = ({ item }) => {
           resizeMode="cover"
         >
           <View style={styles.venueNameContainer}>
-            <Text
-              style={[
-                styles.venueName,
-                isSmallDevice && { fontSize: normalize(14) },
-              ]}
+            <Button
+              style={[styles.venueName, { paddingHorizontal: 10 }]}
+              gradient={GRADIENTS.success}
             >
-              {item.nom_presta}
-            </Text>
+              <Text
+                style={[
+                  styles.venueName,
+                  isSmallDevice && { fontSize: normalize(14) },
+                ]}
+              >
+                {item.nom_presta}
+              </Text>
+            </Button>
           </View>
           {item.budget && (
             <Button
@@ -185,7 +191,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
                 isSmallDevice && { fontSize: normalize(10) },
               ]}
             >
-              📍 {item.ville}
+              📍 {item.location}
             </Text>
           </TouchableOpacity>
           <View style={styles.actionButtons}>
@@ -333,19 +339,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   venueNameContainer: {
-    backgroundColor: '#8CD867',
-    padding: 6,
     marginVertical: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    maxWidth: '90%',
-    alignSelf: 'center',
+
+    height: 40,
   },
   venueName: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: normalize(16),
-    textAlign: 'center',
+    borderRadius: 20,
   },
   venueImage: {
     flex: 1,
@@ -404,7 +405,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#A9A9A9',
     marginVertical: 0.2,
-    paddingVertical: 10,
   },
   sideButtonText: {
     color: '#fff',
