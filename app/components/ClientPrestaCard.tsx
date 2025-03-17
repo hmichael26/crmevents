@@ -353,6 +353,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     borderRadius: 10,
+    backgroundColor: '#fff',
     // width and height are set dynamically
   },
   priceTag: {
