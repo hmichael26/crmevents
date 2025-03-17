@@ -54,7 +54,7 @@ const ScreensStack = () => {
 
 /* custom drawer menu */
 const DrawerContent = (props: DrawerContentComponentProps) => {
-  const admin = userdata?.user?.admin
+  //console.log(admin)
 
   const { t, i18n } = useTranslation()
   useEffect(() => {}, [])
@@ -66,6 +66,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
   const { assets, colors, gradients, sizes } = useTheme()
 
   const { Logout, usertoken, userdata } = useContext(AuthContext)
+  const admin = userdata?.user?.admin
 
   const labelColor = isDark ? colors.white : colors.text
 
@@ -79,7 +80,6 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
 
   const handleWebLink = useCallback((url: string) => Linking.openURL(url), [])
 
-  // screen list for Drawer menu
   const screens = [
     { name: t('screens.home'), to: 'Home', icon: assets.home },
 
@@ -92,13 +92,14 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
     // { name: t('screens.extra'), to: 'Extra', icon: assets.extras },
     // { name: t('screens.eventdetails'), to: 'Eventdetails', icon: assets.register },
     // { name: t('screens.eventPresta'), to: 'EventPresta', icon: assets.register },
+
+    { name: t('screens.clients'), to: 'Client', icon: assets.register },
     admin == 1 && {
       name: t('screens.presataire'),
       to: 'Prestataire',
       icon: assets.register,
     },
-    { name: t('screens.clients'), to: 'Client', icon: assets.register },
-  ]
+  ].filter(Boolean) // Cela supprime toutes les valeurs `falsy` du tableau
 
   return (
     <DrawerContentScrollView
