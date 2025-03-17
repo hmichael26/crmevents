@@ -54,6 +54,8 @@ const ScreensStack = () => {
 
 /* custom drawer menu */
 const DrawerContent = (props: DrawerContentComponentProps) => {
+  const admin = userdata?.user?.admin
+
   const { t, i18n } = useTranslation()
   useEffect(() => {}, [])
 
@@ -90,7 +92,11 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
     // { name: t('screens.extra'), to: 'Extra', icon: assets.extras },
     // { name: t('screens.eventdetails'), to: 'Eventdetails', icon: assets.register },
     // { name: t('screens.eventPresta'), to: 'EventPresta', icon: assets.register },
-    { name: t('screens.presataire'), to: 'Prestataire', icon: assets.register },
+    admin == 1 && {
+      name: t('screens.presataire'),
+      to: 'Prestataire',
+      icon: assets.register,
+    },
     { name: t('screens.clients'), to: 'Client', icon: assets.register },
   ]
 
