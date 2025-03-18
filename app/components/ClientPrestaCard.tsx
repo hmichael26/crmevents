@@ -7,11 +7,13 @@ import {
   FlatList,
   Alert,
   ImageBackground,
-  Linking,
   Dimensions,
   useWindowDimensions,
   Platform,
   PixelRatio,
+  Linking,
+  Modal,
+  Image,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '../hooks'
@@ -19,6 +21,8 @@ import { useApi } from '../context/useApi'
 import Button from './Button'
 import { GRADIENTS } from '../constants/light'
 import Icon from 'react-native-vector-icons/AntDesign'
+import { Text as TextBlock } from './Text'
+const { width, height } = Dimensions.get('window')
 
 interface VenueCardProps {
   activeDerouler: any
@@ -64,6 +68,21 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({ activeDerouler }) => {
     }
   }, [activeDerouler])
 
+  const openDocument = async (link) => {
+    if (link) {
+      /*
+        setPdfUri(activeBadgeData.lien_brochure);
+        setPdfModalVisible(true);*/
+
+      Linking.openURL(link)
+    }
+  }
+
+  const openDevis = async (link) => {
+    if (link) {
+      Linking.openURL(link)
+    }
+  }
   if (!activeDerouler) {
     return (
       <View style={styles.container}>
@@ -100,9 +119,44 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({ activeDerouler }) => {
 }
 
 const ClientPrestaCardRenderItem = ({ item }) => {
+  console.log(item)
   const dimensions = useWindowDimensions()
   const isLandscape = dimensions.width > dimensions.height
   const isSmallDevice = dimensions.width < 375
+  const [photos, setPhotos] = useState([])
+  const [modalImageVisible, setModalImageVisible] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  const openModalWithImages = (images) => {
+    if (images && images.length > 0) {
+      setPhotos(images)
+      setCurrentImageIndex(0)
+      setModalImageVisible(true)
+    }
+  }
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : prev))
+  }
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev < photos.length - 1 ? prev + 1 : prev))
+  }
+  const openDocument = async (link) => {
+    if (link) {
+      /*
+        setPdfUri(activeBadgeData.lien_brochure);
+        setPdfModalVisible(true);*/
+
+      Linking.openURL(link)
+    }
+  }
+
+  const openDevis = async (link) => {
+    if (link) {
+      Linking.openURL(link)
+    }
+  }
 
   const openGoogleMaps = (ggmap, location) => {
     const url = ggmap
@@ -141,7 +195,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
               height: imageWidth,
             },
           ]}
-          imageStyle={{ borderRadius: 10 }}
+          imageStyle={{ borderRadius: 10, backgroundColor: '#f0f0f0' }}
           resizeMode="cover"
         >
           <View style={styles.venueNameContainer}>
@@ -246,6 +300,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
                 ]}
                 gradient={GRADIENTS.secondary}
                 width={110}
+                onPress={() => openDocument(item?.lien_brochure)}
               >
                 <Text
                   style={[
@@ -263,6 +318,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
                 ]}
                 width={110}
                 gradient={GRADIENTS.secondary}
+                onPress={() => openModalWithImages(item?.all_imgs)}
               >
                 <Text
                   style={[
@@ -274,8 +330,8 @@ const ClientPrestaCardRenderItem = ({ item }) => {
                 </Text>
               </Button>
               {item?.all_devis.map(
-                (_: any, index: React.Key | null | undefined) =>
-                  index <= (isHorizontalLayout ? 1 : 3) && (
+                (devis, index: React.Key | null | undefined) =>
+                  index <= 2 && (
                     <Button
                       key={index}
                       gradient={GRADIENTS.secondary}
@@ -285,6 +341,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
                         isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
                       ]}
                       width={110}
+                      onPress={() => openDevis(devis?.lien_devis)}
                     >
                       <Text
                         style={[
@@ -301,11 +358,71 @@ const ClientPrestaCardRenderItem = ({ item }) => {
           )
         })()}
       </View>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalImageVisible}
+        onRequestClose={() => setModalImageVisible(false)}
+      >
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+          ]}
+        />
+
+        <View style={styles.modalContainer}>
+          {photos?.length > 0 && currentImageIndex < photos.length ? (
+            <Image
+              source={{ uri: photos[currentImageIndex].image }}
+              style={styles.image}
+              resizeMode="contain"
+            />
+          ) : (
+            <View style={styles.modalContainer}>
+              <TextBlock white size={14} bold>
+                Image indisponible
+              </TextBlock>
+            </View>
+          )}
+
+          <View style={styles.navigationContainer}>
+            <TouchableOpacity onPress={prevImage} style={styles.navButton}>
+              <Text
+                style={{ color: 'white', fontSize: 14, fontWeight: 'bold' }}
+              >
+                Précédent
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={nextImage} style={styles.navButton}>
+              <Text
+                style={{ color: 'white', fontSize: 14, fontWeight: 'bold' }}
+              >
+                Suivant
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            onPress={() => setModalImageVisible(false)}
+            style={styles.closeButton}
+          >
+            <Text style={{ color: 'white', fontSize: 14, fontWeight: 'bold' }}>
+              Fermer
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -331,6 +448,27 @@ const styles = StyleSheet.create({
 
     // flexDirection is set dynamically
   },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 20,
+    position: 'absolute',
+    bottom: 50,
+  },
+  navButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 5,
+  },
   cardContent: {
     backgroundColor: '#fff',
 
@@ -353,6 +491,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
 
     // width and height are set dynamically
+  },
+  image: {
+    width: width * 0.9,
+    height: height * 0.6,
+    borderRadius: 10,
   },
   priceTag: {
     backgroundColor: '#4ECCE6',
