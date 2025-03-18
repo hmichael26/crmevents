@@ -445,6 +445,7 @@ const styles = StyleSheet.create({
 
     minHeight: 200,
     justifyContent: 'center',
+    gap: 3,
 
     // flexDirection is set dynamically
   },
