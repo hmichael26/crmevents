@@ -31,14 +31,41 @@ interface VenueCardProps {
 const ClientPresta: React.FC = ({ route, navigation }) => {
   const { colors, sizes, gradients } = useTheme()
   const { item } = route.params
+  const { getDerouler } = useApi()
   const derouler = item?.arrderoules || []
 
   const [activeDeroule, setActiveDeroule] = useState(derouler[0])
+  const [deroulerData, setDeroulerData] = useState(null)
+  const [loading, setLoading] = useState(false)
 
-  const [step, setStep] = useState('deroule')
-  const [data, setData] = React.useState([])
+  // Function to fetch the derouler data that can be called from anywhere
+  const fetchDeroulerData = async () => {
+    if (!activeDeroule?.id) return
 
-  if (derouler.length == 0) {
+    setLoading(true)
+    try {
+      console.log('Fetching derouler data for ID:', activeDeroule.id)
+      const response = await getDerouler({ id_deroule: activeDeroule.id })
+      setDeroulerData(response.data)
+    } catch (error) {
+      console.error('Error fetching déroulé data:', error)
+      Alert.alert(
+        'Erreur',
+        'Impossible de récupérer les données du déroulé. Veuillez réessayer.',
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Fetch data when active deroule changes
+  useEffect(() => {
+    if (activeDeroule?.id) {
+      fetchDeroulerData()
+    }
+  }, [activeDeroule])
+
+  if (derouler.length === 0) {
     return (
       <View>
         <Text
@@ -61,12 +88,9 @@ const ClientPresta: React.FC = ({ route, navigation }) => {
                 ? gradients.primary
                 : gradients.secondary
             }
-            style={[
-              styles.tab,
-              // Applique activeTab si c'est l'élément actif
-            ]}
+            style={[styles.tab]}
             onPress={() => {
-              setActiveDeroule(deroule) // Mettre à jour l'index actif
+              setActiveDeroule(deroule)
             }}
           >
             <Text
@@ -81,8 +105,22 @@ const ClientPresta: React.FC = ({ route, navigation }) => {
         ))}
       </View>
 
-      {derouler.length > 0 && activeDeroule && (
-        <ClientPrestaCard activeDerouler={activeDeroule} />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <Text style={{ color: colors.danger, fontSize: 30 }}>
+            Chargement...
+          </Text>
+        </View>
+      ) : (
+        derouler.length > 0 &&
+        activeDeroule && (
+          <ClientPrestaCard
+            activeDerouler={activeDeroule}
+            eventData={{ id_evt: item.idevt, id_client: item.clt_id }}
+            deroulerData={deroulerData}
+            refreshData={fetchDeroulerData} // Pass the refresh function to child component
+          />
+        )
       )}
     </View>
   )
@@ -119,91 +157,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
-  card: {
-    flexDirection: 'row',
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#f5f5f5',
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  cardContent: {
-    flex: 1,
-  },
-  venueNameContainer: {
-    backgroundColor: '#8CD867',
-    padding: 8,
-  },
-  venueName: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  venueImage: {
-    width: '100%',
-    height: 150,
-  },
-  priceTag: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: '#4ECCE6',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 4,
-  },
-  priceText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  locationContainer: {
-    position: 'absolute',
-    bottom: 40,
-    left: 10,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  locationText: {
-    color: '#fff',
-    fontSize: 12,
-  },
-  actionButtons: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(255,255,255,0.8)',
-  },
-  actionButton: {
-    padding: 4,
-  },
-  actionButtonText: {
-    fontSize: 20,
-  },
-  sideButtons: {
-    width: 100,
-    backgroundColor: '#f0f0f0',
-  },
-  sideButton: {
-    padding: 8,
+  loadingContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#A9A9A9',
-    marginVertical: 1,
-  },
-  sideButtonText: {
-    color: '#fff',
-    fontSize: 12,
   },
 })
+
 export default ClientPresta

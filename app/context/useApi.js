@@ -72,6 +72,7 @@ export const useApi = () => {
   const deletePresta = (data) => makeRequest('del-presta-interroge', data)
   const searchPresta = (data) => makeRequest('search-presta', data)
   const assignPresta = (data) => makeRequest('assign-presta', data)
+  const sendPouce = (data) => makeRequest('send-pouce', data)
   //   const addPresta = (data) => makeRequest('add-presta-interroge', data);
 
   // Ajoutez d'autres actions communes ici
@@ -99,6 +100,7 @@ export const useApi = () => {
     deletePresta,
     searchPresta,
     assignPresta,
+    sendPouce,
 
     // ... autres actions
   }

@@ -25,6 +25,7 @@ import { ProviderCard } from '../components/ProviderCard'
 import { Button } from '../components'
 import { useTheme } from '../hooks'
 import DeroulesModal from '../components/DeroulesModal'
+import { useNavigation } from '@react-navigation/native'
 
 const initialFormState = {
   region: '',
@@ -46,7 +47,10 @@ export const Prestataire = () => {
     updatepresta,
     deletepresta,
     getprestaprms,
+    assignPresta,
   } = useApi()
+
+  const navigation = useNavigation()
 
   //  if ($_POST['searchby'])//recherche specifique : region, ville, dept, categ
   const scrollViewRef = useRef(null)
@@ -222,7 +226,7 @@ export const Prestataire = () => {
   const handleScroll = useCallback(
     async (event: any) => {
       if (isLoadingMore || !hasMore) {
-        console.log('Loading more or no more data available')
+        // console.log('Loading more or no more data available')
         return
       }
 
@@ -250,7 +254,7 @@ export const Prestataire = () => {
       if (isCloseToBottom) {
         try {
           setIsLoadingMore(true)
-          console.log('Loading more data...')
+          // console.log('Loading more data...')
           const nextPage = currentPage + 1
           await fetchData(nextPage, false)
           setCurrentPage(nextPage)
@@ -292,7 +296,7 @@ export const Prestataire = () => {
   }
   const assignEvent = async (selectedArrDeroule, selectedDeroule) => {
     try {
-      console.log(selectedArrDeroule, selectedDeroule)
+      // console.log(selectedArrDeroule, selectedDeroule)
 
       // Simulation d'un délai de 5 secondes
       await new Promise((resolve) => setTimeout(resolve, 5000))
@@ -303,15 +307,12 @@ export const Prestataire = () => {
         presta: selectPresta, // Tableau des prestations
       }
 
-      // Affichage de l'alerte après 5s
-      Alert.alert(
-        'Assignation terminée',
-        `L'événement a été assigné avec succès !\n\n${JSON.stringify(
-          eventData,
-          null,
-          2,
-        )}`, // Ajoute le JSON formaté au message
-      )
+      const response = await assignPresta(eventData)
+      console.log(response)
+      if (response.code == 'SUCCESS') {
+        navigation.navigate('EventPresta', { item: response.data })
+      }
+      setSelectPresta([])
     } catch (error) {
       Alert.alert('Erreur', "Une erreur est survenue lors de l'assignation.")
       console.error(error)

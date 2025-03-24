@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
   StyleSheet,
   Text,
@@ -15,22 +15,29 @@ import {
   Modal,
   Image,
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '../hooks'
 import { useApi } from '../context/useApi'
 import Button from './Button'
 import { GRADIENTS } from '../constants/light'
 import Icon from 'react-native-vector-icons/AntDesign'
-import { Text as TextBlock } from './Text'
+
+// Constants
 const { width, height } = Dimensions.get('window')
 
+// Types
 interface VenueCardProps {
-  activeDerouler: any
+  activeDerouler: {
+    id: number
+    [key: string]: any
+  }
+  eventData: any
+  deroulerData: any // Added prop to receive data from parent
+  refreshData: () => Promise<void> // Added prop to receive refresh function
 }
 
-// Function to normalize font sizes across different screen sizes
-const normalize = (size: number) => {
-  const { width, height } = Dimensions.get('window')
+// Utility functions
+const normalize = (size: number): number => {
+  const { width } = Dimensions.get('window')
   const scale = width / 320 // base width
   const newSize = size * scale
 
@@ -41,66 +48,53 @@ const normalize = (size: number) => {
   }
 }
 
-const ClientPrestaCard: React.FC<VenueCardProps> = ({ activeDerouler }) => {
-  const { colors, sizes, gradients } = useTheme()
-  const { getDerouler } = useApi()
-  const [data0, setData0] = React.useState([])
-  const PrestaInterroger = data0?.all_presta_interroges || []
-  const dimensions = useWindowDimensions()
-  const isSmallDevice = dimensions.width < 375
-
-  const getDerouleData0 = async () => {
+const openUrl = async (url: string | undefined): Promise<void> => {
+  if (url) {
     try {
-      const response = await getDerouler({ id_deroule: activeDerouler.id })
-      setData0(response.data)
+      await Linking.openURL(url)
     } catch (error) {
-      console.error('Erreur lors de la récupération des données :', error)
-      Alert.alert(
-        'Erreur',
-        'Impossible de récupérer les données du déroulé. Veuillez réessayer.',
-      )
+      console.error('Failed to open URL:', error)
+      Alert.alert('Erreur', "Impossible d'ouvrir ce lien.")
     }
   }
+}
 
-  useEffect(() => {
-    if (activeDerouler?.id) {
-      getDerouleData0()
-    }
-  }, [activeDerouler])
+const openGoogleMaps = (ggmap?: string, location?: string): void => {
+  const url =
+    ggmap ||
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      location || '',
+    )}`
+  openUrl(url)
+}
 
-  const openDocument = async (link) => {
-    if (link) {
-      /*
-        setPdfUri(activeBadgeData.lien_brochure);
-        setPdfModalVisible(true);*/
+// Main component
+const ClientPrestaCard: React.FC<VenueCardProps> = ({
+  activeDerouler,
+  eventData,
+  deroulerData, // Use the data passed from parent
+  refreshData, // Use the refresh function passed from parent
+}) => {
+  const { colors, sizes } = useTheme()
 
-      Linking.openURL(link)
-    }
-  }
+  // Now we're using the data passed from the parent component
+  const prestaInterroger = deroulerData?.all_presta_interroges || []
 
-  const openDevis = async (link) => {
-    if (link) {
-      Linking.openURL(link)
-    }
-  }
   if (!activeDerouler) {
     return (
       <View style={styles.container}>
-        <Text style={[styles.loadingText, { color: colors.danger }]}>
-          chargement ...
+        <Text style={[styles.statusText, { color: colors.danger }]}>
+          Chargement...
         </Text>
       </View>
     )
   }
 
-  if (
-    !data0.all_presta_interroges ||
-    data0.all_presta_interroges.length === 0
-  ) {
+  if (!prestaInterroger.length) {
     return (
       <View style={styles.container}>
-        <Text style={[styles.errorText, { color: colors.danger }]}>
-          Aucun prestataire associé à ce deroule
+        <Text style={[styles.statusText, { color: colors.danger }]}>
+          Aucun prestataire associé à ce déroulé
         </Text>
       </View>
     )
@@ -108,69 +102,45 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({ activeDerouler }) => {
 
   return (
     <FlatList
-      data={PrestaInterroger}
-      renderItem={({ item }) => <ClientPrestaCardRenderItem item={item} />}
+      data={prestaInterroger}
+      renderItem={({ item }) => (
+        <PrestaCardItem
+          item={item}
+          refreshData={refreshData} // Passing the parent's refresh function
+          derouleId={activeDerouler.id}
+          eventData={eventData}
+        />
+      )}
       showsVerticalScrollIndicator={true}
-      keyExtractor={(item, index) => index.toString()}
+      keyExtractor={(_, index) => index.toString()}
       style={{ paddingVertical: sizes.padding }}
       contentContainerStyle={{ paddingBottom: sizes.l }}
     />
   )
 }
 
-const ClientPrestaCardRenderItem = ({ item }) => {
-  console.log(item)
+// Card item component
+interface PrestaCardItemProps {
+  item: any
+  refreshData: () => Promise<void>
+  derouleId: number
+  eventData: any
+}
+
+const PrestaCardItem: React.FC<PrestaCardItemProps> = ({
+  item,
+  refreshData,
+  derouleId,
+  eventData,
+}) => {
+  const { sendPouce } = useApi()
   const dimensions = useWindowDimensions()
   const isLandscape = dimensions.width > dimensions.height
   const isSmallDevice = dimensions.width < 375
-  const [photos, setPhotos] = useState([])
+
+  const [photos, setPhotos] = useState<Array<{ image: string }>>([])
   const [modalImageVisible, setModalImageVisible] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-
-  const openModalWithImages = (images) => {
-    if (images && images.length > 0) {
-      setPhotos(images)
-      setCurrentImageIndex(0)
-      setModalImageVisible(true)
-    }
-  }
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : prev))
-  }
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev < photos.length - 1 ? prev + 1 : prev))
-  }
-  const openDocument = async (link) => {
-    if (link) {
-      /*
-        setPdfUri(activeBadgeData.lien_brochure);
-        setPdfModalVisible(true);*/
-
-      Linking.openURL(link)
-    }
-  }
-
-  const openDevis = async (link) => {
-    if (link) {
-      Linking.openURL(link)
-    }
-  }
-
-  const openGoogleMaps = (ggmap, location) => {
-    const url = ggmap
-      ? ggmap
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-          location,
-        )}`
-    Linking.openURL(url).catch((err) =>
-      console.error("Impossible d'ouvrir Google Maps", err),
-    )
-  }
-
-  // Adjust layout based on orientation and screen size
-  const cardStyles = [styles.card, { flexDirection: 'row' }]
 
   const imageWidth = isLandscape
     ? dimensions.width * 0.6
@@ -178,8 +148,52 @@ const ClientPrestaCardRenderItem = ({ item }) => {
     ? dimensions.width - 32
     : dimensions.width * 0.6
 
+  const handleSendPouce = async (pouceLeve: number, pouceBaisse: number) => {
+    try {
+      const response = await sendPouce({
+        ...eventData,
+        id_deroule: derouleId,
+        id_presta: item.id_presta,
+        pouce_leve: pouceLeve,
+        pouce_baisse: pouceBaisse,
+      })
+
+      if (response.code == 'SUCCESS') {
+        // Call the refresh function passed from parent
+        await refreshData()
+      }
+    } catch (error) {
+      console.error('Error sending pouce:', error)
+      Alert.alert(
+        'Erreur',
+        "Impossible d'envoyer votre vote. Veuillez réessayer.",
+      )
+    }
+  }
+
+  const openModalWithImages = (images?: Array<{ image: string }>) => {
+    if (images && images.length > 0) {
+      setPhotos(images)
+      setCurrentImageIndex(0)
+      setModalImageVisible(true)
+    } else {
+      Alert.alert('Information', 'Aucune photo disponible.')
+    }
+  }
+
+  const navigateImages = (direction: 'prev' | 'next') => {
+    if (direction === 'prev') {
+      setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : prev))
+    } else {
+      setCurrentImageIndex((prev) =>
+        prev < photos.length - 1 ? prev + 1 : prev,
+      )
+    }
+  }
+
   return (
-    <View style={cardStyles}>
+    <View style={[styles.card, { flexDirection: 'row' }]}>
+      {/* Main card content with image */}
       <View
         style={[
           styles.cardContent,
@@ -188,16 +202,11 @@ const ClientPrestaCardRenderItem = ({ item }) => {
       >
         <ImageBackground
           source={{ uri: item.lien_brochure }}
-          style={[
-            styles.venueImage,
-            {
-              width: imageWidth,
-              height: imageWidth,
-            },
-          ]}
+          style={[styles.venueImage, { width: imageWidth, height: imageWidth }]}
           imageStyle={{ borderRadius: 10, backgroundColor: '#f0f0f0' }}
           resizeMode="cover"
         >
+          {/* Venue name */}
           <View style={styles.venueNameContainer}>
             <Button
               style={[styles.venueName, { paddingHorizontal: 10 }]}
@@ -205,7 +214,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
             >
               <Text
                 style={[
-                  styles.venueName,
+                  styles.venueNameText,
                   isSmallDevice && { fontSize: normalize(14) },
                 ]}
               >
@@ -213,6 +222,8 @@ const ClientPrestaCardRenderItem = ({ item }) => {
               </Text>
             </Button>
           </View>
+
+          {/* Budget price tag */}
           {item.budget && (
             <Button
               gradient={GRADIENTS.info}
@@ -230,7 +241,7 @@ const ClientPrestaCardRenderItem = ({ item }) => {
             </Button>
           )}
 
-          {/* Localisation cliquable */}
+          {/* Location button */}
           <TouchableOpacity
             style={styles.locationContainer}
             onPress={() => openGoogleMaps(item.ggmap, item.location)}
@@ -244,29 +255,40 @@ const ClientPrestaCardRenderItem = ({ item }) => {
               📍 {item.location}
             </Text>
           </TouchableOpacity>
+
+          {/* Like/Dislike buttons */}
           <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => handleSendPouce(1, 0)}
+            >
               <Icon
                 name="like2"
                 style={[
                   styles.actionButtonText,
                   isSmallDevice && { fontSize: normalize(20) },
+                  item?.pouce_leve == 1 && { color: '#fff' },
                 ]}
-              ></Icon>
+              />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => handleSendPouce(0, 1)}
+            >
               <Icon
                 name="dislike2"
                 style={[
                   styles.actionButtonText,
                   isSmallDevice && { fontSize: normalize(20) },
+                  item?.pouce_baisse == 1 && { color: '#fff' },
                 ]}
-              ></Icon>
+              />
             </TouchableOpacity>
           </View>
         </ImageBackground>
       </View>
 
+      {/* Side buttons */}
       <View
         style={[
           styles.sideButtons,
@@ -279,224 +301,221 @@ const ClientPrestaCardRenderItem = ({ item }) => {
           isLandscape && { width: dimensions.width * 0.25 },
         ]}
       >
-        {(() => {
-          const totalButtons = 2 + (item?.all_devis?.length || 0) // Brochure + Photos + Devis
-          const isHorizontalLayout = !isLandscape && isSmallDevice
-
-          return (
-            <View
-              style={{
-                gap: 2,
-                flexDirection: isHorizontalLayout ? 'row' : 'column',
-                justifyContent: isHorizontalLayout
-                  ? 'space-between'
-                  : 'flex-start',
-              }}
-            >
-              <Button
-                style={[
-                  styles.sideButton,
-                  isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
-                ]}
-                gradient={GRADIENTS.secondary}
-                width={110}
-                onPress={() => openDocument(item?.lien_brochure)}
-              >
-                <Text
-                  style={[
-                    styles.sideButtonText,
-                    isSmallDevice && { fontSize: normalize(13) },
-                  ]}
-                >
-                  Brochure
-                </Text>
-              </Button>
-              <Button
-                style={[
-                  styles.sideButton,
-                  isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
-                ]}
-                width={110}
-                gradient={GRADIENTS.secondary}
-                onPress={() => openModalWithImages(item?.all_imgs)}
-              >
-                <Text
-                  style={[
-                    styles.sideButtonText,
-                    isSmallDevice && { fontSize: normalize(13) },
-                  ]}
-                >
-                  Photos
-                </Text>
-              </Button>
-              {item?.all_devis.map(
-                (devis, index: React.Key | null | undefined) =>
-                  index <= 2 && (
-                    <Button
-                      key={index}
-                      gradient={GRADIENTS.secondary}
-                      flex={0}
-                      style={[
-                        styles.sideButton,
-                        isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
-                      ]}
-                      width={110}
-                      onPress={() => openDevis(devis?.lien_devis)}
-                    >
-                      <Text
-                        style={[
-                          styles.sideButtonText,
-                          isSmallDevice && { fontSize: normalize(13) },
-                        ]}
-                      >
-                        Devis
-                      </Text>
-                    </Button>
-                  ),
-              )}
-            </View>
-          )
-        })()}
-      </View>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalImageVisible}
-        onRequestClose={() => setModalImageVisible(false)}
-      >
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
-          ]}
+        <SideButtonsSection
+          item={item}
+          isHorizontalLayout={!isLandscape && isSmallDevice}
+          isSmallDevice={isSmallDevice}
+          openDocument={() => openUrl(item.lien_brochure)}
+          openPhotos={() => openModalWithImages(item.all_imgs)}
         />
+      </View>
 
-        <View style={styles.modalContainer}>
-          {photos?.length > 0 && currentImageIndex < photos.length ? (
-            <Image
-              source={{ uri: photos[currentImageIndex].image }}
-              style={styles.image}
-              resizeMode="contain"
-            />
-          ) : (
-            <View style={styles.modalContainer}>
-              <TextBlock white size={14} bold>
-                Image indisponible
-              </TextBlock>
-            </View>
-          )}
-
-          <View style={styles.navigationContainer}>
-            <TouchableOpacity onPress={prevImage} style={styles.navButton}>
-              <Text
-                style={{ color: 'white', fontSize: 14, fontWeight: 'bold' }}
-              >
-                Précédent
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={nextImage} style={styles.navButton}>
-              <Text
-                style={{ color: 'white', fontSize: 14, fontWeight: 'bold' }}
-              >
-                Suivant
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            onPress={() => setModalImageVisible(false)}
-            style={styles.closeButton}
-          >
-            <Text style={{ color: 'white', fontSize: 14, fontWeight: 'bold' }}>
-              Fermer
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+      {/* Image gallery modal */}
+      <ImageGalleryModal
+        visible={modalImageVisible}
+        photos={photos}
+        currentIndex={currentImageIndex}
+        onClose={() => setModalImageVisible(false)}
+        onPrevious={() => navigateImages('prev')}
+        onNext={() => navigateImages('next')}
+      />
     </View>
   )
 }
 
+// Side buttons component
+interface SideButtonsSectionProps {
+  item: any
+  isHorizontalLayout: boolean
+  isSmallDevice: boolean
+  openDocument: () => void
+  openPhotos: () => void
+}
+
+const SideButtonsSection: React.FC<SideButtonsSectionProps> = ({
+  item,
+  isHorizontalLayout,
+  isSmallDevice,
+  openDocument,
+  openPhotos,
+}) => {
+  return (
+    <View
+      style={{
+        gap: 2,
+        flexDirection: isHorizontalLayout ? 'row' : 'column',
+        justifyContent: isHorizontalLayout ? 'space-between' : 'flex-start',
+      }}
+    >
+      {/* Brochure button */}
+      <Button
+        style={[
+          styles.sideButton,
+          isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
+        ]}
+        gradient={GRADIENTS.secondary}
+        width={110}
+        onPress={openDocument}
+      >
+        <Text
+          style={[
+            styles.sideButtonText,
+            isSmallDevice && { fontSize: normalize(13) },
+          ]}
+        >
+          Brochure
+        </Text>
+      </Button>
+
+      {/* Photos button */}
+      <Button
+        style={[
+          styles.sideButton,
+          isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
+        ]}
+        width={110}
+        gradient={GRADIENTS.secondary}
+        onPress={openPhotos}
+      >
+        <Text
+          style={[
+            styles.sideButtonText,
+            isSmallDevice && { fontSize: normalize(13) },
+          ]}
+        >
+          Photos
+        </Text>
+      </Button>
+
+      {/* Devis buttons (max 3) */}
+      {(item?.all_devis || []).map(
+        (devis, index) =>
+          index <= 2 && (
+            <Button
+              key={index}
+              gradient={GRADIENTS.secondary}
+              flex={0}
+              style={[
+                styles.sideButton,
+                isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
+              ]}
+              width={110}
+              onPress={() => openUrl(devis?.lien_devis)}
+            >
+              <Text
+                style={[
+                  styles.sideButtonText,
+                  isSmallDevice && { fontSize: normalize(13) },
+                ]}
+              >
+                Devis
+              </Text>
+            </Button>
+          ),
+      )}
+    </View>
+  )
+}
+
+// Image gallery modal component
+interface ImageGalleryModalProps {
+  visible: boolean
+  photos: Array<{ image: string }>
+  currentIndex: number
+  onClose: () => void
+  onPrevious: () => void
+  onNext: () => void
+}
+
+const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
+  visible,
+  photos,
+  currentIndex,
+  onClose,
+  onPrevious,
+  onNext,
+}) => {
+  return (
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+        ]}
+      />
+
+      <View style={styles.modalContainer}>
+        {photos?.length > 0 && currentIndex < photos.length ? (
+          <Image
+            source={{ uri: photos[currentIndex].image }}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        ) : (
+          <Text style={styles.modalText}>Image indisponible</Text>
+        )}
+
+        <View style={styles.navigationContainer}>
+          <TouchableOpacity onPress={onPrevious} style={styles.navButton}>
+            <Text style={styles.modalText}>Précédent</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onNext} style={styles.navButton}>
+            <Text style={styles.modalText}>Suivant</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <Text style={styles.modalText}>Fermer</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  )
+}
+
+// Styles
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   container: {
     flex: 1,
     alignItems: 'center',
     padding: 16,
   },
-  loadingText: {
-    fontSize: normalize(20),
-    textAlign: 'center',
-  },
-  errorText: {
+  statusText: {
     fontSize: normalize(20),
     textAlign: 'center',
   },
   card: {
     marginHorizontal: 16,
     marginVertical: 8,
-
     backgroundColor: '#fff',
     overflow: 'hidden',
-
     minHeight: 200,
     justifyContent: 'center',
-    gap: 3,
-
-    // flexDirection is set dynamically
-  },
-  navigationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 20,
-    position: 'absolute',
-    bottom: 50,
-  },
-  navButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 10,
-    borderRadius: 5,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 10,
-    borderRadius: 5,
+    gap: 6,
   },
   cardContent: {
     backgroundColor: '#fff',
-
-    borderRadius: 20,
-  },
-  venueNameContainer: {
-    marginVertical: 16,
-
-    height: 40,
-  },
-  venueName: {
-    color: '#fff',
-    fontWeight: 'bold',
     borderRadius: 20,
   },
   venueImage: {
     flexDirection: 'column',
     alignItems: 'center',
-
     backgroundColor: '#fff',
-
-    // width and height are set dynamically
   },
-  image: {
-    width: width * 0.9,
-    height: height * 0.6,
-    borderRadius: 10,
+  venueNameContainer: {
+    marginVertical: 16,
+    height: 40,
+  },
+  venueNameText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  venueName: {
+    borderRadius: 20,
   },
   priceTag: {
     backgroundColor: '#4ECCE6',
@@ -537,11 +556,11 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: normalize(22),
-    color: '#fff',
+    color: '#140101BD',
   },
   sideButtons: {
-    width: 120, // Width is adjusted dynamically
-    flexDirection: 'column', // Direction is adjusted dynamically
+    width: 120,
+    flexDirection: 'column',
     backgroundColor: '#fff',
   },
   sideButton: {
@@ -553,6 +572,42 @@ const styles = StyleSheet.create({
   sideButtonText: {
     color: '#fff',
     fontSize: normalize(15),
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  image: {
+    width: width * 0.9,
+    height: height * 0.6,
+    borderRadius: 10,
+  },
+  modalText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 20,
+    position: 'absolute',
+    bottom: 50,
+  },
+  navButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 5,
   },
 })
 
