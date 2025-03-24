@@ -306,6 +306,7 @@ export const Prestataire = () => {
         eventId: selectedDeroule.id, // ID de l'événement
         presta: selectPresta, // Tableau des prestations
       }
+      console.log(eventData)
 
       const response = await assignPresta(eventData)
       console.log(response)

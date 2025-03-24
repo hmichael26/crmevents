@@ -98,20 +98,23 @@ const DeroulesModal: React.FC<DeroulesModalProps> = ({
     </TouchableOpacity>
   )
 
-  const renderDerouleItem = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      style={[
-        styles.item,
-        selectedDeroule?.id === item.id && styles.selectedItem,
-      ]}
-      onPress={() => {
-        handleSelectDeroule(item)
-      }}
-    >
-      <Text style={styles.title}>{item.titre_deroule}</Text>
-      <Text style={styles.subtitle}>Numéro: {item.numero_deroule}</Text>
-    </TouchableOpacity>
-  )
+  const renderDerouleItem = ({ item }: { item: any }) => {
+    console.log(item)
+    return (
+      <TouchableOpacity
+        style={[
+          styles.item,
+          selectedDeroule?.id === item.id && styles.selectedItem,
+        ]}
+        onPress={() => {
+          handleSelectDeroule(item)
+        }}
+      >
+        <Text style={styles.title}>{item.titre_deroule}</Text>
+        <Text style={styles.subtitle}>Numéro: {item.numero_deroule}</Text>
+      </TouchableOpacity>
+    )
+  }
 
   return (
     <Modal visible={isVisible} animationType="slide" transparent>
