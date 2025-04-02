@@ -30,6 +30,9 @@ import Prestataire from '../screens/Prestataire'
 import Client from '../screens/Client'
 import { useTranslation } from 'react-i18next'
 import ClientPresta from '../screens/ClientPresta'
+import ChatScreen from '../screens/Chat'
+import InboxScreen from '../screens/Inbox'
+import NotificationsScreen from '../screens/Notification'
 
 const Stack = createStackNavigator()
 
@@ -77,7 +80,7 @@ export default () => {
       />
       <Stack.Screen
         name="Chat"
-        component={Chat}
+        component={ChatScreen}
         options={{ title: t('navigation.chat'), ...screenOptions.chat }}
       />
 
@@ -102,7 +105,7 @@ export default () => {
       />
       <Stack.Screen
         name="Notifications"
-        component={Notifications}
+        component={NotificationsScreen}
         options={{
           title: t('navigation.notifications'),
           ...screenOptions.back,
@@ -194,6 +197,12 @@ export default () => {
         name="ClientPresta"
         component={ClientPresta}
         options={{ title: t('navigation.clients'), ...screenOptions.back }}
+      />
+
+      <Stack.Screen
+        name="Inbox"
+        component={InboxScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   )

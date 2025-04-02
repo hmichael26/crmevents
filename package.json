@@ -76,7 +76,8 @@
     "react-native-web": "~0.19.10",
     "react-native-webview": "13.8.6",
     "react-select": "^5.8.0",
-    "reanimated-bottom-sheet": "^1.0.0-alpha.22"
+    "reanimated-bottom-sheet": "^1.0.0-alpha.22",
+    "expo-av": "~14.0.7"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
