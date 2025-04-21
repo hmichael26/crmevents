@@ -51,6 +51,15 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
               <Text style={styles.consultText}>Consulter</Text>
             </Button>
           </View>
+          <View style={styles.infoRow}>
+            <Button
+              gradient={gradients.info}
+              style={styles.consultButton}
+              onPress={() => navigation.navigate('InboxClient', { item })}
+            >
+              <Text style={styles.consultText}>Chat</Text>
+            </Button>
+          </View>
         </View>
       </View>
     </View>

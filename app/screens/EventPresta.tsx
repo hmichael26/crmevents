@@ -46,6 +46,8 @@ const fontScale = PixelRatio.getFontScale()
 const EventPresta: React.FC = ({ route, navigation }) => {
   const { item } = route.params
 
+  console.log(item)
+
   const handleGoBack = () => {
     navigation.goBack() // Retourne à l'écran précédent
   }
@@ -439,7 +441,13 @@ const EventPresta: React.FC = ({ route, navigation }) => {
               rounded={false}
               round={false}
               height={35}
-              onPress={() => navigation.navigate('Chat')}
+              onPress={() =>
+                navigation.navigate('Chat', {
+                  idevt: item?.fk_evt,
+                  admin: userdata?.user?.admin,
+                  id_deroule: item?.id,
+                })
+              }
             >
               <Text white transform="uppercase" size={getFontSize(13)}>
                 CHat

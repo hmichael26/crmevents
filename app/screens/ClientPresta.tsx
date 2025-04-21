@@ -38,7 +38,6 @@ const ClientPresta: React.FC = ({ route, navigation }) => {
   const [deroulerData, setDeroulerData] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  // Function to fetch the derouler data that can be called from anywhere
   const fetchDeroulerData = async () => {
     if (!activeDeroule?.id) return
 

@@ -33,6 +33,7 @@ import ClientPresta from '../screens/ClientPresta'
 import ChatScreen from '../screens/Chat'
 import InboxScreen from '../screens/Inbox'
 import NotificationsScreen from '../screens/Notification'
+import InboxClient from '../screens/InboxClient'
 
 const Stack = createStackNavigator()
 
@@ -203,6 +204,12 @@ export default () => {
         name="Inbox"
         component={InboxScreen}
         options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="InboxClient"
+        component={InboxClient}
+        options={{ title: t('navigation.chat'), ...screenOptions.chat }}
       />
     </Stack.Navigator>
   )

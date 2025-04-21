@@ -73,6 +73,8 @@ export const useApi = () => {
   const searchPresta = (data) => makeRequest('search-presta', data)
   const assignPresta = (data) => makeRequest('assign-presta', data)
   const sendPouce = (data) => makeRequest('send-pouce', data)
+  const getChatList = (data) => makeRequest('get-chat-list', data)
+  const getChat = (data) => makeRequest('get-chat', data)
   //   const addPresta = (data) => makeRequest('add-presta-interroge', data);
 
   // Ajoutez d'autres actions communes ici
@@ -101,6 +103,8 @@ export const useApi = () => {
     searchPresta,
     assignPresta,
     sendPouce,
+    getChatList,
+    getChat,
 
     // ... autres actions
   }

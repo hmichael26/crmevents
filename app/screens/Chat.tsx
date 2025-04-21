@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
   View,
   Text,
@@ -9,10 +9,13 @@ import {
   FlatList,
   TextInput,
   StatusBar,
+  Alert,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { Colors } from './../constants/Colors'
 import { useTheme } from '../hooks'
+import { useApi } from '../context/useApi'
+import { AuthContext } from '../context/AuthContext'
 
 interface Conversation {
   id: string
@@ -30,99 +33,114 @@ interface ChatScreenProps {
   navigation: any
 }
 
-const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
+const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   const { colors } = useTheme()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [conversations, setConversations] = useState<Conversation[]>([
-    {
-      id: '1',
-      user: {
-        id: 'user1',
-        name: 'Amanda',
-        avatar: 'https://example.com/avatar1.jpg',
-      },
-      lastMessage: 'Can you please tell me how it wor...',
-      timestamp: '4:27',
-      unreadCount: 1,
-    },
-    {
-      id: '2',
-      user: {
-        id: 'user2',
-        name: 'Nick',
-        avatar: 'https://example.com/avatar2.jpg',
-      },
-      lastMessage: 'Hi! hope your are doing well...',
-      timestamp: '3/2/2023',
-      unreadCount: 2,
-    },
-    {
-      id: '3',
-      user: {
-        id: 'user3',
-        name: 'Emma',
-        avatar: 'https://example.com/avatar3.jpg',
-      },
-      lastMessage: 'Can you please tell me how it wor...',
-      timestamp: '3/2/2023',
-      unreadCount: 0,
-    },
-    {
-      id: '4',
-      user: {
-        id: 'user4',
-        name: 'Steve Smith',
-        avatar: 'https://example.com/avatar4.jpg',
-      },
-      lastMessage: 'Can you please tell me how it wor...',
-      timestamp: '3/2/2023',
-      unreadCount: 0,
-    },
-    {
-      id: '5',
-      user: {
-        id: 'user5',
-        name: 'Olivia',
-        avatar: 'https://example.com/avatar5.jpg',
-      },
-      lastMessage: 'Can you please tell me how it wor...',
-      timestamp: '3/2/2023',
-      unreadCount: 0,
-    },
-    {
-      id: '6',
-      user: {
-        id: 'user6',
-        name: 'Nelson Neil',
-        avatar: 'https://example.com/avatar6.jpg',
-      },
-      lastMessage: 'Can you please tell me how it wor...',
-      timestamp: '3/2/2023',
-      unreadCount: 0,
-    },
-    {
-      id: '7',
-      user: {
-        id: 'user7',
-        name: 'Evelyn Luna',
-        avatar: 'https://example.com/avatar7.jpg',
-      },
-      lastMessage: 'Can you please tell me how it wor...',
-      timestamp: '3/2/2023',
-      unreadCount: 0,
-    },
-  ])
+  const { admin, id_deroule, idevt } = route.params
+  const { userdata } = useContext(AuthContext)
 
-  const filteredConversations = conversations.filter((conversation) =>
-    conversation.user.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  const [chatData, setChatData] = useState<any>([])
+  //console.log(admin, id_deroule, idevt)
+  const { getChatList } = useApi()
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const [activeTab, setActiveTab] = useState<'prestateurs' | 'clients'>(
+    'prestateurs',
+  )
+  const prestaConversations = (chatData.all_presta_interroges ?? []).map(
+    (presta) => ({
+      id: presta.id_presta,
+      type: 'presta',
+      user: {
+        id: presta.id_presta,
+        name: presta.nom_presta,
+      },
+      lastMessage: 'Tap to view conversation',
+      timestamp: 'Today',
+      unreadCount: 0,
+    }),
   )
 
-  const handleConversationPress = (
-    conversationId: string,
-    userName: string,
-  ) => {
+  const clientConversations = chatData.client
+    ? [
+        {
+          id: chatData.client.id,
+          type: 'client',
+          user: {
+            id: chatData.client.id,
+            name: chatData.client.nom,
+          },
+          lastMessage: 'Tap to view client conversation',
+          timestamp: 'Today',
+          unreadCount: 0,
+        },
+      ]
+    : []
+
+  const filteredPrestaConversations = (chatData.all_presta_interroges ?? [])
+    .map((presta) => ({
+      id: presta.id_presta,
+      type: 'presta',
+      user: {
+        id: presta.id_presta,
+        name: presta.nom_presta,
+      },
+      lastMessage: 'Tap to view conversation',
+      timestamp: 'Today',
+      unreadCount: 0,
+    }))
+    .filter((conversation) =>
+      conversation.user.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    )
+
+  const filteredClientConversation =
+    chatData.client &&
+    chatData.client.nom.toLowerCase().includes(searchQuery.toLowerCase())
+      ? [
+          {
+            id: chatData.client.id,
+            type: 'client',
+            user: {
+              id: chatData.client.id,
+              name: chatData.client.nom,
+            },
+            lastMessage: 'Tap to view client conversation',
+            timestamp: 'Today',
+            unreadCount: 0,
+          },
+        ]
+      : []
+
+  const getUserForchat = async () => {
+    try {
+      const response = await getChatList({
+        idevt: idevt,
+        admin: admin,
+        id_deroule: id_deroule,
+      })
+      setChatData(response.data)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des données :', error)
+      Alert.alert(
+        'Erreur',
+        'Impossible de récupérer les données du déroulé. Veuillez réessayer.',
+      )
+    }
+  }
+
+  useEffect(() => {
+    getUserForchat()
+  }, [])
+
+  const handleConversationPress = (iduser2: any, userName: string) => {
     // Naviguer vers l'écran de chat
-    navigation.navigate('Inbox', { conversationId, Receiver: userName })
+    navigation.navigate('Inbox', {
+      Receiver: userName,
+      chat: {
+        idevt: idevt,
+        iduser1: userdata.user.id,
+        iduser2: iduser2,
+      },
+    })
   }
 
   const renderConversationItem = ({ item }: { item: Conversation }) => (
@@ -166,9 +184,47 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
     </TouchableOpacity>
   )
 
+  const renderEmptyList = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyText}>
+        {activeTab === 'prestateurs'
+          ? 'Aucun prestataire disponible'
+          : 'Aucun client disponible'}
+      </Text>
+    </View>
+  )
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'prestateurs' && styles.activeTab]}
+          onPress={() => setActiveTab('prestateurs')}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'prestateurs' && styles.activeTabText,
+            ]}
+          >
+            Prestataires
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'clients' && styles.activeTab]}
+          onPress={() => setActiveTab('clients')}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'clients' && styles.activeTabText,
+            ]}
+          >
+            Clients
+          </Text>
+        </TouchableOpacity>
+      </View>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Feather
@@ -186,13 +242,17 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
         />
       </View>
 
-      {/* Conversations List */}
       <FlatList
-        data={filteredConversations}
+        data={
+          activeTab === 'prestateurs'
+            ? filteredPrestaConversations
+            : filteredClientConversation
+        }
         renderItem={renderConversationItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.conversationsList}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={renderEmptyList}
       />
     </SafeAreaView>
   )
@@ -236,6 +296,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderWidth: 2,
     borderColor: '#007AFF',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#007bff',
+  },
+  tabText: {
+    fontSize: 16,
+    color: '#666666',
+  },
+  activeTabText: {
+    color: '#007bff',
+    fontWeight: 'bold',
+  },
+  listContainer: {
+    flexGrow: 1,
+    paddingVertical: 8,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -350,6 +437,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#999999',
+    textAlign: 'center',
   },
 })
 

@@ -20,6 +20,7 @@ import { Feather } from '@expo/vector-icons'
 import { Audio } from 'expo-av'
 import * as DocumentPicker from 'expo-document-picker'
 import { useTheme } from '../hooks'
+import { useApi } from '../context/useApi'
 
 interface ChatMessage {
   id: string
@@ -41,23 +42,11 @@ interface InboxScreenProps {
 
 const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
   const { colors } = useTheme()
-  // Récupérer les informations du contact et du produit depuis les paramètres de route
-  const { contact, product } = {
-    contact: { id: '1', name: 'Dale Andrew' },
-    product: {
-      id: '1',
-      name: 'Vacuum Cleaner',
-      location: '15A, James Street',
-      price: 20,
-      priceUnit: 'day',
-      date: '24.04.2024',
-      image:
-        'https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?fit=crop&w=80&q=80',
-    },
-  }
+  const { getChat } = useApi()
 
   const param = route.params
-  console.log(param)
+  // console.log(param)
+
   const [menuVisible, setMenuVisible] = useState(false)
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -95,51 +84,11 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
   const loadMessages = async () => {
     try {
-      // Simuler un appel API pour charger les messages
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Messages fictifs pour la démonstration
-      const demoMessages: ChatMessage[] = [
-        {
-          id: '1',
-          text:
-            'Bonjour M. Laurent, avez-vous bien reçu notre demande pour le devis sécurité ?',
-          sender: 'user',
-          timestamp: Date.now() - 3600000 * 6,
-        },
-        {
-          id: '2',
-          text:
-            'Oui, je vous l’envoie en pièce jointe. Le tarif est de 1500€ HT pour 2 jours.',
-          sender: 'other',
-          timestamp: Date.now() - 3600000 * 5.5,
-        },
-        {
-          id: '3',
-          text: '',
-          sender: 'other',
-          timestamp: Date.now() - 3600000 * 5.4,
-          attachment: {
-            name: 'Devis_Securite_ParisExpo.pdf',
-            type: 'pdf',
-            url: 'https://yourdomain.com/documents/devis_securite.pdf',
-          },
-        },
-        {
-          id: '4',
-          text: 'Merci, nous validons le devis. Un contrat va suivre.',
-          sender: 'user',
-          timestamp: Date.now() - 3600000 * 5,
-        },
-        {
-          id: '5',
-          text: 'Parfait. J’attends votre retour avec le contrat signé.',
-          sender: 'other',
-          timestamp: Date.now() - 3600000 * 4.8,
-        },
-      ]
-
-      setMessages(demoMessages)
+      const response = await getChat({
+        ...param.chat,
+      })
+      // console.log(response.data)
+      setMessages(response.data.all_chats)
     } catch (error) {
       console.error('Error loading messages:', error)
       Alert.alert('Error', 'Failed to load messages. Please try again.')

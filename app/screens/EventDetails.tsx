@@ -107,7 +107,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
   const eventTypes = userdata.all_types_evts
 
-  const { item } = route.params // Récupérer l'item depuis les paramètres
+  const { item } = route.params
+
   const navigation = useNavigation()
 
   // Helper function to convert date-like input to Date object
@@ -484,7 +485,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
               marginBottom={sizes.base}
               rounded={false}
               round={false}
-              onPress={() => navigation.navigate('Chat')}
+              onPress={() => {}}
             >
               <Text white transform="uppercase" size={getFontSize(13)}>
                 Chat
