@@ -93,7 +93,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
       const response = await getChat({
         idevt: param.chat.idevt,
         user1: param.chat.from_user,
-        user2: param.chat.to_user,
+        user2: param.chat.to_user ? param.chat.to_user : '9',
       })
 
       // console.log(response.data)
@@ -122,7 +122,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
         message: inputText.trim(),
         ...param.chat,
       }
-      console.log(messagePayload)
+      //   console.log(messagePayload)
 
       /*
       // Gérer la pièce jointe
