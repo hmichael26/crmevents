@@ -77,7 +77,7 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
       Receiver: `Admin - ${derouleTitle}`,
       chat: {
         idevt: idevt,
-        iduser1: userdata.user.id,
+        from_user: userdata.user.IDC,
         //iduser2: admin, // Admin ID
         id_deroule: derouleId,
       },

@@ -139,6 +139,7 @@ const Home = (props: DrawerContentComponentProps) => {
       />
     )
   }
+  console.log(userdata.user)
 
   return (
     <Block>

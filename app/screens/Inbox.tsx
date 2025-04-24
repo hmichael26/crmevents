@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useContext } from 'react'
 import {
   View,
   Text,
@@ -21,6 +21,8 @@ import { Audio } from 'expo-av'
 import * as DocumentPicker from 'expo-document-picker'
 import { useTheme } from '../hooks'
 import { useApi } from '../context/useApi'
+import { notifyNewChatMessage, schedulePushNotification } from '../../App'
+import { AuthContext } from '../context/AuthContext'
 
 interface ChatMessage {
   id: string
@@ -42,14 +44,18 @@ interface InboxScreenProps {
 
 const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
   const { colors } = useTheme()
-  const { getChat } = useApi()
+  const { getChat, sendChat } = useApi()
+
+  const { userdata } = useContext(AuthContext)
 
   const param = route.params
-  // console.log(param)
+
+  console.log(param)
+  //console.log(param)
 
   const [menuVisible, setMenuVisible] = useState(false)
 
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [messages, setMessages] = useState<any[]>([])
   const [inputText, setInputText] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -85,8 +91,11 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
   const loadMessages = async () => {
     try {
       const response = await getChat({
-        ...param.chat,
+        idevt: param.chat.idevt,
+        user1: param.chat.from_user,
+        user2: param.chat.to_user,
       })
+
       // console.log(response.data)
       setMessages(response.data.all_chats)
     } catch (error) {
@@ -109,15 +118,14 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
     setIsSending(true)
 
     try {
-      // Create a new message
-      const newMessage: ChatMessage = {
-        id: Date.now().toString(),
-        text: inputText.trim(),
-        sender: 'user',
-        timestamp: Date.now(),
+      const messagePayload: any = {
+        message: inputText.trim(),
+        ...param.chat,
       }
+      console.log(messagePayload)
 
-      // If there's an attachment, add it to the message
+      /*
+      // Gérer la pièce jointe
       if (
         selectedAttachment &&
         !('canceled' in selectedAttachment) &&
@@ -125,40 +133,31 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
         selectedAttachment.assets.length > 0
       ) {
         const asset = selectedAttachment.assets[0]
-        newMessage.attachment = {
+
+        // Tu pourrais uploader le fichier ici d'abord si besoin
+        messagePayload.attachment = {
           name: asset.name || 'File',
           type: asset.mimeType?.split('/')[1] || 'unknown',
-          url: asset.uri,
+          url: asset.uri, // à remplacer par l'URL de retour si upload
         }
+
         setSelectedAttachment(null)
-      }
+      }*/
 
-      // Add the message to the list
-      setMessages((prevMessages) => [...prevMessages, newMessage])
+      // Appel API pour envoyer le message
+      // console.log(messagePayload)
+      const response = await sendChat(messagePayload)
 
-      // Clear the input field
+      //console.log(response)
+
+      loadMessages()
       setInputText('')
 
-      // Simulate sending the message to the API
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // Simulate an automatic reply after a delay
-      setTimeout(() => {
-        const autoReply: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          text: "I've received your message. I'll get back to you soon.",
-          sender: 'other',
-          timestamp: Date.now() + 1000,
-        }
-
-        setMessages((prevMessages) => [...prevMessages, autoReply])
-
-        // Scroll to the last message
-        flatListRef.current?.scrollToEnd({ animated: true })
-      }, 2000)
+      // Scroll automatique à la fin
+      flatListRef.current?.scrollToEnd({ animated: true })
     } catch (error) {
       console.error('Error sending message:', error)
-      Alert.alert('Error', 'Failed to send message. Please try again.')
+      Alert.alert('Erreur', 'Envoi du message échoué.')
     } finally {
       setIsSending(false)
     }
@@ -219,123 +218,28 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
     }
   }
 
-  // Expo Audio Recording functions
-  // 🟢 START RECORDING
-  async function startRecording() {
-    try {
-      const { status } = await Audio.requestPermissionsAsync()
-      if (status !== 'granted') {
-        return Alert.alert(
-          'Permission refusée',
-          'Activez le micro dans les réglages.',
-        )
-      }
-
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      })
-
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-      )
-
-      setRecording(recording)
-      setIsRecording(true)
-      console.log('Recording started')
-    } catch (err) {
-      console.error('Start recording error:', err)
-      Alert.alert('Erreur', "Impossible de démarrer l'enregistrement")
-    }
-  }
-
-  // 🟢 STOP RECORDING
-  async function stopRecording() {
-    if (!recording) return
-
-    try {
-      setIsRecording(false)
-      await recording.stopAndUnloadAsync()
-      const uri = recording.getURI()
-      setRecording(null)
-
-      if (!uri) {
-        return Alert.alert('Erreur', 'Aucun fichier audio enregistré')
-      }
-
-      console.log('Recorded URI:', uri)
-
-      const newMessage: ChatMessage = {
-        id: Date.now().toString(),
-        text: '🎤 Voice note',
-        sender: 'user',
-        timestamp: Date.now(),
-        audioUrl: uri,
-      }
-
-      setMessages((prev) => [...prev, newMessage])
-      flatListRef.current?.scrollToEnd({ animated: true })
-    } catch (err) {
-      console.error('Stop recording error:', err)
-      Alert.alert('Erreur', "Problème lors de l'enregistrement")
-    }
-  }
-
-  // 🟢 TOGGLE MICROPHONE
-  const handleMicPress = () => {
-    if (isRecording) {
-      stopRecording()
-    } else {
-      startRecording()
-    }
-  }
-
-  const playAudio = async (audioUrl: string, messageId: string) => {
-    try {
-      // If there's already a sound playing, stop it
-      if (sound) {
-        await sound.stopAsync()
-        await sound.unloadAsync()
-        setSound(null)
-
-        // If we're stopping the same audio, just return
-        if (playingAudioId === messageId) {
-          setPlayingAudioId(null)
-          return
-        }
-      }
-
-      // Load and play the new audio
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: audioUrl },
-        { shouldPlay: true },
-      )
-
-      setSound(newSound)
-      setPlayingAudioId(messageId)
-
-      // When audio finishes playing
-      newSound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          setPlayingAudioId(null)
-        }
-      })
-    } catch (error) {
-      console.error('Error playing audio:', error)
-      Alert.alert('Error', 'Failed to play audio message.')
-      setPlayingAudioId(null)
-    }
-  }
-
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp)
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
-  const renderMessage = ({ item }: { item: ChatMessage }) => {
-    const isUserMessage = item.sender === 'user'
-    const isPlaying = playingAudioId === item.id
+  const transformedMessages = Array.isArray(messages)
+    ? messages.map((msg) => ({
+        id: msg.id,
+        text: msg.message,
+        senderId: msg.id_from_user,
+        receiverId: msg.id_to_user,
+        date: new Date(msg.date),
+        isRead: msg.st_lecture === '1',
+        type: msg.type || 'user',
+      }))
+    : []
 
+  const renderMessage = ({ item }: { item: ChatMessage }) => {
+    console.log(userdata.user)
+    const isUserMessage = item.senderId === userdata.user.IDC
+
+    console.log(item)
     return (
       <View
         style={[
@@ -364,22 +268,6 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
             >
               {item.text}
             </Text>
-
-            {item.audioUrl && (
-              <TouchableOpacity
-                style={styles.audioPlayButton}
-                onPress={() => playAudio(item.audioUrl!, item.id)}
-              >
-                <Feather
-                  name={isPlaying ? 'pause' : 'play'}
-                  size={20}
-                  color={colors.primary}
-                />
-                <Text style={styles.audioPlayText}>
-                  {isPlaying ? 'Playing...' : 'Play voice message'}
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
         ) : null}
 
@@ -424,7 +312,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
             isUserMessage ? styles.userMessageTime : styles.otherMessageTime,
           ]}
         >
-          {formatTime(item.timestamp)}
+          {formatTime(item.date)}
         </Text>
       </View>
     )
@@ -456,7 +344,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
       ) : (
         <FlatList
           ref={flatListRef}
-          data={messages}
+          data={transformedMessages}
           renderItem={renderMessage}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.messagesList}
@@ -518,31 +406,18 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
               placeholderTextColor={colors.text}
             />
 
-            <TouchableOpacity
-              style={styles.sendButton}
-              onPress={handleSend}
-              disabled={isSending}
-            >
-              {isSending ? (
-                <ActivityIndicator size="small" color={colors.primary} />
-              ) : (
-                <Feather name="send" size={20} color={colors.primary} />
-              )}
-            </TouchableOpacity>
             <View style={styles.innerShadow} />
           </View>
           <TouchableOpacity
-            style={[
-              styles.micButton,
-              isRecording && { backgroundColor: '#ffeeee' },
-            ]}
-            onPress={handleMicPress}
+            style={styles.sendButton}
+            onPress={handleSend}
+            disabled={isSending}
           >
-            <Feather
-              name={isRecording ? 'mic-off' : 'mic'}
-              size={24}
-              color={isRecording ? '#ff4444' : colors.text}
-            />
+            {isSending ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Feather name="send" size={20} color={colors.primary} />
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

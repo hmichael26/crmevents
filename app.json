@@ -13,9 +13,21 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "bundleIdentifier": "com.crmevents.myapp",
+      "entitlements": {
+        "aps-environment": "production"
+      },
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      }
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
+      "package": "com.crmevents.myapp",
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/images/icon.png",
         "backgroundColor": "#ffffff"
@@ -38,6 +50,25 @@
         "expo-av",
         {
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/crashlytics",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "local/path/to/mySoundFile.wav"
+          ]
         }
       ]
     ],
