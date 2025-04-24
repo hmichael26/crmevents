@@ -92,23 +92,25 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
       conversation.user.name.toLowerCase().includes(searchQuery.toLowerCase()),
     )
 
-  const filteredClientConversation =
-    chatData.client &&
-    chatData.client.toLowerCase().includes(searchQuery.toLowerCase())
-      ? [
-          {
-            id: 'client-1', // ou un autre ID fixe ou généré dynamiquement
-            type: 'client',
-            user: {
-              id: 'client-1',
-              name: chatData.client,
-            },
-            lastMessage: 'Tap to view client conversation',
-            timestamp: 'Today',
-            unreadCount: 0,
+  const filteredClientConversation = Array.isArray(chatData.client)
+    ? chatData.client
+        .filter((client) =>
+          client.nom_soc?.toLowerCase().includes(searchQuery.toLowerCase()),
+        )
+        .map((client) => ({
+          id: client.id_soc,
+          type: 'client',
+          user: {
+            id: `client-${client.id_soc}`,
+            name: client.nom_soc,
           },
-        ]
-      : []
+          lastMessage: 'Tap to view client conversation',
+          timestamp: 'Today',
+          unreadCount: 0,
+        }))
+    : []
+
+  console.log(chatData.client)
 
   const getUserForchat = async () => {
     try {
@@ -118,7 +120,6 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
         id_deroule: id_deroule,
       })
 
-      console.log(response.data.all_presta_interroges)
       setChatData(response.data)
     } catch (error) {
       console.error('Erreur lors de la récupération des données :', error)
