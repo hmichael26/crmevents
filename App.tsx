@@ -18,8 +18,8 @@ import Constants from 'expo-constants'
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
   }),
 })
 export default function App() {
@@ -110,7 +110,7 @@ async function registerForPushNotificationsAsync() {
           projectId,
         })
       ).data
-      //  console.log(token)
+      console.log(token)
     } catch (e) {
       token = `${e}`
     }

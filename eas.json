@@ -1,18 +1,21 @@
 {
     "build": {
         "preview": {
-            "distribution": "internal",
             "android": {
                 "buildType": "apk"
             }
         },
-        "production": {
+        "preview2": {
             "android": {
-                "buildType": "aab"
-            },
-            "ios": {
-                "buildConfiguration": "Release"
+                "gradleCommand": ":app:assembleRelease"
             }
-        }
+        },
+        "preview3": {
+            "developmentClient": true
+        },
+        "preview4": {
+            "distribution": "internal"
+        },
+        "production": {}
     }
 }

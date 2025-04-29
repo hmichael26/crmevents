@@ -14,7 +14,6 @@
     },
     "ios": {
       "supportsTablet": true,
-      "googleServicesFile": "./GoogleService-Info.plist",
       "bundleIdentifier": "com.crmevents.myapp",
       "entitlements": {
         "aps-environment": "production"
@@ -26,7 +25,6 @@
       }
     },
     "android": {
-      "googleServicesFile": "./google-services.json",
       "package": "com.crmevents.myapp",
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/images/icon.png",
@@ -54,9 +52,7 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ],
-      "@react-native-firebase/app",
-      "@react-native-firebase/auth",
-      "@react-native-firebase/crashlytics",
+     
       [
         "expo-build-properties",
         {
@@ -65,14 +61,9 @@
           }
         }
       ],
-      [
-        "expo-notifications",
-        {
-          "sounds": [
-            "local/path/to/mySoundFile.wav"
-          ]
-        }
-      ]
+      
+        "expo-notifications"
+      
     ],
     "experiments": {
       "typedRoutes": true
