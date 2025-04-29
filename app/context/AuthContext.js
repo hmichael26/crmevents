@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  // Login
+  /*// Login
   const Login = async ({ email, password }) => {
     setIsLoading(true)
     try {
@@ -110,6 +110,31 @@ export const AuthProvider = ({ children }) => {
       setUserToken(token)
       setUserData(data)
       await StoreSave('usertoken', token)
+    } catch (error) {
+      console.error('Login error:', error)
+      throw new Error('Login failed. Check your credentials.')
+    } finally {
+      setIsLoading(false)
+    }
+  }*/
+  const Login = async ({ email, password }) => {
+    setIsLoading(true)
+    try {
+      const response = await axiosInstance.post('api.php', {
+        email,
+        password,
+        action: 'login-api',
+      })
+
+      const { token } = response.data
+
+      if (token) {
+        setUserToken(token)
+        await StoreSave('usertoken', token)
+
+        // Appelle directement getUserData
+        await getUserData(token)
+      }
     } catch (error) {
       console.error('Login error:', error)
       throw new Error('Login failed. Check your credentials.')

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
+import React, { useEffect } from 'react'
+import { StyleSheet, Dimensions, ActivityIndicator } from 'react-native'
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -7,44 +7,50 @@ import Animated, {
   Easing,
   withSequence,
   withRepeat,
-} from 'react-native-reanimated';
+} from 'react-native-reanimated'
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get('window')
 
 interface ModernSplashScreenProps {
-  onAnimationEnd: () => void; // Callback appelé après la fin de l'animation
+  onAnimationEnd?: () => void
 }
 
-const ModernSplashScreen: React.FC<ModernSplashScreenProps> = ({ onAnimationEnd }) => {
-  const opacity = useSharedValue(1);
-  const scale = useSharedValue(1);
+const ModernSplashScreen: React.FC<ModernSplashScreenProps> = ({
+  onAnimationEnd,
+}) => {
+  const opacity = useSharedValue(1)
+  const scale = useSharedValue(1)
 
   useEffect(() => {
     // Animation de l'échelle
     scale.value = withRepeat(
       withSequence(
         withTiming(1.2, { duration: 1000, easing: Easing.ease }),
-        withTiming(1, { duration: 1000, easing: Easing.ease })
+        withTiming(1, { duration: 1000, easing: Easing.ease }),
       ),
       -1,
-      true
-    );
+      true,
+    )
 
     // Animation de l'opacité pour disparaître progressivement
-    opacity.value = withTiming(0, { duration: 800, easing: Easing.out(Easing.ease) }, (finished) => {
-      if (finished && onAnimationEnd) {
-        onAnimationEnd(); // Appeler le callback si défini
-      }
-    });
-  }, []);
+    opacity.value = withTiming(
+      0,
+      { duration: 800, easing: Easing.out(Easing.ease) },
+      (finished) => {
+        if (finished && onAnimationEnd) {
+          onAnimationEnd() // Appeler le callback si défini
+        }
+      },
+    )
+  }, [])
 
   const containerStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-  }));
+  }))
 
   const loaderStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-  }));
+  }))
 
   return (
     <Animated.View style={[styles.container, containerStyle]}>
@@ -52,8 +58,8 @@ const ModernSplashScreen: React.FC<ModernSplashScreenProps> = ({ onAnimationEnd 
         <ActivityIndicator size="large" color="#B62D78FF" />
       </Animated.View>
     </Animated.View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -76,6 +82,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF', // Texte blanc pour contraste
     marginTop: 20,
   },
-});
+})
 
-export default ModernSplashScreen;
+export default ModernSplashScreen

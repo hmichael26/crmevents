@@ -1,12 +1,12 @@
 import './app/constants/translations'
 
 import 'react-native-gesture-handler'
+import { Alert, Clipboard, ToastAndroid } from 'react-native'
 
 import React, { useEffect, useRef, useState } from 'react'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import { Platform } from 'react-native'
-import messaging from '@react-native-firebase/messaging'
 
 import { DataProvider } from './app/hooks'
 import AppNavigation from './app/navigation/App'
@@ -71,7 +71,7 @@ export default function App() {
     </DataProvider>
   )
 }
-
+/*
 async function registerForPushNotificationsAsync() {
   let token
 
@@ -116,6 +116,67 @@ async function registerForPushNotificationsAsync() {
     }
   } else {
     alert('Must use physical device for Push Notifications')
+  }
+
+  return token
+}*/
+
+async function registerForPushNotificationsAsync() {
+  let token
+
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('myNotificationChannel', {
+      name: 'A channel is needed for the permissions prompt to appear',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    })
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync()
+    let finalStatus = existingStatus
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync()
+      finalStatus = status
+    }
+    if (finalStatus !== 'granted') {
+      alert('Permission denied for push notifications!')
+      return
+    }
+
+    try {
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId
+      if (!projectId) throw new Error('Project ID not found')
+
+      token = (await Notifications.getExpoPushTokenAsync({ projectId })).data
+
+      console.log('Expo Push Token:', token)
+
+      // ✅ Affiche une alerte avec le token
+      Alert.alert(
+        'Expo Push Token',
+        token,
+        [
+          {
+            text: 'Copier',
+            onPress: () => {
+              Clipboard.setString(token)
+              ToastAndroid.show('Token copié ✅', ToastAndroid.SHORT)
+            },
+          },
+          { text: 'OK' },
+        ],
+        { cancelable: true },
+      )
+    } catch (e) {
+      console.error(e)
+      token = `${e}`
+    }
+  } else {
+    alert('Use a physical device for push notifications.')
   }
 
   return token

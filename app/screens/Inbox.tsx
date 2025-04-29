@@ -21,7 +21,6 @@ import { Audio } from 'expo-av'
 import * as DocumentPicker from 'expo-document-picker'
 import { useTheme } from '../hooks'
 import { useApi } from '../context/useApi'
-import { notifyNewChatMessage, schedulePushNotification } from '../../App'
 import { AuthContext } from '../context/AuthContext'
 
 interface ChatMessage {
