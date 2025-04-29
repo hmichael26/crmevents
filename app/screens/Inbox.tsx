@@ -83,9 +83,17 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
     }
   }, [sound, recording])
 
-  // Simuler le chargement des messages
   useEffect(() => {
+    // Charger immédiatement au montage
     loadMessages()
+
+    // Définir l'intervalle de 60 secondes
+    const interval = setInterval(() => {
+      loadMessages()
+    }, 60000) // 60 000 ms = 1 minute
+
+    // Nettoyer l'intervalle au démontage du composant
+    return () => clearInterval(interval)
   }, [])
 
   const loadMessages = async () => {
