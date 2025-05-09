@@ -110,7 +110,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
         }))
     : []
 
-  console.log(chatData.client)
+  // console.log(chatData.client)
 
   const getUserForchat = async () => {
     try {

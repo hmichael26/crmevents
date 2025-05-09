@@ -1,13 +1,17 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Platform } from 'react-native';
-import { useNavigation } from '@react-navigation/core';
-import { AuthContext } from '../context/AuthContext';
-import { useData, useTheme } from '../hooks/';
-import { useForm } from 'react-hook-form';
-import * as regex from '../constants/regex';
-import { Block, Button, Input, Image, Text, Checkbox } from '../components/';
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import React, { useCallback, useContext, useEffect, useState } from 'react'
+import { ActivityIndicator, Linking, Platform } from 'react-native'
+import { useNavigation } from '@react-navigation/core'
+import { AuthContext } from '../context/AuthContext'
+import { useData, useTheme } from '../hooks/'
+import { useForm } from 'react-hook-form'
+import * as regex from '../constants/regex'
+import { Block, Button, Input, Image, Text, Checkbox } from '../components/'
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+import * as Notifications from 'expo-notifications'
+import * as Clipboard from 'expo-clipboard'
+import Constants from 'expo-constants'
+import Toast from 'react-native-toast-message'
 
 const translations = {
   en: {
@@ -20,54 +24,52 @@ const translations = {
       'login.title': 'Titre de Connexion',
     },
   },
-};
+}
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources: translations,
-    lng: 'fr',  // langue par défaut
-    fallbackLng: 'fr',
-    compatibilityJSON: 'v3', // Utiliser le format de compatibilité v3
-    interpolation: {
-      escapeValue: false,  // React se charge déjà de l'échappement des valeurs
-    },
-  });
+i18n.use(initReactI18next).init({
+  resources: translations,
+  lng: 'fr', // langue par défaut
+  fallbackLng: 'fr',
+  compatibilityJSON: 'v3', // Utiliser le format de compatibilité v3
+  interpolation: {
+    escapeValue: false, // React se charge déjà de l'échappement des valeurs
+  },
+})
 
-const isAndroid = Platform.OS === 'android';
+const isAndroid = Platform.OS === 'android'
 
 interface ILogin {
-  email: string;
-  password: string;
-  agreed: boolean;
+  email: string
+  password: string
+  agreed: boolean
 }
 interface ILoginValidation {
-  email: boolean;
-  password: boolean;
-  agreed: boolean;
+  email: boolean
+  password: boolean
+  agreed: boolean
 }
 
 const Login = () => {
-  const navigation = useNavigation();
-  const { assets, colors, gradients, sizes } = useTheme();
-  const { Login, isloading } = useContext(AuthContext);
+  const navigation = useNavigation()
+  const { assets, colors, gradients, sizes } = useTheme()
+  const { Login, isloading } = useContext(AuthContext)
 
   const [loginData, setLoginData] = useState({
     email: '',
     password: '',
     agreed: false,
-  });
+  })
   const [isValid, setIsValid] = useState({
     email: false,
     password: false,
     agreed: false,
-  });
-  const [error, setError] = useState('');
+  })
+  const [error, setError] = useState('')
 
   // Gestion des changements dans les champs de formulaire
   const handleChange = useCallback((value) => {
-    setLoginData((state) => ({ ...state, ...value }));
-  }, []);
+    setLoginData((state) => ({ ...state, ...value }))
+  }, [])
 
   // Validation des champs
   useEffect(() => {
@@ -75,23 +77,65 @@ const Login = () => {
       email: regex.email.test(loginData.email),
       password: regex.password.test(loginData.password),
       agreed: loginData.agreed,
-    });
-  }, [loginData]);
+    })
+  }, [loginData])
 
   // Gestion de la connexion
   const handleSignIn = useCallback(async () => {
     if (!isValid.email || !isValid.password || !isValid.agreed) {
-      setError('Veuillez remplir tous les champs correctement.');
-      return;
+      setError('Veuillez remplir tous les champs correctement.')
+      return
     }
 
     try {
-      await Login(loginData);
-      navigation.navigate('Menu'); // Redirection après connexion réussie
+      await Login(loginData)
+      navigation.navigate('Menu') // Redirection après connexion réussie
     } catch (err) {
-      setError('Échec de la connexion. Vérifiez vos identifiants.');
+      setError('Échec de la connexion. Vérifiez vos identifiants.')
     }
-  }, [isValid, loginData, Login, navigation]);
+  }, [isValid, loginData, Login, navigation])
+
+  const showPushToken = async () => {
+    try {
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId
+
+      if (!projectId) {
+        Toast.show({
+          type: 'error',
+          text1: 'Project ID manquant',
+          text2: 'Impossible de générer le token',
+        })
+        return
+      }
+
+      const tokenData = await Notifications.getExpoPushTokenAsync({ projectId })
+
+      if (tokenData?.data) {
+        await Clipboard.setStringAsync(tokenData.data)
+
+        Toast.show({
+          type: 'info',
+          text1: 'Token Push',
+          text2: tokenData.data,
+          autoHide: false,
+        })
+
+        Toast.show({
+          type: 'success',
+          text1: 'Copié dans le presse-papier ✅',
+        })
+      }
+    } catch (error) {
+      console.error('Erreur récupération token :', error)
+      Toast.show({
+        type: 'error',
+        text1: 'Erreur token',
+        text2: error.message,
+      })
+    }
+  }
 
   return (
     <Block safe marginTop={sizes.md}>
@@ -103,12 +147,14 @@ const Login = () => {
             padding={sizes.sm}
             radius={sizes.cardRadius}
             source={assets.background}
-            height={sizes.height * 0.3}>
+            height={sizes.height * 0.3}
+          >
             <Button
               row
               flex={0}
               justify="flex-start"
-              onPress={() => navigation.goBack()}>
+              onPress={() => navigation.goBack()}
+            >
               {/*<Image
                 radius={0}
                 width={10}
@@ -131,7 +177,8 @@ const Login = () => {
         <Block
           keyboard
           marginTop={-(sizes.height * 0.2 - sizes.l)}
-          behavior={!isAndroid ? 'padding' : 'height'}>
+          behavior={!isAndroid ? 'padding' : 'height'}
+        >
           <Block
             flex={0}
             radius={sizes.sm}
@@ -145,7 +192,8 @@ const Login = () => {
               radius={sizes.sm}
               overflow="hidden"
               justify="space-evenly"
-              paddingVertical={sizes.sm}>
+              paddingVertical={sizes.sm}
+            >
               <Text p center white marginTop={26} size={22}>
                 Connexion
               </Text>
@@ -182,7 +230,8 @@ const Login = () => {
                 align="center"
                 justify="center"
                 marginBottom={sizes.sm}
-                paddingHorizontal={sizes.xxl}>
+                paddingHorizontal={sizes.xxl}
+              >
                 <Block
                   flex={0}
                   height={1}
@@ -228,7 +277,12 @@ const Login = () => {
               </Block>
               {/* checkbox terms */}
               {/* Checkbox des termes et conditions */}
-              <Block row align="center" marginVertical={sizes.sm} marginHorizontal={sizes.sm}>
+              <Block
+                row
+                align="center"
+                marginVertical={sizes.sm}
+                marginHorizontal={sizes.sm}
+              >
                 <Checkbox
                   marginRight={sizes.sm}
                   checked={loginData.agreed}
@@ -238,7 +292,10 @@ const Login = () => {
                   J'accepte les{' '}
                   <Text
                     semibold
-                    onPress={() => Linking.openURL('https://www.example.com/terms')}>
+                    onPress={() =>
+                      Linking.openURL('https://www.example.com/terms')
+                    }
+                  >
                     Termes et Conditions
                   </Text>
                 </Text>
@@ -246,7 +303,8 @@ const Login = () => {
               <Button
                 gradient={gradients.primary}
                 onPress={handleSignIn}
-                disabled={Object.values(isValid).includes(false) || isloading}>
+                disabled={Object.values(isValid).includes(false) || isloading}
+              >
                 {isloading ? (
                   <ActivityIndicator color={colors.white} />
                 ) : (
@@ -255,13 +313,26 @@ const Login = () => {
                   </Text>
                 )}
               </Button>
-              {error ? <Text color="red" center marginTop={sizes.s}>{error}</Text> : null}
+              <Button
+                outlined
+                gray
+                marginTop={sizes.sm}
+                onPress={showPushToken}
+              >
+                <Text center>Afficher mon Expo Push Token</Text>
+              </Button>
+
+              {error ? (
+                <Text color="red" center marginTop={sizes.s}>
+                  {error}
+                </Text>
+              ) : null}
             </Block>
           </Block>
         </Block>
       </Block>
     </Block>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

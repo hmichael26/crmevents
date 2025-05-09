@@ -1,12 +1,14 @@
 import './app/constants/translations'
 
 import 'react-native-gesture-handler'
-import { Alert, Clipboard, ToastAndroid } from 'react-native'
+import { Alert, ToastAndroid } from 'react-native'
+import * as Clipboard from 'expo-clipboard'
 
 import React, { useEffect, useRef, useState } from 'react'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import { Platform } from 'react-native'
+import * as SplashScreen from 'expo-splash-screen'
 
 import { DataProvider } from './app/hooks'
 import AppNavigation from './app/navigation/App'
@@ -14,6 +16,15 @@ import { View, Text, Image, StyleSheet, FlatList } from 'react-native'
 import Menu from './app/navigation/Menu'
 import 'intl-pluralrules'
 import Constants from 'expo-constants'
+import { LogBox } from 'react-native'
+import Toast from 'react-native-toast-message'
+LogBox.ignoreAllLogs() // si tu veux ignorer les warnings
+
+// Pour capturer les erreurs globales :
+ErrorUtils.setGlobalHandler((error, isFatal) => {
+  console.log('❌ Erreur non capturée : ', error, 'Fatal: ', isFatal)
+})
+SplashScreen.preventAutoHideAsync()
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -66,9 +77,12 @@ export default function App() {
   }, [])
 
   return (
-    <DataProvider>
-      <AppNavigation />
-    </DataProvider>
+    <>
+      <DataProvider>
+        <AppNavigation />
+      </DataProvider>
+      <Toast />
+    </>
   )
 }
 /*
@@ -141,7 +155,11 @@ async function registerForPushNotificationsAsync() {
       finalStatus = status
     }
     if (finalStatus !== 'granted') {
-      alert('Permission denied for push notifications!')
+      Toast.show({
+        type: 'error',
+        text1: 'Permission refusée ❌',
+        text2: 'Notifications push désactivées',
+      })
       return
     }
 
@@ -152,31 +170,36 @@ async function registerForPushNotificationsAsync() {
       if (!projectId) throw new Error('Project ID not found')
 
       token = (await Notifications.getExpoPushTokenAsync({ projectId })).data
-
       console.log('Expo Push Token:', token)
 
-      // ✅ Affiche une alerte avec le token
-      Alert.alert(
-        'Expo Push Token',
-        token,
-        [
-          {
-            text: 'Copier',
-            onPress: () => {
-              Clipboard.setString(token)
-              ToastAndroid.show('Token copié ✅', ToastAndroid.SHORT)
-            },
-          },
-          { text: 'OK' },
-        ],
-        { cancelable: true },
-      )
+      // ✅ 1. Afficher le token
+      Toast.show({
+        type: 'info',
+        text1: 'Expo Push Token',
+        text2: token,
+        autoHide: false,
+      })
+
+      // ✅ 2. Copier et afficher toast success
+      try {
+        await Clipboard.setStringAsync(token)
+        Toast.show({
+          type: 'success',
+          text1: 'Token copié ✅',
+        })
+      } catch (err) {
+        console.warn('Erreur clipboard :', err)
+      }
     } catch (e) {
       console.error(e)
       token = `${e}`
     }
   } else {
-    alert('Use a physical device for push notifications.')
+    Toast.show({
+      type: 'error',
+      text1: 'Appareil requis',
+      text2: 'Utilise un vrai téléphone pour les notifications',
+    })
   }
 
   return token
@@ -187,24 +210,5 @@ export async function schedulePushNotification() {
     name: 'E-mail notifications',
     importance: Notifications.AndroidImportance.HIGH,
     sound: 'mySoundFile.wav', // Provide ONLY the base filename
-  })
-}
-
-export async function notifyNewChatMessage(
-  senderName: string,
-  message: string,
-) {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: `💬 Nouveau message de ${senderName}`,
-      body: message,
-      sound: 'chat_sound.wav',
-      data: {
-        type: 'chat',
-        sender: senderName,
-        message,
-      },
-    },
-    trigger: null, // immédiatement
   })
 }

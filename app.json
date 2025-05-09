@@ -62,7 +62,16 @@
         }
       ],
       
-        "expo-notifications"
+       [
+        "expo-notifications",
+        {
+          "icon": "./app/assets/images/splash.png",
+          "color": "#ffffff",
+          "defaultChannel": "default",
+         
+          "enableBackgroundRemoteNotifications": false
+        }
+      ]
       
     ],
     "experiments": {

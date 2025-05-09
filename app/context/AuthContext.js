@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useState, useCallback } from 'react'
 import axios from 'axios'
 import * as SecureStore from 'expo-secure-store'
 import * as Notifications from 'expo-notifications'
+import Constants from 'expo-constants'
 
 export const AuthContext = createContext()
 
@@ -51,49 +52,86 @@ export const AuthProvider = ({ children }) => {
   const initializeAuth = useCallback(async () => {
     try {
       const token = await StoreGet('usertoken')
-      if (token) {
-        setUserToken(token)
-        await getUserData(token)
+
+      if (!token) {
+        console.log('🔒 Aucun token trouvé, utilisateur non connecté.')
+        setIsLoading(false)
+        return
       }
+
+      console.log('🔐 Token trouvé :', token)
+
+      // Essaye de récupérer les données utilisateur avec le token
+      setUserToken(token)
+      await getUserData(token)
     } catch (error) {
-      console.error('Error initializing auth:', error)
+      console.error(
+        "Erreur lors de l'initialisation de l'authentification :",
+        error,
+      )
+      setUserToken(null)
+      setUserData(null)
+      await StoreDelete('usertoken')
     } finally {
       setIsLoading(false)
     }
   }, [])
 
   // Get User Data
-  const getUserData = async (token, pushtoken) => {
-    data = {
+  // Get User Data sécurisé
+  const getUserData = async (token) => {
+    const data = {
       action: 'get-user-data',
       token,
     }
 
-    pushtoken = await Notifications.getExpoPushTokenAsync()
-
-    if (pushtoken) {
-      data.pushtoken = pushtoken.data
-    }
     try {
-      console.log(data)
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId
+
+      if (!projectId || typeof projectId !== 'string') {
+        console.warn(
+          '🟡 projectId manquant ou invalide pour ExpoPushTokenAsync',
+        )
+      } else {
+        const expoPushToken = await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+        if (expoPushToken?.data) {
+          data.pushtoken = expoPushToken.data
+          console.log('📩 Token push récupéré :', expoPushToken.data)
+        } else {
+          console.warn('🔕 Aucun token Expo récupéré')
+        }
+      }
+    } catch (e) {
+      console.warn(
+        '⚠️ Erreur récup push token Expo (non bloquante) :',
+        e?.message || e,
+      )
+    }
+
+    try {
+      console.log('📤 Données envoyées :', data)
       const response = await axiosInstance.post('api.php', data)
 
       if (
         response.data.code === 'ERROR' &&
-        response.data.data.includes('utilisateur non reconnu')
+        response.data.data?.includes('utilisateur non reconnu')
       ) {
         console.error('Utilisateur non reconnu. Déconnexion en cours...')
         setUserToken(null)
         setUserData(null)
         await StoreDelete('usertoken')
-        return // Arrête l'exécution ici
+        return
       }
 
-      // console.log(response.data.data);
       setUserData(response.data.data)
     } catch (error) {
-      console.error('Error fetching user data:', error)
+      console.error('❌ Erreur API getUserData :', error)
       setUserToken(null)
+      setUserData(null)
     }
   }
 
@@ -119,6 +157,7 @@ export const AuthProvider = ({ children }) => {
   }*/
   const Login = async ({ email, password }) => {
     setIsLoading(true)
+
     try {
       const response = await axiosInstance.post('api.php', {
         email,
@@ -128,16 +167,19 @@ export const AuthProvider = ({ children }) => {
 
       const { token } = response.data
 
-      if (token) {
-        setUserToken(token)
-        await StoreSave('usertoken', token)
-
-        // Appelle directement getUserData
-        await getUserData(token)
+      if (!token) {
+        throw new Error('Aucun token reçu. Veuillez vérifier vos identifiants.')
       }
+
+      // Stocke le token en local
+      setUserToken(token)
+      await StoreSave('usertoken', token)
+
+      // Récupère les données utilisateur + envoie le push token
+      await getUserData(token)
     } catch (error) {
-      console.error('Login error:', error)
-      throw new Error('Login failed. Check your credentials.')
+      console.error('Erreur lors de la connexion :', error)
+      throw new Error('Échec de la connexion. Vérifiez vos identifiants.')
     } finally {
       setIsLoading(false)
     }
