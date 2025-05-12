@@ -95,48 +95,6 @@ const Login = () => {
     }
   }, [isValid, loginData, Login, navigation])
 
-  const showPushToken = async () => {
-    try {
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ??
-        Constants?.easConfig?.projectId
-
-      if (!projectId) {
-        Toast.show({
-          type: 'error',
-          text1: 'Project ID manquant',
-          text2: 'Impossible de générer le token',
-        })
-        return
-      }
-
-      const tokenData = await Notifications.getExpoPushTokenAsync({ projectId })
-
-      if (tokenData?.data) {
-        await Clipboard.setStringAsync(tokenData.data)
-
-        Toast.show({
-          type: 'info',
-          text1: 'Token Push',
-          text2: tokenData.data,
-          autoHide: false,
-        })
-
-        Toast.show({
-          type: 'success',
-          text1: 'Copié dans le presse-papier ✅',
-        })
-      }
-    } catch (error) {
-      console.error('Erreur récupération token :', error)
-      Toast.show({
-        type: 'error',
-        text1: 'Erreur token',
-        text2: error.message,
-      })
-    }
-  }
-
   return (
     <Block safe marginTop={sizes.md}>
       <Block paddingHorizontal={sizes.s}>
@@ -312,14 +270,6 @@ const Login = () => {
                     Se connecter
                   </Text>
                 )}
-              </Button>
-              <Button
-                outlined
-                gray
-                marginTop={sizes.sm}
-                onPress={showPushToken}
-              >
-                <Text center>Afficher mon Expo Push Token</Text>
               </Button>
 
               {error ? (

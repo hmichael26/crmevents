@@ -85,7 +85,7 @@ export default function App() {
     </>
   )
 }
-/*
+
 async function registerForPushNotificationsAsync() {
   let token
 
@@ -130,76 +130,6 @@ async function registerForPushNotificationsAsync() {
     }
   } else {
     alert('Must use physical device for Push Notifications')
-  }
-
-  return token
-}*/
-
-async function registerForPushNotificationsAsync() {
-  let token
-
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('myNotificationChannel', {
-      name: 'A channel is needed for the permissions prompt to appear',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    })
-  }
-
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync()
-    let finalStatus = existingStatus
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync()
-      finalStatus = status
-    }
-    if (finalStatus !== 'granted') {
-      Toast.show({
-        type: 'error',
-        text1: 'Permission refusée ❌',
-        text2: 'Notifications push désactivées',
-      })
-      return
-    }
-
-    try {
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ??
-        Constants?.easConfig?.projectId
-      if (!projectId) throw new Error('Project ID not found')
-
-      token = (await Notifications.getExpoPushTokenAsync({ projectId })).data
-      console.log('Expo Push Token:', token)
-
-      // ✅ 1. Afficher le token
-      Toast.show({
-        type: 'info',
-        text1: 'Expo Push Token',
-        text2: token,
-        autoHide: false,
-      })
-
-      // ✅ 2. Copier et afficher toast success
-      try {
-        await Clipboard.setStringAsync(token)
-        Toast.show({
-          type: 'success',
-          text1: 'Token copié ✅',
-        })
-      } catch (err) {
-        console.warn('Erreur clipboard :', err)
-      }
-    } catch (e) {
-      console.error(e)
-      token = `${e}`
-    }
-  } else {
-    Toast.show({
-      type: 'error',
-      text1: 'Appareil requis',
-      text2: 'Utilise un vrai téléphone pour les notifications',
-    })
   }
 
   return token
