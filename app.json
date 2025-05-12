@@ -29,7 +29,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/images/icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -62,16 +63,10 @@
         }
       ],
       
-       [
-        "expo-notifications",
-        {
-          "icon": "./app/assets/images/splash.png",
-          "color": "#ffffff",
-          "defaultChannel": "default",
-         
-          "enableBackgroundRemoteNotifications": false
-        }
-      ]
+       
+        "expo-notifications"
+      
+      
       
     ],
     "experiments": {
