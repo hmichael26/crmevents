@@ -130,6 +130,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     }));
   };*/
   function getIds(items) {
+    console.log(items)
     return items
       .map((item) => item.id) // Map array to only ids
       .filter((id) => id !== undefined && id !== null) // Filter out undefined or null ids
@@ -155,11 +156,21 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   }
 
   const handleSaveForm = () => {
-    if (formData.derouleTitle === '') {
-      return
+    if (!derouleTitle.trim()) return
+
+    // on reconstruit le payload complet
+    const payload = {
+      ...formData,
+      derouleTitle,
+      // on récupère TOUTES les selectedId non-null, on filtre et on joint
+      newPresta: prestataire
+        .map((p) => p.selectedId)
+        .filter((id) => id !== null)
+        .join(','),
     }
 
-    validForm({ data: formData })
+    console.log('Payload envoyé :', payload)
+    validForm({ data: payload })
   }
 
   useEffect(() => {
@@ -198,35 +209,33 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
-  console.log(prestataire)
+  // console.log(prestataire)
 
   const addPrestataire = () => {
-    const newPrestataires = [...prestataire, { id: Date.now(), name: '' }]
-    setPrestataire(newPrestataires)
+    setPrestataire((prev) => [
+      ...prev,
+      { key: Date.now().toString(), selectedId: null, nom: '' },
+    ])
   }
 
   const removePrestataire = (id: number) => {
     console.log(id)
     const newPrestataires = prestataire.filter((prest) => prest.id !== id)
     setPrestataire(newPrestataires)
-    console.log(prestataire)
+    // console.log(prestataire)
   }
 
-  const updatePrestataire = (selectedClient: any, currentClientId: number) => {
-    // console.log(selectedClient, currentClientId)
-
-    const newPrestataires = prestataire.map((presta) =>
-      presta.id === currentClientId
-        ? {
-            id: selectedClient.id,
-            nom: selectedClient.nom,
-          }
-        : {
-            id: presta.id,
-            nom: presta.nom,
-          },
+  const updatePrestataire = (
+    selectedClient: { id: number; nom: string },
+    rowKey: string,
+  ) => {
+    setPrestataire((prev) =>
+      prev.map((item) =>
+        item.key === rowKey
+          ? { ...item, selectedId: selectedClient.id, nom: selectedClient.nom }
+          : item,
+      ),
     )
-    setPrestataire(newPrestataires)
   }
 
   const renderClientItem = ({
@@ -239,7 +248,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     <View key={index} style={styles.clientContainer}>
       <ModalPresta
         nom={data.nom}
-        onSelectItem={(presta) => updatePrestataire(presta, data.id)}
+        onSelectItem={(presta) => updatePrestataire(presta, data.key)}
         onClose={() => console.log('close')}
       />
       <TouchableOpacity
@@ -389,7 +398,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             <FlatList
               data={prestataire}
               renderItem={renderClientItem}
-              keyExtractor={(client) => client.id}
+              keyExtractor={(client) => client.key}
               contentContainerStyle={styles.clientListContainer}
             />
           </>

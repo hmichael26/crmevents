@@ -139,7 +139,7 @@ const Home = (props: DrawerContentComponentProps) => {
       />
     )
   }
-  console.log(userdata.user)
+  console.log(userdata.user.pushtoken)
 
   return (
     <Block>
