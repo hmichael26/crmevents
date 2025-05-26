@@ -166,7 +166,8 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     // on reconstruit le payload complet
     const payload = {
       ...formData,
-      idevt: item.idevt,
+      idevt: item.idevt ? item.idevt : item?.fk_evt,
+      id_deroule: item?.id,
       derouleTitle,
       // on récupère TOUTES les selectedId non-null, on filtre et on joint
       newPresta: prestataire
@@ -175,9 +176,9 @@ const EventPresta: React.FC = ({ route, navigation }) => {
         .join(','),
     }
 
-    //  console.log('Payload envoyé :', payload)
-    showToast('✅ Données sauvegardées avec succès !', 'success')
-    validForm({ data: payload })
+    console.log('Payload envoyé :', payload)
+    /* showToast('✅ Données sauvegardées avec succès !', 'success')
+    validForm({ data: payload })*/
   }
 
   useEffect(() => {
