@@ -311,7 +311,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     }
   }
 
-  if (item && item.length > 0 && fields.length === 0) {
+  if (item && item.length > 0) {
     return (
       <View style={styles.fieldContainer}>
         <Text
