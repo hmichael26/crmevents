@@ -92,7 +92,10 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const getDerouleData0 = async () => {
     try {
       const response = await getDerouler({ id_deroule: item.id })
-      // console.log(response.data);
+      console.log(response.data)
+      response.data?.titre_deroule
+        ? setDerouleTitle(response.data.titre_deroule)
+        : setDerouleTitle(item?.titre_deroule || '')
       setData0(response.data)
     } catch (error) {
       console.error('Erreur lors de la récupération des données :', error)
