@@ -32,6 +32,7 @@ import Form5 from '../components/EventForm5'
 import { AuthContext } from '../context/AuthContext'
 import { useApi } from '../context/useApi'
 import ModalPresta from '../components/ModalPresta'
+import { useToast } from '../components/ToastComponent'
 
 // import { Container } from './styles';
 const { width, height } = Dimensions.get('window')
