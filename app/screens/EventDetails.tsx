@@ -499,6 +499,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
           </View>
         </Animated.View>
       )}
+      <ToastComponent />
     </SafeAreaView>
   )
 }

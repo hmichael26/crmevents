@@ -45,6 +45,7 @@ const fontScale = PixelRatio.getFontScale()
 
 const EventPresta: React.FC = ({ route, navigation }) => {
   const { item } = route.params
+  const { showToast, ToastComponent } = useToast()
 
   console.log(item)
 
@@ -161,6 +162,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     // on reconstruit le payload complet
     const payload = {
       ...formData,
+      idevt: item?.fk_evt,
       derouleTitle,
       // on récupère TOUTES les selectedId non-null, on filtre et on joint
       newPresta: prestataire
@@ -170,6 +172,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     }
 
     console.log('Payload envoyé :', payload)
+    showToast('✅ Données sauvegardées avec succès !', 'success')
     validForm({ data: payload })
   }
 
@@ -465,6 +468,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
           </View>
         </Animated.View>
       )}
+      <ToastComponent />
     </SafeAreaView>
   )
 }
