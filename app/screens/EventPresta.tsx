@@ -48,7 +48,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const { item } = route.params
   const { showToast, ToastComponent } = useToast()
 
-  console.log(item)
+  // console.log(item)
 
   const handleGoBack = () => {
     navigation.goBack() // Retourne à l'écran précédent
@@ -166,7 +166,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     // on reconstruit le payload complet
     const payload = {
       ...formData,
-      idevt: item?.fk_evt,
+      idevt: item.idevt,
       derouleTitle,
       // on récupère TOUTES les selectedId non-null, on filtre et on joint
       newPresta: prestataire
@@ -175,7 +175,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
         .join(','),
     }
 
-    console.log('Payload envoyé :', payload)
+    //  console.log('Payload envoyé :', payload)
     showToast('✅ Données sauvegardées avec succès !', 'success')
     validForm({ data: payload })
   }

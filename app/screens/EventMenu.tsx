@@ -73,6 +73,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
   // console.log(arrderoules)
   const handleNavigation = useCallback(
     (to: keyof RootStackParamList, item: ItemType) => {
+      console.log(item)
       setActive(to)
       navigation.navigate(to, { item })
     },
