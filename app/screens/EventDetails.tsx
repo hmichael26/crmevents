@@ -109,6 +109,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
   const { item } = route.params
 
+  console.log(item)
+
   const navigation = useNavigation()
 
   // Helper function to convert date-like input to Date object
@@ -175,15 +177,15 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
           ? parseSelectedIds(item?.types_evts) // Sinon, applique le parsing
           : [],
         date_deb:
-          item.date_reception instanceof Date
-            ? item.date_reception // Si c'est déjà une date, utilise-la
-            : item.date_reception
+          item.date_deb instanceof Date
+            ? item.date_deb // Si c'est déjà une date, utilise-la
+            : item.date_deb
             ? parseDate(item.date_deb) // Sinon, applique le parsing
             : null,
         date_fin:
-          item.date_reception instanceof Date
-            ? item.date_reception // Si c'est déjà une date, utilise-la
-            : item.date_reception
+          item.date_fin instanceof Date
+            ? item.date_fin // Si c'est déjà une date, utilise-la
+            : item.date_fin
             ? parseDate(item.date_fin) // Sinon, applique le parsing
             : null,
         flexible_dates: item.flexible_dates || false,
