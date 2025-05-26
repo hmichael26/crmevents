@@ -38,6 +38,7 @@ import Form2 from '../components/EventForm2'
 import Form3 from '../components/EventForm3'
 import { RouteProp, useNavigation } from '@react-navigation/native'
 import { AuthContext } from '../context/AuthContext'
+import { useToast } from '../components/ToastComponent'
 
 type RootStackParamList = {
   EventDetails: { item: ItemType } // Définir les paramètres de l'écran
@@ -104,6 +105,7 @@ const fontScale = PixelRatio.getFontScale()
 
 const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   const { userdata, validForm, getUserData } = useContext(AuthContext)
+  const { showToast, ToastComponent } = useToast()
 
   const eventTypes = userdata.all_types_evts
 
@@ -322,6 +324,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   }
 
   const handleSaveForm = () => {
+    showToast('✅ Données sauvegardées avec succès !', 'success')
     validForm(formDataObj)
   }
 

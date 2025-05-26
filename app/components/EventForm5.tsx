@@ -115,7 +115,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     return 'text'
   }
 
-  const [fields, setFields] = useState<Field[]>([])
+  const [fields, setFields] = useState<Field[] | null>(null)
   const [dynamicOptions, setDynamicOptions] = useState<Option[]>([])
 
   useEffect(() => {
@@ -310,18 +310,19 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         )
     }
   }
-
+  if (fields === null) {
+    return (
+      <View style={styles.fieldContainer}>
+        <Text
+          style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}
+        >
+          chargement ...
+        </Text>
+      </View>
+    )
+  }
   return (
     <ScrollView style={styles.container}>
-      {(item && item.length > 0 && fields.length === 0) ?? (
-        <View style={styles.fieldContainer}>
-          <Text
-            style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}
-          >
-            chargement ...
-          </Text>
-        </View>
-      )}
       {fields &&
         fields.map((field, index) => (
           <View key={index} style={styles.fieldContainer}>
