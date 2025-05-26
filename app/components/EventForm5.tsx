@@ -115,7 +115,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     return 'text'
   }
 
-  const [fields, setFields] = useState<Field[] | null>(null)
+  const [fields, setFields] = useState<Field[]>([])
   const [dynamicOptions, setDynamicOptions] = useState<Option[]>([])
 
   useEffect(() => {
