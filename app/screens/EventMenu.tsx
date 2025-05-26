@@ -61,6 +61,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 
   useEffect(() => {
     if (item?.idevt) {
+      console.log('ok jai ete recharger')
       getevent({ idevt: item.idevt, token: storedToken }).then((response) => {
         setData(response.data)
       })
