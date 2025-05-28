@@ -195,6 +195,7 @@ const Form4 = ({ item, onDataChange, getData0 }) => {
     }))
   }
 
+  console.log(activeBadgeData)
   const saveCurrentChanges = () => {
     if (activeBadgeData) {
       const hasChanges = Object.values(formFields).some((value) => value !== '')

@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import {
   View,
   StyleSheet,
@@ -14,6 +20,7 @@ import {
   PixelRatio,
   FlatList,
   Text as TextField,
+  RefreshControl,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/Ionicons' // Remplacez 'Ionicons' par l'icône de votre choix
@@ -47,6 +54,7 @@ const fontScale = PixelRatio.getFontScale()
 const EventPresta: React.FC = ({ route, navigation }) => {
   const { item } = route.params
   const { showToast, ToastComponent } = useToast()
+  const [refreshing, setRefreshing] = useState(false)
 
   // console.log(item)
 
@@ -55,6 +63,8 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   }
   const { getDerouler } = useApi()
   const [data0, setData0] = React.useState([])
+
+  console.log(data0)
 
   const { userdata, validForm } = useContext(AuthContext)
   const eventTypes = userdata.list_champ_dyn
@@ -105,6 +115,15 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       )
     }
   }
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      await getDerouleData0()
+    } finally {
+      setRefreshing(false)
+    }
+  }, [item])
 
   useEffect(() => {
     if (item?.id) {
@@ -354,6 +373,14 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       <ScrollView
         style={{ flex: 1, paddingBottom: 25 }}
         contentContainerStyle={styles.scrollViewContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
       >
         {step === 'deroule' && (
           <Form5

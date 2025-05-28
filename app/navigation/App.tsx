@@ -9,7 +9,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { AuthContext, AuthProvider } from '../context/AuthContext'
-import { useData } from '../hooks'
+import { useData, useTheme } from '../hooks'
 import { Login } from '../screens'
 import ModernSplashScreen from '../screens/ModernSplashScreen'
 import Menu from './Menu'
@@ -41,7 +41,7 @@ const SecureNavigator = () => {
 const App = () => {
   const { isDark, theme, setTheme } = useData()
   const [isReady, setIsReady] = useState(false)
-
+  const { colors } = useTheme()
   const [fontsLoaded] = useFonts({
     'OpenSans-Light': require('../assets/fonts/OpenSans-Light.ttf'),
     'OpenSans-Regular': require('../assets/fonts/OpenSans-Regular.ttf'),
@@ -100,6 +100,10 @@ const App = () => {
     <ThemeProvider theme={theme} setTheme={setTheme}>
       <AuthProvider>
         <NavigationContainer theme={navigationTheme}>
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor={colors.primary}
+          />
           <SecureNavigator />
         </NavigationContainer>
       </AuthProvider>
