@@ -51,7 +51,7 @@ const fontScale = PixelRatio.getFontScale()
 const getFontSize = (size: number) => size / fontScale
 
 const Form4 = ({ item, onDataChange, getData0 }) => {
-  console.log(item.id_deroule)
+  // console.log(item.id_deroule)
   // console.log(item.id_deroule)
 
   const { validdevis, validbrochure, sendDemande, deletePresta } = useApi()

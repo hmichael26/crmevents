@@ -79,29 +79,35 @@ const ClientPresta: React.FC = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.tabContainer}>
-        {derouler.map((deroule, index) => (
-          <Button
-            key={index}
-            gradient={
-              deroule.id === activeDeroule.id
-                ? gradients.primary
-                : gradients.secondary
-            }
-            style={[styles.tab]}
-            onPress={() => {
-              setActiveDeroule(deroule)
-            }}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                deroule.id === activeDeroule.id ? styles.activeTabText : null,
-              ]}
+        <FlatList
+          data={derouler}
+          horizontal
+          contentContainerStyle={{ paddingHorizontal: 16 }}
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item: deroule }) => (
+            <Button
+              gradient={
+                deroule.id === activeDeroule.id
+                  ? gradients.primary
+                  : gradients.secondary
+              }
+              style={[styles.tab]}
+              onPress={() => {
+                setActiveDeroule(deroule)
+              }}
             >
-              {deroule.titre_deroule}
-            </Text>
-          </Button>
-        ))}
+              <Text
+                style={[
+                  styles.tabText,
+                  deroule.id === activeDeroule.id ? styles.activeTabText : null,
+                ]}
+              >
+                {deroule.titre_deroule}
+              </Text>
+            </Button>
+          )}
+        />
       </View>
 
       {loading ? (
@@ -132,7 +138,7 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
