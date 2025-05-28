@@ -51,6 +51,7 @@ const fontScale = PixelRatio.getFontScale()
 const getFontSize = (size: number) => size / fontScale
 
 const Form4 = ({ item, onDataChange, getData0 }) => {
+  console.log(item.id_deroule)
   // console.log(item.id_deroule)
 
   const { validdevis, validbrochure, sendDemande, deletePresta } = useApi()
@@ -265,7 +266,10 @@ const Form4 = ({ item, onDataChange, getData0 }) => {
   }
 
   const [badgeToDelete, setBadgeToDelete] = useState<number | null>(null)
-
+  const NewDevisParam = {
+    id_deroule: item?.id_deroule,
+    id_presta: activeBadgeData?.id_presta,
+  }
   const handleBadgeClick = (badgeIndex, value) => {
     // Sauvegarder les modifications du prestataire actuel avant de changer
     if (activeBadgeData) {
@@ -959,6 +963,7 @@ const Form4 = ({ item, onDataChange, getData0 }) => {
               visible={activeBadge !== 0 && modalFormDevis}
               onClose={() => setModalFormDevis(false)}
               //   onSubmit={handleSubmit}
+              formParam={NewDevisParam}
               badge={badge.text}
             />
           ),

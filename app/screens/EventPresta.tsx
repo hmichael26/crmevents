@@ -64,8 +64,6 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const { getDerouler } = useApi()
   const [data0, setData0] = React.useState([])
 
-  console.log(data0)
-
   const { userdata, validForm } = useContext(AuthContext)
   const eventTypes = userdata.list_champ_dyn
   //console.log(eventTypes)

@@ -13,5 +13,6 @@ export interface ModalFormProps {
     visible: boolean;
     onClose: () => void;
     onSubmit: (data: any) => void;
+    formParam: any;
 }
 

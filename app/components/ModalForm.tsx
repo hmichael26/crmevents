@@ -21,9 +21,14 @@ import Button from './Button'
 
 import { useToast } from '../components/ToastComponent'
 
-const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
+const ModalForm: React.FC<ModalFormProps> = ({
+  visible,
+  onClose,
+  badge,
+  formParam,
+}) => {
   const { showToast, ToastComponent } = useToast()
-
+  console.log(formParam)
   const [selectedFiles, setSelectedFiles] = useState<any[]>([])
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [commission, setCommission] = useState<number>(10)
@@ -69,6 +74,8 @@ const ModalForm: React.FC<ModalFormProps> = ({ visible, onClose, badge }) => {
       data.append('phone', phone)
       data.append('commission', commission.toString())
       data.append('comment', comment)
+      data.append('id_deroule', formParam.id_deroule)
+      data.append('id_presta', formParam.id_presta)
       // Ajouter les fichiers un par un
       selectedFiles.forEach((file, index) => {
         data.append(`fichiers[${index}]`, {
