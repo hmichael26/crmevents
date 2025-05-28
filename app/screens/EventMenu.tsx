@@ -1,7 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Alert, View, Text as Text2 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { RouteProp, useNavigation } from '@react-navigation/native'
+import {
+  RouteProp,
+  useNavigation,
+  useFocusEffect,
+} from '@react-navigation/native'
 import { DrawerNavigationProp } from '@react-navigation/drawer'
 
 import { useTheme } from '../hooks/'
@@ -24,6 +28,7 @@ interface ItemType {
   name: string
   description: string
   arrderoules: any[]
+  idevt?: number // Ajouté car utilisé dans le code
 }
 
 type EventMenuNavigationProp = DrawerNavigationProp<
@@ -38,7 +43,7 @@ interface EventMenuProps {
 
 interface ButtonsProps {
   item: ItemType
-  navigation: EventMenuNavigationProp // Utiliser EventMenuNavigationProp pour correspondre au type attendu
+  navigation: EventMenuNavigationProp
 }
 
 const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
@@ -51,26 +56,35 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
     }
   }
 
-  // console.log(item)
-
   const { getevent } = useApi()
-
   const { gradients, sizes } = useTheme()
   const [active, setActive] = useState('')
   const [data, setData] = useState<ItemType | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    if (item?.idevt) {
-      console.log('ok jai ete recharger')
-      getevent({ idevt: item.idevt, token: storedToken }).then((response) => {
-        setData(response.data)
-      })
-    }
-  }, [])
+  // Charger les données à chaque fois que l'écran devient actif
+  useFocusEffect(
+    useCallback(() => {
+      if (item?.idevt) {
+        setIsLoading(true)
+        console.log("Rechargement des données de l'événement")
+
+        getevent({ idevt: item.idevt, token: storedToken })
+          .then((response) => {
+            setData(response.data)
+          })
+          .catch((error) => {
+            console.error('Erreur lors du chargement:', error)
+          })
+          .finally(() => {
+            setIsLoading(false)
+          })
+      }
+    }, []), // Tableau de dépendances vide pour éviter les boucles
+  )
 
   const arrderoules = data?.arrderoules
 
-  // console.log(arrderoules)
   const handleNavigation = useCallback(
     (to: keyof RootStackParamList, item: ItemType) => {
       console.log(item)
@@ -95,20 +109,6 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
     )
   }, [gradients])
 
-  // Ancienne Fonction pour obtenir un gradient aléatoire
-  // const getRandomGradient = useMemo(() => {
-  //   return () => {
-  //     const randomIndex = Math.floor(Math.random() * gradientKeys.length);
-  //     return gradientKeys[randomIndex];
-  //   };
-  // }, [gradientKeys]);
-
-  // const itemGradients = useMemo(() => {
-  //   if (!data?.arrderoules) return [];
-  //   return data.arrderoules.map(() => getRandomGradient());
-  // }, [data?.arrderoules, getRandomGradient]);
-
-  // Fonction pour obtenir le gradient correspondant de manière cyclique
   const getGradientByIndex = useCallback(
     (index) => gradientKeys[index % gradientKeys.length],
     [gradientKeys],
@@ -136,14 +136,12 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
       { cancelable: true },
     )
   }
-  // console.log(data)
 
   async function handlepush(): Promise<void> {
     try {
       const value = await getevent({ idevt: item.idevt, token: storedToken })
 
       if (value.data) {
-        // console.log(value.data)
         handleNavigation('Eventdetails', value.data)
         return
       } else {
@@ -154,7 +152,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
     }
   }
 
-  if (!data) {
+  if (isLoading || !data) {
     return (
       <View style={{ marginBottom: 10 }}>
         <Text2 style={{ color: 'red', fontSize: 20, textAlign: 'center' }}>
@@ -167,8 +165,6 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
   if (!data.arrderoules || data.arrderoules.length === 0) {
     return <Text p>Aucun deroule associé à cet évènement</Text>
   }
-
-  // console.log(data.arrderoules)
 
   return (
     <Block paddingHorizontal={sizes.padding}>

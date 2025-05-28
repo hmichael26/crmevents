@@ -176,9 +176,8 @@ const EventPresta: React.FC = ({ route, navigation }) => {
         .join(','),
     }
 
-    console.log('Payload envoyé :', payload)
-    /* showToast('✅ Données sauvegardées avec succès !', 'success')
-    validForm({ data: payload })*/
+    showToast('✅ Données sauvegardées avec succès !', 'success')
+    validForm({ data: payload })
   }
 
   useEffect(() => {
