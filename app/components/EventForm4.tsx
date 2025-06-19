@@ -719,7 +719,7 @@ const Form4 = ({ item, onDataChange, getData0 }) => {
                   <View
                     style={[
                       StyleSheet.absoluteFill,
-                      { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+                      { backgroundColor: 'rgba(0, 0, 0, 0.9)' },
                     ]}
                   />
 

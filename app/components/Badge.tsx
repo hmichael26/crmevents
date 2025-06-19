@@ -1,16 +1,16 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import Button from './Button';
-import { useTheme } from '../hooks';
-import Icon from 'react-native-vector-icons/FontAwesome6';
+import React from 'react'
+import { View, Text, TouchableOpacity } from 'react-native'
+import Button from './Button'
+import { useTheme } from '../hooks'
+import Icon from 'react-native-vector-icons/FontAwesome6'
 
 interface BadgeProps {
-  badgeNumber?: number;
-  text?: string;
-  badgeColor: string;
-  onPress: () => void;
-  onDelete?: () => void;
-  isActive: boolean;
+  badgeNumber?: number
+  text?: string
+  badgeColor: string
+  onPress: () => void
+  onDelete?: () => void
+  isActive: boolean
 }
 
 const Badge: React.FC<BadgeProps> = ({
@@ -20,14 +20,14 @@ const Badge: React.FC<BadgeProps> = ({
   onPress,
   onDelete,
 
-  isActive
-
+  isActive,
 }) => {
-  const { assets, colors, gradients, sizes } = useTheme();
+  const { assets, colors, gradients, sizes } = useTheme()
 
-  const buttonGradient = badgeColor && gradients[badgeColor]
-    ? gradients[badgeColor]
-    : gradients.secondary;
+  const buttonGradient =
+    badgeColor && gradients[badgeColor]
+      ? gradients[badgeColor]
+      : gradients.secondary
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -42,35 +42,39 @@ const Badge: React.FC<BadgeProps> = ({
             marginHorizontal: 10,
             marginTop: 3,
           },
-          isActive && { paddingRight: 40 } // Ajouter un style conditionnel si `isActive` est vrai
+          isActive && { paddingRight: 40 }, // Ajouter un style conditionnel si `isActive` est vrai
         ]}
         onPress={onPress}
       >
         {badgeNumber != 0 && (
-          <View style={{
-            position: "absolute",
-            backgroundColor: colors.danger,
-            right: -23,
-            top: -23,
-            margin: 20,
-            width: 30,
-            height: 25,
-            borderRadius: 55,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center"
-          }}>
-            <Text style={{ color: "#fff", fontWeight: "bold" }}>
+          <View
+            style={{
+              position: 'absolute',
+              backgroundColor: colors.danger,
+              right: -23,
+              top: -23,
+              margin: 20,
+              width: 30,
+              height: 25,
+              borderRadius: 55,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>
               {badgeNumber}
             </Text>
           </View>
         )}
-        <Text style={{
-          color: "#fff",
-          fontSize: 20,
-          fontWeight: "bold",
-          textTransform: "uppercase"
-        }}>
+        <Text
+          style={{
+            color: '#fff',
+            fontSize: 16,
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+          }}
+        >
           {text}
         </Text>
       </Button>
@@ -81,8 +85,7 @@ const Badge: React.FC<BadgeProps> = ({
             position: 'absolute',
             right: 0,
             top: 10,
-            padding: 10
-
+            padding: 10,
           }}
           onPress={onDelete}
         >
@@ -90,7 +93,7 @@ const Badge: React.FC<BadgeProps> = ({
         </TouchableOpacity>
       )}
     </View>
-  );
-};
+  )
+}
 
-export default Badge;
+export default Badge

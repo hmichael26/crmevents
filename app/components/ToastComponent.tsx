@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import {
   View,
   Text,
@@ -6,19 +6,19 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-} from 'react-native';
+} from 'react-native'
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get('window')
 
-const Toast = ({ 
-  visible, 
-  message, 
-  type = 'success', 
-  duration = 3000, 
-  onHide 
+const Toast = ({
+  visible,
+  message,
+  type = 'success',
+  duration = 3000,
+  onHide,
 }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(-100)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  const slideAnim = useRef(new Animated.Value(-100)).current
 
   useEffect(() => {
     if (visible) {
@@ -34,18 +34,18 @@ const Toast = ({
           duration: 300,
           useNativeDriver: true,
         }),
-      ]).start();
+      ]).start()
 
       // Auto-hide après la durée spécifiée
       const timer = setTimeout(() => {
-        hideToast();
-      }, duration);
+        hideToast()
+      }, duration)
 
-      return () => clearTimeout(timer);
+      return () => clearTimeout(timer)
     }
-  }, [visible]);
+  }, [visible, duration]) // Ajout de duration dans les dépendances
 
-  const hideToast = () => {
+  const hideToast = useCallback(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -58,41 +58,41 @@ const Toast = ({
         useNativeDriver: true,
       }),
     ]).start(() => {
-      if (onHide) onHide();
-    });
-  };
+      if (onHide) onHide()
+    })
+  }, [fadeAnim, slideAnim, onHide])
 
   const getToastStyle = () => {
     switch (type) {
       case 'success':
-        return styles.successToast;
+        return styles.successToast
       case 'error':
-        return styles.errorToast;
+        return styles.errorToast
       case 'warning':
-        return styles.warningToast;
+        return styles.warningToast
       case 'info':
-        return styles.infoToast;
+        return styles.infoToast
       default:
-        return styles.successToast;
+        return styles.successToast
     }
-  };
+  }
 
   const getTextStyle = () => {
     switch (type) {
       case 'success':
-        return styles.successText;
+        return styles.successText
       case 'error':
-        return styles.errorText;
+        return styles.errorText
       case 'warning':
-        return styles.warningText;
+        return styles.warningText
       case 'info':
-        return styles.infoText;
+        return styles.infoText
       default:
-        return styles.successText;
+        return styles.successText
     }
-  };
+  }
 
-  if (!visible) return null;
+  if (!visible) return null
 
   return (
     <Animated.View
@@ -112,46 +112,77 @@ const Toast = ({
         <Text style={[styles.message, getTextStyle()]}>{message}</Text>
       </TouchableOpacity>
     </Animated.View>
-  );
-};
+  )
+}
 
-// Hook personnalisé pour gérer les toasts
+// Hook personnalisé optimisé pour éviter les doubles exécutions
 export const useToast = () => {
   const [toast, setToast] = useState({
     visible: false,
     message: '',
     type: 'success',
-  });
+    duration: 3000,
+  })
 
-  const showToast = (message, type = 'success', duration = 3000) => {
-    setToast({
-      visible: true,
-      message,
-      type,
-      duration,
-    });
-  };
+  // Référence pour éviter les appels multiples
+  const toastTimeoutRef = useRef(null)
+  const lastToastRef = useRef(null)
 
-  const hideToast = () => {
-    setToast(prev => ({ ...prev, visible: false }));
-  };
+  const showToast = useCallback(
+    (message, type = 'success', duration = 3000) => {
+      // Éviter les doubles appels avec le même message
+      const toastKey = `${message}-${type}-${Date.now()}`
+      if (lastToastRef.current === toastKey) {
+        console.log('Toast dupliqué évité:', message)
+        return
+      }
+      lastToastRef.current = toastKey
 
-  const ToastComponent = () => (
-    <Toast
-      visible={toast.visible}
-      message={toast.message}
-      type={toast.type}
-      duration={toast.duration}
-      onHide={hideToast}
-    />
-  );
+      // Nettoyer le timeout précédent si il existe
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current)
+      }
+
+      setToast({
+        visible: true,
+        message,
+        type,
+        duration,
+      })
+
+      // Reset de la référence après un délai
+      toastTimeoutRef.current = setTimeout(() => {
+        lastToastRef.current = null
+      }, 1000)
+    },
+    [],
+  )
+
+  const hideToast = useCallback(() => {
+    setToast((prev) => ({ ...prev, visible: false }))
+    // Reset de la référence lors du masquage
+    lastToastRef.current = null
+  }, [])
+
+  const ToastComponent = useCallback(
+    () => (
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        duration={toast.duration}
+        onHide={hideToast}
+      />
+    ),
+    [toast.visible, toast.message, toast.type, toast.duration, hideToast],
+  )
 
   return {
     showToast,
     hideToast,
     ToastComponent,
-  };
-};
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -204,6 +235,6 @@ const styles = StyleSheet.create({
   infoText: {
     color: '#FFFFFF',
   },
-});
+})
 
-export default Toast;
+export default Toast

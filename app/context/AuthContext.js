@@ -208,7 +208,7 @@ export const AuthProvider = ({ children }) => {
         token: usertoken,
       }
 
-      console.log(formData)
+      // console.log(formData)
       const response = await axiosInstance.post('api.php', formData)
       if (response.data.code === 'SUCCESS') {
         await getUserData(usertoken)

@@ -70,10 +70,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
       data.append('token', usertoken)
       data.append('action', 'save-all-datas')
       data.append('amount', amount)
-      data.append('email', email)
-      data.append('phone', phone)
-      data.append('commission', commission.toString())
-      data.append('comment', comment)
+
       data.append('id_deroule', formParam.id_deroule)
       data.append('id_presta', formParam.id_presta)
       // Ajouter les fichiers un par un
@@ -128,26 +125,6 @@ const ModalForm: React.FC<ModalFormProps> = ({
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="numeric"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Mail du prestataire :</Text>
-              <TextInput
-                style={[styles.input, { width: '50%' }]}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Tel du prestataire :</Text>
-              <TextInput
-                style={[styles.input, { width: '50%' }]}
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
               />
             </View>
           </View>
@@ -247,17 +224,6 @@ const ModalForm: React.FC<ModalFormProps> = ({
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
-
-          <View style={styles.formSection}>
-            <TextInput
-              style={styles.commentInput}
-              value={comment}
-              onChangeText={setComment}
-              placeholder="commentaire de commission"
-              multiline
-              numberOfLines={3}
-            />
           </View>
 
           <View style={styles.buttonContainer}>

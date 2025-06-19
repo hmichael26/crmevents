@@ -129,17 +129,16 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     }
   }, [item])
 
-  const handleDerouleTitleChange = (title: string) => {
-    // Log pour surveiller l'entrée utilisateur
+  const handleDerouleTitleChange = useCallback((title: string) => {
     console.log('Titre saisi :', title)
 
     setDerouleTitle(title)
     setFormData((prevData) => {
       const updatedData = { ...prevData, derouleTitle: title }
-      console.log('Mise à jour de formData :', updatedData) // Débogage
+      console.log('Mise à jour de formData :', updatedData)
       return updatedData
     })
-  }
+  }, [])
 
   /*
   // console.log(data0)
@@ -177,24 +176,30 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     })
   }
 
-  const handleSaveForm = () => {
+  const handleSaveForm = async () => {
+    // Validation précoce
     if (!derouleTitle.trim()) return
 
-    // on reconstruit le payload complet
+    // Construction du payload optimisée
     const payload = {
       ...formData,
-      idevt: item.idevt ? item.idevt : item?.fk_evt,
+      idevt: item.idevt ?? item?.fk_evt,
       id_deroule: item?.id,
       derouleTitle,
-      // on récupère TOUTES les selectedId non-null, on filtre et on joint
       newPresta: prestataire
         .map((p) => p.selectedId)
-        .filter((id) => id !== null)
+        .filter(Boolean) // Plus concis que id !== null
         .join(','),
     }
 
-    showToast('✅ Données sauvegardées avec succès !', 'success')
-    validForm({ data: payload })
+    try {
+      validForm({ data: payload })
+      showToast('✅ Données sauvegardées avec succès !', 'success')
+      await onRefresh()
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error)
+      showToast('❌ Erreur lors de la sauvegarde', 'error')
+    }
   }
 
   useEffect(() => {
@@ -364,6 +369,8 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             placeholderTextColor="#000"
             value={derouleTitle}
             onChangeText={handleDerouleTitleChange}
+            autoCorrect={false}
+            spellCheck={false}
           />
         </View>
       )}
