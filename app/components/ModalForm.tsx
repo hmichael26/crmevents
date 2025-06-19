@@ -69,7 +69,6 @@ const ModalForm: React.FC<ModalFormProps> = ({
       let data = new FormData()
       data.append('token', usertoken)
       data.append('action', 'save-all-datas')
-      data.append('amount', amount)
 
       data.append('id_deroule', formParam.id_deroule)
       data.append('id_presta', formParam.id_presta)
@@ -116,17 +115,6 @@ const ModalForm: React.FC<ModalFormProps> = ({
           <Text style={styles.modalTitle}>Inserer devis pour</Text>
           <View style={styles.hotelNameContainer}>
             <Text style={styles.hotelName}>{badge}</Text>
-          </View>
-          <View style={styles.formSection}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Montant du devis HT :</Text>
-              <TextInput
-                style={[styles.input, { width: '50%' }]}
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="numeric"
-              />
-            </View>
           </View>
 
           <View
@@ -188,42 +176,6 @@ const ModalForm: React.FC<ModalFormProps> = ({
                 </View>
               ))}
             </ScrollView>
-          </View>
-
-          <View
-            style={[
-              styles.formSection,
-              {
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                alignItems: 'center',
-              },
-            ]}
-          >
-            <Text style={styles.sectionTitle}>Commission :</Text>
-            <View style={styles.commissionButtons}>
-              {[10, 12, 15].map((rate) => (
-                <TouchableOpacity
-                  key={rate}
-                  style={[
-                    styles.commissionButton,
-                    commission === rate && {
-                      backgroundColor: useTheme().colors.primary,
-                    },
-                  ]}
-                  onPress={() => setCommission(rate)}
-                >
-                  <Text
-                    style={[
-                      styles.commissionButtonText,
-                      commission === rate && { color: 'white' },
-                    ]}
-                  >
-                    {rate}%
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
           </View>
 
           <View style={styles.buttonContainer}>
