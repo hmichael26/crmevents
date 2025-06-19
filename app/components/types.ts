@@ -12,7 +12,7 @@ export interface FormData {
 export interface ModalFormProps {
     visible: boolean;
     onClose: () => void;
-    onSubmit: (data: any) => void;
+    onSubmit: () => void;
     formParam: any;
 }
 

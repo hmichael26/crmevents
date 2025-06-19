@@ -50,7 +50,7 @@ const { width, height } = Dimensions.get('window')
 const fontScale = PixelRatio.getFontScale()
 const getFontSize = (size: number) => size / fontScale
 
-const Form4 = ({ item, onDataChange, getData0 }) => {
+const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
   // console.log(item.id_deroule)
   // console.log(item.id_deroule)
 
@@ -962,7 +962,7 @@ const Form4 = ({ item, onDataChange, getData0 }) => {
             <ModalForm
               visible={activeBadge !== 0 && modalFormDevis}
               onClose={() => setModalFormDevis(false)}
-              //   onSubmit={handleSubmit}
+              onSubmit={onRefresh}
               formParam={NewDevisParam}
               badge={badge.text}
             />

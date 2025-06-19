@@ -195,6 +195,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     try {
       validForm({ data: payload })
       showToast('✅ Données sauvegardées avec succès !', 'success')
+      setPrestataire([])
       await onRefresh()
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error)
@@ -248,7 +249,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   }
 
   const removePrestataire = (id: number) => {
-    console.log(id)
+    // console.log(id)
     const newPrestataires = prestataire.filter((prest) => prest.id !== id)
     setPrestataire(newPrestataires)
     // console.log(prestataire)
@@ -399,6 +400,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             item={data0}
             onDataChange={handleForm4DataChange}
             getData0={getDerouleData0}
+            onRefresh={onRefresh}
           />
         )}
 

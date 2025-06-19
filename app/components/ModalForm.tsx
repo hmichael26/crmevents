@@ -26,6 +26,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
   onClose,
   badge,
   formParam,
+  onSubmit,
 }) => {
   const { showToast, ToastComponent } = useToast()
   console.log(formParam)
@@ -84,6 +85,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
       await validFormMultiPart(data)
       showToast('✅ Données sauvegardées avec succès !', 'success')
 
+      onSubmit()
       resetForm()
     } catch (error) {
       console.error('Erreur de soumission:', error)
