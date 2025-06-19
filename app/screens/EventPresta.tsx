@@ -177,10 +177,11 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   }
 
   const handleSaveForm = async () => {
-    // Validation précoce
-    if (!derouleTitle.trim()) return
+    if (!derouleTitle.trim()) {
+      showToast('❌ Le titre est requis', 'error')
+      return
+    }
 
-    // Construction du payload optimisée
     const payload = {
       ...formData,
       idevt: item.idevt ?? item?.fk_evt,
@@ -188,20 +189,21 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       derouleTitle,
       newPresta: prestataire
         .map((p) => p.selectedId)
-        .filter(Boolean) // Plus concis que id !== null
+        .filter(Boolean)
         .join(','),
     }
 
     try {
-      validForm({ data: payload })
+      await validForm({ data: payload })
       showToast('✅ Données sauvegardées avec succès !', 'success')
       await onRefresh()
-      setTimeout(async () => {
-        await setPrestataire([])
-      }, 1000)
+
+      // Plus propre que setTimeout
+      setPrestataire([])
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error)
-      showToast('❌ Erreur lors de la sauvegarde', 'error')
+      const errorMessage = error.message || 'Erreur lors de la sauvegarde'
+      showToast(`❌ ${errorMessage}`, 'error')
     }
   }
 
