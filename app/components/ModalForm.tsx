@@ -52,11 +52,6 @@ const ModalForm: React.FC<ModalFormProps> = ({
   }, [])
 
   const handleSubmit = async () => {
-    if (!amount.trim() || !email.trim() || !phone.trim()) {
-      Alert.alert('Erreur', 'Veuillez remplir les champs Montant, Mail et Tel')
-      return
-    }
-
     if (selectedFiles.length === 0) {
       Alert.alert('Erreur', 'Veuillez sélectionner au moins un devis')
       return
