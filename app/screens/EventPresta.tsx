@@ -195,8 +195,10 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     try {
       validForm({ data: payload })
       showToast('✅ Données sauvegardées avec succès !', 'success')
-      setPrestataire([])
       await onRefresh()
+      setTimeout(async () => {
+        await setPrestataire([])
+      }, 1000)
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error)
       showToast('❌ Erreur lors de la sauvegarde', 'error')
