@@ -140,20 +140,31 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     }
   }, [item])
 
+  useEffect(() => {
+    // Debounce timer
+    const timer = setTimeout(() => {
+      if (derouleTitle !== formData.derouleTitle) {
+        console.log('Mise à jour du formData via useEffect :', derouleTitle)
+
+        setFormData((prevData) => ({
+          ...prevData,
+          derouleTitle: derouleTitle,
+        }))
+      }
+    }, 300) // 300ms de délai
+
+    // Cleanup function - très important !
+    return () => clearTimeout(timer)
+  }, [derouleTitle])
+
   const handleDerouleTitleChange = useCallback((title: string) => {
     console.log('Titre saisi :', title)
 
     // Validation en temps réel
     const trimmedTitle = title.trim()
 
-    setDerouleTitle(trimmedTitle)
+    setDerouleTitle(title)
     // Mettre à jour formData avec le nouveau titre
-    setTimeout(() => {
-      setFormData((prevData) => ({
-        ...prevData,
-        derouleTitle: trimmedTitle,
-      }))
-    }, 1000)
   }, [])
 
   /*
