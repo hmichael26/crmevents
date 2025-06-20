@@ -153,7 +153,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
         ...prevData,
         derouleTitle: trimmedTitle,
       }))
-    }, 200)
+    }, 1000)
   }, [])
 
   /*
