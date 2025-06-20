@@ -139,7 +139,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       getDerouleData0()
     }
   }, [item])
-
+  /*
   useEffect(() => {
     // Debounce timer
     const timer = setTimeout(() => {
@@ -155,7 +155,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
 
     // Cleanup function - très important !
     return () => clearTimeout(timer)
-  }, [derouleTitle])
+  }, [derouleTitle])*/
 
   const handleDerouleTitleChange = useCallback((title: string) => {
     console.log('Titre saisi :', title)
@@ -392,29 +392,33 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             style={{
               color: 'black',
               fontSize: 18,
-              textTransform: 'uppercase',
+
               textAlign: 'center',
               paddingVertical: 10,
             }}
             placeholder="Saisissez le titre de votre déroulé"
             placeholderTextColor="#999"
             value={derouleTitle}
-            onChangeText={handleDerouleTitleChange}
-            autoCorrect={false}
-            spellCheck={false}
-            keyboardType="default"
-            returnKeyType="done"
+            onChangeText={(text) => setDerouleTitle(text)}
             blurOnSubmit={true}
             onSubmitEditing={() => {
               Keyboard.dismiss()
             }}
-            enablesReturnKeyAutomatically={true}
-            maxLength={100} // Limite de caractères
-            multiline={false}
             // Validation visuelle en temps réel
             onBlur={() => {
-              if (!formData.derouleTitle.trim()) {
+              if (!derouleTitle.trim()) {
                 showToast('⚠️ Le titre ne peut pas être vide', 'warning')
+              }
+              if (derouleTitle !== formData.derouleTitle) {
+                console.log(
+                  'Mise à jour du formData via useEffect :',
+                  derouleTitle,
+                )
+
+                setFormData((prevData) => ({
+                  ...prevData,
+                  derouleTitle: derouleTitle,
+                }))
               }
             }}
           />
