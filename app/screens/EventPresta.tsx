@@ -88,7 +88,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [isKeyboardVisible, setKeyboardVisible] = useState(false)
   const fadeAnim = useRef(new Animated.Value(1)).current // Valeur d'animation initiale
-  const [derouleTitle, setDerouleTitle] = useState(item?.titre_deroule || '')
+  //const [derouleTitle, setDerouleTitle] = useState(item?.titre_deroule || '')
 
   const [formData, setFormData] = useState<any>({
     id_deroule: item?.id || 0,
@@ -101,9 +101,18 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     try {
       const response = await getDerouler({ id_deroule: item.id })
       console.log(response.data)
-      response.data?.titre_deroule
-        ? setDerouleTitle(response.data.titre_deroule)
-        : setDerouleTitle(item?.titre_deroule || '')
+
+      const titleFromResponse =
+        response.data?.titre_deroule || item?.titre_deroule || ''
+
+      // Mise à jour centralisée
+      setFormData((prevData) => ({
+        ...prevData,
+        derouleTitle: titleFromResponse,
+        // Autres données si nécessaires
+        fields: response.data?.fields || prevData.fields,
+      }))
+
       setData0(response.data)
     } catch (error) {
       console.error('Erreur lors de la récupération des données :', error)
@@ -132,9 +141,14 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const handleDerouleTitleChange = useCallback((title: string) => {
     console.log('Titre saisi :', title)
 
-    setDerouleTitle(title)
+    // Validation en temps réel
+    const trimmedTitle = title.trim()
+
     setFormData((prevData) => {
-      const updatedData = { ...prevData, derouleTitle: title }
+      const updatedData = {
+        ...prevData,
+        derouleTitle: title, // Garder la valeur brute pour l'affichage
+      }
       console.log('Mise à jour de formData :', updatedData)
       return updatedData
     })
@@ -161,7 +175,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const handleForm5DataChange = (data: any) => {
     setFormData({
       id_deroule: item?.id || 0,
-      derouleTitle: derouleTitle || '',
+      derouleTitle: formData.derouleTitle || '',
       numero_deroule: item?.numero_deroule,
       fields: data.fields,
       newPresta: getIds(prestataire),
@@ -172,12 +186,12 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     setFormData({
       ...data,
       newPresta: getIds(prestataire),
-      derouleTitle: derouleTitle || '',
+      derouleTitle: formData.derouleTitle || '',
     })
   }
 
   const handleSaveForm = async () => {
-    if (!derouleTitle.trim()) {
+    if (!formData.derouleTitle.trim()) {
       showToast('❌ Le titre est requis', 'error')
       return
     }
@@ -186,7 +200,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       ...formData,
       idevt: item.idevt ?? item?.fk_evt,
       id_deroule: item?.id,
-      derouleTitle,
+
       newPresta: prestataire
         .map((p) => p.selectedId)
         .filter(Boolean)
@@ -195,11 +209,9 @@ const EventPresta: React.FC = ({ route, navigation }) => {
 
     try {
       await validForm({ data: payload })
+      setPrestataire([])
       showToast('✅ Données sauvegardées avec succès !', 'success')
       await onRefresh()
-
-      // Plus propre que setTimeout
-      setPrestataire([])
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error)
       const errorMessage = error.message || 'Erreur lors de la sauvegarde'
@@ -312,7 +324,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       <View style={{ marginHorizontal: 30 }}>
         <Button gradient={gradients.primary} marginBottom={sizes.base}>
           <Text white transform="uppercase" size={20}>
-            {derouleTitle || 'Ajouter un déroulé'}
+            {formData.derouleTitle || 'Ajouter un déroulé'}
           </Text>
         </Button>
 
@@ -369,13 +381,29 @@ const EventPresta: React.FC = ({ route, navigation }) => {
               fontSize: 18,
               textTransform: 'uppercase',
               textAlign: 'center',
+              paddingVertical: 10,
             }}
             placeholder="Saisissez le titre de votre déroulé"
-            placeholderTextColor="#000"
-            value={derouleTitle}
+            placeholderTextColor="#999"
+            value={formData.derouleTitle}
             onChangeText={handleDerouleTitleChange}
             autoCorrect={false}
             spellCheck={false}
+            keyboardType="default"
+            returnKeyType="done"
+            blurOnSubmit={true}
+            onSubmitEditing={() => {
+              Keyboard.dismiss()
+            }}
+            enablesReturnKeyAutomatically={true}
+            maxLength={100} // Limite de caractères
+            multiline={false}
+            // Validation visuelle en temps réel
+            onBlur={() => {
+              if (!formData.derouleTitle.trim()) {
+                showToast('⚠️ Le titre ne peut pas être vide', 'warning')
+              }
+            }}
           />
         </View>
       )}

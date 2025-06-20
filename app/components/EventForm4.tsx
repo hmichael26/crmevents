@@ -32,86 +32,218 @@ import * as Sharing from 'expo-sharing'
 import { Picker } from '@react-native-picker/picker'
 import ModalForm from './ModalForm'
 import { AuthContext } from '../context/AuthContext'
-
 import PdfModal from './PdfModal'
 import { useApi } from '../context/useApi'
 import DevisInterface from './DevisInterface'
 import Dropdown from './Dropdown'
 
-// import { Container } from './styles';
+// ===========================
+// CONSTANTES
+// ===========================
 const options = [
   { id: '1', label: 'oui' },
   { id: '2', label: 'non' },
   { id: '3', label: 'supprimer' },
-  // Add more options as needed
 ]
 
 const { width, height } = Dimensions.get('window')
 const fontScale = PixelRatio.getFontScale()
-const getFontSize = (size: number) => size / fontScale
+const getFontSize = (size) => size / fontScale
 
+// ===========================
+// COMPOSANT PRINCIPAL
+// ===========================
 const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
-  // console.log(item.id_deroule)
-  // console.log(item.id_deroule)
-
+  // ===========================
+  // HOOKS & API
+  // ===========================
   const { validdevis, validbrochure, sendDemande, deletePresta } = useApi()
+  const { assets, colors, gradients, sizes } = useTheme()
 
+  // ===========================
+  // ÉTATS LOCAUX
+  // ===========================
+  // États des données
   const [prestataireModifications, setPrestataireModifications] = useState({})
-
   const [formFields, setFormFields] = useState({
-    comment: activeBadgeData?.comment || '',
-    email: activeBadgeData?.email || '',
-    tel: activeBadgeData?.tel || '',
+    comment: '',
+    email: '',
+    tel: '',
   })
+  const [badges, setBadges] = useState([])
+  const [activeBadge, setActiveBadge] = useState(0)
+  const [activeBadgeData, setActiveBadgeData] = useState(null)
+  const [badgeToDelete, setBadgeToDelete] = useState(null)
 
+  // États des modales
   const [pdfModalVisible, setPdfModalVisible] = useState(false)
   const [pdfUri, setPdfUri] = useState(null)
-
   const [modalFormDevis, setModalFormDevis] = useState(false)
   const [modalimage, setModalimage] = useState(false)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-
-  const [selectedOption, setSelectedOption] = useState('')
-  const [selectedOption2, setSelectedOption2] = useState('')
-  const { assets, colors, gradients, sizes } = useTheme()
-  const [switch1, setSwitch1] = useState(true) //  true pour le switch comparateur
-  const [switch2, setSwitch2] = useState(true)
-  const [switch3, setSwitch3] = useState(false)
-  const [validForm1, setValid1] = useState<Boolean>(false)
-  const [validForm2, setValid2] = useState<Boolean>(false)
-
   const [modalVisible, setModalVisible] = useState(false)
   const [modalVisible2, setModalVisible2] = useState(false)
 
-  const [currentForm, setCurrentForm] = useState<number | null>(null) // 1 pour Form1, 2 pour Form2
-  const [activeBadge, setActiveBadge] = useState<number | null>(0)
-  const [activeBadgeData, setActiveBadgeData] = useState<any>(null)
-  const [badges, setBadges] = useState([])
+  // États de l'interface
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [selectedOption, setSelectedOption] = useState('')
+  const [selectedOption2, setSelectedOption2] = useState('')
+  const [currentForm, setCurrentForm] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleOptionSelect = async (
-    option: React.SetStateAction<string>,
-    type: number,
-  ) => {
-    if (type == 1) {
+  // États des switches (non utilisés dans le code actuel)
+  const [switch1, setSwitch1] = useState(true)
+  const [switch2, setSwitch2] = useState(true)
+  const [switch3, setSwitch3] = useState(false)
+  const [validForm1, setValid1] = useState(false)
+  const [validForm2, setValid2] = useState(false)
+
+  // ===========================
+  // EFFETS
+  // ===========================
+  // Initialisation des badges
+  useEffect(() => {
+    if (item) {
+      const badges = item?.all_presta_interroges?.map((item) => ({
+        text: item.nom_presta,
+        number: 0,
+        color: item.color,
+      }))
+      setBadges(badges)
+    }
+  }, [item])
+
+  // Mise à jour des champs quand on change de prestataire actif
+  useEffect(() => {
+    if (activeBadgeData) {
+      const savedModifications =
+        prestataireModifications[activeBadgeData.nom_presta]
+      setFormFields({
+        comment: savedModifications?.comment || activeBadgeData.comment || '',
+        email: savedModifications?.email || activeBadgeData.email || '',
+        tel: savedModifications?.contact || activeBadgeData.contact || '',
+      })
+    }
+  }, [activeBadgeData])
+
+  // Notification des changements
+  useEffect(() => {
+    if (prestataireModifications) {
+      onDataChange(prestataireModifications)
+    }
+  }, [prestataireModifications])
+
+  // ===========================
+  // GESTIONNAIRES D'ÉVÉNEMENTS
+  // ===========================
+  const handleFieldChange = (field, value) => {
+    setFormFields((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
+
+  const handleOptionSelect = async (option, type) => {
+    if (type === 1) {
       if (option === 'supprimer') {
-        validateForm(1) // Ouvre le modal pour confirmer la suppression
+        validateForm(1)
       } else {
-        setSelectedOption(option) // Met à jour directement l'option sélectionnée
+        setSelectedOption(option)
       }
     } else {
       if (option === 'supprimer') {
-        validateForm(2) // Ouvre le modal pour confirmer la suppression
+        validateForm(2)
       } else {
         await validbrochure({
           id_presta: activeBadgeData.id_presta,
           valid: option,
         })
-        setSelectedOption2(option) // Met à jour directement l'option sélectionnée
+        setSelectedOption2(option)
       }
     }
   }
 
+  const handleBadgeClick = (badgeIndex, value) => {
+    if (activeBadgeData) {
+      saveCurrentChanges()
+    }
+
+    setActiveBadge((prevActiveBadge) =>
+      prevActiveBadge === badgeIndex ? 0 : badgeIndex,
+    )
+
+    const selectedPresta = item.all_presta_interroges.find(
+      (presta) => presta.nom_presta === value.text,
+    )
+    setActiveBadgeData(selectedPresta)
+  }
+
+  const handleBadgeDataWithPrestaName = (value) => {
+    const selectedPresta = item.all_presta_interroges.find(
+      (presta) => presta.nom_presta === value,
+    )
+    setActiveBadgeData(selectedPresta)
+  }
+
+  const handleBadgeDelete = (index) => {
+    setBadgeToDelete(index)
+    setModalVisible2(true)
+  }
+
+  const handleConfirm = async () => {
+    if (currentForm === 1) {
+      setSelectedOption('supprimer')
+    } else if (currentForm === 2) {
+      await validbrochure({
+        id_presta: activeBadgeData?.id_presta,
+        valid: 'supprimer',
+      })
+      setSelectedOption2('supprimer')
+    }
+    setModalVisible(false)
+    setCurrentForm(null)
+  }
+
+  const handleCancel = () => {
+    setModalVisible(false)
+    setCurrentForm(null)
+  }
+
+  // ===========================
+  // FONCTIONS UTILITAIRES
+  // ===========================
+  const validateForm = (formNumber) => {
+    setCurrentForm(formNumber)
+    setModalVisible(true)
+  }
+
+  const saveCurrentChanges = () => {
+    if (activeBadgeData) {
+      const hasChanges = Object.values(formFields).some((value) => value !== '')
+
+      if (hasChanges) {
+        setPrestataireModifications((prev) => ({
+          ...prev,
+          [activeBadgeData.nom_presta]: {
+            ...formFields,
+          },
+        }))
+      }
+    }
+  }
+
+  const getAllModifications = () => {
+    saveCurrentChanges()
+    return Object.values(prestataireModifications)
+  }
+
+  const handleSubmitAll = () => {
+    const allModifications = getAllModifications()
+    // Logique pour envoyer les données
+  }
+
+  // ===========================
+  // GESTION DES IMAGES
+  // ===========================
   const openModalImage = () => setModalimage(true)
   const closeModalimage = () => setModalimage(false)
 
@@ -129,117 +261,20 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
     )
   }
 
-  const handleConfirm = async () => {
-    // Si le formulaire 1 est actif et confirmé
-    if (currentForm === 1) {
-      setSelectedOption('supprimer') // Applique la suppression
-      // console.log('Formulaire 1 supprimé');
-    } else if (currentForm === 2) {
-      await validbrochure({
-        id_presta: activeBadgeData?.id_presta,
-        valid: 'supprimer',
-      })
-      setSelectedOption2('supprimer') // Applique la suppression
-      // console.log('Formulaire 2 supprimé');
-    }
-
-    setModalVisible(false) // Ferme le modal après la confirmation
-    setCurrentForm(null) // Réinitialise le formulaire actif
-  }
-
-  const handleCancel = () => {
-    setModalVisible(false) // Ferme le modal sans rien faire
-    setCurrentForm(null) // Réinitialise le formulaire actif
-    // console.log('Suppression annulée');
-  }
-
-  const validateForm = (formNumber: number) => {
-    setCurrentForm(formNumber) // Active le formulaire correspondant
-    setModalVisible(true) // Ouvre le modal de confirmation
-  }
-
-  useEffect(() => {
-    if (item) {
-      const badges = item?.all_presta_interroges?.map((item) => ({
-        text: item.nom_presta,
-        number: 0,
-        color: item.color,
-      }))
-      setBadges(badges)
-    }
-  }, [item])
-
-  // Mettre à jour les champs quand on change de prestataire actif
-  useEffect(() => {
-    if (activeBadgeData) {
-      // Charger soit les modifications sauvegardées, soit les données originales
-      const savedModifications =
-        prestataireModifications[activeBadgeData.nom_presta]
-      setFormFields({
-        comment: savedModifications?.comment || activeBadgeData.comment || '',
-        email: savedModifications?.email || activeBadgeData.email || '',
-        tel: savedModifications?.contact || activeBadgeData.contact || '',
-      })
-    }
-  }, [activeBadgeData])
-
-  useEffect(() => {
-    if (prestataireModifications) {
-      onDataChange(prestataireModifications)
-    }
-  }, [prestataireModifications])
-
-  const handleFieldChange = (field, value) => {
-    setFormFields((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
-
-  console.log(activeBadgeData)
-  const saveCurrentChanges = () => {
-    if (activeBadgeData) {
-      const hasChanges = Object.values(formFields).some((value) => value !== '')
-
-      if (hasChanges) {
-        setPrestataireModifications((prev) => ({
-          ...prev,
-          [activeBadgeData.nom_presta]: {
-            ...formFields,
-          },
-        }))
-      }
-    }
-  }
-
-  // Obtenir toutes les modifications pour l'envoi
-  const getAllModifications = () => {
-    // Sauvegarder les modifications actuelles avant de retourner
-    saveCurrentChanges()
-    return Object.values(prestataireModifications)
-  }
-
-  // Fonction pour soumettre toutes les modifications
-  const handleSubmitAll = () => {
-    const allModifications = getAllModifications()
-    //console.log("Modifications à envoyer:", allModifications);
-    // Ici vous pouvez ajouter la logique pour envoyer les données
-  }
-
+  // ===========================
+  // GESTION DES DOCUMENTS
+  // ===========================
   const handleOpenPdf = async (pdfUri) => {
     try {
       let uriToOpen = pdfUri
 
-      // Si le PDF est une URL distante, téléchargez-le d'abord
       if (pdfUri.startsWith('http://') || pdfUri.startsWith('https://')) {
         const localUri = `${FileSystem.documentDirectory}temp.pdf`
         const { uri } = await FileSystem.downloadAsync(pdfUri, localUri)
-        uriToOpen = uri // Mettre à jour l'URI pour pointer vers le fichier local téléchargé
+        uriToOpen = uri
       }
 
-      // Vérifier si le partage est disponible sur l'appareil
       if (await Sharing.isAvailableAsync()) {
-        // Ouvrir le fichier PDF en utilisant le gestionnaire de partage
         await Sharing.shareAsync(uriToOpen)
       } else {
         console.log("Le partage n'est pas disponible sur cet appareil")
@@ -251,10 +286,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
 
   const openDocument = async () => {
     if (activeBadgeData?.lien_brochure) {
-      /*
-      setPdfUri(activeBadgeData.lien_brochure);
-      setPdfModalVisible(true);*/
-
       Linking.openURL(activeBadgeData?.lien_brochure)
     }
   }
@@ -265,40 +296,16 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
     }
   }
 
-  const [badgeToDelete, setBadgeToDelete] = useState<number | null>(null)
-  const NewDevisParam = {
-    id_deroule: item?.id_deroule,
-    id_presta: activeBadgeData?.id_presta,
-  }
-  const handleBadgeClick = (badgeIndex, value) => {
-    // Sauvegarder les modifications du prestataire actuel avant de changer
-    if (activeBadgeData) {
-      saveCurrentChanges()
-    }
-
-    setActiveBadge((prevActiveBadge) =>
-      prevActiveBadge === badgeIndex ? 0 : badgeIndex,
-    )
-
-    const selectedPresta = item.all_presta_interroges.find(
-      (presta) => presta.nom_presta === value.text,
-    )
-    setActiveBadgeData(selectedPresta)
-  }
-  const handleBadgeDelete = (index: number) => {
-    setBadgeToDelete(index)
-    setModalVisible2(true)
-  }
-
+  // ===========================
+  // GESTION DES BADGES
+  // ===========================
   const deleteBadgeFromApi = async () => {
     try {
       setIsLoading(true)
-      // console.log({ id_deroule: item?.id_deroule, id_presta: activeBadgeData?.id_presta })
-      // Appeler l'API pour supprimer le badge
       await deletePresta({
         id_deroule: item?.id_deroule,
         id_presta: activeBadgeData?.id_presta,
-      }) // Remplacez `deleteBadgeAPI` par votre fonction d'API réelle
+      })
       Alert.alert('Succès', 'Le badge a été supprimé avec succès.')
     } catch (error) {
       console.error('Erreur lors de la suppression du badge :', error)
@@ -313,12 +320,11 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
 
   const confirmDeleteBadge = async () => {
     if (badgeToDelete !== null) {
-      // Mettre à jour l'état local pour refléter la suppression
       setBadges((prevBadges) =>
         prevBadges.filter((_, index) => index !== badgeToDelete),
       )
       await deleteBadgeFromApi()
-      // Réinitialiser l'indicateur de badge actif si nécessaire
+
       if (badges.length === 1) {
         setActiveBadge(0)
       } else if (activeBadge === badgeToDelete + 1) {
@@ -326,15 +332,9 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
       }
 
       await getData0()
-
       setModalVisible2(false)
       setBadgeToDelete(null)
     }
-  }
-
-  // console.log(item?.id_deroule)
-  const onModify = () => {
-    fetchData(currentPage, true)
   }
 
   const getNextBadge = (badges, activeBadgeIndex) => {
@@ -345,33 +345,63 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
     return badges.slice(0, activeBadgeIndex)
   }
 
+  console.log('activeBadgeData', activeBadgeData)
+
+  useEffect(() => {
+    if (activeBadge > 0 && activeBadgeData) {
+      // Chercher si les données ont été mises à jour
+      const updatedPresta = item.all_presta_interroges?.find(
+        (presta) => presta.nom_presta === activeBadgeData.nom_presta,
+      )
+
+      if (updatedPresta) {
+        // Comparer pour voir si ça a changé
+        const hasChanged =
+          JSON.stringify(updatedPresta) !== JSON.stringify(activeBadgeData)
+
+        if (hasChanged) {
+          console.log('Mise à jour automatique des données du badge actif')
+          setActiveBadgeData(updatedPresta)
+        }
+      }
+    }
+  }, [item.all_presta_interroges]) // Se déclenche quand les données principales changent
+
+  // ===========================
+  // PARAMÈTRES
+  // ===========================
+  const NewDevisParam = {
+    id_deroule: item?.id_deroule,
+    id_presta: activeBadgeData?.id_presta,
+  }
+
+  // ===========================
+  // RENDU CONDITIONNEL
+  // ===========================
   if (!item.all_presta_interroges || item.all_presta_interroges.length === 0) {
     return (
       <View>
-        <TextBlock
-          style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}
-        >
+        <TextBlock style={styles.errorText}>
           Aucun prestataire associé à ce deroule
         </TextBlock>
       </View>
     )
   }
 
-  {
-    if (badges.length === 0)
-      return (
-        <View>
-          <TextBlock
-            style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}
-          >
-            chargement ...
-          </TextBlock>
-        </View>
-      )
+  if (badges.length === 0) {
+    return (
+      <View>
+        <TextBlock style={styles.errorText}>chargement ...</TextBlock>
+      </View>
+    )
   }
 
+  // ===========================
+  // RENDU PRINCIPAL
+  // ===========================
   return (
     <SafeAreaView>
+      {/* Modal PDF */}
       {false && (
         <PdfModal
           visible={pdfModalVisible}
@@ -381,19 +411,20 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
       )}
 
       <View style={styles.container}>
+        {/* Badges précédents */}
         {activeBadge > 0 &&
           getPrevBadge(badges, activeBadge - 1)?.map((badge, index) => (
-            // condition pour afficher uniquement le badge suivant
             <Badge
               key={index}
               text={badge.text}
               badgeNumber={badge.number}
-              badgeColor={badge.color} // Si le composant Badge accepte badgeColor
-              onPress={() => handleBadgeClick(index + 1, badge)} // Vous pouvez enlever le +1 si handleBadgeClick gère l'index correctement
+              badgeColor={badge.color}
+              onPress={() => handleBadgeClick(index + 1, badge)}
               isActive={false}
             />
           ))}
 
+        {/* Badges actifs */}
         {badges.length > 0 &&
           badges.map(
             (badge, index) =>
@@ -409,6 +440,8 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 />
               ),
           )}
+
+        {/* Modal de confirmation pour la suppression */}
         <ConfirmationModal
           visible={modalVisible2}
           onClose={() => setModalVisible2(false)}
@@ -416,22 +449,13 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
           onCancel={() => setModalVisible2(false)}
           message="Voulez-vous vraiment supprimer ce badge ?"
         />
+
+        {/* Contenu principal quand un badge est actif */}
         {activeBadge !== 0 && (
           <>
-            <View
-              style={{ borderWidth: 1, borderColor: '#000', borderRadius: 10 }}
-            >
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 10,
-                  marginHorizontal: 5,
-                  marginVertical: 3,
-                }}
-              >
+            <View style={styles.contentContainer}>
+              {/* Section Demande */}
+              <View style={styles.actionRow}>
                 <Button
                   flex={1}
                   gradient={gradients.success}
@@ -448,7 +472,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     white
                     size={getFontSize(13)}
                     bold
-                    style={{ textTransform: 'uppercase' }}
+                    style={styles.buttonText}
                   >
                     envoyer
                   </Text>
@@ -456,30 +480,17 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     white
                     size={getFontSize(13)}
                     bold
-                    style={{ textTransform: 'uppercase' }}
+                    style={styles.buttonText}
                   >
                     Demander
                   </Text>
                 </Button>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'column',
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    borderRadius: 5,
-                    padding: 3,
-                  }}
-                >
+                <View style={styles.infoBox}>
                   <Text
                     black
                     size={getFontSize(12)}
                     bold
-                    style={{
-                      marginRight: 3,
-                      textTransform: 'uppercase',
-                      textAlign: 'center',
-                    }}
+                    style={styles.infoTitle}
                   >
                     DEMANDE ENVOYée LE
                   </Text>
@@ -487,7 +498,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     color={colors.primary}
                     size={width * 0.027}
                     bold
-                    style={{ maxWidth: '100%', textAlign: 'center' }}
+                    style={styles.infoValue}
                   >
                     {new Date(
                       activeBadgeData?.date_demande_envoye,
@@ -496,17 +507,8 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 </View>
               </View>
 
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 10,
-                  marginHorizontal: 5,
-                  marginVertical: 3,
-                }}
-              >
+              {/* Section Devis */}
+              <View style={styles.actionRow}>
                 <Button
                   flex={1}
                   gradient={gradients.secondary}
@@ -521,30 +523,17 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     white
                     size={getFontSize(13)}
                     bold
-                    style={{ textTransform: 'uppercase' }}
+                    style={styles.buttonText}
                   >
                     devis
                   </Text>
                 </Button>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'column',
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    borderRadius: 5,
-                    padding: 3,
-                  }}
-                >
+                <View style={styles.infoBox}>
                   <Text
                     black
                     size={getFontSize(12)}
                     bold
-                    style={{
-                      marginRight: 3,
-                      textTransform: 'uppercase',
-                      textAlign: 'center',
-                    }}
+                    style={styles.infoTitle}
                   >
                     DEVIS REcu LE
                   </Text>
@@ -552,7 +541,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     color={colors.primary}
                     size={width * 0.027}
                     bold
-                    style={{ maxWidth: '100%', textAlign: 'center' }}
+                    style={styles.infoValue}
                   >
                     {new Date(
                       activeBadgeData?.date_devis_recu,
@@ -561,6 +550,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 </View>
               </View>
 
+              {/* Interface Devis */}
               <View style={{ flex: 1 }}>
                 <DevisInterface
                   activeBadgeData={activeBadgeData}
@@ -570,102 +560,53 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   openDevis={openDevis}
                 />
 
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 10,
-                    marginHorizontal: 5,
-                    marginVertical: 0,
-                  }}
-                >
-                  <Button
-                    flex={1}
-                    gradient={gradients.info}
-                    marginBottom={sizes.base / 2}
-                    rounded={false}
-                    round={false}
-                    onPress={() => openDocument(activeBadgeData)}
-                  >
-                    <Text
-                      white
-                      size={getFontSize(13)}
-                      bold
-                      style={{ textTransform: 'uppercase' }}
-                    >
-                      ouvrir
-                    </Text>
-                    <Text
-                      white
-                      size={getFontSize(13)}
-                      bold
-                      style={{ textTransform: 'uppercase' }}
-                    >
-                      brochure
-                    </Text>
-                  </Button>
-                  {false && (
-                    <Button
-                      flex={0.6}
-                      gradient={gradients.warning}
-                      marginBottom={sizes.base / 2}
-                      rounded={false}
-                      round={false}
-                    >
-                      <Text
-                        white
-                        bold
-                        transform="uppercase"
-                        size={getFontSize(12)}
-                      >
-                        Telecharger
-                      </Text>
-                      <Text
-                        white
-                        size={getFontSize(12)}
-                        bold
-                        style={{ textTransform: 'uppercase' }}
-                      >
-                        brochure
-                      </Text>
-                    </Button>
-                  )}
-
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: 'row',
-                      width: '100%',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderWidth: 1,
-                      borderColor: '#ccc',
-                      paddingHorizontal: 1,
-                      borderRadius: 10,
-                      marginBottom: 5,
-                      height: getFontSize(48),
-                    }}
-                  >
-                    <Dropdown
-                      data={options}
-                      onChange={(item) => handleOptionSelect(item.label, 2)}
-                      placeholder="valider"
-                    />
-                  </View>
+                {/* Section Brochure */}
+                <View style={styles.actionRow}>
+                  {activeBadgeData?.lien_brochure &&
+                    activeBadgeData.lien_brochure !==
+                      'https://www.goseminaire.com/crm/upload/' &&
+                    activeBadgeData.lien_brochure.trim() !== '' && (
+                      <>
+                        <Button
+                          flex={1}
+                          gradient={gradients.info}
+                          marginBottom={sizes.base / 2}
+                          rounded={false}
+                          round={false}
+                          onPress={() => openDocument(activeBadgeData)}
+                        >
+                          <Text
+                            white
+                            size={getFontSize(13)}
+                            bold
+                            style={styles.buttonText}
+                          >
+                            ouvrir
+                          </Text>
+                          <Text
+                            white
+                            size={getFontSize(13)}
+                            bold
+                            style={styles.buttonText}
+                          >
+                            brochure
+                          </Text>
+                        </Button>
+                        <View style={styles.dropdownContainer}>
+                          <Dropdown
+                            data={options}
+                            onChange={(item) =>
+                              handleOptionSelect(item.label, 2)
+                            }
+                            placeholder="valider"
+                          />
+                        </View>
+                      </>
+                    )}
                 </View>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 10,
-                    marginHorizontal: 5,
-                    marginVertical: 0,
-                  }}
-                >
+
+                {/* Section Galerie et Budget */}
+                <View style={styles.actionRow}>
                   <Button
                     flex={1}
                     gradient={gradients.info}
@@ -677,7 +618,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                       white
                       size={getFontSize(13)}
                       bold
-                      style={{ textTransform: 'uppercase' }}
+                      style={styles.buttonText}
                     >
                       Galerie
                     </Text>
@@ -685,47 +626,30 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                       white
                       size={getFontSize(13)}
                       bold
-                      style={{ textTransform: 'uppercase' }}
+                      style={styles.buttonText}
                     >
                       photo
                     </Text>
                   </Button>
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: 'row',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      borderWidth: 1,
-                      borderColor: '#ccc',
-                      borderRadius: 5,
-
-                      paddingVertical: 5,
-                      marginBottom: 2,
-                      width: '46%',
-                    }}
-                  >
+                  <View style={styles.budgetBox}>
                     <Text color={colors.primary} bold style={{ fontSize: 20 }}>
                       {activeBadgeData?.budget} €
                     </Text>
                   </View>
                 </View>
+
+                {/* Modal Galerie d'images */}
                 <Modal
                   animationType="fade"
                   transparent={true}
                   visible={modalimage}
                   onRequestClose={closeModalimage}
                 >
-                  <View
-                    style={[
-                      StyleSheet.absoluteFill,
-                      { backgroundColor: 'rgba(0, 0, 0, 0.9)' },
-                    ]}
-                  />
-
+                  <View style={styles.modalBackdrop} />
                   <View style={styles.modalContainer}>
                     {activeBadgeData?.all_imgs &&
-                      activeBadgeData?.all_imgs.length > 0 && (
+                    activeBadgeData?.all_imgs.length > 0 ? (
+                      <>
                         <Image
                           source={{
                             uri:
@@ -735,34 +659,32 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                           style={styles.image}
                           resizeMode="contain"
                         />
-                      )}
-                    {!activeBadgeData?.all_imgs ||
-                      (activeBadgeData?.all_imgs.length === 0 && (
-                        <View style={styles.modalContainer}>
-                          <Text white size={getFontSize(16)} bold>
-                            {' '}
-                            image indisponible
-                          </Text>
+                        <View style={styles.navigationContainer}>
+                          <TouchableOpacity
+                            onPress={prevImage}
+                            style={styles.navButton}
+                          >
+                            <Text white size={getFontSize(16)} bold>
+                              Précédent
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={nextImage}
+                            style={styles.navButton}
+                          >
+                            <Text white size={getFontSize(16)} bold>
+                              Suivant
+                            </Text>
+                          </TouchableOpacity>
                         </View>
-                      ))}
-                    <View style={styles.navigationContainer}>
-                      <TouchableOpacity
-                        onPress={prevImage}
-                        style={styles.navButton}
-                      >
+                      </>
+                    ) : (
+                      <View style={styles.modalContainer}>
                         <Text white size={getFontSize(16)} bold>
-                          Précédent
+                          image indisponible
                         </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={nextImage}
-                        style={styles.navButton}
-                      >
-                        <Text white size={getFontSize(16)} bold>
-                          Suivant
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
+                      </View>
+                    )}
                     <TouchableOpacity
                       onPress={closeModalimage}
                       style={styles.closeButton}
@@ -774,6 +696,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   </View>
                 </Modal>
 
+                {/* Modal de confirmation générale */}
                 <ConfirmationModal
                   visible={modalVisible}
                   onClose={() => setModalVisible(false)}
@@ -783,57 +706,20 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 />
               </View>
 
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginTop: 6,
-                  marginHorizontal: 5,
-                  gap: 10,
-                }}
-              >
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    borderRadius: 5,
-
-                    padding: 3,
-
-                    marginBottom: 2,
-                  }}
-                >
+              {/* Section Notation */}
+              <View style={styles.ratingSection}>
+                <View style={styles.thumbBox}>
                   <Font6
                     name="thumbs-down"
                     color={colors.danger}
                     size={getFontSize(23)}
-                  ></Font6>
+                  />
                 </View>
               </View>
-              <View
-                style={{ flex: 1, flexDirection: 'row', marginTop: 6, gap: 10 }}
-              >
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    borderRadius: 5,
-                    paddingHorizontal: 10,
-                    paddingVertical: 5,
-                    marginBottom: 2,
-                    flex: 1,
-                  }}
-                >
+
+              {/* Section Commission et Options */}
+              <View style={styles.commissionRow}>
+                <View style={styles.commissionBox}>
                   <Text color={colors.dark} bold style={{ fontSize: 20 }}>
                     Commission:{' '}
                   </Text>
@@ -841,21 +727,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     0.5%
                   </Text>
                 </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    borderRadius: 5,
-                    paddingHorizontal: 10,
-                    paddingVertical: 5,
-                    marginBottom: 2,
-                    marginHorizontal: 4,
-                    flex: 0.75,
-                  }}
-                >
+                <View style={styles.optionBox}>
                   <Text black bold size={getFontSize(12)}>
                     Option :{' '}
                   </Text>
@@ -865,28 +737,20 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 </View>
               </View>
 
+              {/* Section Commentaires */}
               <View>
                 <Input
                   multiline
                   numberOfLines={2}
-                  style={{
-                    height: 70,
-                    marginHorizontal: 4,
-                  }}
+                  style={styles.commentInput}
                   value={formFields.comment}
                   onChangeText={(text) => handleFieldChange('comment', text)}
                   placeholder="Autre proposition de commission && Commentaires prestataire"
                 />
               </View>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: 3,
-                }}
-              >
+
+              {/* Section Contacts */}
+              <View style={styles.contactRow}>
                 <View style={{ width: '50%' }}>
                   <TextInputWithIcon
                     value={formFields.email}
@@ -894,7 +758,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     placeholder="email prestataire"
                   />
                 </View>
-
                 <View style={{ width: '50%' }}>
                   <TextInputWithIcon
                     value={formFields.contact}
@@ -905,17 +768,17 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
               </View>
             </View>
 
+            {/* Badges suivants */}
             {activeBadge > 0 &&
               getNextBadge(badges, activeBadge - 1)?.map((badge, index) => (
-                // condition pour afficher uniquement le badge suivant
                 <Badge
                   key={index}
                   text={badge.text}
                   badgeNumber={badge.number}
-                  badgeColor={badge.color} // Si le composant Badge accepte badgeColor
+                  badgeColor={badge.color}
                   onPress={() =>
                     handleBadgeClick(activeBadge + index + 1, badge)
-                  } // Vous pouvez enlever le +1 si handleBadgeClick gère l'index correctement
+                  }
                   isActive={false}
                 />
               ))}
@@ -923,16 +786,9 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
         )}
       </View>
 
+      {/* Bouton d'envoi global */}
       {activeBadge !== 0 && (
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            alignContent: 'center',
-            justifyContent: 'center',
-            marginHorizontal: 100,
-          }}
-        >
+        <View style={styles.globalActionContainer}>
           <Button
             flex={1}
             width={'40%'}
@@ -956,10 +812,12 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
         </View>
       )}
 
+      {/* Modal Form pour les devis */}
       {badges.map(
         (badge, index) =>
           (activeBadge === 0 || activeBadge === index + 1) && (
             <ModalForm
+              key={index}
               visible={activeBadge !== 0 && modalFormDevis}
               onClose={() => setModalFormDevis(false)}
               onSubmit={onRefresh}
@@ -972,6 +830,9 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
   )
 }
 
+// ===========================
+// STYLES
+// ===========================
 const styles = StyleSheet.create({
   container: {
     padding: 5,
@@ -981,52 +842,73 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 10,
   },
-  label: {
-    fontSize: 16,
-    marginVertical: 8,
-  },
-  input: {
-    height: height * 0.054,
-    borderColor: 'gray',
+  contentContainer: {
     borderWidth: 1,
-    paddingLeft: 4,
-    marginBottom: 16,
+    borderColor: '#000',
     borderRadius: 10,
-    padding: 10,
   },
-  inputContainer: {
+  errorText: {
+    color: '#FF0000',
+    fontSize: 20,
+    textAlign: 'center',
+  },
+  actionRow: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center', // Espacement égal entre les éléments
     alignItems: 'center',
-    paddingHorizontal: 0, // Ajout de marges pour ne pas coller les TextInputs aux bords
-    width: '100%',
-    gap: 4,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  footerText: {
-    color: 'white',
-    fontSize: 18,
-  },
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 4,
-    marginVertical: 8,
+    gap: 10,
+    marginHorizontal: 5,
+    marginVertical: 3,
   },
   buttonText: {
-    color: '#333333',
-    fontSize: 16,
-    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  infoBox: {
+    flex: 1,
+    flexDirection: 'column',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 3,
+  },
+  infoTitle: {
+    marginRight: 3,
+    textTransform: 'uppercase',
     textAlign: 'center',
+  },
+  infoValue: {
+    maxWidth: '100%',
+    textAlign: 'center',
+  },
+  dropdownContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    paddingHorizontal: 1,
+    borderRadius: 10,
+    marginBottom: 5,
+    height: getFontSize(48),
+  },
+  budgetBox: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingVertical: 5,
+    marginBottom: 2,
+    width: '46%',
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
   },
   modalContainer: {
     flex: 1,
@@ -1059,5 +941,121 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
   },
+  ratingSection: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 6,
+    marginHorizontal: 5,
+    gap: 10,
+  },
+  thumbBox: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 3,
+    marginBottom: 2,
+  },
+  commissionRow: {
+    flex: 1,
+    flexDirection: 'row',
+    marginTop: 6,
+    gap: 10,
+  },
+  commissionBox: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 2,
+    flex: 1,
+  },
+  optionBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 2,
+    marginHorizontal: 4,
+    flex: 0.75,
+  },
+  commentInput: {
+    height: 70,
+    marginHorizontal: 4,
+  },
+  contactRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 3,
+  },
+  globalActionContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 100,
+  },
+  label: {
+    fontSize: 16,
+    marginVertical: 8,
+  },
+  input: {
+    height: height * 0.054,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingLeft: 4,
+    marginBottom: 16,
+    borderRadius: 10,
+    padding: 10,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 0,
+    width: '100%',
+    gap: 4,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerText: {
+    color: 'white',
+    fontSize: 18,
+  },
+  button: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 4,
+    marginVertical: 8,
+  },
+  buttonText: {
+    color: '#333333',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 })
+
 export default Form4
