@@ -88,7 +88,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [isKeyboardVisible, setKeyboardVisible] = useState(false)
   const fadeAnim = useRef(new Animated.Value(1)).current // Valeur d'animation initiale
-  //const [derouleTitle, setDerouleTitle] = useState(item?.titre_deroule || '')
+  const [derouleTitle, setDerouleTitle] = useState(item?.titre_deroule || '')
 
   const [formData, setFormData] = useState<any>({
     id_deroule: item?.id || 0,
@@ -144,14 +144,14 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     // Validation en temps réel
     const trimmedTitle = title.trim()
 
-    setFormData((prevData) => {
-      const updatedData = {
+    setDerouleTitle(trimmedTitle)
+    // Mettre à jour formData avec le nouveau titre
+    setTimeout(() => {
+      setFormData((prevData) => ({
         ...prevData,
-        derouleTitle: title, // Garder la valeur brute pour l'affichage
-      }
-      console.log('Mise à jour de formData :', updatedData)
-      return updatedData
-    })
+        derouleTitle: trimmedTitle,
+      }))
+    }, 200)
   }, [])
 
   /*
@@ -385,10 +385,8 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             }}
             placeholder="Saisissez le titre de votre déroulé"
             placeholderTextColor="#999"
-            value={formData.derouleTitle}
-            onChangeText={(text) =>
-              setTimeout(() => handleDerouleTitleChange(text), 300)
-            }
+            value={derouleTitle}
+            onChangeText={handleDerouleTitleChange}
             autoCorrect={false}
             spellCheck={false}
             keyboardType="default"
