@@ -88,7 +88,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [isKeyboardVisible, setKeyboardVisible] = useState(false)
   const fadeAnim = useRef(new Animated.Value(1)).current // Valeur d'animation initiale
-  const [derouleTitle, setDerouleTitle] = useState(item?.titre_deroule || '')
+  const [derouleTitle, setDerouleTitle] = useState('')
 
   const [formData, setFormData] = useState<any>({
     id_deroule: item?.id || 0,
@@ -105,6 +105,8 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       const titleFromResponse =
         response.data?.titre_deroule || item?.titre_deroule || ''
 
+      // Mise à jour centralisée pour le titre
+      setDerouleTitle(titleFromResponse)
       // Mise à jour centralisée
       setFormData((prevData) => ({
         ...prevData,
