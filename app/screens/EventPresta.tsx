@@ -386,7 +386,9 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             placeholder="Saisissez le titre de votre déroulé"
             placeholderTextColor="#999"
             value={formData.derouleTitle}
-            onChangeText={handleDerouleTitleChange}
+            onChangeText={(text) =>
+              setTimeout(() => handleDerouleTitleChange(text), 300)
+            }
             autoCorrect={false}
             spellCheck={false}
             keyboardType="default"
