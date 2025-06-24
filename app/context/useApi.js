@@ -76,6 +76,7 @@ export const useApi = () => {
   const getChatList = (data) => makeRequest('get-chat-list', data)
   const getChat = (data) => makeRequest('get-chat', data)
   const sendChat = (data) => makeRequest('send-chat', data)
+  const createDerouler = (data) => makeRequest('create-deroule', data)
 
   //   const addPresta = (data) => makeRequest('add-presta-interroge', data);
 
@@ -108,6 +109,7 @@ export const useApi = () => {
     getChatList,
     getChat,
     sendChat,
+    createDerouler,
 
     // ... autres actions
   }

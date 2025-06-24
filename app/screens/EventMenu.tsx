@@ -186,7 +186,9 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
             gradient={gradients[itemGradients[index]]}
             key={item.id || index}
             marginBottom={sizes.base}
-            onPress={() => handleNavigation('EventPresta', item)}
+            onPress={() =>
+              handleNavigation('EventPresta', { ...item, isNew: false })
+            }
           >
             <Text white bold transform="uppercase">
               {item.titre_deroule}
@@ -198,7 +200,9 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
         flex={1}
         gradient={gradients.light}
         marginBottom={sizes.base}
-        onPress={() => handleNavigation('EventPresta', item)}
+        onPress={() =>
+          handleNavigation('EventPresta', { ...item, isNew: true })
+        }
       >
         <Text bold transform="uppercase">
           + Ajouter un Deroule
@@ -212,6 +216,8 @@ const EventMenu: React.FC<EventMenuProps> = ({ route }) => {
   const { item } = route.params
   const { sizes } = useTheme()
   const navigation = useNavigation<EventMenuNavigationProp>()
+
+  console.log(item)
 
   return (
     <SafeAreaView
