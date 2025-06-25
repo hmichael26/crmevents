@@ -483,7 +483,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   <Text
                     white
                     size={getFontSize(isSmallScreen ? 11 : 13)}
-                    bold
                     style={styles.buttonText}
                   >
                     ENVOYER
@@ -491,7 +490,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   <Text
                     white
                     size={getFontSize(isSmallScreen ? 11 : 13)}
-                    bold
                     style={styles.buttonText}
                   >
                     DEMANDE
@@ -501,15 +499,13 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   <Text
                     black
                     size={getFontSize(isSmallScreen ? 10 : 12)}
-                    bold
                     style={styles.infoTitle}
                   >
-                    DEMANDE ENVOYÉE LE
+                    DEMANDE ENVOYÉE
                   </Text>
                   <Text
                     color={colors.primary}
                     size={getFontSize(isSmallScreen ? 9 : 11)}
-                    bold
                     style={styles.infoValue}
                   >
                     {new Date(
@@ -530,7 +526,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 >
                   <Text
                     white
-                    bold
                     transform="uppercase"
                     size={getFontSize(isSmallScreen ? 11 : 13)}
                   >
@@ -539,7 +534,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   <Text
                     white
                     size={getFontSize(isSmallScreen ? 11 : 13)}
-                    bold
                     style={styles.buttonText}
                   >
                     DEVIS
@@ -549,7 +543,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   <Text
                     black
                     size={getFontSize(isSmallScreen ? 10 : 12)}
-                    bold
                     style={styles.infoTitle}
                   >
                     DEVIS REÇU LE
@@ -557,7 +550,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   <Text
                     color={colors.primary}
                     size={getFontSize(isSmallScreen ? 9 : 11)}
-                    bold
                     style={styles.infoValue}
                   >
                     {new Date(
@@ -595,7 +587,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                           <Text
                             white
                             size={getFontSize(isSmallScreen ? 11 : 13)}
-                            bold
                             style={styles.buttonText}
                           >
                             OUVRIR
@@ -603,7 +594,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                           <Text
                             white
                             size={getFontSize(isSmallScreen ? 11 : 13)}
-                            bold
                             style={styles.buttonText}
                           >
                             BROCHURE
@@ -634,7 +624,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     <Text
                       white
                       size={getFontSize(isSmallScreen ? 11 : 13)}
-                      bold
                       style={styles.buttonText}
                     >
                       GALERIE
@@ -642,7 +631,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     <Text
                       white
                       size={getFontSize(isSmallScreen ? 11 : 13)}
-                      bold
                       style={styles.buttonText}
                     >
                       PHOTO
@@ -651,7 +639,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   <View style={styles.budgetBox}>
                     <Text
                       color={colors.primary}
-                      bold
                       style={{
                         fontSize: getFontSize(isSmallScreen ? 16 : 20),
                         textTransform: 'uppercase',
@@ -691,7 +678,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                             <Text
                               white
                               size={getFontSize(14)}
-                              bold
                               style={styles.upperCaseText}
                             >
                               PRÉCÉDENT
@@ -704,7 +690,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                             <Text
                               white
                               size={getFontSize(14)}
-                              bold
                               style={styles.upperCaseText}
                             >
                               SUIVANT
@@ -717,7 +702,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                         <Text
                           white
                           size={getFontSize(16)}
-                          bold
                           style={styles.upperCaseText}
                         >
                           IMAGE INDISPONIBLE
@@ -731,7 +715,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                       <Text
                         white
                         size={getFontSize(14)}
-                        bold
                         style={styles.upperCaseText}
                       >
                         FERMER
@@ -766,7 +749,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 <View style={styles.commissionBox}>
                   <Text
                     color={colors.dark}
-                    bold
                     style={{
                       fontSize: getFontSize(isSmallScreen ? 8 : 10),
                       textTransform: 'uppercase',
@@ -776,7 +758,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   </Text>
                   <Text
                     color={colors.primary}
-                    bold
                     style={{
                       fontSize: getFontSize(isSmallScreen ? 8 : 10),
                       textTransform: 'uppercase',
@@ -788,7 +769,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 <View style={styles.optionBox}>
                   <Text
                     black
-                    bold
                     size={getFontSize(isSmallScreen ? 8 : 10)}
                     style={styles.upperCaseText}
                   >
@@ -796,7 +776,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   </Text>
                   <Text
                     color={colors.primary}
-                    bold
                     size={getFontSize(isSmallScreen ? 8 : 10)}
                     style={styles.upperCaseText}
                   >
@@ -868,10 +847,9 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
           >
             <Text
               white
-              size={getFontSize(isSmallScreen ? 12 : 15)}
-              bold
+              size={getFontSize(isSmallScreen ? 11 : 13)}
               style={styles.globalButtonText}
-              h5
+              h4
               center
             >
               ENVOYER DEMANDE À TOUS LES LIEUX
@@ -927,10 +905,10 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#FF0000',
-    fontSize: getFontSize(isSmallScreen ? 16 : 20),
+    fontSize: getFontSize(isSmallScreen ? 12 : 14),
     textAlign: 'center',
     textTransform: 'uppercase',
-    fontWeight: 'bold',
+    fontWeight: '',
   },
   actionRow: {
     flexDirection: isSmallScreen ? 'column' : 'row',

@@ -74,7 +74,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false)
   const [prestataire, setPrestataire] = useState<PrestatireItem[]>([])
-  console.log(prestataire)
+
   const [isCreating, setIsCreating] = useState(false)
 
   // État pour le titre avec validation
@@ -601,9 +601,34 @@ const EventPresta: React.FC = ({ route, navigation }) => {
                 marginBottom={sizes.base}
                 onPress={addPrestataire}
               >
-                <TextField style={{ fontSize: 16, color: 'white' }}>
-                  Ajouter un prestataire interrogé
-                </TextField>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 10,
+                  }}
+                >
+                  <TextField
+                    style={{
+                      fontSize: 18,
+                      color: 'white',
+                      textTransform: 'uppercase',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    +
+                  </TextField>
+                  <TextField
+                    style={{
+                      fontSize: 14,
+                      color: 'white',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Ajouter un prestataire interrogé
+                  </TextField>
+                </View>
               </Button>
             </View>
 
@@ -715,10 +740,11 @@ const styles = StyleSheet.create({
   },
   textInput: {
     color: 'black',
-    fontSize: 18,
+    fontSize: 15,
     textAlign: 'center',
-    paddingVertical: 10,
-    minHeight: 40,
+    marginTop: 10,
+    paddingVertical: 5,
+    minHeight: 30,
   },
   errorText: {
     color: '#FF6B6B',
@@ -739,13 +765,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   createButton: {
-    backgroundColor: '#007AFF',
     paddingVertical: 15,
     paddingHorizontal: 0,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 50,
+    minHeight: 80,
   },
   createButtonDisabled: {
     backgroundColor: '#B0B0B0',
