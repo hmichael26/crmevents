@@ -733,84 +733,88 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 />
               </View>
 
-              {/* Section Notation */}
-              <View style={styles.ratingSection}>
-                <View style={styles.thumbBox}>
-                  <Font6
-                    name="thumbs-down"
-                    color={colors.danger}
-                    size={getFontSize(isSmallScreen ? 18 : 23)}
+              <View style={{ flex: 1, marginHorizontal: 2 }}>
+                {/* Section Notation */}
+                <View style={styles.ratingSection}>
+                  <View style={styles.thumbBox}>
+                    <Font6
+                      name="thumbs-down"
+                      color={colors.danger}
+                      size={getFontSize(isSmallScreen ? 18 : 23)}
+                    />
+                  </View>
+                </View>
+
+                {/* Section Commission et Options */}
+                <View style={styles.commissionRow}>
+                  <View style={styles.commissionBox}>
+                    <Text
+                      color={colors.dark}
+                      style={{
+                        fontSize: getFontSize(isSmallScreen ? 8 : 10),
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      COMMISSION:{' '}
+                    </Text>
+                    <Text
+                      color={colors.primary}
+                      style={{
+                        fontSize: getFontSize(isSmallScreen ? 8 : 10),
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      0.5%
+                    </Text>
+                  </View>
+                  <View style={styles.optionBox}>
+                    <Text
+                      black
+                      size={getFontSize(isSmallScreen ? 8 : 10)}
+                      style={styles.upperCaseText}
+                    >
+                      OPTION :{' '}
+                    </Text>
+                    <Text
+                      color={colors.primary}
+                      size={getFontSize(isSmallScreen ? 8 : 10)}
+                      style={styles.upperCaseText}
+                    >
+                      MULTI-OPTION
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Section Commentaires */}
+                <View>
+                  <Input
+                    multiline
+                    numberOfLines={4}
+                    style={styles.commentInput}
+                    value={formFields.comment}
+                    onChangeText={(text) => handleFieldChange('comment', text)}
+                    placeholder="AUTRE PROPOSITION DE COMMISSION && COMMENTAIRES PRESTATAIRE"
                   />
                 </View>
-              </View>
 
-              {/* Section Commission et Options */}
-              <View style={styles.commissionRow}>
-                <View style={styles.commissionBox}>
-                  <Text
-                    color={colors.dark}
-                    style={{
-                      fontSize: getFontSize(isSmallScreen ? 8 : 10),
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    COMMISSION:{' '}
-                  </Text>
-                  <Text
-                    color={colors.primary}
-                    style={{
-                      fontSize: getFontSize(isSmallScreen ? 8 : 10),
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    0.5%
-                  </Text>
-                </View>
-                <View style={styles.optionBox}>
-                  <Text
-                    black
-                    size={getFontSize(isSmallScreen ? 8 : 10)}
-                    style={styles.upperCaseText}
-                  >
-                    OPTION :{' '}
-                  </Text>
-                  <Text
-                    color={colors.primary}
-                    size={getFontSize(isSmallScreen ? 8 : 10)}
-                    style={styles.upperCaseText}
-                  >
-                    MULTI-OPTION
-                  </Text>
-                </View>
-              </View>
-
-              {/* Section Commentaires */}
-              <View>
-                <Input
-                  multiline
-                  numberOfLines={2}
-                  style={styles.commentInput}
-                  value={formFields.comment}
-                  onChangeText={(text) => handleFieldChange('comment', text)}
-                  placeholder="AUTRE PROPOSITION DE COMMISSION && COMMENTAIRES PRESTATAIRE"
-                />
-              </View>
-
-              {/* Section Contacts */}
-              <View style={styles.contactRow}>
-                <View style={styles.contactInputContainer}>
-                  <TextInputWithIcon
-                    value={formFields.email}
-                    onChangeText={(text) => handleFieldChange('email', text)}
-                    placeholder="EMAIL PRESTATAIRE"
-                  />
-                </View>
-                <View style={styles.contactInputContainer}>
-                  <TextInputWithIcon
-                    value={formFields.contact}
-                    onChangeText={(text) => handleFieldChange('contact', text)}
-                    placeholder="PRÉNOM & TÉLÉPHONE"
-                  />
+                {/* Section Contacts */}
+                <View style={styles.contactRow}>
+                  <View style={styles.contactInputContainer}>
+                    <TextInputWithIcon
+                      value={formFields.email}
+                      onChangeText={(text) => handleFieldChange('email', text)}
+                      placeholder="EMAIL PRESTATAIRE"
+                    />
+                  </View>
+                  <View style={styles.contactInputContainer}>
+                    <TextInputWithIcon
+                      value={formFields.contact}
+                      onChangeText={(text) =>
+                        handleFieldChange('contact', text)
+                      }
+                      placeholder="PRÉNOM & TÉLÉPHONE"
+                    />
+                  </View>
                 </View>
               </View>
             </View>
@@ -1017,7 +1021,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: getResponsiveHeight(1),
     marginHorizontal: getResponsiveWidth(1),
-    gap: 10,
+    // gap: 10,
   },
   thumbBox: {
     flex: 1,
@@ -1031,19 +1035,21 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   commissionRow: {
+    flex: 1,
     flexDirection: isSmallScreen ? 'column' : 'row',
-    marginTop: getResponsiveHeight(1),
+    // marginTop: getResponsiveHeight(1),
+    marginHorizontal: getResponsiveWidth(1),
     gap: getResponsiveWidth(2),
   },
   commissionBox: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
     paddingHorizontal: getResponsiveWidth(2),
-    paddingVertical: getResponsiveHeight(1),
+    paddingVertical: getResponsiveHeight(2),
     marginBottom: 2,
     flex: isSmallScreen ? 0 : 1,
     width: isSmallScreen ? '100%' : 'auto',
@@ -1058,26 +1064,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: getResponsiveWidth(2),
     paddingVertical: getResponsiveHeight(1),
     marginBottom: 2,
-    marginHorizontal: isSmallScreen ? 0 : 4,
-    flex: isSmallScreen ? 0 : 0.75,
+    marginHorizontal: isSmallScreen ? 0 : 0,
+    flex: isSmallScreen ? 0 : 1,
     width: isSmallScreen ? '100%' : 'auto',
     marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
   },
   commentInput: {
-    height: getResponsiveHeight(isSmallScreen ? 8 : 10),
+    height: getResponsiveHeight(isSmallScreen ? 12 : 14),
     marginHorizontal: getResponsiveWidth(1),
-    fontSize: getFontSize(14),
+    fontSize: getFontSize(12),
     textTransform: 'uppercase',
   },
   contactRow: {
+    flex: 1,
     flexDirection: isSmallScreen ? 'column' : 'row',
     alignItems: 'center',
     justifyContent: 'center',
     margin: getResponsiveWidth(1),
-    gap: isSmallScreen ? getResponsiveHeight(1) : getResponsiveWidth(2),
+    paddingHorizontal: getResponsiveWidth(1),
+    gap: getResponsiveWidth(2),
   },
   contactInputContainer: {
-    width: isSmallScreen ? '100%' : '48%',
+    width: isSmallScreen ? '100%' : '50%',
   },
   globalActionContainer: {
     flex: 1,
