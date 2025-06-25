@@ -579,7 +579,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                         <Button
                           flex={1}
                           gradient={gradients.info}
-                          marginBottom={sizes.base / 2}
+                          marginBottom={sizes.base / 5}
                           rounded={false}
                           round={false}
                           onPress={() => openDocument(activeBadgeData)}
@@ -957,24 +957,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#ccc',
-    paddingHorizontal: 1,
+
     borderRadius: 10,
-    marginBottom: 5,
-    height: getFontSize(isSmallScreen ? 40 : 48),
-    marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
+    marginBottom: 3,
+    height: getFontSize(isSmallScreen ? 40 : 44),
+    paddingHorizontal: getResponsiveWidth(2),
+    // marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
   },
   budgetBox: {
     flex: isSmallScreen ? 0 : 1,
-    width: isSmallScreen ? '100%' : getResponsiveWidth(46),
+    width: isSmallScreen ? '100%' : 'auto',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
-    paddingVertical: getResponsiveHeight(1),
-    marginBottom: 2,
-    marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
+    borderRadius: 10,
+    paddingHorizontal: getResponsiveWidth(2),
+    // paddingVertical: getResponsiveHeight(1),
+    //marginBottom: 2,
+    //  marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
+    height: getFontSize(isSmallScreen ? 40 : 42),
   },
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,

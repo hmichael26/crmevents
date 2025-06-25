@@ -130,7 +130,7 @@ const DevisInterface = ({
           <Button
             flex={1}
             gradient={gradients.info}
-            marginBottom={sizes.base / 2}
+            marginBottom={sizes.base / 4}
             rounded={false}
             round={false}
             onPress={() => openDevis(item.lien_devis)}
@@ -189,21 +189,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: getResponsiveWidth(2),
     marginHorizontal: getResponsiveWidth(1),
-    marginVertical: getResponsiveHeight(0.5),
+    marginVertical: getResponsiveHeight(0.3),
   },
   buttonText: {
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   dropdownContainer: {
-    flex: isSmallScreen ? 0 : 1,
+    flex: 1,
     width: isSmallScreen ? '100%' : 'auto',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#ccc', // Idéalement, utiliser colors.border si disponible
-    paddingHorizontal: getResponsiveWidth(0.5),
+    paddingHorizontal: getResponsiveWidth(2),
     borderRadius: 10,
     marginBottom: getResponsiveHeight(0.5),
     height: getFontSizeResponsive(isSmallScreen ? 40 : 48),
