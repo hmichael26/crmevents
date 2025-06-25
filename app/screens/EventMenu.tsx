@@ -87,7 +87,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 
   const handleNavigation = useCallback(
     (to: keyof RootStackParamList, item: ItemType) => {
-      console.log(item)
+      //   console.log(item)
       setActive(to)
       navigation.navigate(to, { item })
     },
@@ -217,7 +217,7 @@ const EventMenu: React.FC<EventMenuProps> = ({ route }) => {
   const { sizes } = useTheme()
   const navigation = useNavigation<EventMenuNavigationProp>()
 
-  console.log(item)
+  // console.log(item)
 
   return (
     <SafeAreaView

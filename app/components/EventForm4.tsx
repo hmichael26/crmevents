@@ -38,17 +38,31 @@ import DevisInterface from './DevisInterface'
 import Dropdown from './Dropdown'
 
 // ===========================
-// CONSTANTES
+// CONSTANTES RESPONSIVES
 // ===========================
 const options = [
-  { id: '1', label: 'oui' },
-  { id: '2', label: 'non' },
-  { id: '3', label: 'supprimer' },
+  { id: '1', label: 'OUI' },
+  { id: '2', label: 'NON' },
+  { id: '3', label: 'SUPPRIMER' },
 ]
 
 const { width, height } = Dimensions.get('window')
 const fontScale = PixelRatio.getFontScale()
-const getFontSize = (size) => size / fontScale
+
+// Fonctions responsives améliorées
+const getFontSize = (size) => {
+  const scale = width / 375 // Base sur iPhone X
+  const newSize = size * scale
+  return Math.max(newSize / fontScale, size * 0.8) // Taille minimum
+}
+
+const getResponsiveWidth = (percentage) => width * (percentage / 150)
+const getResponsiveHeight = (percentage) => height * (percentage / 150)
+
+// Breakpoints responsifs
+const isSmallScreen = width < 350
+const isMediumScreen = width >= 350 && width < 400
+const isLargeScreen = width >= 400
 
 // ===========================
 // COMPOSANT PRINCIPAL
@@ -104,7 +118,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
   useEffect(() => {
     if (item) {
       const badges = item?.all_presta_interroges?.map((item) => ({
-        text: item.nom_presta,
+        text: item.nom_presta?.toUpperCase() || '',
         number: 0,
         color: item.color,
       }))
@@ -144,18 +158,18 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
 
   const handleOptionSelect = async (option, type) => {
     if (type === 1) {
-      if (option === 'supprimer') {
+      if (option === 'SUPPRIMER') {
         validateForm(1)
       } else {
         setSelectedOption(option)
       }
     } else {
-      if (option === 'supprimer') {
+      if (option === 'SUPPRIMER') {
         validateForm(2)
       } else {
         await validbrochure({
           id_presta: activeBadgeData.id_presta,
-          valid: option,
+          valid: option.toLowerCase(),
         })
         setSelectedOption2(option)
       }
@@ -172,14 +186,14 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
     )
 
     const selectedPresta = item.all_presta_interroges.find(
-      (presta) => presta.nom_presta === value.text,
+      (presta) => presta.nom_presta?.toUpperCase() === value.text,
     )
     setActiveBadgeData(selectedPresta)
   }
 
   const handleBadgeDataWithPrestaName = (value) => {
     const selectedPresta = item.all_presta_interroges.find(
-      (presta) => presta.nom_presta === value,
+      (presta) => presta.nom_presta?.toUpperCase() === value.toUpperCase(),
     )
     setActiveBadgeData(selectedPresta)
   }
@@ -191,13 +205,13 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
 
   const handleConfirm = async () => {
     if (currentForm === 1) {
-      setSelectedOption('supprimer')
+      setSelectedOption('SUPPRIMER')
     } else if (currentForm === 2) {
       await validbrochure({
         id_presta: activeBadgeData?.id_presta,
         valid: 'supprimer',
       })
-      setSelectedOption2('supprimer')
+      setSelectedOption2('SUPPRIMER')
     }
     setModalVisible(false)
     setCurrentForm(null)
@@ -277,10 +291,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uriToOpen)
       } else {
-        console.log("Le partage n'est pas disponible sur cet appareil")
+        console.log("LE PARTAGE N'EST PAS DISPONIBLE SUR CET APPAREIL")
       }
     } catch (error) {
-      console.error("Erreur lors de l'ouverture du PDF :", error)
+      console.error("ERREUR LORS DE L'OUVERTURE DU PDF :", error)
     }
   }
 
@@ -306,12 +320,12 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
         id_deroule: item?.id_deroule,
         id_presta: activeBadgeData?.id_presta,
       })
-      Alert.alert('Succès', 'Le badge a été supprimé avec succès.')
+      Alert.alert('SUCCÈS', 'LE BADGE A ÉTÉ SUPPRIMÉ AVEC SUCCÈS.')
     } catch (error) {
-      console.error('Erreur lors de la suppression du badge :', error)
+      console.error('ERREUR LORS DE LA SUPPRESSION DU BADGE :', error)
       Alert.alert(
-        'Erreur',
-        'La suppression du badge a échoué. Veuillez réessayer.',
+        'ERREUR',
+        'LA SUPPRESSION DU BADGE A ÉCHOUÉ. VEUILLEZ RÉESSAYER.',
       )
     } finally {
       setIsLoading(false)
@@ -345,8 +359,6 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
     return badges.slice(0, activeBadgeIndex)
   }
 
-  console.log('activeBadgeData', activeBadgeData)
-
   useEffect(() => {
     if (activeBadge > 0 && activeBadgeData) {
       // Chercher si les données ont été mises à jour
@@ -360,7 +372,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
           JSON.stringify(updatedPresta) !== JSON.stringify(activeBadgeData)
 
         if (hasChanged) {
-          console.log('Mise à jour automatique des données du badge actif')
+          console.log('MISE À JOUR AUTOMATIQUE DES DONNÉES DU BADGE ACTIF')
           setActiveBadgeData(updatedPresta)
         }
       }
@@ -380,9 +392,9 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
   // ===========================
   if (!item.all_presta_interroges || item.all_presta_interroges.length === 0) {
     return (
-      <View>
+      <View style={styles.errorContainer}>
         <TextBlock style={styles.errorText}>
-          Aucun prestataire associé à ce deroule
+          AUCUN PRESTATAIRE ASSOCIÉ À CE DÉROULÉ
         </TextBlock>
       </View>
     )
@@ -390,8 +402,8 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
 
   if (badges.length === 0) {
     return (
-      <View>
-        <TextBlock style={styles.errorText}>chargement ...</TextBlock>
+      <View style={styles.errorContainer}>
+        <TextBlock style={styles.errorText}>CHARGEMENT ...</TextBlock>
       </View>
     )
   }
@@ -400,7 +412,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
   // RENDU PRINCIPAL
   // ===========================
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.safeArea}>
       {/* Modal PDF */}
       {false && (
         <PdfModal
@@ -447,7 +459,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
           onClose={() => setModalVisible2(false)}
           onConfirm={confirmDeleteBadge}
           onCancel={() => setModalVisible2(false)}
-          message="Voulez-vous vraiment supprimer ce badge ?"
+          message="VOULEZ-VOUS VRAIMENT SUPPRIMER CE BADGE ?"
         />
 
         {/* Contenu principal quand un badge est actif */}
@@ -470,33 +482,33 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 >
                   <Text
                     white
-                    size={getFontSize(13)}
+                    size={getFontSize(isSmallScreen ? 11 : 13)}
                     bold
                     style={styles.buttonText}
                   >
-                    envoyer
+                    ENVOYER
                   </Text>
                   <Text
                     white
-                    size={getFontSize(13)}
+                    size={getFontSize(isSmallScreen ? 11 : 13)}
                     bold
                     style={styles.buttonText}
                   >
-                    Demander
+                    DEMANDE
                   </Text>
                 </Button>
                 <View style={styles.infoBox}>
                   <Text
                     black
-                    size={getFontSize(12)}
+                    size={getFontSize(isSmallScreen ? 10 : 12)}
                     bold
                     style={styles.infoTitle}
                   >
-                    DEMANDE ENVOYée LE
+                    DEMANDE ENVOYÉE LE
                   </Text>
                   <Text
                     color={colors.primary}
-                    size={width * 0.027}
+                    size={getFontSize(isSmallScreen ? 9 : 11)}
                     bold
                     style={styles.infoValue}
                   >
@@ -516,30 +528,35 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   round={false}
                   onPress={() => setModalFormDevis(true)}
                 >
-                  <Text white bold transform="uppercase" size={getFontSize(13)}>
-                    Inserer
+                  <Text
+                    white
+                    bold
+                    transform="uppercase"
+                    size={getFontSize(isSmallScreen ? 11 : 13)}
+                  >
+                    INSÉRER
                   </Text>
                   <Text
                     white
-                    size={getFontSize(13)}
+                    size={getFontSize(isSmallScreen ? 11 : 13)}
                     bold
                     style={styles.buttonText}
                   >
-                    devis
+                    DEVIS
                   </Text>
                 </Button>
                 <View style={styles.infoBox}>
                   <Text
                     black
-                    size={getFontSize(12)}
+                    size={getFontSize(isSmallScreen ? 10 : 12)}
                     bold
                     style={styles.infoTitle}
                   >
-                    DEVIS REcu LE
+                    DEVIS REÇU LE
                   </Text>
                   <Text
                     color={colors.primary}
-                    size={width * 0.027}
+                    size={getFontSize(isSmallScreen ? 9 : 11)}
                     bold
                     style={styles.infoValue}
                   >
@@ -577,19 +594,19 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                         >
                           <Text
                             white
-                            size={getFontSize(13)}
+                            size={getFontSize(isSmallScreen ? 11 : 13)}
                             bold
                             style={styles.buttonText}
                           >
-                            ouvrir
+                            OUVRIR
                           </Text>
                           <Text
                             white
-                            size={getFontSize(13)}
+                            size={getFontSize(isSmallScreen ? 11 : 13)}
                             bold
                             style={styles.buttonText}
                           >
-                            brochure
+                            BROCHURE
                           </Text>
                         </Button>
                         <View style={styles.dropdownContainer}>
@@ -598,7 +615,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                             onChange={(item) =>
                               handleOptionSelect(item.label, 2)
                             }
-                            placeholder="valider"
+                            placeholder="VALIDER"
                           />
                         </View>
                       </>
@@ -616,23 +633,30 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   >
                     <Text
                       white
-                      size={getFontSize(13)}
+                      size={getFontSize(isSmallScreen ? 11 : 13)}
                       bold
                       style={styles.buttonText}
                     >
-                      Galerie
+                      GALERIE
                     </Text>
                     <Text
                       white
-                      size={getFontSize(13)}
+                      size={getFontSize(isSmallScreen ? 11 : 13)}
                       bold
                       style={styles.buttonText}
                     >
-                      photo
+                      PHOTO
                     </Text>
                   </Button>
                   <View style={styles.budgetBox}>
-                    <Text color={colors.primary} bold style={{ fontSize: 20 }}>
+                    <Text
+                      color={colors.primary}
+                      bold
+                      style={{
+                        fontSize: getFontSize(isSmallScreen ? 16 : 20),
+                        textTransform: 'uppercase',
+                      }}
+                    >
                       {activeBadgeData?.budget} €
                     </Text>
                   </View>
@@ -664,24 +688,39 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                             onPress={prevImage}
                             style={styles.navButton}
                           >
-                            <Text white size={getFontSize(16)} bold>
-                              Précédent
+                            <Text
+                              white
+                              size={getFontSize(14)}
+                              bold
+                              style={styles.upperCaseText}
+                            >
+                              PRÉCÉDENT
                             </Text>
                           </TouchableOpacity>
                           <TouchableOpacity
                             onPress={nextImage}
                             style={styles.navButton}
                           >
-                            <Text white size={getFontSize(16)} bold>
-                              Suivant
+                            <Text
+                              white
+                              size={getFontSize(14)}
+                              bold
+                              style={styles.upperCaseText}
+                            >
+                              SUIVANT
                             </Text>
                           </TouchableOpacity>
                         </View>
                       </>
                     ) : (
                       <View style={styles.modalContainer}>
-                        <Text white size={getFontSize(16)} bold>
-                          image indisponible
+                        <Text
+                          white
+                          size={getFontSize(16)}
+                          bold
+                          style={styles.upperCaseText}
+                        >
+                          IMAGE INDISPONIBLE
                         </Text>
                       </View>
                     )}
@@ -689,8 +728,13 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                       onPress={closeModalimage}
                       style={styles.closeButton}
                     >
-                      <Text white size={getFontSize(16)} bold>
-                        Fermer
+                      <Text
+                        white
+                        size={getFontSize(14)}
+                        bold
+                        style={styles.upperCaseText}
+                      >
+                        FERMER
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -702,7 +746,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   onClose={() => setModalVisible(false)}
                   onConfirm={handleConfirm}
                   onCancel={handleCancel}
-                  message="vous ete sur le point de supprimer ?"
+                  message="VOUS ÊTES SUR LE POINT DE SUPPRIMER ?"
                 />
               </View>
 
@@ -712,7 +756,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   <Font6
                     name="thumbs-down"
                     color={colors.danger}
-                    size={getFontSize(23)}
+                    size={getFontSize(isSmallScreen ? 18 : 23)}
                   />
                 </View>
               </View>
@@ -720,19 +764,43 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
               {/* Section Commission et Options */}
               <View style={styles.commissionRow}>
                 <View style={styles.commissionBox}>
-                  <Text color={colors.dark} bold style={{ fontSize: 20 }}>
-                    Commission:{' '}
+                  <Text
+                    color={colors.dark}
+                    bold
+                    style={{
+                      fontSize: getFontSize(isSmallScreen ? 8 : 10),
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    COMMISSION:{' '}
                   </Text>
-                  <Text color={colors.primary} bold style={{ fontSize: 20 }}>
+                  <Text
+                    color={colors.primary}
+                    bold
+                    style={{
+                      fontSize: getFontSize(isSmallScreen ? 8 : 10),
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     0.5%
                   </Text>
                 </View>
                 <View style={styles.optionBox}>
-                  <Text black bold size={getFontSize(12)}>
-                    Option :{' '}
+                  <Text
+                    black
+                    bold
+                    size={getFontSize(isSmallScreen ? 8 : 10)}
+                    style={styles.upperCaseText}
+                  >
+                    OPTION :{' '}
                   </Text>
-                  <Text color={colors.primary} bold size={getFontSize(12)}>
-                    Multi-Option
+                  <Text
+                    color={colors.primary}
+                    bold
+                    size={getFontSize(isSmallScreen ? 8 : 10)}
+                    style={styles.upperCaseText}
+                  >
+                    MULTI-OPTION
                   </Text>
                 </View>
               </View>
@@ -745,24 +813,24 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   style={styles.commentInput}
                   value={formFields.comment}
                   onChangeText={(text) => handleFieldChange('comment', text)}
-                  placeholder="Autre proposition de commission && Commentaires prestataire"
+                  placeholder="AUTRE PROPOSITION DE COMMISSION && COMMENTAIRES PRESTATAIRE"
                 />
               </View>
 
               {/* Section Contacts */}
               <View style={styles.contactRow}>
-                <View style={{ width: '50%' }}>
+                <View style={styles.contactInputContainer}>
                   <TextInputWithIcon
                     value={formFields.email}
                     onChangeText={(text) => handleFieldChange('email', text)}
-                    placeholder="email prestataire"
+                    placeholder="EMAIL PRESTATAIRE"
                   />
                 </View>
-                <View style={{ width: '50%' }}>
+                <View style={styles.contactInputContainer}>
                   <TextInputWithIcon
                     value={formFields.contact}
                     onChangeText={(text) => handleFieldChange('contact', text)}
-                    placeholder="Prenom & Telephone"
+                    placeholder="PRÉNOM & TÉLÉPHONE"
                   />
                 </View>
               </View>
@@ -791,7 +859,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
         <View style={styles.globalActionContainer}>
           <Button
             flex={1}
-            width={'40%'}
+            width={getResponsiveWidth(isSmallScreen ? 80 : 70)}
             gradient={gradients.success}
             marginBottom={0}
             rounded={false}
@@ -800,13 +868,13 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
           >
             <Text
               white
-              size={getFontSize(15)}
+              size={getFontSize(isSmallScreen ? 12 : 15)}
               bold
-              style={{ textTransform: 'uppercase' }}
+              style={styles.globalButtonText}
               h5
               center
             >
-              Envoyer demande à tous les lieux
+              ENVOYER DEMANDE À TOUS LES LIEUX
             </Text>
           </Button>
         </View>
@@ -831,12 +899,15 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
 }
 
 // ===========================
-// STYLES
+// STYLES RESPONSIFS
 // ===========================
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
-    padding: 5,
-    marginHorizontal: 15,
+    padding: getResponsiveWidth(isSmallScreen ? 2 : 3),
+    marginHorizontal: getResponsiveWidth(isSmallScreen ? 3 : 4),
     flex: 1,
     borderWidth: 1,
     borderColor: '#ccc',
@@ -846,31 +917,45 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     borderRadius: 10,
+    padding: getResponsiveWidth(1),
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: getResponsiveWidth(5),
   },
   errorText: {
     color: '#FF0000',
-    fontSize: 20,
+    fontSize: getFontSize(isSmallScreen ? 16 : 20),
     textAlign: 'center',
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
   },
   actionRow: {
-    flex: 1,
-    flexDirection: 'row',
+    flexDirection: isSmallScreen ? 'column' : 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
-    marginHorizontal: 5,
-    marginVertical: 3,
+    gap: getResponsiveWidth(2),
+    marginHorizontal: getResponsiveWidth(1),
+    marginVertical: getResponsiveHeight(0.5),
   },
   buttonText: {
     textTransform: 'uppercase',
+    textAlign: 'center',
+  },
+  upperCaseText: {
+    textTransform: 'uppercase',
   },
   infoBox: {
-    flex: 1,
+    flex: isSmallScreen ? 0 : 1,
+    width: isSmallScreen ? '100%' : 'auto',
     flexDirection: 'column',
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    padding: 3,
+    padding: getResponsiveWidth(1.5),
+    marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
   },
   infoTitle: {
     marginRight: 3,
@@ -880,11 +965,12 @@ const styles = StyleSheet.create({
   infoValue: {
     maxWidth: '100%',
     textAlign: 'center',
+    textTransform: 'uppercase',
   },
   dropdownContainer: {
-    flex: 1,
+    flex: isSmallScreen ? 0 : 1,
+    width: isSmallScreen ? '100%' : 'auto',
     flexDirection: 'row',
-    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
@@ -892,19 +978,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 1,
     borderRadius: 10,
     marginBottom: 5,
-    height: getFontSize(48),
+    height: getFontSize(isSmallScreen ? 40 : 48),
+    marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
   },
   budgetBox: {
-    flex: 1,
+    flex: isSmallScreen ? 0 : 1,
+    width: isSmallScreen ? '100%' : getResponsiveWidth(46),
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    paddingVertical: 5,
+    paddingVertical: getResponsiveHeight(1),
     marginBottom: 2,
-    width: '46%',
+    marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
   },
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -914,31 +1002,34 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: getResponsiveWidth(5),
   },
   image: {
-    width: width * 0.9,
-    height: height * 0.6,
+    width: getResponsiveWidth(90),
+    height: getResponsiveHeight(isSmallScreen ? 50 : 60),
     borderRadius: 10,
   },
   navigationContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 20,
+    paddingHorizontal: getResponsiveWidth(5),
     position: 'absolute',
-    bottom: 50,
+    bottom: getResponsiveHeight(8),
   },
   navButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: getResponsiveWidth(3),
     borderRadius: 5,
+    minWidth: getResponsiveWidth(20),
+    alignItems: 'center',
   },
   closeButton: {
     position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 10,
+    top: getResponsiveHeight(6),
+    right: getResponsiveWidth(5),
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: getResponsiveWidth(3),
     borderRadius: 5,
   },
   ratingSection: {
@@ -946,8 +1037,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 6,
-    marginHorizontal: 5,
+    marginTop: getResponsiveHeight(1),
+    marginHorizontal: getResponsiveWidth(1),
     gap: 10,
   },
   thumbBox: {
@@ -958,14 +1049,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    padding: 3,
+    padding: getResponsiveWidth(2),
     marginBottom: 2,
   },
   commissionRow: {
-    flex: 1,
-    flexDirection: 'row',
-    marginTop: 6,
-    gap: 10,
+    flexDirection: isSmallScreen ? 'column' : 'row',
+    marginTop: getResponsiveHeight(1),
+    gap: getResponsiveWidth(2),
   },
   commissionBox: {
     flexDirection: 'row',
@@ -974,10 +1064,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: getResponsiveWidth(2),
+    paddingVertical: getResponsiveHeight(1),
     marginBottom: 2,
-    flex: 1,
+    flex: isSmallScreen ? 0 : 1,
+    width: isSmallScreen ? '100%' : 'auto',
   },
   optionBox: {
     flexDirection: 'row',
@@ -986,75 +1077,85 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: getResponsiveWidth(2),
+    paddingVertical: getResponsiveHeight(1),
     marginBottom: 2,
-    marginHorizontal: 4,
-    flex: 0.75,
+    marginHorizontal: isSmallScreen ? 0 : 4,
+    flex: isSmallScreen ? 0 : 0.75,
+    width: isSmallScreen ? '100%' : 'auto',
+    marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
   },
   commentInput: {
-    height: 70,
-    marginHorizontal: 4,
+    height: getResponsiveHeight(isSmallScreen ? 8 : 10),
+    marginHorizontal: getResponsiveWidth(1),
+    fontSize: getFontSize(14),
+    textTransform: 'uppercase',
   },
   contactRow: {
-    flex: 1,
-    flexDirection: 'row',
+    flexDirection: isSmallScreen ? 'column' : 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 3,
+    margin: getResponsiveWidth(1),
+    gap: isSmallScreen ? getResponsiveHeight(1) : getResponsiveWidth(2),
+  },
+  contactInputContainer: {
+    width: isSmallScreen ? '100%' : '48%',
   },
   globalActionContainer: {
     flex: 1,
     flexDirection: 'row',
     alignContent: 'center',
     justifyContent: 'center',
-    marginHorizontal: 100,
+    marginHorizontal: getResponsiveWidth(isSmallScreen ? 5 : 15),
+    paddingVertical: getResponsiveHeight(1),
+  },
+  globalButtonText: {
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    lineHeight: getFontSize(isSmallScreen ? 16 : 20),
   },
   label: {
-    fontSize: 16,
-    marginVertical: 8,
+    fontSize: getFontSize(16),
+    marginVertical: getResponsiveHeight(1),
+    textTransform: 'uppercase',
   },
   input: {
-    height: height * 0.054,
+    height: getResponsiveHeight(6),
     borderColor: 'gray',
     borderWidth: 1,
-    paddingLeft: 4,
-    marginBottom: 16,
+    paddingLeft: getResponsiveWidth(1),
+    marginBottom: getResponsiveHeight(2),
     borderRadius: 10,
-    padding: 10,
+    padding: getResponsiveWidth(2),
+    fontSize: getFontSize(14),
   },
   inputContainer: {
-    flexDirection: 'row',
+    flexDirection: isSmallScreen ? 'column' : 'row',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 0,
     width: '100%',
-    gap: 4,
+    gap: getResponsiveWidth(1),
   },
   footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 60,
+    height: getResponsiveHeight(8),
     justifyContent: 'center',
     alignItems: 'center',
   },
   footerText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: getFontSize(18),
+    textTransform: 'uppercase',
   },
   button: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: getResponsiveHeight(1.5),
+    paddingHorizontal: getResponsiveWidth(6),
     borderRadius: 4,
-    marginVertical: 8,
-  },
-  buttonText: {
-    color: '#333333',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    marginVertical: getResponsiveHeight(1),
   },
 })
 

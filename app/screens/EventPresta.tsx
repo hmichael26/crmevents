@@ -57,7 +57,7 @@ interface FormData {
 
 const EventPresta: React.FC = ({ route, navigation }) => {
   const { item } = route.params
-  console.log(item)
+  // console.log(item)
   const { showToast, ToastComponent } = useToast()
   const { getDerouler, createDerouler } = useApi()
   const { userdata, validForm } = useContext(AuthContext)
@@ -67,11 +67,14 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const [refreshing, setRefreshing] = useState(false)
   const [data0, setData0] = useState([])
   const [step, setStep] = useState('deroule')
+  const [isDataLoaded, setIsDataLoaded] = useState(false)
+
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [isSaving, setIsSaving] = useState(false)
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false)
   const [prestataire, setPrestataire] = useState<PrestatireItem[]>([])
+  console.log(prestataire)
   const [isCreating, setIsCreating] = useState(false)
 
   // État pour le titre avec validation
@@ -173,10 +176,12 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             fields: responseData.fields || prevData.fields,
           }))
           setData0(responseData)
+          setIsDataLoaded(true)
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error)
         showToast('❌ Erreur lors du chargement des données', 'error')
+        setIsDataLoaded(false)
       }
     },
     [item?.id, item?.titre_deroule, getDerouler, showToast],
@@ -252,8 +257,8 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     ])
   }, [])
 
-  const removePrestataire = useCallback((id: number) => {
-    setPrestataire((prev) => prev.filter((prest) => prest.id !== id))
+  const removePrestataire = useCallback((data: any) => {
+    setPrestataire((prev) => prev.filter((prest) => prest.key !== data.key))
   }, [])
 
   const updatePrestataire = useCallback(
@@ -321,6 +326,19 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     showToast,
     onRefresh,
   ])
+
+  // Gestion sécurisée du changement d'onglet
+  const handleStepChange = useCallback(
+    (newStep: string) => {
+      // Si on va sur Presta et que les données ne sont pas chargées
+      if (newStep === 'Presta' && !isDataLoaded && item?.id) {
+        showToast('⏳ Chargement des données en cours...', 'info')
+        return
+      }
+      setStep(newStep)
+    },
+    [isDataLoaded, item?.id, showToast],
+  )
 
   // Gestion des changements de données des formulaires - dépendances simplifiées
   const handleForm5DataChange = useCallback((data: any) => {
@@ -392,7 +410,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
           onClose={() => console.log('close')}
         />
         <TouchableOpacity
-          onPress={() => removePrestataire(data.id)}
+          onPress={() => removePrestataire(data)}
           style={{ paddingHorizontal: 10, paddingBottom: 5 }}
         >
           <TextField
@@ -413,7 +431,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
         <View style={styles.content}>
           <Button gradient={gradients.primary} marginBottom={sizes.base}>
             <Text white transform="uppercase" size={20}>
-              Créer un nouveau déroulé
+              nouveau déroulé
             </Text>
           </Button>
 
@@ -495,7 +513,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             }
             marginBottom={sizes.base}
             rounded={true}
-            onPress={() => setStep('deroule')}
+            onPress={() => handleStepChange('deroule')}
           >
             <Text
               white={step === 'deroule'}
@@ -510,7 +528,9 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             flex={1}
             gradient={step === 'Presta' ? gradients.info : gradients.light}
             marginBottom={sizes.base}
-            onPress={() => setStep('Presta')}
+            onPress={() => handleStepChange('Presta')}
+            disabled={!isDataLoaded && item?.id} // Désactive si data pas chargée
+            style={[!isDataLoaded && item?.id && styles.createButtonDisabled]}
           >
             <Text
               white={step === 'Presta'}
@@ -518,7 +538,9 @@ const EventPresta: React.FC = ({ route, navigation }) => {
               transform="uppercase"
               size={15}
             >
-              Prestataires interrogés
+              {!isDataLoaded && item?.id
+                ? 'Chargement...'
+                : 'Prestataires interrogés'}
             </Text>
           </Button>
         </View>
@@ -573,17 +595,14 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             />
 
             <View style={styles.prestataireSection}>
-              <TextField style={styles.prestataireTitle}>
-                Ajouter un prestataire interrogé
-              </TextField>
               <Button
-                flex={0.5}
+                flex={0.8}
                 gradient={gradients.warning}
                 marginBottom={sizes.base}
                 onPress={addPrestataire}
               >
                 <TextField style={{ fontSize: 16, color: 'white' }}>
-                  + Ajouter
+                  Ajouter un prestataire interrogé
                 </TextField>
               </Button>
             </View>
@@ -678,7 +697,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 0,
+    paddingHorizontal: 7,
     width: '100%',
     gap: 4,
   },
@@ -722,7 +741,7 @@ const styles = StyleSheet.create({
   createButton: {
     backgroundColor: '#007AFF',
     paddingVertical: 15,
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -765,7 +784,8 @@ const styles = StyleSheet.create({
   },
   prestataireSection: {
     flexDirection: 'row',
-    gap: 4,
+
+    gap: 0,
     alignItems: 'center',
     alignContent: 'center',
     justifyContent: 'space-around',
