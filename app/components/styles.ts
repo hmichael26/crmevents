@@ -26,9 +26,11 @@ export const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 15,
-        fontWeight: 'bold',
+       
         marginBottom: 5,
-        color: '#343a40'
+        color: '#343a40',
+        textTransform: 'uppercase'
+
     },
     input: {
         width: '100%',
@@ -52,21 +54,23 @@ export const styles = StyleSheet.create({
     },
     fileUploadButton: {
         flexDirection: 'row',
-        backgroundColor: '#007bff',
+       // backgroundColor: '#007bff',
         padding: 6,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 10,
-        width: '70%'
+        width: '90%'
     },
     fileUploadButtonText: {
         color: 'white',
         marginLeft: 10,
-        fontWeight: 'bold'
+        
+        fontSize: 14,
+        textTransform: 'uppercase',
     },
     fileListContainer: {
-        width: '100%',
+        width: '90%',
         maxHeight: 120,
         marginBottom: 15
     },
@@ -94,12 +98,14 @@ export const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        width: '100%'
+        gap: 10,
+        marginHorizontal: 20,
+       
     },
     button: {
-        padding: 12,
+       
         borderRadius: 10,
-        width: '48%',
+       
         alignItems: 'center'
     },
     buttonCancel: {
@@ -110,7 +116,7 @@ export const styles = StyleSheet.create({
     },
     buttonTextCancel: {
         color: 'white',
-        fontWeight: 'bold'
+       
     },
     buttonTextSubmit: {
         color: 'white',
@@ -130,7 +136,7 @@ export const styles = StyleSheet.create({
 
     commissionButtonText: {
         color: '#212529',
-        fontWeight: 'bold',
+       
     },
     commentInput: {
         backgroundColor: '#fff',
@@ -152,7 +158,7 @@ export const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
+       
         marginBottom: 12,
         color: '#343a40',
     }, hotelNameContainer: {
@@ -160,13 +166,13 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 10,
         marginBottom: 5,
-        width: '100%',
+        width: '90%',
     },
     hotelName: {
         color: 'white',
         textAlign: 'center',
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 15,
+       
     },
 });
 

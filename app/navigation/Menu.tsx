@@ -81,7 +81,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
   const handleWebLink = useCallback((url: string) => Linking.openURL(url), [])
 
   const screens = [
-    { name: t('screens.home'), to: 'Home', icon: assets.home },
+    { name: t('Home'), to: 'Home', icon: assets.home },
 
     // { name: t('screens.components'), to: 'Components', icon: assets.components },
     // { name: t('screens.articles'), to: 'Articles', icon: assets.document },
@@ -93,9 +93,9 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
     // { name: t('screens.eventdetails'), to: 'Eventdetails', icon: assets.register },
     // { name: t('screens.eventPresta'), to: 'EventPresta', icon: assets.register },
 
-    { name: t('screens.clients'), to: 'Client', icon: assets.register },
+    { name: 'clients', to: 'Client', icon: assets.register },
     admin == 1 && {
-      name: t('screens.presataire'),
+      name: 'Prestataire',
       to: 'Prestataire',
       icon: assets.register,
     },
@@ -121,10 +121,10 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
           />
           <Block>
             <Text size={12} semibold>
-              {t('app.name')}
+              CRM EVENTS
             </Text>
             <Text size={12} semibold>
-              {t('app.native')}
+              -----
             </Text>
           </Block>
         </Block>
@@ -203,7 +203,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
         </Button>
 
         <Block row justify="space-between" marginTop={sizes.sm}>
-          <Text color={labelColor}>{"t('darkMode')"}</Text>
+          <Text color={labelColor}>mode nuit</Text>
           <Switch
             checked={isDark}
             onPress={(checked) => handleIsDark(checked)}

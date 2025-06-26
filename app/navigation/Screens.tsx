@@ -188,8 +188,8 @@ export default () => {
         name="Client"
         component={Client}
         options={{
-          title: t('Clients'),
-          ...screenOptions.Client,
+          title: 'clients',
+          ...screenOptions.chat,
           headerRight: () => null,
         }}
       />
@@ -197,7 +197,7 @@ export default () => {
       <Stack.Screen
         name="ClientPresta"
         component={ClientPresta}
-        options={{ title: t('navigation.clients'), ...screenOptions.back }}
+        options={{ title: 'Prestataire', ...screenOptions.back }}
       />
 
       <Stack.Screen

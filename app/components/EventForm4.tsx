@@ -495,7 +495,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     DEMANDE
                   </Text>
                 </Button>
-                <View style={styles.infoBox}>
+                <Button flex={1} style={styles.infoBox}>
                   <Text
                     black
                     size={getFontSize(isSmallScreen ? 10 : 12)}
@@ -512,7 +512,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                       activeBadgeData?.date_demande_envoye,
                     ).toLocaleDateString()}
                   </Text>
-                </View>
+                </Button>
               </View>
 
               {/* Section Devis */}
@@ -539,28 +539,28 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     DEVIS
                   </Text>
                 </Button>
-                <View style={styles.infoBox}>
+                <Button flex={1} style={styles.infoBox}>
                   <Text
                     black
-                    size={getFontSize(isSmallScreen ? 10 : 12)}
+                    size={getFontSize(isSmallScreen ? 11 : 13)}
                     style={styles.infoTitle}
                   >
                     DEVIS REÇU LE
                   </Text>
                   <Text
                     color={colors.primary}
-                    size={getFontSize(isSmallScreen ? 9 : 11)}
+                    size={getFontSize(isSmallScreen ? 11 : 13)}
                     style={styles.infoValue}
                   >
                     {new Date(
                       activeBadgeData?.date_devis_recu,
                     ).toLocaleDateString()}
                   </Text>
-                </View>
+                </Button>
               </View>
 
               {/* Interface Devis */}
-              <View style={{ flex: 1 }}>
+              <View>
                 <DevisInterface
                   activeBadgeData={activeBadgeData}
                   gradients={gradients}
@@ -570,16 +570,15 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                 />
 
                 {/* Section Brochure */}
-                <View style={styles.actionRow}>
-                  {activeBadgeData?.lien_brochure &&
-                    activeBadgeData.lien_brochure !==
-                      'https://www.goseminaire.com/crm/upload/' &&
-                    activeBadgeData.lien_brochure.trim() !== '' && (
-                      <>
+                {activeBadgeData?.lien_brochure &&
+                  activeBadgeData.lien_brochure !==
+                    'https://www.goseminaire.com/crm/upload/' &&
+                  activeBadgeData.lien_brochure.trim() !== '' && (
+                    <>
+                      <View style={styles.actionRow}>
                         <Button
                           flex={1}
                           gradient={gradients.info}
-                          marginBottom={sizes.base / 5}
                           rounded={false}
                           round={false}
                           onPress={() => openDocument(activeBadgeData)}
@@ -599,7 +598,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                             BROCHURE
                           </Text>
                         </Button>
-                        <View style={styles.dropdownContainer}>
+                        <Button flex={1} style={styles.infoBox}>
                           <Dropdown
                             data={options}
                             onChange={(item) =>
@@ -607,11 +606,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                             }
                             placeholder="VALIDER"
                           />
-                        </View>
-                      </>
-                    )}
-                </View>
-
+                        </Button>
+                      </View>
+                    </>
+                  )}
                 {/* Section Galerie et Budget */}
                 <View style={styles.actionRow}>
                   <Button
@@ -636,17 +634,17 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                       PHOTO
                     </Text>
                   </Button>
-                  <View style={styles.budgetBox}>
+                  <Button flex={1} style={styles.infoBox}>
                     <Text
                       color={colors.primary}
                       style={{
-                        fontSize: getFontSize(isSmallScreen ? 16 : 20),
+                        fontSize: getFontSize(isSmallScreen ? 11 : 13),
                         textTransform: 'uppercase',
                       }}
                     >
                       {activeBadgeData?.budget} €
                     </Text>
-                  </View>
+                  </Button>
                 </View>
 
                 {/* Modal Galerie d'images */}
@@ -751,7 +749,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     <Text
                       color={colors.dark}
                       style={{
-                        fontSize: getFontSize(isSmallScreen ? 8 : 10),
+                        fontSize: getFontSize(isSmallScreen ? 11 : 13),
                         textTransform: 'uppercase',
                       }}
                     >
@@ -760,7 +758,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                     <Text
                       color={colors.primary}
                       style={{
-                        fontSize: getFontSize(isSmallScreen ? 8 : 10),
+                        fontSize: getFontSize(isSmallScreen ? 11 : 13),
                         textTransform: 'uppercase',
                       }}
                     >
@@ -770,14 +768,14 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   <View style={styles.optionBox}>
                     <Text
                       black
-                      size={getFontSize(isSmallScreen ? 8 : 10)}
+                      size={getFontSize(isSmallScreen ? 11 : 13)}
                       style={styles.upperCaseText}
                     >
                       OPTION :{' '}
                     </Text>
                     <Text
                       color={colors.primary}
-                      size={getFontSize(isSmallScreen ? 8 : 10)}
+                      size={getFontSize(isSmallScreen ? 9 : 11)}
                       style={styles.upperCaseText}
                     >
                       MULTI-OPTION
@@ -889,7 +887,7 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: getResponsiveWidth(isSmallScreen ? 2 : 3),
-    marginHorizontal: getResponsiveWidth(isSmallScreen ? 3 : 4),
+    marginHorizontal: getResponsiveWidth(isSmallScreen ? 1 : 2.5),
     flex: 1,
     borderWidth: 1,
     borderColor: '#ccc',
@@ -899,7 +897,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     borderRadius: 10,
-    padding: getResponsiveWidth(1),
+    marginHorizontal: getResponsiveWidth(isSmallScreen ? 1 : 3.4),
   },
   errorContainer: {
     flex: 1,
@@ -930,14 +928,14 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   infoBox: {
-    flex: isSmallScreen ? 0 : 1,
+    // flex: isSmallScreen ? 0 : 1,
     width: isSmallScreen ? '100%' : 'auto',
     flexDirection: 'column',
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    padding: getResponsiveWidth(1.5),
-    marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
+    //  padding: getResponsiveWidth(1.5),
+    //marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
   },
   infoTitle: {
     marginRight: 3,

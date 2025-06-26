@@ -128,7 +128,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
               gradient={gradients.info}
               marginBottom={sizes.base / 2}
               // height={sizes.xl}
-              padding={sizes.base}
+
               rounded={true}
               round={false}
               onPress={() =>
@@ -177,6 +177,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
 
           <View style={styles.buttonContainer}>
             <Button
+              flex={1}
               gradient={gradients.secondary}
               style={[
                 styles.button,
@@ -188,6 +189,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
             </Button>
 
             <Button
+              flex={1}
               gradient={gradients.primary}
               style={[
                 styles.button,

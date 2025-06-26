@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     //       justifyContent: "space-between",
     backgroundColor: '#fff',
     flexDirection: 'row',
-    gap: 30,
+    gap: 20,
     // width: "30%",
     alignItems: 'center',
     paddingHorizontal: 15,

@@ -126,11 +126,10 @@ const DevisInterface = ({
   return (
     <>
       {activeBadgeData.all_devis.map((item, index) => (
-        <View key={item.id_devis || index} style={styles.devisRow}>
+        <View key={item.id_devis || index} style={styles.actionRow}>
           <Button
             flex={1}
             gradient={gradients.info}
-            marginBottom={sizes.base / 4}
             rounded={false}
             round={false}
             onPress={() => openDevis(item.lien_devis)}
@@ -152,7 +151,7 @@ const DevisInterface = ({
             </Text>
           </Button>
 
-          <View style={styles.dropdownContainer}>
+          <Button flex={1} style={styles.infoBox}>
             <Dropdown
               data={options}
               onChange={(value) =>
@@ -163,7 +162,7 @@ const DevisInterface = ({
                 [item.id_devis]: devisSelections[item.id_devis],
               }}
             />
-          </View>
+          </Button>
         </View>
       ))}
 
@@ -208,6 +207,24 @@ const styles = StyleSheet.create({
     marginBottom: getResponsiveHeight(0.5),
     height: getFontSizeResponsive(isSmallScreen ? 40 : 48),
     marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
+  },
+  infoBox: {
+    // flex: isSmallScreen ? 0 : 1,
+    width: isSmallScreen ? '100%' : 'auto',
+    flexDirection: 'column',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    //  padding: getResponsiveWidth(1.5),
+    //marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
+  },
+  actionRow: {
+    flexDirection: isSmallScreen ? 'column' : 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: getResponsiveWidth(2),
+    marginHorizontal: getResponsiveWidth(1),
+    marginVertical: getResponsiveHeight(0.5),
   },
 })
 
