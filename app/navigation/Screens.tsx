@@ -49,7 +49,7 @@ export default () => {
       <Stack.Screen
         name="Home"
         component={Home}
-        options={{ title: t('navigation.home') }}
+        options={screenOptions.profile}
       />
 
       <Stack.Screen

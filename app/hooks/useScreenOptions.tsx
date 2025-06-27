@@ -36,7 +36,14 @@ export default () => {
     // ),
     headerLeft: () => (
       <Button onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}>
-        <Image source={icons.menu} radius={0} color={labelColor} />
+        <Image
+          source={icons.menu}
+          radius={0}
+          color={labelColor}
+          width={20}
+          height={20}
+          style={{ marginRight: sizes.sm }}
+        />
       </Button>
     ),
     headerRight: () => (
@@ -133,7 +140,7 @@ export default () => {
       ...menu,
       headerRight: () => (
         <Block row flex={0} align="center" marginRight={sizes.padding}>
-          <TouchableOpacity style={{ marginRight: sizes.sm }}>
+          <TouchableOpacity>
             <Image source={icons.bell} radius={0} color={colors.icon} />
             <Block
               flex={0}
@@ -143,20 +150,6 @@ export default () => {
               radius={sizes.xs}
               position="absolute"
               gradient={gradients?.primary}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.dispatch(
-                DrawerActions.jumpTo('Screens', { screen: 'Profile' }),
-              )
-            }
-          >
-            <Image
-              radius={6}
-              width={24}
-              height={24}
-              source={{ uri: user.avatar }}
             />
           </TouchableOpacity>
         </Block>

@@ -15,6 +15,7 @@ import {
   Modal,
   Image,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native'
 import { useTheme } from '../hooks'
 import { useApi } from '../context/useApi'
@@ -22,6 +23,7 @@ import Button from './Button'
 import { GRADIENTS } from '../constants/light'
 import Icon from 'react-native-vector-icons/AntDesign'
 import { ArrowUpCircle, ThumbsDown, ThumbsUp } from 'react-native-feather'
+import logo from '../assets/images/splash.png'
 
 // Constants
 const { width, height } = Dimensions.get('window')
@@ -181,13 +183,16 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
           onError={setError}
         />
       )}
-      showsVerticalScrollIndicator={true}
+      showsVerticalScrollIndicator={false}
       keyExtractor={(item) => `presta-${item.id_presta}`}
       style={{ paddingVertical: sizes.padding }}
       contentContainerStyle={{ paddingBottom: sizes.l }}
       removeClippedSubviews={true} // Optimisation performance
       maxToRenderPerBatch={5} // Optimisation performance
       windowSize={10} // Optimisation performance
+      nestedScrollEnabled={true} // Permet les scrolls imbriqués
+      keyboardShouldPersistTaps="handled" // Gère les interactions pendant le scroll
+      scrollEventThrottle={16} // Optimise les événements de scroll
     />
   )
 }
@@ -344,12 +349,20 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
           ]}
         >
           <ImageBackground
-            source={{ uri: item.lien_brochure }}
+            source={
+              item?.lien_brochure &&
+              item.lien_brochure !== 'https://www.goseminaire.com/crm/upload/'
+                ? { uri: item.lien_brochure }
+                : logo
+            }
             style={[
               styles.venueImage,
               { width: imageWidth, height: imageWidth },
             ]}
-            imageStyle={{ borderRadius: 10, backgroundColor: '#f0f0f0' }}
+            imageStyle={{
+              borderRadius: 10,
+              backgroundColor: '#f0f0f0',
+            }}
             resizeMode="cover"
           >
             {/* Venue name */}
@@ -464,8 +477,12 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
                 width: '100%',
                 height: 50,
                 flexDirection: 'row',
+                maxHeight: 50,
               },
-            isLandscape && { width: dimensions.width * 0.25 },
+            isLandscape && {
+              width: dimensions.width * 0.25,
+              maxHeight: imageWidth,
+            },
           ]}
         >
           <SideButtonsSection
@@ -504,7 +521,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
   ({ item, isHorizontalLayout, isSmallDevice, openDocument, openPhotos }) => {
     const devisButtons = useMemo(() => {
       return (item?.all_devis || [])
-        .slice(0, 3) // Max 3 devis
+        .slice(0, 100) // Max 100 devis
         .map((devis, index) => (
           <Button
             key={`devis-${index}`}
@@ -528,20 +545,79 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
         ))
     }, [item?.all_devis, isHorizontalLayout, isSmallDevice])
 
+    // Si c'est un layout horizontal (petit écran), pas de scroll vertical
+    if (isHorizontalLayout) {
+      return (
+        <View
+          style={{
+            gap: 2,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}
+        >
+          {/* Brochure button */}
+          <Button
+            style={[styles.sideButton, { flex: 1, marginHorizontal: 1 }]}
+            gradient={GRADIENTS.secondary}
+            width={110}
+            onPress={openDocument}
+          >
+            <Text
+              style={[
+                styles.sideButtonText,
+                isSmallDevice && { fontSize: normalize(13) },
+              ]}
+            >
+              Brochure
+            </Text>
+          </Button>
+
+          {/* Photos button */}
+          <Button
+            style={[styles.sideButton, { flex: 1, marginHorizontal: 1 }]}
+            width={110}
+            gradient={GRADIENTS.secondary}
+            onPress={openPhotos}
+          >
+            <Text
+              style={[
+                styles.sideButtonText,
+                isSmallDevice && { fontSize: normalize(13) },
+              ]}
+            >
+              Photos ({item?.all_imgs?.length || 0})
+            </Text>
+          </Button>
+
+          {/* Premier devis seulement en mode horizontal */}
+          {devisButtons[0]}
+        </View>
+      )
+    }
+
+    // Layout vertical avec ScrollView pour tous les boutons
     return (
-      <View
-        style={{
-          gap: 2,
-          flexDirection: isHorizontalLayout ? 'row' : 'column',
-          justifyContent: isHorizontalLayout ? 'space-between' : 'flex-start',
+      <ScrollView
+        style={styles.sideButtonsScrollView}
+        contentContainerStyle={styles.sideButtonsContent}
+        showsVerticalScrollIndicator={false}
+        indicatorStyle="default"
+        scrollIndicatorInsets={{ right: 1 }}
+        nestedScrollEnabled={true} // Permet le scroll imbriqué sur Android
+        scrollEnabled={true} // Force l'activation du scroll
+        bounces={false} // Désactive le bounce pour éviter les conflits
+        overScrollMode="never" // Android: évite les effets de sur-scroll
+        keyboardShouldPersistTaps="handled" // Gère les taps pendant le scroll
+        onScrollBeginDrag={() => {
+          // Optionnel: logique pour gérer le début du scroll
+        }}
+        onScrollEndDrag={() => {
+          // Optionnel: logique pour gérer la fin du scroll
         }}
       >
         {/* Brochure button */}
         <Button
-          style={[
-            styles.sideButton,
-            isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
-          ]}
+          style={styles.sideButton}
           gradient={GRADIENTS.secondary}
           width={110}
           onPress={openDocument}
@@ -558,10 +634,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
 
         {/* Photos button */}
         <Button
-          style={[
-            styles.sideButton,
-            isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
-          ]}
+          style={styles.sideButton}
           width={110}
           gradient={GRADIENTS.secondary}
           onPress={openPhotos}
@@ -576,9 +649,9 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
           </Text>
         </Button>
 
-        {/* Devis buttons */}
+        {/* Tous les boutons devis */}
         {devisButtons}
-      </View>
+      </ScrollView>
     )
   },
 )
@@ -803,16 +876,20 @@ const styles = StyleSheet.create({
     width: 120,
     flexDirection: 'column',
     backgroundColor: '#fff',
+    maxHeight: 400, // Ajoutez une hauteur max pour forcer le scroll
+    overflow: 'hidden', // Empêche le scroll si le contenu est trop grand
   },
   sideButton: {
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#A9A9A9',
     marginVertical: 0.2,
+    height: 40,
+    minHeight: 40,
   },
   sideButtonText: {
     color: '#fff',
-    fontSize: normalize(15),
+    fontSize: normalize(14),
     textAlign: 'center',
   },
   modalOverlay: {
@@ -877,6 +954,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
   },
+  sideButtonsScrollView: {
+    flex: 1,
+    width: '100%',
+  },
+  sideButtonsContent: {
+    gap: 2,
+    paddingVertical: 4,
+    flexGrow: 1,
+    minHeight: 420,
+  },
+  // Modifiez aussi le style sideButtons existant
 })
 
 export default ClientPrestaCard

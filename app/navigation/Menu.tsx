@@ -16,7 +16,7 @@ import { Block, Text, Switch, Button, Image } from '../components'
 import { useData, useTheme } from '../hooks'
 import { AuthContext } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
-
+import logo from '../assets/images/splash.png'
 const Drawer = createDrawerNavigator()
 
 /* drawer menu screens navigation */
@@ -113,18 +113,14 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
         <Block flex={0} row align="center" marginBottom={sizes.l}>
           <Image
             radius={0}
-            width={33}
-            height={33}
-            color={colors.text}
-            source={assets.logo}
+            width={50}
+            height={50}
+            source={logo}
             marginRight={sizes.sm}
           />
           <Block>
-            <Text size={12} semibold>
+            <Text size={15} semibold>
               CRM EVENTS
-            </Text>
-            <Text size={12} semibold>
-              -----
             </Text>
           </Block>
         </Block>
