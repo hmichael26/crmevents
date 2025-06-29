@@ -429,7 +429,11 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
-          <Button gradient={gradients.primary} marginBottom={sizes.base}>
+          <Button
+            gradient={gradients.primary}
+            marginBottom={sizes.base}
+            style={{ marginHorizontal: 10 }}
+          >
             <Text white transform="uppercase" size={20}>
               nouveau déroulé
             </Text>
@@ -483,10 +487,14 @@ const EventPresta: React.FC = ({ route, navigation }) => {
                     color="#fff"
                     style={styles.loader}
                   />
-                  <Text color={'#fff'}>Création en cours...</Text>
+                  <Text color={'#fff'} style={{ textTransform: 'uppercase' }}>
+                    Création en cours...
+                  </Text>
                 </View>
               ) : (
-                <Text color={'#fff'}>Créer le déroulé</Text>
+                <Text color={'#fff'} style={{ textTransform: 'uppercase' }}>
+                  Créer le déroulé
+                </Text>
               )}
             </Button>
           </View>

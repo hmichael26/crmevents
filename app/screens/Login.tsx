@@ -1,482 +1,291 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-} from 'react'
-import {
-  ActivityIndicator,
-  Linking,
-  Platform,
-  Alert,
-  KeyboardAvoidingView,
-  ScrollView,
-  Dimensions,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-} from 'react-native'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
+import { ActivityIndicator, Linking, Platform } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import { AuthContext } from '../context/AuthContext'
-import { useTheme } from '../hooks/'
+import { useData, useTheme } from '../hooks/'
+import { useForm } from 'react-hook-form'
 import * as regex from '../constants/regex'
-import { Button } from '../components/' // Seul composant personnalisé gardé
+import { Block, Button, Input, Image, Text, Checkbox } from '../components/'
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+import * as Notifications from 'expo-notifications'
+import * as Clipboard from 'expo-clipboard'
+import Constants from 'expo-constants'
 import Toast from 'react-native-toast-message'
 
-const { width, height } = Dimensions.get('window')
+const translations = {
+  en: {
+    translation: {
+      'login.title': 'Login Title',
+    },
+  },
+  fr: {
+    translation: {
+      'login.title': 'Titre de Connexion',
+    },
+  },
+}
+
+i18n.use(initReactI18next).init({
+  resources: translations,
+  lng: 'fr', // langue par défaut
+  fallbackLng: 'fr',
+  compatibilityJSON: 'v3', // Utiliser le format de compatibilité v3
+  interpolation: {
+    escapeValue: false, // React se charge déjà de l'échappement des valeurs
+  },
+})
+
 const isAndroid = Platform.OS === 'android'
 
-// Types
-interface ILoginData {
+interface ILogin {
   email: string
   password: string
   agreed: boolean
 }
-
-interface IValidationState {
+interface ILoginValidation {
   email: boolean
   password: boolean
   agreed: boolean
 }
 
-interface IErrorState {
-  message: string
-  type: 'validation' | 'network' | 'auth'
-}
-
-const Login: React.FC = () => {
+const Login = () => {
   const navigation = useNavigation()
-  const { colors, gradients, sizes } = useTheme()
-  const { Login: authLogin, isloading } = useContext(AuthContext)
+  const { assets, colors, gradients, sizes } = useTheme()
+  const { Login, isloading } = useContext(AuthContext)
 
-  // États du composant
-  const [loginData, setLoginData] = useState<ILoginData>({
+  const [loginData, setLoginData] = useState({
     email: '',
     password: '',
     agreed: false,
   })
-
-  const [isValid, setIsValid] = useState<IValidationState>({
+  const [isValid, setIsValid] = useState({
     email: false,
     password: false,
     agreed: false,
   })
+  const [error, setError] = useState('')
 
-  const [error, setError] = useState<IErrorState | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
+  // Gestion des changements dans les champs de formulaire
+  const handleChange = useCallback((value) => {
+    setLoginData((state) => ({ ...state, ...value }))
+  }, [])
 
-  // Validation memoized
-  const validationState = useMemo(() => {
-    return {
+  // Validation des champs
+  useEffect(() => {
+    setIsValid({
       email: regex.email.test(loginData.email),
       password: regex.password.test(loginData.password),
       agreed: loginData.agreed,
-    }
-  }, [loginData.email, loginData.password, loginData.agreed])
-
-  // Mise à jour de l'état de validation
-  useEffect(() => {
-    setIsValid(validationState)
-    if (
-      error?.type === 'validation' &&
-      Object.values(validationState).every(Boolean)
-    ) {
-      setError(null)
-    }
-  }, [validationState, error])
-
-  // Gestion des changements
-  const handleChange = useCallback(
-    (field: keyof ILoginData, value: any) => {
-      setLoginData((prev) => ({ ...prev, [field]: value }))
-      if (error) {
-        setError(null)
-      }
-    },
-    [error],
-  )
+    })
+  }, [loginData])
 
   // Gestion de la connexion
   const handleSignIn = useCallback(async () => {
-    try {
-      if (
-        !validationState.email ||
-        !validationState.password ||
-        !validationState.agreed
-      ) {
-        setError({
-          message: 'Veuillez remplir tous les champs correctement.',
-          type: 'validation',
-        })
-        return
-      }
-
-      const result = await authLogin(loginData)
-
-      if (result?.success) {
-        Toast.show({
-          type: 'success',
-          text1: 'Connexion réussie',
-          text2: 'Bienvenue !',
-        })
-        navigation.navigate('Menu')
-      } else {
-        throw new Error(result?.message || 'Login failed')
-      }
-    } catch (err) {
-      console.error('Login error:', err)
-
-      let errorMessage = 'Échec de la connexion. Vérifiez vos identifiants.'
-      let errorType: IErrorState['type'] = 'auth'
-
-      if (err.message?.includes('network') || err.code === 'NETWORK_ERROR') {
-        errorMessage = 'Erreur réseau. Veuillez réessayer.'
-        errorType = 'network'
-      }
-
-      setError({
-        message: errorMessage,
-        type: errorType,
-      })
-
-      Toast.show({
-        type: 'error',
-        text1: 'Erreur de connexion',
-        text2: errorMessage,
-      })
+    if (!isValid.email || !isValid.password || !isValid.agreed) {
+      setError('Veuillez remplir tous les champs correctement.')
+      return
     }
-  }, [validationState, loginData, authLogin, navigation])
 
-  // Gestion des termes et conditions
-  const handleTermsPress = useCallback(() => {
-    Linking.openURL('https://www.example.com/terms').catch(() => {
-      Alert.alert('Erreur', "Impossible d'ouvrir le lien")
-    })
-  }, [])
-
-  // État du bouton
-  const isButtonDisabled = useMemo(() => {
-    return !Object.values(validationState).every(Boolean) || isloading
-  }, [validationState, isloading])
+    try {
+      await Login(loginData)
+      // navigation.navigate('Menu') // Redirection après connexion réussie
+    } catch (err) {
+      setError('Échec de la connexion. Vérifiez vos identifiants.')
+    }
+  }, [isValid, loginData, Login, navigation])
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={isAndroid ? 'height' : 'padding'}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.safeArea}>
-          {/* Header avec logo */}
-
+    <Block safe marginTop={sizes.md}>
+      <Block paddingHorizontal={sizes.s}>
+        <Block flex={0} style={{ zIndex: 0 }}>
           <Image
-            source={require('../assets/images/background.png')} // Remplacez par votre logo
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              width: '100%',
-              height: '40%',
-              borderRadius: 30,
-            }}
+            background
             resizeMode="cover"
-          />
-          <View style={styles.header}>
-            {/* Logo */}
-            <View style={styles.logoContainer}>
+            padding={sizes.sm * 1.2}
+            radius={sizes.cardRadius}
+            source={assets.background}
+            height={sizes.height * 0.32}
+          >
+            <Block
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
               <Image
-                source={require('../assets/images/splash.png')} // Remplacez par votre logo
-                style={styles.logo}
-                resizeMode="cover"
+                source={require('../assets/images/splash.png')}
+                style={{
+                  width: 130,
+                  height: 130,
+                  borderRadius: 60,
+                }}
               />
-            </View>
+            </Block>
 
-            {/* Titre */}
-            <View style={styles.titleContainer}>
-              <Text style={[styles.title, { color: colors.white }]}>
-                Bienvenue sur CrmEvents
+            <Text
+              h4
+              center
+              white
+              marginBottom={sizes.md * 2}
+              marginTop={-sizes.sm}
+            >
+              Bienvenue sur CrmEvents
+            </Text>
+          </Image>
+        </Block>
+        {/* login form */}
+        <Block
+          keyboard
+          marginTop={-(sizes.height * 0.13 - sizes.l)}
+          behavior={!isAndroid ? 'padding' : 'height'}
+        >
+          <Block
+            flex={0}
+            radius={sizes.sm}
+            marginHorizontal="8%"
+            shadow={!isAndroid} // disabled shadow on Android due to blur overlay + elevation issue
+          >
+            <Block
+              blur
+              flex={0}
+              // intensity={90}
+              radius={sizes.sm}
+              overflow="hidden"
+              justify="space-evenly"
+              paddingVertical={sizes.sm}
+            >
+              <Text p center white marginTop={26} size={22}>
+                Connexion
               </Text>
-              <Text style={[styles.subtitle, { color: colors.white }]}>
-                Connectez-vous pour continuer
-              </Text>
-            </View>
-          </View>
-
-          {/* Formulaire */}
-          <View style={styles.formContainer}>
-            <View style={[styles.formCard, { backgroundColor: colors.card }]}>
-              {/* Email Input */}
-              <View style={styles.inputContainer}>
-                <Text style={[styles.inputLabel, { color: colors.text }]}>
-                  Email
-                </Text>
-                <TextInput
-                  style={[
-                    styles.textInput,
-                    {
-                      borderColor: loginData.email
-                        ? validationState.email
-                          ? colors.success
-                          : colors.danger
-                        : colors.gray,
-                      color: colors.text,
-                    },
-                  ]}
-                  placeholder="Entrez votre adresse e-mail"
-                  placeholderTextColor={colors.gray}
-                  value={loginData.email}
-                  onChangeText={(value) => handleChange('email', value)}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              </View>
-
-              {/* Password Input */}
-              <View style={styles.inputContainer}>
-                <Text style={[styles.inputLabel, { color: colors.text }]}>
-                  Mot de passe
-                </Text>
-                <View style={styles.passwordContainer}>
-                  <TextInput
-                    style={[
-                      styles.textInput,
-                      styles.passwordInput,
-                      {
-                        borderColor: loginData.password
-                          ? validationState.password
-                            ? colors.success
-                            : colors.danger
-                          : colors.gray,
-                        color: colors.text,
-                      },
-                    ]}
-                    placeholder="Entrez votre mot de passe"
-                    placeholderTextColor={colors.gray}
-                    value={loginData.password}
-                    onChangeText={(value) => handleChange('password', value)}
-                    secureTextEntry={!showPassword}
-                    autoCapitalize="none"
-                    autoCorrect={false}
+              {/* social buttons */}
+              <Block row center justify="space-evenly" marginVertical={sizes.m}>
+                {/* <Button outlined gray shadow={!isAndroid}>
+                  <Image
+                    source={assets.facebook}
+                    height={sizes.m}
+                    width={sizes.m}
+                    color={isDark ? colors.icon : undefined}
                   />
-                  <TouchableOpacity
-                    style={styles.eyeButton}
-                    onPress={() => setShowPassword(!showPassword)}
+                </Button>
+                <Button outlined gray shadow={!isAndroid}>
+                  <Image
+                    source={assets.apple}
+                    height={sizes.m}
+                    width={sizes.m}
+                    color={isDark ? colors.icon : undefined}
+                  />
+                </Button>
+                <Button outlined gray shadow={!isAndroid}>
+                  <Image
+                    source={assets.google}
+                    height={sizes.m}
+                    width={sizes.m}
+                    color={isDark ? colors.icon : undefined}
+                  />
+                </Button> */}
+              </Block>
+              <Block
+                row
+                flex={0}
+                align="center"
+                justify="center"
+                marginBottom={sizes.sm}
+                paddingHorizontal={sizes.xxl}
+              >
+                <Block
+                  flex={0}
+                  height={1}
+                  width="50%"
+                  end={[1, 0]}
+                  start={[0, 1]}
+                  gradient={gradients.divider}
+                />
+                {/* <Text center marginHorizontal={sizes.s}>
+                  {"t('common.or')"}
+                </Text> */}
+                <Block
+                  flex={0}
+                  height={1}
+                  width="50%"
+                  end={[0, 1]}
+                  start={[1, 0]}
+                  gradient={gradients.divider}
+                />
+              </Block>
+              {/* form inputs */}
+              <Block paddingHorizontal={sizes.sm}>
+                <Input
+                  label="Email"
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  placeholder="Entrez votre adresse e-mail"
+                  value={loginData.email}
+                  onChangeText={(value) => handleChange({ email: value })}
+                  success={Boolean(loginData.email && isValid.email)}
+                  danger={Boolean(loginData.email && !isValid.email)}
+                />
+                <Input
+                  label="Mot de Passe"
+                  secureTextEntry
+                  autoCapitalize="none"
+                  placeholder="Entrez votre mot de passe"
+                  value={loginData.password}
+                  onChangeText={(value) => handleChange({ password: value })}
+                  success={Boolean(loginData.password && isValid.password)}
+                  danger={Boolean(loginData.password && !isValid.password)}
+                />
+              </Block>
+              {/* checkbox terms */}
+              {/* Checkbox des termes et conditions */}
+              <Block
+                row
+                align="center"
+                marginVertical={sizes.sm}
+                marginHorizontal={sizes.sm}
+              >
+                <Checkbox
+                  marginRight={sizes.sm}
+                  checked={loginData.agreed}
+                  onPress={(value) => handleChange({ agreed: value })}
+                />
+                <Text>
+                  J'accepte les{' '}
+                  <Text
+                    semibold
+                    onPress={() =>
+                      Linking.openURL('https://www.example.com/terms')
+                    }
                   >
-                    <Text style={[styles.eyeText, { color: colors.primary }]}>
-                      {showPassword ? '👁️' : '👁️‍🗨️'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Checkbox termes */}
-              <View style={styles.checkboxContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.checkbox,
-                    {
-                      backgroundColor: loginData.agreed
-                        ? colors.primary
-                        : 'transparent',
-                      borderColor: colors.primary,
-                    },
-                  ]}
-                  onPress={() => handleChange('agreed', !loginData.agreed)}
-                >
-                  {loginData.agreed && <Text style={styles.checkmark}>✓</Text>}
-                </TouchableOpacity>
-                <View style={styles.termsTextContainer}>
-                  <Text style={[styles.termsText, { color: colors.text }]}>
-                    J'accepte les{' '}
-                    <Text
-                      style={[styles.termsLink, { color: colors.primary }]}
-                      onPress={handleTermsPress}
-                    >
-                      Termes et Conditions
-                    </Text>
+                    Termes et Conditions
                   </Text>
-                </View>
-              </View>
-
-              {/* Message d'erreur */}
-              {error && (
-                <View
-                  style={[
-                    styles.errorContainer,
-                    { backgroundColor: colors.danger + '20' },
-                  ]}
-                >
-                  <Text style={[styles.errorText, { color: colors.danger }]}>
-                    {error.message}
-                  </Text>
-                </View>
-              )}
-
-              {/* Bouton de connexion */}
+                </Text>
+              </Block>
               <Button
                 gradient={gradients.primary}
                 onPress={handleSignIn}
-                disabled={isButtonDisabled}
-                style={styles.loginButton}
+                disabled={Object.values(isValid).includes(false) || isloading}
               >
                 {isloading ? (
-                  <ActivityIndicator color="white" size="small" />
+                  <ActivityIndicator color={colors.white} />
                 ) : (
-                  <Text style={styles.loginButtonText}>SE CONNECTER</Text>
+                  <Text bold white transform="uppercase">
+                    Se connecter
+                  </Text>
                 )}
               </Button>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+              {error ? (
+                <Text color="red" center marginTop={sizes.s}>
+                  {error}
+                </Text>
+              ) : null}
+            </Block>
+          </Block>
+        </Block>
+      </Block>
+    </Block>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-  },
-  safeArea: {
-    flex: 1,
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
-  },
-  header: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 40,
-  },
-  logoContainer: {
-    marginBottom: 30,
-  },
-  logo: {
-    width: 150,
-    height: 150,
-    borderRadius: 60,
-    marginTop: 20,
-  },
-  titleContainer: {
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  formContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  formCard: {
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  textInput: {
-    height: 50,
-    borderWidth: 2,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  passwordInput: {
-    paddingRight: 50,
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 15,
-    top: 15,
-    padding: 5,
-  },
-  eyeText: {
-    fontSize: 18,
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 24,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderRadius: 4,
-    marginRight: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  checkmark: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  termsTextContainer: {
-    flex: 1,
-  },
-  termsText: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  termsLink: {
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-  errorContainer: {
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  loginButton: {
-    height: 50,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  loginButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-})
 
 export default Login
