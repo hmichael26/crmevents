@@ -57,6 +57,7 @@ interface FormData {
 
 const EventPresta: React.FC = ({ route, navigation }) => {
   const { item } = route.params
+
   // console.log(item)
   const { showToast, ToastComponent } = useToast()
   const { getDerouler, createDerouler } = useApi()
@@ -600,6 +601,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
               onDataChange={handleForm4DataChange}
               getData0={getDerouleData}
               onRefresh={onRefresh}
+              idevt={item?.fk_evt}
             />
 
             <View style={styles.prestataireSection}>
@@ -750,7 +752,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 15,
     textAlign: 'center',
-    marginTop: 10,
+    marginVertical: 5,
     paddingVertical: 5,
     minHeight: 30,
   },

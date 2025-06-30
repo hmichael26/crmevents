@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react'
 import {
   View,
   Text,
@@ -10,6 +16,7 @@ import {
   TextInput,
   StatusBar,
   Alert,
+  ActivityIndicator,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { Colors } from './../constants/Colors'
@@ -19,10 +26,11 @@ import { AuthContext } from '../context/AuthContext'
 
 interface Conversation {
   id: string
+  type: 'presta' | 'client'
   user: {
     id: string
     name: string
-    avatar: string
+    avatar?: string
   }
   lastMessage: string
   timestamp: string
@@ -31,179 +39,245 @@ interface Conversation {
 
 interface ChatScreenProps {
   navigation: any
+  route: {
+    params: {
+      admin: any
+      id_deroule: string
+      idevt: string
+    }
+  }
 }
 
 const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   const { colors } = useTheme()
   const { admin, id_deroule, idevt } = route.params
   const { userdata } = useContext(AuthContext)
-
-  const [chatData, setChatData] = useState<any>([])
-  //console.log(admin, id_deroule, idevt)
   const { getChatList } = useApi()
-  const [searchQuery, setSearchQuery] = useState('')
 
+  // États
+  const [chatData, setChatData] = useState<any>({})
+  const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState<'prestateurs' | 'clients'>(
     'prestateurs',
   )
-  const prestaConversations = (chatData.all_presta_interroges ?? []).map(
-    (presta) => ({
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+
+  // Mémorisation des conversations pour éviter les recalculs
+  const prestaConversations = useMemo(() => {
+    return (chatData.all_presta_interroges ?? []).map((presta: any) => ({
       id: presta.id_presta,
-      type: 'presta',
+      type: 'presta' as const,
       user: {
         id: presta.id_presta,
         name: presta.nom_presta,
       },
-      lastMessage: 'Tap to view conversation',
-      timestamp: 'Today',
+      lastMessage: 'Appuyez pour voir la conversation',
+      timestamp: "Aujourd'hui",
       unreadCount: 0,
-    }),
-  )
+    }))
+  }, [chatData.all_presta_interroges])
 
-  const clientConversations = chatData.client
-    ? [
+  const clientConversations = useMemo(() => {
+    if (Array.isArray(chatData.client)) {
+      return chatData.client.map((client: any) => ({
+        id: client.id_soc,
+        type: 'client' as const,
+        user: {
+          id: `client-${client.id_soc}`,
+          name: client.nom_soc,
+        },
+        lastMessage: 'Appuyez pour voir la conversation client',
+        timestamp: "Aujourd'hui",
+        unreadCount: 0,
+      }))
+    } else if (chatData.client) {
+      return [
         {
           id: chatData.client.id,
-          type: 'client',
+          type: 'client' as const,
           user: {
             id: chatData.client.id,
             name: chatData.client.nom,
           },
-          lastMessage: 'Tap to view client conversation',
-          timestamp: 'Today',
+          lastMessage: 'Entrez pour discuter',
+          timestamp: "Aujourd'hui",
           unreadCount: 0,
         },
       ]
-    : []
+    }
+    return []
+  }, [chatData.client])
 
-  const filteredPrestaConversations = (chatData.all_presta_interroges ?? [])
-    .map((presta) => ({
-      id: presta.id_presta,
-      type: 'presta',
-      user: {
-        id: presta.id_presta,
-        name: presta.nom_presta,
-      },
-      lastMessage: 'Tap to view conversation',
-      timestamp: 'Today',
-      unreadCount: 0,
-    }))
-    .filter((conversation) =>
+  // Filtrage des conversations avec mémorisation
+  const filteredConversations = useMemo(() => {
+    const conversations =
+      activeTab === 'prestateurs' ? prestaConversations : clientConversations
+
+    if (!searchQuery.trim()) {
+      return conversations
+    }
+
+    return conversations.filter((conversation: Conversation) =>
       conversation.user.name.toLowerCase().includes(searchQuery.toLowerCase()),
     )
+  }, [activeTab, prestaConversations, clientConversations, searchQuery])
 
-  const filteredClientConversation = Array.isArray(chatData.client)
-    ? chatData.client
-        .filter((client) =>
-          client.nom_soc?.toLowerCase().includes(searchQuery.toLowerCase()),
-        )
-        .map((client) => ({
-          id: client.id_soc,
-          type: 'client',
-          user: {
-            id: `client-${client.id_soc}`,
-            name: client.nom_soc,
-          },
-          lastMessage: 'Tap to view client conversation',
-          timestamp: 'Today',
-          unreadCount: 0,
-        }))
-    : []
-
-  // console.log(chatData.client)
-
-  const getUserForchat = async () => {
+  // Fonction pour récupérer les données avec gestion du loading
+  const getUserForchat = async (isRefresh = false) => {
     try {
+      if (isRefresh) {
+        setRefreshing(true)
+      } else {
+        setLoading(true)
+      }
+
       const response = await getChatList({
-        idevt: idevt,
-        admin: admin,
-        id_deroule: id_deroule,
+        idevt,
+        admin,
+        id_deroule,
       })
 
+      console.log('Chat data:', response.data)
       setChatData(response.data)
     } catch (error) {
       console.error('Erreur lors de la récupération des données :', error)
       Alert.alert(
         'Erreur',
-        'Impossible de récupérer les données du déroulé. Veuillez réessayer.',
+        'Impossible de récupérer les données du chat. Veuillez réessayer.',
+        [
+          { text: 'Annuler', style: 'cancel' },
+          { text: 'Réessayer', onPress: () => getUserForchat(isRefresh) },
+        ],
       )
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
     }
   }
 
+  // Effet pour charger les données au montage
   useEffect(() => {
     getUserForchat()
   }, [])
 
-  const handleConversationPress = (iduser2: any, userName: string) => {
-    // Naviguer vers l'écran de chat
-    navigation.navigate('Inbox', {
-      Receiver: userName,
-      chat: {
-        idevt: idevt,
-        from_user: userdata.user.IDC,
-        to_user: iduser2,
-      },
-    })
-  }
-
-  const renderConversationItem = ({ item }: { item: Conversation }) => (
-    <TouchableOpacity
-      style={styles.conversationItem}
-      onPress={() => handleConversationPress(item.id, item.user.name)}
-    >
-      <Image
-        source={{
-          uri:
-            'https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?fit=crop&w=80&q=80',
-        }}
-        style={styles.avatar}
-        resizeMode="cover"
-      />
-
-      <View style={styles.conversationContent}>
-        <View style={styles.conversationHeader}>
-          <Text style={[styles.userName, { fontWeight: 'bold' }]}>
-            {item.user.name}
-          </Text>
-          <Text style={styles.timestamp}>{item.timestamp}</Text>
-        </View>
-
-        <View style={styles.conversationFooter}>
-          <Text
-            style={styles.lastMessage}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {item.lastMessage}
-          </Text>
-
-          {item.unreadCount > 0 && (
-            <View style={styles.unreadBadge}>
-              <Text style={styles.unreadCount}>{item.unreadCount}</Text>
-            </View>
-          )}
-        </View>
-      </View>
-    </TouchableOpacity>
+  // Gestion de la navigation vers la conversation
+  const handleConversationPress = useCallback(
+    (iduser2: string, userName: string) => {
+      navigation.navigate('Inbox', {
+        Receiver: userName,
+        chat: {
+          idevt,
+          from_user: userdata.user.IDC,
+          to_user: iduser2,
+        },
+      })
+    },
+    [navigation, idevt, userdata.user.IDC],
   )
 
+  // Rendu optimisé des items de conversation
+  const renderConversationItem = useCallback(
+    ({ item }: { item: Conversation }) => (
+      <TouchableOpacity
+        style={styles.conversationItem}
+        onPress={() => handleConversationPress(item.id, item.user.name)}
+        activeOpacity={0.7}
+      >
+        <Image
+          source={require('../assets/images/splash.png')}
+          style={styles.avatar}
+          resizeMode="cover"
+        />
+
+        <View style={styles.conversationContent}>
+          <View style={styles.conversationHeader}>
+            <Text style={styles.userName} numberOfLines={1}>
+              {item.user.name}
+            </Text>
+            <Text style={styles.timestamp}>{item.timestamp}</Text>
+          </View>
+
+          <View style={styles.conversationFooter}>
+            <Text
+              style={styles.lastMessage}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {item.lastMessage}
+            </Text>
+
+            {item.unreadCount > 0 && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadCount}>{item.unreadCount}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    ),
+    [handleConversationPress],
+  )
+
+  // Composant de liste vide
   const renderEmptyList = () => (
     <View style={styles.emptyContainer}>
+      <Feather
+        name={activeTab === 'prestateurs' ? 'users' : 'user'}
+        size={48}
+        color="#ccc"
+      />
       <Text style={styles.emptyText}>
         {activeTab === 'prestateurs'
           ? 'Aucun prestataire disponible'
           : 'Aucun client disponible'}
       </Text>
+      <TouchableOpacity
+        style={styles.retryButton}
+        onPress={() => getUserForchat()}
+      >
+        <Text style={styles.retryButtonText}>Actualiser</Text>
+      </TouchableOpacity>
     </View>
   )
+
+  // Composant de chargement
+  const renderLoading = () => (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color={colors.primary || '#007bff'} />
+      <Text style={styles.loadingText}>Chargement des conversations...</Text>
+    </View>
+  )
+
+  // Gestion du changement d'onglet
+  const handleTabChange = useCallback((tab: 'prestateurs' | 'clients') => {
+    setActiveTab(tab)
+    setSearchQuery('') // Réinitialiser la recherche lors du changement d'onglet
+  }, [])
+
+  // Gestion du pull-to-refresh
+  const handleRefresh = () => {
+    getUserForchat(true)
+  }
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+        {renderLoading()}
+      </SafeAreaView>
+    )
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+
+      {/* Onglets */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'prestateurs' && styles.activeTab]}
-          onPress={() => setActiveTab('prestateurs')}
+          onPress={() => handleTabChange('prestateurs')}
         >
           <Text
             style={[
@@ -211,12 +285,12 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
               activeTab === 'prestateurs' && styles.activeTabText,
             ]}
           >
-            Prestataires
+            Prestataires ({prestaConversations.length})
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'clients' && styles.activeTab]}
-          onPress={() => setActiveTab('clients')}
+          onPress={() => handleTabChange('clients')}
         >
           <Text
             style={[
@@ -224,11 +298,12 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
               activeTab === 'clients' && styles.activeTabText,
             ]}
           >
-            Clients
+            Clients ({clientConversations.length})
           </Text>
         </TouchableOpacity>
       </View>
-      {/* Search Bar */}
+
+      {/* Barre de recherche */}
       <View style={styles.searchContainer}>
         <Feather
           name="search"
@@ -238,24 +313,37 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
         />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search chat..."
+          placeholder="Rechercher une conversation..."
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholderTextColor="#7F7F7F"
+          returnKeyType="search"
         />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <Feather name="x" size={16} color="#7F7F7F" />
+          </TouchableOpacity>
+        )}
       </View>
 
+      {/* Liste des conversations */}
       <FlatList
-        data={
-          activeTab === 'prestateurs'
-            ? filteredPrestaConversations
-            : filteredClientConversation
-        }
+        data={filteredConversations}
         renderItem={renderConversationItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => `${item.type}-${item.id}`}
         contentContainerStyle={styles.conversationsList}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyList}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        getItemLayout={(data, index) => ({
+          length: 82, // hauteur estimée de chaque item
+          offset: 82 * index,
+          index,
+        })}
       />
     </SafeAreaView>
   )
@@ -266,39 +354,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  menuButton: {
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
-  },
-  profileButton: {
-    padding: 4,
-  },
-  profileAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#007AFF',
+  loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
-  profileAvatarInner: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#FFF',
-    borderWidth: 2,
-    borderColor: '#007AFF',
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
   tabContainer: {
     flexDirection: 'row',
@@ -323,10 +389,6 @@ const styles = StyleSheet.create({
     color: '#007bff',
     fontWeight: 'bold',
   },
-  listContainer: {
-    flexGrow: 1,
-    paddingVertical: 8,
-  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -346,14 +408,17 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 40,
     fontSize: 16,
-    color: ' #7F7F7F',
+    color: '#333',
   },
   conversationsList: {
     paddingHorizontal: 16,
+    flexGrow: 1,
   },
   conversationItem: {
     flexDirection: 'row',
     paddingVertical: 16,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#f0f0f0',
   },
   avatar: {
     width: 50,
@@ -374,11 +439,14 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 16,
+    fontWeight: 'bold',
     color: '#000',
+    flex: 1,
   },
   timestamp: {
     fontSize: 12,
-    color: '#303133',
+    color: '#666',
+    marginLeft: 8,
   },
   conversationFooter: {
     flexDirection: 'row',
@@ -391,66 +459,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   unreadBadge: {
-    width: 20,
+    minWidth: 20,
     height: 20,
     borderRadius: 10,
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
+    paddingHorizontal: 6,
   },
   unreadCount: {
     fontSize: 12,
     color: '#FFF',
     fontWeight: '600',
   },
-  bottomNavigation: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    paddingVertical: 8,
-    backgroundColor: '#FFF',
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 4,
-    flex: 1,
-  },
-  navText: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 4,
-  },
-  activeNavText: {
-    color: '#007AFF',
-  },
-  addButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 40,
   },
   emptyText: {
     fontSize: 16,
     color: '#999999',
     textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#007bff',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 })
 

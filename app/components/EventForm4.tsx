@@ -67,11 +67,17 @@ const isLargeScreen = width >= 400
 // ===========================
 // COMPOSANT PRINCIPAL
 // ===========================
-const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
+const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
   // ===========================
   // HOOKS & API
   // ===========================
-  const { validdevis, validbrochure, sendDemande, deletePresta } = useApi()
+  const {
+    validdevis,
+    validbrochure,
+    sendDemande,
+    deletePresta,
+    sendDemandes,
+  } = useApi()
   const { assets, colors, gradients, sizes } = useTheme()
 
   // ===========================
@@ -359,6 +365,36 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
     return badges.slice(0, activeBadgeIndex)
   }
 
+  const handleSendDemand = async (all: boolean) => {
+    try {
+      let response
+      console.log(idevt)
+      if (all) {
+        response = await sendDemandes({
+          idevt: idevt,
+        })
+
+        //  onRefresh()
+        console.log(response, {
+          idevt: idevt,
+        })
+      } else {
+        response = await sendDemande({
+          id_deroule: item?.id_deroule,
+          id_presta: activeBadgeData?.id_presta,
+        })
+        console.log(activeBadge?.date_demande_envoye)
+        onRefresh()
+      }
+    } catch (error) {
+      console.error('Erreur lors de la demande:', error)
+      Alert.alert(
+        'Erreur',
+        'Impossible de demander le déroulé. Veuillez réessayer.',
+      )
+    }
+  }
+
   useEffect(() => {
     if (activeBadge > 0 && activeBadgeData) {
       // Chercher si les données ont été mises à jour
@@ -473,12 +509,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
                   gradient={gradients.success}
                   rounded={false}
                   round={false}
-                  onPress={async () =>
-                    sendDemande({
-                      id_presta: activeBadgeData?.id_presta,
-                      id_deroule: item?.id_deroule,
-                    })
-                  }
+                  onPress={() => handleSendDemand(false)}
                 >
                   <Text
                     white
@@ -846,6 +877,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh }) => {
             rounded={false}
             round={false}
             marginTop={sizes.base / 2}
+            onPress={() => handleSendDemand(true)}
           >
             <Text
               white

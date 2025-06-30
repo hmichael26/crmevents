@@ -138,7 +138,7 @@ export const AuthProvider = ({ children }) => {
   /*// Login
   const Login = async ({ email, password }) => {
     setIsLoading(true)
-    try {
+    try {a
       const response = await axiosInstance.post('api.php', {
         email,
         password,

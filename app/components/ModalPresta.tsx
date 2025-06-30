@@ -156,7 +156,7 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
         onPress={() => setModalVisible(true)}
       >
         <Text style={styles.clientName}>
-          {nom ? formatName(nom) : 'Select Prestataire'}
+          {nom ? formatName(nom) : 'selectionner un prestataire'}
         </Text>
       </TouchableOpacity>
       <Modal

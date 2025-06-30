@@ -46,44 +46,6 @@ export default () => {
         />
       </Button>
     ),
-    headerRight: () => (
-      <Block row flex={0} align="center" marginRight={sizes.padding}>
-        <TouchableOpacity
-          style={{ marginRight: sizes.sm }}
-          onPress={() => navigation.navigate('Notifications')}
-        >
-          <Image source={icons.bell} radius={0} color={colors.icon} />
-          <Block
-            flex={0}
-            right={0}
-            width={sizes.s}
-            height={sizes.s}
-            radius={sizes.xs}
-            position="absolute"
-            gradient={gradients?.primary}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={icons.basket} radius={0} color={colors.icon} />
-          <Block
-            flex={0}
-            padding={0}
-            justify="center"
-            position="absolute"
-            top={-sizes.s}
-            right={-sizes.s}
-            width={sizes.sm}
-            height={sizes.sm}
-            radius={sizes.sm / 2}
-            gradient={gradients?.primary}
-          >
-            <Text white center bold size={10} lineHeight={10} paddingTop={3}>
-              {basket?.items?.length}
-            </Text>
-          </Block>
-        </TouchableOpacity>
-      </Block>
-    ),
   } as StackHeaderOptions
 
   const options = {
@@ -138,22 +100,6 @@ export default () => {
     },
     profile: {
       ...menu,
-      headerRight: () => (
-        <Block row flex={0} align="center" marginRight={sizes.padding}>
-          <TouchableOpacity>
-            <Image source={icons.bell} radius={0} color={colors.icon} />
-            <Block
-              flex={0}
-              right={0}
-              width={sizes.s}
-              height={sizes.s}
-              radius={sizes.xs}
-              position="absolute"
-              gradient={gradients?.primary}
-            />
-          </TouchableOpacity>
-        </Block>
-      ),
     },
     chat: {
       ...menu,
@@ -168,22 +114,6 @@ export default () => {
             transform={[{ rotate: '180deg' }]}
           />
         </Button>
-      ),
-      headerRight: () => (
-        <Block row flex={0} align="center" marginRight={sizes.padding}>
-          <TouchableOpacity style={{ marginRight: sizes.sm }}>
-            <Image source={icons.bell} radius={0} color={colors.icon} />
-            <Block
-              flex={0}
-              right={0}
-              width={sizes.s}
-              height={sizes.s}
-              radius={sizes.xs}
-              position="absolute"
-              gradient={gradients?.primary}
-            />
-          </TouchableOpacity>
-        </Block>
       ),
     },
     rental: {

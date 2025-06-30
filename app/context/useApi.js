@@ -67,6 +67,7 @@ export const useApi = () => {
   const validdevis = (data) => makeRequest('valid-devis', data)
   const validbrochure = (data) => makeRequest('valid-brochure', data)
   const sendDemande = (data) => makeRequest('send-demand', data)
+  const sendDemandes = (data) => makeRequest('send-all-demand', data)
   const getUserDatas = (data) => makeRequest('get-user-data', data)
   const getevent = (data) => makeRequest('get-event', data)
   const deletePresta = (data) => makeRequest('del-presta-interroge', data)
@@ -111,6 +112,8 @@ export const useApi = () => {
     sendChat,
     createDerouler,
 
+    // Autres actions
+    sendDemandes,
     // ... autres actions
   }
 }

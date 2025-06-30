@@ -331,12 +331,12 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       <View style={styles.header}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Feather name="arrow-left" size={24} color="#303133" />
+            <Feather name="arrow-left" size={25} color="#303133" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{param.Receiver}</Text>
         </View>
@@ -346,7 +346,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
       {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading messages...</Text>
+          <Text style={styles.loadingText}>Chargement des messages...</Text>
         </View>
       ) : (
         <FlatList
@@ -369,8 +369,8 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
           }}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No messages yet</Text>
-              <Text style={styles.emptySubtext}>Start the conversation!</Text>
+              <Text style={styles.emptyText}>Pas de nouveaux message</Text>
+              <Text style={styles.emptySubtext}>Commencez à discuter !</Text>
             </View>
           }
         />
@@ -406,7 +406,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
           >
             <TextInput
               style={styles.input}
-              placeholder="Send message..."
+              placeholder="Envoyer un message..."
               value={inputText}
               onChangeText={setInputText}
               multiline
@@ -441,15 +441,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginTop: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginTop: 10,
+    gap: 4,
   },
   backButton: {
     padding: 4,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 15,
+    width: '90%',
     fontWeight: '600',
     color: '#000',
   },

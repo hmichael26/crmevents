@@ -91,6 +91,7 @@ const Login = () => {
       await Login(loginData)
       // navigation.navigate('Menu') // Redirection après connexion réussie
     } catch (err) {
+      // console.log(err)
       setError('Échec de la connexion. Vérifiez vos identifiants.')
     }
   }, [isValid, loginData, Login, navigation])
@@ -116,20 +117,14 @@ const Login = () => {
               <Image
                 source={require('../assets/images/splash.png')}
                 style={{
-                  width: 130,
-                  height: 130,
+                  width: 160,
+                  height: 160,
                   borderRadius: 60,
                 }}
               />
             </Block>
 
-            <Text
-              h4
-              center
-              white
-              marginBottom={sizes.md * 2}
-              marginTop={-sizes.sm}
-            >
+            <Text h4 center white marginBottom={sizes.md}>
               Bienvenue sur CrmEvents
             </Text>
           </Image>
@@ -137,7 +132,7 @@ const Login = () => {
         {/* login form */}
         <Block
           keyboard
-          marginTop={-(sizes.height * 0.13 - sizes.l)}
+          marginTop={-(sizes.height * 0.07 - sizes.l)}
           behavior={!isAndroid ? 'padding' : 'height'}
         >
           <Block
@@ -155,7 +150,7 @@ const Login = () => {
               justify="space-evenly"
               paddingVertical={sizes.sm}
             >
-              <Text p center white marginTop={26} size={22}>
+              <Text p center marginTop={26} size={22}>
                 Connexion
               </Text>
               {/* social buttons */}
