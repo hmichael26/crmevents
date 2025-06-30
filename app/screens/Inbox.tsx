@@ -49,7 +49,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
   const param = route.params
 
-  console.log(param)
+  // console.log(param)
   //console.log(param)
 
   const [menuVisible, setMenuVisible] = useState(false)
@@ -243,10 +243,8 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
     : []
 
   const renderMessage = ({ item }: { item: ChatMessage }) => {
-    console.log(userdata.user)
     const isUserMessage = item.senderId === userdata.user.IDC
 
-    console.log(item)
     return (
       <View
         style={[
@@ -443,7 +441,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 14,
     paddingVertical: 10,
-    marginTop: 10,
+    marginTop: 16,
     gap: 4,
   },
   backButton: {

@@ -56,6 +56,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
 
   // États
   const [chatData, setChatData] = useState<any>({})
+
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState<'prestateurs' | 'clients'>(
     'prestateurs',
@@ -67,6 +68,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   const prestaConversations = useMemo(() => {
     return (chatData.all_presta_interroges ?? []).map((presta: any) => ({
       id: presta.id_presta,
+      logo: presta.logo_presta,
       type: 'presta' as const,
       user: {
         id: presta.id_presta,
@@ -83,6 +85,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
       return chatData.client.map((client: any) => ({
         id: client.id_soc,
         type: 'client' as const,
+        logo: client.logo_soc,
         user: {
           id: `client-${client.id_soc}`,
           name: client.nom_soc,
@@ -96,6 +99,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
         {
           id: chatData.client.id,
           type: 'client' as const,
+          logo: chatData.client.logo_soc,
           user: {
             id: chatData.client.id,
             name: chatData.client.nom,
@@ -138,7 +142,6 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
         id_deroule,
       })
 
-      console.log('Chat data:', response.data)
       setChatData(response.data)
     } catch (error) {
       console.error('Erreur lors de la récupération des données :', error)
@@ -186,10 +189,8 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
       >
         <Image
           source={
-            item.logo_soc
-              ? { uri: item.logo_soc }
-              : item.logo_presta
-              ? { uri: item.logo_presta }
+            item.logo
+              ? { uri: item.logo }
               : require('../assets/images/splash.png')
           }
           style={styles.avatar}
@@ -377,6 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    marginVertical: 11,
   },
   tab: {
     flex: 1,
