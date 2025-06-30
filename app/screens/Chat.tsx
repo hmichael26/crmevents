@@ -185,7 +185,13 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
         activeOpacity={0.7}
       >
         <Image
-          source={require('../assets/images/splash.png')}
+          source={
+            item.logo_soc
+              ? { uri: item.logo_soc }
+              : item.logo_presta
+              ? { uri: item.logo_presta }
+              : require('../assets/images/splash.png')
+          }
           style={styles.avatar}
           resizeMode="cover"
         />

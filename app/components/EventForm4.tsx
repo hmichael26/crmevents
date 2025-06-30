@@ -368,16 +368,13 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
   const handleSendDemand = async (all: boolean) => {
     try {
       let response
-      console.log(idevt)
+
       if (all) {
         response = await sendDemandes({
           idevt: idevt,
         })
 
-        //  onRefresh()
-        console.log(response, {
-          idevt: idevt,
-        })
+        onRefresh()
       } else {
         response = await sendDemande({
           id_deroule: item?.id_deroule,
