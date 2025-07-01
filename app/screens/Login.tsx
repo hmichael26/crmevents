@@ -132,7 +132,7 @@ const Login = () => {
         {/* login form */}
         <Block
           keyboard
-          marginTop={-(sizes.height * 0.07 - sizes.l)}
+          marginTop={-(sizes.height * 0.03 - sizes.l)}
           behavior={!isAndroid ? 'padding' : 'height'}
         >
           <Block
@@ -150,11 +150,11 @@ const Login = () => {
               justify="space-evenly"
               paddingVertical={sizes.sm}
             >
-              <Text p center marginTop={26} size={22}>
+              <Text p center marginTop={10} size={22}>
                 Connexion
               </Text>
               {/* social buttons */}
-              <Block row center justify="space-evenly" marginVertical={sizes.m}>
+              <Block row center justify="space-evenly" marginVertical={15}>
                 {/* <Button outlined gray shadow={!isAndroid}>
                   <Image
                     source={assets.facebook}
@@ -260,6 +260,7 @@ const Login = () => {
                 gradient={gradients.primary}
                 onPress={handleSignIn}
                 disabled={Object.values(isValid).includes(false) || isloading}
+                paddingHorizontal={sizes.sm}
               >
                 {isloading ? (
                   <ActivityIndicator color={colors.white} />

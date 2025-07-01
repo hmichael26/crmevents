@@ -29,7 +29,7 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
         </View>
         <View style={styles.infoContainer}>
           <View style={styles.infoRow}>
-            <Button gradient={gradients.secondary} style={styles.infoButton}>
+            <Button gradient={gradients.success} style={styles.infoButton}>
               <Text style={styles.infoText}>pax: {item.pax || 0}</Text>
             </Button>
             {true && (
@@ -53,7 +53,7 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
           </View>
           <View style={styles.infoRow}>
             <Button
-              gradient={gradients.info}
+              gradient={gradients.black}
               style={styles.consultButton}
               onPress={() => navigation.navigate('InboxClient', { item })}
             >
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '',
     color: '#000',
     textAlign: 'center',
   },
@@ -103,6 +103,8 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
+    borderColor: '#E7E1E1FF',
+    borderWidth: 0.5,
   },
   infoContainer: {
     flex: 1,
@@ -124,7 +126,8 @@ const styles = StyleSheet.create({
   infoText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '',
+    textTransform: 'uppercase',
   },
   statusButton: {
     flex: 1,
@@ -136,7 +139,8 @@ const styles = StyleSheet.create({
   statusText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '',
+    textTransform: 'uppercase',
   },
   consultButton: {
     flex: 1,
@@ -148,7 +152,7 @@ const styles = StyleSheet.create({
   consultText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '',
     textTransform: 'uppercase',
   },
 })

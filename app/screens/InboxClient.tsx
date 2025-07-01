@@ -44,24 +44,6 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   const { getDerouleList } = useApi()
 
   // Sample data - in a real app, this would come from an API
-  const sampleDerouleItems: Deroule[] = [
-    {
-      comm_deroule: '',
-      fk_evt: '624',
-      id: '812',
-      numero_deroule: '1',
-      titre_deroule: 'Lieux dispo',
-      titre_evt: '',
-    },
-    {
-      comm_deroule: '',
-      fk_evt: '624',
-      id: '985',
-      numero_deroule: '2',
-      titre_deroule: 'Activités',
-      titre_evt: '',
-    },
-  ]
 
   const filteredDerouleItems = derouleItems.filter((item) =>
     item.titre_deroule.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -92,7 +74,11 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
       }
     >
       <View style={styles.derouleNumberContainer}>
-        <Text style={styles.derouleNumber}>{item.numero_deroule}</Text>
+        <Image
+          source={require('../assets/images/splash.png')}
+          style={{ width: 45, height: 45, borderRadius: 20 }}
+          resizeMode="cover"
+        />
       </View>
 
       <View style={styles.conversationContent}>

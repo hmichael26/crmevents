@@ -371,7 +371,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
 
       if (all) {
         response = await sendDemandes({
-          idevt: idevt,
+          id_evt: idevt,
         })
 
         onRefresh()

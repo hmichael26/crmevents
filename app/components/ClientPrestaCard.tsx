@@ -353,6 +353,8 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
               item?.lien_brochure &&
               item.lien_brochure !== 'https://www.goseminaire.com/crm/upload/'
                 ? { uri: item.lien_brochure }
+                : item?.all_imgs?.length > 0
+                ? { uri: item.all_imgs[0].image }
                 : logo
             }
             style={[
@@ -600,8 +602,8 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
       <ScrollView
         style={styles.sideButtonsScrollView}
         contentContainerStyle={styles.sideButtonsContent}
-        showsVerticalScrollIndicator={false}
-        indicatorStyle="default"
+        showsVerticalScrollIndicator={true}
+        indicatorStyle="black"
         scrollIndicatorInsets={{ right: 1 }}
         nestedScrollEnabled={true} // Permet le scroll imbriqué sur Android
         scrollEnabled={true} // Force l'activation du scroll
@@ -877,7 +879,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#fff',
     maxHeight: 400, // Ajoutez une hauteur max pour forcer le scroll
-    overflow: 'hidden', // Empêche le scroll si le contenu est trop grand
+    overflow: 'scroll', // Empêche le scroll si le contenu est trop grand
   },
   sideButton: {
     alignItems: 'center',
@@ -957,12 +959,14 @@ const styles = StyleSheet.create({
   sideButtonsScrollView: {
     flex: 1,
     width: '100%',
+    maxHeight: '100%',
+    overflow: 'scroll',
   },
   sideButtonsContent: {
     gap: 2,
     paddingVertical: 4,
     flexGrow: 1,
-    minHeight: 420,
+    paddingBottom: 60,
   },
   // Modifiez aussi le style sideButtons existant
 })

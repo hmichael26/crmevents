@@ -484,18 +484,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
                 Sauvegarder
               </Text>
             </Button>
-            <Button
-              flex={1}
-              gradient={gradients.info}
-              marginBottom={sizes.base}
-              rounded={false}
-              round={false}
-              onPress={() => {}}
-            >
-              <Text white transform="uppercase" size={getFontSize(13)}>
-                Chat
-              </Text>
-            </Button>
           </View>
         </Animated.View>
       )}
