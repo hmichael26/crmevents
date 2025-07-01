@@ -170,6 +170,9 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           style={{ width: '50%' }}
           value={formData.ref}
           onChangeText={(text) => updateFormField('ref', text)}
+          editable={false}
+          selectTextOnFocus={false}
+          pointerEvents="none"
         />
       </View>
       <View style={styles.inputContainer}>
