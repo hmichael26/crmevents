@@ -94,7 +94,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
     // { name: t('screens.eventdetails'), to: 'Eventdetails', icon: assets.register },
     // { name: t('screens.eventPresta'), to: 'EventPresta', icon: assets.register },
 
-    { name: 'CLIENTS', to: 'Client', icon: assets.users },
+    admin == 1 && { name: 'CLIENTS', to: 'Client', icon: assets.users },
     admin == 1 && {
       name: 'PRESTATAIRES',
       to: 'Prestataire',
