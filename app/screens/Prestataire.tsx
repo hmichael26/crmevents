@@ -619,11 +619,36 @@ export const Prestataire = () => {
               />
             </View>
 
-            <CustomTextInput
-              placeholder="Nom du prestataire"
-              value={selectForm.nom}
-              onChangeText={(text) => handleInputChange('nom', text)}
-            />
+            <View style={styles.searchSection}>
+              {/* Champ de recherche unique */}
+              <View style={styles.searchInputContainer}>
+                <Icon
+                  name="person-outline"
+                  size={20}
+                  color="#9932CC"
+                  style={styles.searchIcon}
+                />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Nom du prestataire"
+                  value={selectForm.nom}
+                  onChangeText={(text) => handleInputChange('nom', text)}
+                  onSubmitEditing={submit}
+                  returnKeyType="search"
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                />
+
+                {selectForm.nom.length > 0 && (
+                  <TouchableOpacity
+                    style={styles.clearButton}
+                    onPress={() => setSelectForm({ ...selectForm, nom: '' })}
+                  >
+                    <Icon name="close-circle" size={17} color="#999" />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
 
             <View style={styles.buttonContainer}>
               <Button
@@ -888,6 +913,28 @@ const styles = StyleSheet.create({
     color: '#9932CC',
     fontWeight: 'bold',
     fontSize: 20,
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    paddingVertical: 12,
+    color: '#333',
+  },
+  clearButton: {
+    padding: 4,
   },
 })
 

@@ -197,7 +197,7 @@ export default () => {
       <Stack.Screen
         name="ClientPresta"
         component={ClientPresta}
-        options={{ title: 'Prestataire', ...screenOptions.back }}
+        options={{ title: ' PRESTATAIRE', ...screenOptions.back }}
       />
 
       <Stack.Screen

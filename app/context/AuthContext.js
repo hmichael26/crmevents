@@ -175,9 +175,7 @@ export const AuthProvider = ({ children }) => {
       console.log('💾 Token sauvegardé')
 
       // Étape 3: Récupération des données utilisateur (peut être lente)
-      setLoginProgress(
-        "Chargement de vos données... Cela peut prendre jusqu'à 60 secondes.",
-      )
+      setLoginProgress('Chargement de vos données...')
       console.log('📥 Récupération des données utilisateur...')
 
       await getUserData(token)
