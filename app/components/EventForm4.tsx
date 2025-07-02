@@ -379,6 +379,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
         response = await sendDemande({
           id_deroule: item?.id_deroule,
           id_presta: activeBadgeData?.id_presta,
+          id_evt: idevt,
         })
         console.log(activeBadge?.date_demande_envoye)
         onRefresh()
