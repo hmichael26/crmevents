@@ -62,16 +62,14 @@ const Badge: React.FC<BadgeProps> = ({
               alignItems: 'center',
             }}
           >
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>
-              {badgeNumber}
-            </Text>
+            <Text style={{ color: '#fff', fontWeight: '' }}>{badgeNumber}</Text>
           </View>
         )}
         <Text
           style={{
             color: '#fff',
             fontSize: 16,
-            fontWeight: 'bold',
+            fontWeight: '',
             textTransform: 'uppercase',
           }}
         >

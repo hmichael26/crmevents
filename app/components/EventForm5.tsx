@@ -215,7 +215,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               <Text
                 style={{
                   fontSize: 20,
-                  color: colors.primary,
+                  color: colors.danger,
                   fontWeight: 'bold',
                 }}
               >
@@ -246,7 +246,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               <Text
                 style={{
                   fontSize: 20,
-                  color: colors.primary,
+                  color: colors.danger,
                   fontWeight: 'bold',
                 }}
               >
@@ -286,7 +286,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               <Text
                 style={{
                   fontSize: 20,
-                  color: colors.primary,
+                  color: colors.danger,
                   fontWeight: 'bold',
                 }}
               >
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   buttonText: {
-    fontWeight: 'bold',
+    fontWeight: '',
     fontSize: 16,
     color: 'white',
   },

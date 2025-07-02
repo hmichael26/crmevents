@@ -39,11 +39,25 @@ const initialFormState = {
 }
 const PAGE_SIZE = 30
 
+// Composant léger pour l'indicateur de chargement
+const LoadingIndicator = React.memo(({ message, size = 'large' }) => (
+  <View style={styles.loadingContainer}>
+    <ActivityIndicator color="#9932CC" size={size} />
+    <Text style={styles.loadingText}>{message}</Text>
+  </View>
+))
+
+// Composant pour l'état vide
+const EmptyState = React.memo(({ message }) => (
+  <View style={styles.emptyState}>
+    <Icon name="search-outline" size={60} color="#ccc" />
+    <Text style={styles.emptyStateText}>{message}</Text>
+  </View>
+))
+
 export const Prestataire = () => {
   const {
-    loading,
     getPrestaBy,
-    error,
     updatepresta,
     deletepresta,
     getprestaprms,
@@ -51,127 +65,288 @@ export const Prestataire = () => {
   } = useApi()
 
   const navigation = useNavigation()
-
-  //  if ($_POST['searchby'])//recherche specifique : region, ville, dept, categ
   const scrollViewRef = useRef(null)
-  const { assets, colors, gradients, sizes } = useTheme()
+  const { gradients } = useTheme()
 
-  // State for each dropdown's data
-  const [regions, setRegions] = useState([])
-  const [departments, setDepartments] = useState([])
-  const [cities, setCities] = useState([])
-  const [providerTypes, setProviderTypes] = useState([])
+  // Refs pour les timeouts
+  const timeoutRefs = useRef({})
+  const abortControllers = useRef({})
 
-  // Loading states for each dropdown
-  const [loadingRegions, setLoadingRegions] = useState(false)
-  const [loadingDepartments, setLoadingDepartments] = useState(false)
-  const [loadingCities, setLoadingCities] = useState(false)
-  const [loadingProviderTypes, setLoadingProviderTypes] = useState(false)
+  // États principaux - optimisés
+  const [searchProgress, setSearchProgress] = useState(null)
+  const [assignProgress, setAssignProgress] = useState(null)
+  const [showLongWaitMessage, setShowLongWaitMessage] = useState(false)
 
-  // Handlers for each dropdown's focus
-  const handleRegionFocus = useCallback(async () => {
-    if (regions.length > 0 || loadingRegions) return
-    setLoadingRegions(true)
-    try {
-      const response = await getprestaprms({ searchby: 'region' })
-      // console.log(response.data.all_regions);
-      setRegions(response.data.all_regions || [])
-    } catch (error) {
-      console.error('Erreur lors du chargement des régions:', error)
-    } finally {
-      setLoadingRegions(false)
-    }
-  }, [regions, loadingRegions])
+  // Données des dropdowns avec lazy loading
+  const [dropdownData, setDropdownData] = useState({
+    regions: [],
+    departments: [],
+    cities: [],
+    providerTypes: [],
+  })
 
-  const handleDepartmentFocus = useCallback(async () => {
-    if (departments.length > 0 || loadingDepartments) return
-    setLoadingDepartments(true)
-    try {
-      const response = await getprestaprms({ searchby: 'dept' })
-      setDepartments(response.data.all_depts || [])
-    } catch (error) {
-      console.error('Erreur lors du chargement des départements:', error)
-    } finally {
-      setLoadingDepartments(false)
-    }
-  }, [departments, loadingDepartments])
+  // États de chargement centralisés
+  const [loadingStates, setLoadingStates] = useState({
+    regions: false,
+    departments: false,
+    cities: false,
+    providerTypes: false,
+    searching: false,
+    loadingMore: false,
+    assigning: false,
+  })
 
-  const handleCityFocus = useCallback(async () => {
-    if (cities.length > 0 || loadingCities) return
-    setLoadingCities(true)
-    try {
-      const response = await getprestaprms({ searchby: 'ville' })
-      setCities(response.data.all_cities || [])
-    } catch (error) {
-      console.error('Erreur lors du chargement des villes:', error)
-    } finally {
-      setLoadingCities(false)
-    }
-  }, [cities, loadingCities])
-
-  const handleProviderTypeFocus = useCallback(async () => {
-    if (providerTypes.length > 0 || loadingProviderTypes) return
-    setLoadingProviderTypes(true)
-    try {
-      const response = await getprestaprms({ searchby: 'categ' })
-      setProviderTypes(response.data.all_categories || [])
-    } catch (error) {
-      console.error(
-        'Erreur lors du chargement des types de prestataires:',
-        error,
-      )
-    } finally {
-      setLoadingProviderTypes(false)
-    }
-  }, [providerTypes, loadingProviderTypes])
-
-  const [isLoading, setIsLoading] = useState(false)
-  const [searchResults, setSearchResults] = useState<{
-    all_prests: any[]
-    nb_tot_presta: number
-  } | null>(null)
+  // États de recherche
+  const [searchResults, setSearchResults] = useState(null)
   const [selectForm, setSelectForm] = useState(initialFormState)
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [selectPresta, setSelectPresta] = useState([])
   const [modalShow, setModalShow] = useState(false)
-  // Fonction pour ajouter un élément
-  const handleSelect = (item) => {
-    if (!selectPresta.includes(item)) {
-      setSelectPresta([...selectPresta, item]) // Ajoute l'élément
-    }
-  }
 
-  // Fonction pour supprimer un élément
-  const handleUnselect = (item) => {
-    if (selectPresta.includes(item)) {
-      setSelectPresta(
-        selectPresta.filter((selectedItem) => selectedItem !== item),
-      ) // Supprime l'élément
-    }
-  }
-  const isSelected = (id: any) => {
-    return selectPresta.some((selectId) => selectId == id)
-  }
+  // 🧹 FONCTION DE NETTOYAGE MÉMOIRE
+  const cleanupMemory = useCallback(() => {
+    console.log('🧹 Nettoyage mémoire en cours...')
 
-  const handleInputChange = useCallback((name: string, value: string) => {
+    // Nettoie les timeouts
+    Object.values(timeoutRefs.current).forEach(clearTimeout)
+    timeoutRefs.current = {}
+
+    // Annule les requêtes en cours
+    Object.values(abortControllers.current).forEach((controller) => {
+      if (controller?.abort) controller.abort()
+    })
+    abortControllers.current = {}
+
+    // Reset des états de progression
+    setSearchProgress(null)
+    setAssignProgress(null)
+    setShowLongWaitMessage(false)
+
+    console.log('✅ Mémoire nettoyée')
+  }, [])
+
+  // 🔄 NETTOYAGE APRÈS RECHERCHE
+  const cleanupAfterSearch = useCallback(() => {
+    console.log('🔄 Nettoyage post-recherche...')
+
+    // Vide les sélections précédentes
+    setSelectPresta([])
+
+    // Reset pagination
+    setCurrentPage(1)
+    setHasMore(true)
+
+    // Nettoie les états de progression
+    setTimeout(() => {
+      setSearchProgress(null)
+    }, 2000)
+
+    console.log('✅ Nettoyage post-recherche terminé')
+  }, [])
+
+  // 🗑️ NETTOYAGE APRÈS ASSIGNATION
+  const cleanupAfterAssignment = useCallback(() => {
+    console.log('🗑️ Nettoyage post-assignation...')
+
+    // Vide complètement les sélections
+    setSelectPresta([])
+
+    // Ferme la modal
+    setModalShow(false)
+
+    // Reset des résultats de recherche pour forcer une nouvelle recherche
+    setSearchResults(null)
+
+    // Nettoie les états
+    setTimeout(() => {
+      setAssignProgress(null)
+    }, 2000)
+
+    console.log('✅ Nettoyage post-assignation terminé')
+  }, [])
+
+  // Helper pour les états de chargement
+  const setLoadingState = useCallback((key, value) => {
+    setLoadingStates((prev) => ({ ...prev, [key]: value }))
+  }, [])
+
+  // Helper pour les données dropdown
+  const setDropdownDataKey = useCallback((key, data) => {
+    setDropdownData((prev) => ({ ...prev, [key]: data }))
+  }, [])
+
+  // 🚀 GESTION TIMEOUT AVEC CLEANUP
+  const withTimeout = useCallback(
+    async (promise, operation, timeoutMs = 70000) => {
+      const operationId = Date.now().toString()
+
+      // Crée un AbortController pour cette opération
+      const controller = new AbortController()
+      abortControllers.current[operationId] = controller
+
+      // Timer pour le message d'attente longue
+      const longWaitTimeout = setTimeout(() => {
+        setShowLongWaitMessage(true)
+      }, 5000)
+      timeoutRefs.current[`longWait_${operationId}`] = longWaitTimeout
+
+      try {
+        const result = await Promise.race([
+          promise,
+          new Promise((_, reject) => {
+            const timeoutId = setTimeout(() => {
+              controller.abort()
+              reject(
+                new Error(`${operation} - Timeout après ${timeoutMs / 1000}s`),
+              )
+            }, timeoutMs)
+            timeoutRefs.current[`timeout_${operationId}`] = timeoutId
+          }),
+        ])
+
+        // Cleanup pour cette opération
+        clearTimeout(timeoutRefs.current[`longWait_${operationId}`])
+        clearTimeout(timeoutRefs.current[`timeout_${operationId}`])
+        delete timeoutRefs.current[`longWait_${operationId}`]
+        delete timeoutRefs.current[`timeout_${operationId}`]
+        delete abortControllers.current[operationId]
+
+        setShowLongWaitMessage(false)
+        return result
+      } catch (error) {
+        // Cleanup en cas d'erreur
+        clearTimeout(timeoutRefs.current[`longWait_${operationId}`])
+        clearTimeout(timeoutRefs.current[`timeout_${operationId}`])
+        delete timeoutRefs.current[`longWait_${operationId}`]
+        delete timeoutRefs.current[`timeout_${operationId}`]
+        delete abortControllers.current[operationId]
+
+        setShowLongWaitMessage(false)
+
+        if (error.name === 'AbortError') {
+          throw new Error(`${operation} - Opération annulée`)
+        }
+        throw error
+      }
+    },
+    [],
+  )
+
+  // 📋 HANDLERS DROPDOWN OPTIMISÉS
+  const createDropdownHandler = useCallback(
+    (type, searchBy) => {
+      return async () => {
+        if (dropdownData[type].length > 0 || loadingStates[type]) return
+
+        setLoadingState(type, true)
+        try {
+          const response = await withTimeout(
+            getprestaprms({ searchby: searchBy }),
+            `Chargement ${type}`,
+          )
+
+          const dataKey = {
+            regions: 'all_regions',
+            departments: 'all_depts',
+            cities: 'all_cities',
+            providerTypes: 'all_categories',
+          }[type]
+
+          setDropdownDataKey(type, response.data[dataKey] || [])
+        } catch (error) {
+          console.error(`Erreur ${type}:`, error)
+          Alert.alert(
+            'Erreur',
+            error.message || `Impossible de charger ${type}`,
+          )
+        } finally {
+          setLoadingState(type, false)
+        }
+      }
+    },
+    [
+      dropdownData,
+      loadingStates,
+      withTimeout,
+      setLoadingState,
+      setDropdownDataKey,
+    ],
+  )
+
+  // Handlers spécifiques
+  const handleRegionFocus = useMemo(
+    () => createDropdownHandler('regions', 'region'),
+    [createDropdownHandler],
+  )
+  const handleDepartmentFocus = useMemo(
+    () => createDropdownHandler('departments', 'dept'),
+    [createDropdownHandler],
+  )
+  const handleCityFocus = useMemo(
+    () => createDropdownHandler('cities', 'ville'),
+    [createDropdownHandler],
+  )
+  const handleProviderTypeFocus = useMemo(
+    () => createDropdownHandler('providerTypes', 'categ'),
+    [createDropdownHandler],
+  )
+
+  // 🎯 GESTION SÉLECTIONS OPTIMISÉE
+  const handleSelect = useCallback((item) => {
+    setSelectPresta((prev) => {
+      if (!prev.includes(item)) {
+        return [...prev, item]
+      }
+      return prev
+    })
+  }, [])
+
+  const handleUnselect = useCallback((item) => {
+    setSelectPresta((prev) =>
+      prev.filter((selectedItem) => selectedItem !== item),
+    )
+  }, [])
+
+  const isSelected = useCallback(
+    (id) => {
+      return selectPresta.some((selectId) => selectId == id)
+    },
+    [selectPresta],
+  )
+
+  const handleInputChange = useCallback((name, value) => {
     setSelectForm((prev) => ({ ...prev, [name]: value }))
   }, [])
 
+  // 🔍 FONCTION DE RECHERCHE OPTIMISÉE
   const submit = useCallback(async () => {
-    setIsLoading(true)
+    // Cleanup avant nouvelle recherche
+    cleanupMemory()
+
+    setLoadingState('searching', true)
+    setSearchProgress('Préparation de la recherche...')
     setCurrentPage(1)
     setHasMore(true)
+
     try {
       await fetchData(1, true)
+      cleanupAfterSearch()
+    } catch (error) {
+      setSearchProgress('Erreur lors de la recherche')
+      Alert.alert('Erreur', error.message || 'Erreur lors de la recherche')
+      cleanupMemory()
     } finally {
-      setIsLoading(false)
+      setLoadingState('searching', false)
     }
   }, [selectForm])
 
-  const fetchData = async (page: number, isNewSearch = false) => {
+  const fetchData = async (page, isNewSearch = false) => {
     try {
+      if (isNewSearch) {
+        setSearchProgress('Recherche des prestataires...')
+      }
+
       const filteredForm = Object.fromEntries(
         Object.entries(selectForm).filter(([_, value]) => value !== ''),
       )
@@ -189,17 +364,23 @@ export const Prestataire = () => {
 
       const formattedData = {
         ...Object.entries(filteredForm).reduce((acc, [key, value]) => {
-          const newKey = mappedKeys[key as keyof typeof mappedKeys] || key
+          const newKey = mappedKeys[key] || key
           acc[newKey] = value
           return acc
-        }, {} as Record<string, string>),
+        }, {}),
         current_page: page,
       }
 
-      const response = await getPrestaBy(formattedData)
+      const response = await withTimeout(
+        getPrestaBy(formattedData),
+        'Recherche de prestataires',
+      )
 
       if (!response.data) {
         setHasMore(false)
+        if (isNewSearch) {
+          setSearchResults({ all_prests: [], nb_tot_presta: 0 })
+        }
         return
       }
 
@@ -207,6 +388,7 @@ export const Prestataire = () => {
 
       if (isNewSearch) {
         setSearchResults(newData)
+        setSearchProgress(`${newData.nb_tot_presta} prestataires trouvés`)
       } else {
         setSearchResults((prev) => ({
           nb_tot_presta: newData.nb_tot_presta,
@@ -214,135 +396,138 @@ export const Prestataire = () => {
         }))
       }
 
-      // Vérifier s'il y a plus de données à charger
       const totalPagesReceived = Math.ceil(newData.nb_tot_presta / PAGE_SIZE)
       setHasMore(page < totalPagesReceived)
-    } catch (e) {
-      console.error('Erreur lors de la recherche:', e)
+    } catch (error) {
+      console.error('Erreur lors de la recherche:', error)
       setHasMore(false)
+      throw error
     }
   }
 
+  // 📄 PAGINATION OPTIMISÉE
   const handleScroll = useCallback(
-    async (event: any) => {
-      if (isLoadingMore || !hasMore) {
-        // console.log('Loading more or no more data available')
-        return
-      }
+    async (event) => {
+      if (loadingStates.loadingMore || !hasMore) return
 
       const {
         layoutMeasurement,
         contentOffset,
         contentSize,
       } = event.nativeEvent
-
-      /*    // Ajout des logs pour déboguer
-            console.log('Scroll Metrics:', {
-                layoutHeight: layoutMeasurement.height,
-                offsetY: contentOffset.y,
-                contentHeight: contentSize.height,
-                currentPosition: layoutMeasurement.height + contentOffset.y,
-                threshold: contentSize.height * 0.8 // 80% du contenu
-            });*/
-
-      // Nouvelle méthode de calcul avec un seuil de 80%
       const isCloseToBottom =
         layoutMeasurement.height + contentOffset.y >= contentSize.height * 0.8
 
-      //     console.log('Is close to bottom:', isCloseToBottom);
-
       if (isCloseToBottom) {
         try {
-          setIsLoadingMore(true)
-          // console.log('Loading more data...')
+          setLoadingState('loadingMore', true)
           const nextPage = currentPage + 1
           await fetchData(nextPage, false)
           setCurrentPage(nextPage)
         } catch (error) {
           console.error('Error loading more data:', error)
         } finally {
-          setIsLoadingMore(false)
+          setLoadingState('loadingMore', false)
         }
       }
     },
-    [currentPage, hasMore, isLoadingMore],
+    [currentPage, hasMore, loadingStates.loadingMore],
   )
 
-  const renderPickerItem = useCallback(
-    (item: any, index: number) => (
-      <Picker.Item
-        label={item.name || item.libelle}
-        value={item.id}
-        key={index}
-      />
-    ),
-    [],
+  // 🎯 ASSIGNATION OPTIMISÉE
+  const assignEvent = useCallback(
+    async (selectedArrDeroule, selectedDeroule) => {
+      setLoadingState('assigning', true)
+      setAssignProgress("Préparation de l'assignation...")
+
+      try {
+        const eventData = {
+          eventId: selectedDeroule.id,
+          presta: selectPresta,
+        }
+
+        setAssignProgress(
+          "Assignation en cours... Cela peut prendre jusqu'à 60 secondes.",
+        )
+
+        const response = await withTimeout(
+          assignPresta(eventData),
+          'Assignation des prestataires',
+        )
+
+        if (response.code === 'SUCCESS') {
+          setAssignProgress('Assignation réussie !')
+
+          // Nettoyage complet après assignation réussie
+          cleanupAfterAssignment()
+
+          // Navigation après cleanup
+          setTimeout(() => {
+            navigation.navigate('EventPresta', { item: response.data })
+          }, 1000)
+        } else {
+          throw new Error("Échec de l'assignation")
+        }
+      } catch (error) {
+        Alert.alert(
+          'Erreur',
+          error.message || "Une erreur est survenue lors de l'assignation.",
+        )
+        console.error(error)
+        cleanupMemory()
+      } finally {
+        setLoadingState('assigning', false)
+      }
+    },
+    [selectPresta, cleanupAfterAssignment, cleanupMemory],
   )
 
-  /* const memoizedPickers = useMemo(() => ({
-         region: userdata.all_regions.map(renderPickerItem),
-         department: userdata.all_depts.map(renderPickerItem),
-         city: userdata.all_cities.map(renderPickerItem),
-         providerType: userdata.all_categories.map(renderPickerItem)
-     }), [userdata, renderPickerItem]);*/
-
-  const showModal = () => {
-    if (Array.isArray(selectPresta) && selectPresta.length > 0) {
-      const message = JSON.stringify(selectPresta, null, 2) // Formatage JSON lisible
-      Alert.alert('Valider la prestation', message)
-    } else {
-      Alert.alert('Erreur', 'Aucune prestation sélectionnée.')
-    }
-  }
-  const assignEvent = async (selectedArrDeroule, selectedDeroule) => {
-    try {
-      // console.log(selectedArrDeroule, selectedDeroule)
-
-      // Simulation d'un délai de 5 secondes
-      await new Promise((resolve) => setTimeout(resolve, 5000))
-
-      // Création de l'objet JSON avec eventId et presta
-      const eventData = {
-        eventId: selectedDeroule.id, // ID de l'événement
-        presta: selectPresta, // Tableau des prestations
+  // 🔧 ACTIONS CRUD OPTIMISÉES
+  const onModify = useCallback(
+    async (data) => {
+      try {
+        const response = await updatepresta(data)
+        if (response) {
+          await fetchData(currentPage, true)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la modification:', error)
+        Alert.alert('Erreur', 'Impossible de modifier le prestataire')
       }
-      console.log(eventData)
+    },
+    [currentPage],
+  )
 
-      const response = await assignPresta(eventData)
-      console.log(response)
-      if (response.code == 'SUCCESS') {
-        navigation.navigate('EventPresta', { item: response.data })
-      }
-      setSelectPresta([])
-    } catch (error) {
-      Alert.alert('Erreur', "Une erreur est survenue lors de l'assignation.")
-      console.error(error)
-    }
-  }
-
-  const onModify = async (data) => {
-    try {
-      const response = await updatepresta(data)
-      if (response) {
+  const onDelete = useCallback(
+    async (data) => {
+      try {
+        await deletepresta(data)
         await fetchData(currentPage, true)
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error)
+        Alert.alert('Erreur', 'Impossible de supprimer le prestataire')
       }
-    } catch (error) {
-      console.error('Erreur lors de la modification:', error)
-    }
-  }
+    },
+    [currentPage],
+  )
 
-  const onDelete = async (data) => {
-    try {
-      deletepresta(data)
-
-      await fetchData(currentPage, true)
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error)
+  // 🧹 CLEANUP AU DÉMONTAGE
+  useEffect(() => {
+    return () => {
+      console.log('🧹 Cleanup au démontage du composant')
+      cleanupMemory()
     }
-  }
-  const closeModal = () => {
-    setModalShow(false)
-  }
+  }, [cleanupMemory])
+
+  // 🚨 CLEANUP SUR CHANGEMENT DE NAVIGATION
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      console.log('🚨 Navigation blur - nettoyage')
+      cleanupMemory()
+    })
+
+    return unsubscribe
+  }, [navigation, cleanupMemory])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -350,32 +535,45 @@ export const Prestataire = () => {
         style={styles.scrollView}
         ref={scrollViewRef}
         onScroll={handleScroll}
-        scrollEventThrottle={16} // Réduit à 16 pour une détection plus précise
-        onScrollEndDrag={handleScroll} // Ajout de la détection de fin de scroll
-        onMomentumScrollEnd={handleScroll} // Ajout de la détection de fin d'inertie
+        scrollEventThrottle={16}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        windowSize={5}
       >
         <View style={styles.content}>
           <Text style={styles.title}>PRESTATAIRES</Text>
+
+          {/* Indicateur de progression */}
+          {(searchProgress || assignProgress || showLongWaitMessage) && (
+            <View style={styles.progressContainer}>
+              <ActivityIndicator color="#9932CC" />
+              <Text style={styles.progressText}>
+                {assignProgress ||
+                  searchProgress ||
+                  'La requête prend plus de temps que prévu... Veuillez patienter.'}
+              </Text>
+            </View>
+          )}
 
           <View style={styles.searchSection}>
             <View style={styles.row}>
               <PickerWrapper
                 selectedValue={selectForm.region}
                 onValueChange={(value) => handleInputChange('region', value)}
-                items={regions}
+                items={dropdownData.regions}
                 placeholder="Sélectionner une région"
                 onFocus={handleRegionFocus}
-                loading={loadingRegions}
+                loading={loadingStates.regions}
               />
               <PickerWrapper
                 selectedValue={selectForm.department}
                 onValueChange={(value) =>
                   handleInputChange('department', value)
                 }
-                items={departments}
+                items={dropdownData.departments}
                 placeholder="Sélectionner un département"
                 onFocus={handleDepartmentFocus}
-                loading={loadingDepartments}
+                loading={loadingStates.departments}
               />
             </View>
 
@@ -383,20 +581,20 @@ export const Prestataire = () => {
               <PickerWrapper
                 selectedValue={selectForm.city}
                 onValueChange={(value) => handleInputChange('city', value)}
-                items={cities}
+                items={dropdownData.cities}
                 placeholder="Sélectionner une ville"
                 onFocus={handleCityFocus}
-                loading={loadingCities}
+                loading={loadingStates.cities}
               />
               <PickerWrapper
                 selectedValue={selectForm.providerType}
                 onValueChange={(value) =>
                   handleInputChange('providerType', value)
                 }
-                items={providerTypes}
+                items={dropdownData.providerTypes}
                 placeholder="Type de prestataire"
                 onFocus={handleProviderTypeFocus}
-                loading={loadingProviderTypes}
+                loading={loadingStates.providerTypes}
               />
             </View>
 
@@ -431,22 +629,27 @@ export const Prestataire = () => {
               <Button
                 gradient={gradients.primary}
                 style={styles.searchButton}
-                onPressIn={submit}
-                onPressOut={submit}
                 onPress={submit}
-                disabled={isLoading}
+                disabled={loadingStates.searching}
               >
-                {isLoading ? (
+                {loadingStates.searching ? (
                   <ActivityIndicator color="white" />
                 ) : (
                   <Text style={styles.searchButtonText}>Rechercher</Text>
                 )}
               </Button>
-              <TouchableOpacity>
-                <Icon name="search" size={30} color="#9932CC" />
+              <TouchableOpacity
+                onPress={() => {
+                  cleanupMemory()
+                  setSearchResults(null)
+                  setSelectForm(initialFormState)
+                }}
+              >
+                <Icon name="refresh" size={30} color="#9932CC" />
               </TouchableOpacity>
             </View>
 
+            {/* Résultats */}
             {searchResults !== null && (
               <Text style={styles.resultCount}>
                 Resultat de recherche :{' '}
@@ -457,38 +660,30 @@ export const Prestataire = () => {
               </Text>
             )}
 
-            {selectPresta && selectPresta.length > 0 && (
-              <View
-                style={{
-                  marginTop: 20,
-                  flexDirection: 'row',
-
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: 10,
-                }}
-              >
-                <Text style={{ marginTop: 2, textAlign: 'center' }}>
+            {selectPresta?.length > 0 && (
+              <View style={styles.selectionContainer}>
+                <Text style={styles.selectionText}>
                   <Text style={styles.resultCountHighlight}>
                     {selectPresta.length}
                   </Text>{' '}
                   prestataires sélectionnés.
                 </Text>
-
                 <Button
                   gradient={gradients.primary}
                   padding={5}
                   onPress={() => setModalShow(true)}
+                  disabled={loadingStates.assigning}
                 >
-                  <Text style={styles.searchButtonText}>valider</Text>
+                  <Text style={styles.searchButtonText}>Valider</Text>
                 </Button>
               </View>
             )}
 
-            {searchResults !== null && searchResults?.all_prests.length > 0 && (
+            {/* Liste des prestataires */}
+            {searchResults !== null && (
               <>
-                {searchResults.all_prests.map(
-                  (provider: any, index: number) => (
+                {searchResults.all_prests?.length > 0 ? (
+                  searchResults.all_prests.map((provider, index) => (
                     <ProviderCard
                       key={`${provider.id}-${index}`}
                       provider={provider}
@@ -498,13 +693,16 @@ export const Prestataire = () => {
                       handleUnSelect={handleUnselect}
                       isSelected={isSelected}
                     />
-                  ),
+                  ))
+                ) : (
+                  <EmptyState message="Aucun prestataire trouvé pour cette recherche." />
                 )}
-                {isLoadingMore && hasMore && (
-                  <View style={styles.loadingMore}>
-                    <ActivityIndicator color="#9932CC" />
-                    <Text>Chargement...</Text>
-                  </View>
+
+                {loadingStates.loadingMore && hasMore && (
+                  <LoadingIndicator
+                    message="Chargement des prestataires suivants..."
+                    size="small"
+                  />
                 )}
               </>
             )}
@@ -514,13 +712,14 @@ export const Prestataire = () => {
 
       <DeroulesModal
         isVisible={modalShow}
-        onClose={closeModal}
+        onClose={() => setModalShow(false)}
         onAssign={assignEvent}
       />
     </SafeAreaView>
   )
 }
 
+// 🎯 COMPOSANTS OPTIMISÉS AVEC MEMO
 const PickerWrapper = React.memo(
   ({ selectedValue, onValueChange, items, placeholder, onFocus, loading }) => (
     <View style={[styles.pickerContainer, { width: '50%' }]}>
@@ -536,7 +735,7 @@ const PickerWrapper = React.memo(
             <Picker.Item
               label={item.name || item.libelle}
               value={item.id}
-              key={index}
+              key={`${item.id}-${index}`}
             />
           ))}
       </Picker>
@@ -550,7 +749,8 @@ const PickerWrapper = React.memo(
     </View>
   ),
 )
-const CustomTextInput = React.memo(({ ...props }: any) => (
+
+const CustomTextInput = React.memo(({ ...props }) => (
   <TextInput style={[styles.input, styles.inputHalf]} {...props} />
 ))
 
@@ -575,17 +775,59 @@ const styles = StyleSheet.create({
   searchSection: {
     gap: 8,
   },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f0f0f0',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    gap: 10,
+  },
+  progressText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    flex: 1,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  loadingText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+  },
+  emptyState: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#999',
+    textAlign: 'center',
+  },
+  selectionContainer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+  },
+  selectionText: {
+    marginTop: 2,
+    textAlign: 'center',
+  },
   pickerLoading: {
     position: 'absolute',
     right: 30,
     top: 5,
-  },
-  loadingMore: {
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 8,
   },
   pickerContainer: {
     borderWidth: 1,
@@ -593,10 +835,8 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 15,
     flex: 1,
-
     justifyContent: 'center',
     height: 30,
-    //  overflow: 'hidden',
   },
   picker: {
     width: '100%',
@@ -631,67 +871,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
     marginVertical: 10,
-  },
-  providerCard: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    padding: 16,
-    gap: 12,
-  },
-  providerName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    backgroundColor: '#B8B8D1',
-    padding: 8,
-    borderRadius: 8,
-    textAlign: 'center',
-  },
-  tagContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  tag: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  tagText: {
-    color: '#666',
-    fontSize: 14,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
-  modifyButton: {
-    backgroundColor: '#FFA500',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    flex: 1,
-  },
-  modifyButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  deleteButton: {
-    backgroundColor: '#FF6B6B',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    flex: 1,
-  },
-  deleteButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
   },
   buttonContainer: {
     flexDirection: 'row',

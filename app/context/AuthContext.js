@@ -8,7 +8,7 @@ export const AuthContext = createContext()
 
 const axiosInstance = axios.create({
   baseURL: 'https://www.goseminaire.com/crm/api/',
-  timeout: 10000,
+  timeout: 70000, // Augmenté à 70 secondes pour les API lentes
   headers: {
     'Content-Type': 'application/json',
   },
@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
   const [userdata, setUserData] = useState(null)
   const [presta, setPresta] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [loginProgress, setLoginProgress] = useState(null) // Pour suivre l'étape du login
 
   /** Utility Functions */
   const StoreSave = async (key, value) => {
@@ -60,8 +61,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       console.log('🔐 Token trouvé :', token)
-
-      // Essaye de récupérer les données utilisateur avec le token
       setUserToken(token)
       await getUserData(token)
     } catch (error) {
@@ -77,8 +76,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [])
 
-  // Get User Data
-  // Get User Data sécurisé
+  // Get User Data avec timeout étendu
   const getUserData = async (token) => {
     const data = {
       action: 'get-user-data',
@@ -101,20 +99,19 @@ export const AuthProvider = ({ children }) => {
         if (expoPushToken?.data) {
           data.pushtoken = expoPushToken.data
           console.log('📩 Token push récupéré :', expoPushToken.data)
-        } else {
-          console.warn('🔕 Aucun token Expo récupéré')
         }
       }
     } catch (e) {
-      console.warn(
-        '⚠️ Erreur récup push token Expo (non bloquante) :',
-        e?.message || e,
-      )
+      console.warn('⚠️ Erreur récup push token Expo :', e?.message || e)
     }
 
     try {
-      console.log('📤 Données envoyées :', data)
-      const response = await axiosInstance.post('api.php', data)
+      console.log('📤 Récupération des données utilisateur...')
+
+      // Requête avec timeout étendu pour cette API lente
+      const response = await axiosInstance.post('api.php', data, {
+        timeout: 70000, // Timeout spécifique pour cette requête
+      })
 
       if (
         response.data.code === 'ERROR' &&
@@ -128,37 +125,94 @@ export const AuthProvider = ({ children }) => {
       }
 
       setUserData(response.data.data)
+      console.log('✅ Données utilisateur récupérées avec succès')
     } catch (error) {
+      if (error.code === 'ECONNABORTED') {
+        console.error('⏱️ Timeout - La requête a pris trop de temps')
+        throw new Error(
+          'La connexion prend plus de temps que prévu. Veuillez réessayer.',
+        )
+      }
       console.error('❌ Erreur API getUserData :', error)
       setUserToken(null)
       setUserData(null)
+      throw error
     }
   }
 
-  /*// Login
+  // Login optimisé avec étapes de progression
   const Login = async ({ email, password }) => {
     setIsLoading(true)
-    try {a
-      const response = await axiosInstance.post('api.php', {
-        email,
-        password,
-        action: 'login-api',
-      })
-      const { token, data } = response.data
-      setUserToken(token)
-      setUserData(data)
-      await StoreSave('usertoken', token)
-    } catch (error) {
-      console.error('Login error:', error)
-      throw new Error('Login failed. Check your credentials.')
-    } finally {
-      setIsLoading(false)
-    }
-  }*/
-  const Login = async ({ email, password }) => {
-    setIsLoading(true)
+    setLoginProgress('Connexion en cours...')
 
     try {
+      // Étape 1: Authentification
+      setLoginProgress('Vérification des identifiants...')
+      console.log('🔐 Tentative de connexion pour:', email)
+
+      const response = await axiosInstance.post(
+        'api.php',
+        {
+          email,
+          password,
+          action: 'login-api',
+        },
+        {
+          timeout: 30000, // Timeout plus court pour le login initial
+        },
+      )
+
+      const { token } = response.data
+
+      if (!token) {
+        throw new Error('Aucun token reçu. Veuillez vérifier vos identifiants.')
+      }
+
+      // Étape 2: Sauvegarde du token
+      setLoginProgress('Sauvegarde de la session...')
+      setUserToken(token)
+      await StoreSave('usertoken', token)
+      console.log('💾 Token sauvegardé')
+
+      // Étape 3: Récupération des données utilisateur (peut être lente)
+      setLoginProgress(
+        "Chargement de vos données... Cela peut prendre jusqu'à 60 secondes.",
+      )
+      console.log('📥 Récupération des données utilisateur...')
+
+      await getUserData(token)
+
+      setLoginProgress('Connexion réussie !')
+      console.log('✅ Connexion terminée avec succès')
+    } catch (error) {
+      console.error('❌ Erreur lors de la connexion :', error)
+
+      // Messages d'erreur plus explicites
+      if (error.code === 'ECONNABORTED') {
+        throw new Error(
+          'La connexion prend trop de temps. Vérifiez votre connexion internet et réessayez.',
+        )
+      } else if (
+        error.message.includes('Network Error') ||
+        error.message.includes('timeout')
+      ) {
+        throw new Error('Problème de connexion réseau. Veuillez réessayer.')
+      } else {
+        throw new Error(
+          error.message || 'Échec de la connexion. Vérifiez vos identifiants.',
+        )
+      }
+    } finally {
+      setIsLoading(false)
+      setLoginProgress(null)
+    }
+  }
+
+  // Login en arrière-plan (pour après la première connexion)
+  const LoginBackground = async ({ email, password }) => {
+    try {
+      console.log('🔄 Connexion en arrière-plan...')
+
       const response = await axiosInstance.post('api.php', {
         email,
         password,
@@ -167,21 +221,18 @@ export const AuthProvider = ({ children }) => {
 
       const { token } = response.data
 
-      if (!token) {
-        throw new Error('Aucun token reçu. Veuillez vérifier vos identifiants.')
+      if (token) {
+        setUserToken(token)
+        await StoreSave('usertoken', token)
+
+        // Récupération des données en arrière-plan sans bloquer l'UI
+        getUserData(token).catch(console.error)
+
+        return { success: true }
       }
-
-      // Stocke le token en local
-      setUserToken(token)
-      await StoreSave('usertoken', token)
-
-      // Récupère les données utilisateur + envoie le push token
-      await getUserData(token)
     } catch (error) {
-      console.error('Erreur lors de la connexion :', error)
-      throw new Error('Échec de la connexion. Vérifiez vos identifiants.')
-    } finally {
-      setIsLoading(false)
+      console.error('Erreur connexion arrière-plan:', error)
+      return { success: false, error: error.message }
     }
   }
 
@@ -191,7 +242,9 @@ export const AuthProvider = ({ children }) => {
     try {
       setUserToken(null)
       setUserData(null)
+      setPresta(null)
       await StoreDelete('usertoken')
+      console.log('👋 Déconnexion réussie')
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
@@ -199,8 +252,8 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  // Submit Form Data
-  const validForm = async (data, callback) => {
+  // Submit Form Data avec retry
+  const validForm = async (data, callback, retryCount = 0) => {
     try {
       const formData = {
         ...data,
@@ -208,8 +261,10 @@ export const AuthProvider = ({ children }) => {
         token: usertoken,
       }
 
-      // console.log(formData)
-      const response = await axiosInstance.post('api.php', formData)
+      const response = await axiosInstance.post('api.php', formData, {
+        timeout: 70000, // Timeout étendu
+      })
+
       if (response.data.code === 'SUCCESS') {
         await getUserData(usertoken)
         callback?.()
@@ -217,6 +272,12 @@ export const AuthProvider = ({ children }) => {
         throw new Error(response.data.message || 'Error submitting form')
       }
     } catch (error) {
+      // Retry une fois en cas de timeout
+      if (error.code === 'ECONNABORTED' && retryCount === 0) {
+        console.log('⏱️ Timeout, tentative de retry...')
+        return validForm(data, callback, 1)
+      }
+
       console.error('ValidForm error:', error)
       throw error
     }
@@ -231,9 +292,10 @@ export const AuthProvider = ({ children }) => {
       const response = await axiosInstance.post('api.php', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          // Authorization: `Bearer ${usertoken}`,
         },
+        timeout: 120000, // Timeout plus long pour les uploads
       })
+
       if (response.data.code === 'SUCCESS') {
         callback?.(response.data)
       } else {
@@ -251,11 +313,18 @@ export const AuthProvider = ({ children }) => {
   const getAllPrestaData = useCallback(
     async (params) => {
       try {
-        const response = await axiosInstance.post('api.php', {
-          action: 'get-presta-by',
-          token: usertoken,
-          ...params,
-        })
+        const response = await axiosInstance.post(
+          'api.php',
+          {
+            action: 'get-presta-by',
+            token: usertoken,
+            ...params,
+          },
+          {
+            timeout: 70000,
+          },
+        )
+
         setPresta(response.data.data)
         return response.data.data
       } catch (error) {
@@ -276,8 +345,10 @@ export const AuthProvider = ({ children }) => {
         usertoken,
         userdata,
         isLoading,
+        loginProgress, // Nouveau: pour afficher l'étape actuelle du login
         presta,
         Login,
+        LoginBackground, // Nouveau: pour les connexions en arrière-plan
         Logout,
         getUserData,
         validForm,

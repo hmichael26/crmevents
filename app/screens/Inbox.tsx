@@ -325,8 +325,6 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.headerTitle}>{param.Receiver}</Text>
-
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       <View style={styles.header}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -434,6 +432,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
+    paddingTop: Platform.OS === 'ios' ? 0 : 25,
   },
   header: {
     flexDirection: 'row',

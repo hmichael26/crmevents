@@ -27,6 +27,9 @@ export default () => {
   const menu = {
     headerStyle: { elevation: 0 },
     headerTitleAlign: 'left',
+    headerTitleStyle: {
+      fontSize: 15,
+    },
     headerTitleContainerStyle: { marginLeft: -sizes.sm },
     headerLeftContainerStyle: { paddingLeft: sizes.s },
     headerRightContainerStyle: { paddingRight: sizes.s },
@@ -137,12 +140,12 @@ export default () => {
         <Text
           style={{
             marginHorizontal: 7,
-            fontSize: 25,
-            fontWeight: 'bold',
+            fontSize: 15,
+
             color: labelColor,
           }}
         >
-          GO SEMINAIRE
+          DÉTAILS DU PROJET
         </Text>
       ),
       headerLeft: () => (

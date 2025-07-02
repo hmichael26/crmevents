@@ -165,8 +165,9 @@ export const styles = StyleSheet.create({
         backgroundColor: '#B8B8D1',
         borderRadius: 10,
         padding: 10,
-        marginBottom: 5,
-        width: '90%',
+        marginVertical: 10,
+        marginBottom: 25,
+        width: '88%',
     },
     hotelName: {
         color: 'white',

@@ -25,6 +25,7 @@ export const useApi = () => {
       const defaultConfig = {
         method: 'post',
         url: API_URL,
+        timeout: 70000,
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
@@ -78,6 +79,7 @@ export const useApi = () => {
   const getChat = (data) => makeRequest('get-chat', data)
   const sendChat = (data) => makeRequest('send-chat', data)
   const createDerouler = (data) => makeRequest('create-deroule', data)
+  const getClient = (data) => makeRequest('search-client', data)
 
   //   const addPresta = (data) => makeRequest('add-presta-interroge', data);
 
@@ -114,6 +116,7 @@ export const useApi = () => {
 
     // Autres actions
     sendDemandes,
+    getClient,
     // ... autres actions
   }
 }

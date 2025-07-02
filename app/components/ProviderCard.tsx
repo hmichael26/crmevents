@@ -262,6 +262,7 @@ export const ProviderCard = ({
         </Button>
         {isEditing && (
           <Button
+            flex={1}
             gradient={useTheme().gradients.secondary}
             style={[{ backgroundColor: useTheme().colors.primary }]}
             onPress={() => {

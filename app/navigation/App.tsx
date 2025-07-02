@@ -1,5 +1,11 @@
-import React, { useEffect, useState, useContext } from 'react'
-import { StatusBar, Platform, Text } from 'react-native'
+import React, { useEffect, useState, useContext, useCallback } from 'react'
+import {
+  StatusBar,
+  Platform,
+  Text,
+  View,
+  ActivityIndicator,
+} from 'react-native'
 import {
   DefaultTheme,
   NavigationContainer,
@@ -20,10 +26,71 @@ SplashScreen.preventAutoHideAsync()
 
 const Stack = createNativeStackNavigator()
 
-const SecureNavigator = () => {
-  const { usertoken, userdata, isLoading } = useContext(AuthContext)
+// Composant pour gérer l'état de chargement avec message personnalisé
+const LoadingScreen = ({ message }) => {
+  const { colors } = useTheme()
 
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.background,
+        paddingHorizontal: 40,
+      }}
+    >
+      <ActivityIndicator size="large" color={colors.primary} />
+      <Text
+        style={{
+          marginTop: 20,
+          fontSize: 16,
+          color: colors.text,
+          textAlign: 'center',
+          lineHeight: 24,
+        }}
+      >
+        {message}
+      </Text>
+    </View>
+  )
+}
+
+const SecureNavigator = () => {
+  const { usertoken, userdata, isLoading, loginProgress } = useContext(
+    AuthContext,
+  )
+  const [showDelayedMessage, setShowDelayedMessage] = useState(false)
+
+  // Affiche un message si le chargement prend trop de temps
+  useEffect(() => {
+    if (isLoading) {
+      const timer = setTimeout(() => {
+        setShowDelayedMessage(true)
+      }, 5000) // Après 5 secondes
+
+      return () => {
+        clearTimeout(timer)
+        setShowDelayedMessage(false)
+      }
+    }
+  }, [isLoading])
+
+  // Gestion des différents états de chargement
   if (isLoading) {
+    // Si on a un message de progression du login, on l'affiche
+    if (loginProgress) {
+      return <LoadingScreen message={loginProgress} />
+    }
+
+    // Si ça prend du temps, on informe l'utilisateur
+    if (showDelayedMessage) {
+      return (
+        <LoadingScreen message="Chargement en cours...  Merci de patienter." />
+      )
+    }
+
+    // Écran de splash standard
     return <ModernSplashScreen />
   }
 
@@ -41,7 +108,9 @@ const SecureNavigator = () => {
 const App = () => {
   const { isDark, theme, setTheme } = useData()
   const [isReady, setIsReady] = useState(false)
+  const [appInitProgress, setAppInitProgress] = useState('Initialisation...')
   const { colors } = useTheme()
+
   const [fontsLoaded] = useFonts({
     'OpenSans-Light': require('../assets/fonts/OpenSans-Light.ttf'),
     'OpenSans-Regular': require('../assets/fonts/OpenSans-Regular.ttf'),
@@ -50,23 +119,32 @@ const App = () => {
     'OpenSans-Bold': require('../assets/fonts/OpenSans-Bold.ttf'),
   })
 
-  useEffect(() => {
-    const prepareApp = async () => {
-      try {
-        await initializeI18n()
+  const prepareApp = useCallback(async () => {
+    try {
+      setAppInitProgress('Chargement des traductions...')
+      await initializeI18n()
 
-        if (fontsLoaded) {
-          await SplashScreen.hideAsync()
+      if (fontsLoaded) {
+        setAppInitProgress('Finalisation...')
+        await SplashScreen.hideAsync()
+
+        // Petit délai pour que l'utilisateur voie le message de finalisation
+        setTimeout(() => {
           setIsReady(true)
-        }
-      } catch (error) {
-        console.error('Erreur init app :', error)
-        setIsReady(true) // au cas où
+        }, 500)
       }
+    } catch (error) {
+      console.error('Erreur init app :', error)
+      setAppInitProgress('Une erreur est survenue, but continuing...')
+      setTimeout(() => {
+        setIsReady(true)
+      }, 1000)
     }
-
-    prepareApp()
   }, [fontsLoaded])
+
+  useEffect(() => {
+    prepareApp()
+  }, [prepareApp])
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -78,8 +156,39 @@ const App = () => {
     }
   }, [isDark])
 
+  // Écran de chargement de l'app avec progression
   if (!isReady) {
-    return <ModernSplashScreen />
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#1a1a1a', // Couleur de base
+        }}
+      >
+        <ModernSplashScreen />
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 100,
+            alignItems: 'center',
+          }}
+        >
+          <ActivityIndicator size="small" color="#ffffff" />
+          <Text
+            style={{
+              marginTop: 10,
+              fontSize: 14,
+              color: '#ffffff',
+              opacity: 0.8,
+            }}
+          >
+            {appInitProgress}
+          </Text>
+        </View>
+      </View>
+    )
   }
 
   const navigationTheme = {

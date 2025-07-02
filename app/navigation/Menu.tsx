@@ -17,6 +17,7 @@ import { useData, useTheme } from '../hooks'
 import { AuthContext } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import logo from '../assets/images/splash.png'
+import { AtSign, LogOut } from 'react-native-feather'
 const Drawer = createDrawerNavigator()
 
 /* drawer menu screens navigation */
@@ -81,7 +82,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
   const handleWebLink = useCallback((url: string) => Linking.openURL(url), [])
 
   const screens = [
-    { name: t('Home'), to: 'Home', icon: assets.home },
+    { name: 'ACCUEIL', to: 'Home', icon: assets.home },
 
     // { name: t('screens.components'), to: 'Components', icon: assets.components },
     // { name: t('screens.articles'), to: 'Articles', icon: assets.document },
@@ -93,11 +94,11 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
     // { name: t('screens.eventdetails'), to: 'Eventdetails', icon: assets.register },
     // { name: t('screens.eventPresta'), to: 'EventPresta', icon: assets.register },
 
-    { name: 'clients', to: 'Client', icon: assets.register },
+    { name: 'CLIENTS', to: 'Client', icon: assets.users },
     admin == 1 && {
-      name: 'Prestataire',
+      name: 'PRESTATAIRES',
       to: 'Prestataire',
-      icon: assets.register,
+      icon: assets.office,
     },
   ].filter(Boolean) // Cela supprime toutes les valeurs `falsy` du tableau
 
@@ -116,7 +117,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
             width={50}
             height={50}
             source={logo}
-            marginRight={sizes.sm}
+            marginRight={sizes.sm / 6}
           />
           <Block>
             <Text size={15} semibold>
@@ -153,7 +154,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
                   color={colors[isActive ? 'white' : 'black']}
                 />
               </Block>
-              <Text p semibold={isActive} color={labelColor}>
+              <Text p semibold={isActive} color={labelColor} size={15}>
                 {screen.name}
               </Text>
             </Button>
@@ -185,21 +186,15 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
             marginRight={sizes.s}
             gradient={gradients.white}
           >
-            <Image
-              radius={0}
-              width={14}
-              height={14}
-              color={colors.black}
-              source={assets.documentation}
-            />
+            <LogOut width={14} height={14} color={colors.black} />
           </Block>
-          <Text p color={labelColor}>
-            {t('Deconnexion')}
+          <Text p color={labelColor} size={15}>
+            DÉCONNEXION
           </Text>
         </Button>
 
         <Block row justify="space-between" marginTop={sizes.sm}>
-          <Text color={labelColor}>mode nuit</Text>
+          <Text color={labelColor}> MODE SOMBRE</Text>
           <Switch
             checked={isDark}
             onPress={(checked) => handleIsDark(checked)}
