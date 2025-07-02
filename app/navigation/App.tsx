@@ -158,37 +158,7 @@ const App = () => {
 
   // Écran de chargement de l'app avec progression
   if (!isReady) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#1a1a1a', // Couleur de base
-        }}
-      >
-        <ModernSplashScreen />
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 100,
-            alignItems: 'center',
-          }}
-        >
-          <ActivityIndicator size="small" color="#ffffff" />
-          <Text
-            style={{
-              marginTop: 10,
-              fontSize: 14,
-              color: '#ffffff',
-              opacity: 0.8,
-            }}
-          >
-            {appInitProgress}
-          </Text>
-        </View>
-      </View>
-    )
+    return <ModernSplashScreen />
   }
 
   const navigationTheme = {
