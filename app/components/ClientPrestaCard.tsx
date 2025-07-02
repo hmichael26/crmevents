@@ -966,7 +966,7 @@ const styles = StyleSheet.create({
     gap: 2,
     paddingVertical: 4,
     flexGrow: 1,
-    paddingBottom: 60,
+    paddingBottom: 90,
   },
   // Modifiez aussi le style sideButtons existant
 })

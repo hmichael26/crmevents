@@ -209,7 +209,7 @@ export default () => {
       <Stack.Screen
         name="InboxClient"
         component={InboxClient}
-        options={{ title: 'DEROULER', ...screenOptions.chat }}
+        options={{ title: "CHATTER AVEC L'ADMIN", ...screenOptions.chat }}
       />
     </Stack.Navigator>
   )

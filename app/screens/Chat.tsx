@@ -1,10 +1,4 @@
-import React, {
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-  useCallback,
-} from 'react'
+import React, { useContext, useEffect, useState, useCallback } from 'react'
 import {
   View,
   Text,
@@ -56,7 +50,6 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
 
   // États
   const [chatData, setChatData] = useState<any>({})
-
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState<'prestateurs' | 'clients'>(
     'prestateurs',
@@ -64,59 +57,94 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
-  // Mémorisation des conversations pour éviter les recalculs
-  const prestaConversations = useMemo(() => {
-    return (chatData.all_presta_interroges ?? []).map((presta: any) => ({
-      id: presta.id_presta,
-      logo: presta.logo_presta,
-      type: 'presta' as const,
-      user: {
-        id: presta.id_presta,
-        name: presta.nom_presta,
-      },
-      lastMessage: 'Appuyez pour voir la conversation',
-      timestamp: "Aujourd'hui",
-      unreadCount: 0,
-    }))
-  }, [chatData.all_presta_interroges])
+  // Fonction pour transformer les données prestataires
+  const getPrestaConversations = () => {
+    if (
+      !chatData.all_presta_interroges ||
+      !Array.isArray(chatData.all_presta_interroges)
+    ) {
+      return []
+    }
 
-  const clientConversations = useMemo(() => {
+    // Utiliser un Set pour éviter les doublons basés sur l'ID
+    const uniquePrestas = new Map()
+
+    chatData.all_presta_interroges.forEach((presta: any) => {
+      if (presta.id_presta && !uniquePrestas.has(presta.id_presta)) {
+        uniquePrestas.set(presta.id_presta, {
+          id: presta.id_presta,
+          logo: presta.logo_presta,
+          type: 'presta' as const,
+          user: {
+            id: presta.id_presta,
+            name: presta.nom_presta,
+          },
+          lastMessage: 'Appuyez pour voir la conversation',
+          timestamp: "Aujourd'hui",
+          unreadCount: 0,
+        })
+      }
+    })
+
+    return Array.from(uniquePrestas.values())
+  }
+
+  // Fonction pour transformer les données clients
+  const getClientConversations = () => {
+    if (!chatData.client) {
+      return []
+    }
+
+    const uniqueClients = new Map()
+
     if (Array.isArray(chatData.client)) {
-      return chatData.client.map((client: any) => ({
-        id: client.id_soc,
-        type: 'client' as const,
-        logo: client.logo_soc,
-        user: {
-          id: `client-${client.id_soc}`,
-          name: client.nom_soc,
-        },
-        lastMessage: 'Appuyez pour voir la conversation client',
-        timestamp: "Aujourd'hui",
-        unreadCount: 0,
-      }))
-    } else if (chatData.client) {
-      return [
-        {
-          id: chatData.client.id,
+      chatData.client.forEach((client: any) => {
+        const clientId = client.id_soc || client.id
+        if (clientId && !uniqueClients.has(clientId)) {
+          uniqueClients.set(clientId, {
+            id: clientId,
+            type: 'client' as const,
+            logo: client.logo_soc,
+            user: {
+              id: clientId,
+              name: client.nom_soc || client.nom,
+            },
+            lastMessage: 'Appuyez pour voir la conversation client',
+            timestamp: "Aujourd'hui",
+            unreadCount: 0,
+          })
+        }
+      })
+    } else {
+      const clientId = chatData.client.id_soc || chatData.client.id
+      if (clientId) {
+        uniqueClients.set(clientId, {
+          id: clientId,
           type: 'client' as const,
           logo: chatData.client.logo_soc,
           user: {
-            id: chatData.client.id,
-            name: chatData.client.nom,
+            id: clientId,
+            name: chatData.client.nom_soc || chatData.client.nom,
           },
           lastMessage: 'Entrez pour discuter',
           timestamp: "Aujourd'hui",
           unreadCount: 0,
-        },
-      ]
+        })
+      }
     }
-    return []
-  }, [chatData.client])
 
-  // Filtrage des conversations avec mémorisation
-  const filteredConversations = useMemo(() => {
-    const conversations =
-      activeTab === 'prestateurs' ? prestaConversations : clientConversations
+    return Array.from(uniqueClients.values())
+  }
+
+  // Fonction pour obtenir les conversations filtrées
+  const getFilteredConversations = () => {
+    let conversations: Conversation[] = []
+
+    if (activeTab === 'prestateurs') {
+      conversations = getPrestaConversations()
+    } else {
+      conversations = getClientConversations()
+    }
 
     if (!searchQuery.trim()) {
       return conversations
@@ -125,7 +153,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
     return conversations.filter((conversation: Conversation) =>
       conversation.user.name.toLowerCase().includes(searchQuery.toLowerCase()),
     )
-  }, [activeTab, prestaConversations, clientConversations, searchQuery])
+  }
 
   // Fonction pour récupérer les données avec gestion du loading
   const getUserForchat = async (isRefresh = false) => {
@@ -179,7 +207,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
     [navigation, idevt, userdata.user.IDC],
   )
 
-  // Rendu optimisé des items de conversation
+  // Rendu des items de conversation
   const renderConversationItem = useCallback(
     ({ item }: { item: Conversation }) => (
       <TouchableOpacity
@@ -267,6 +295,11 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
     getUserForchat(true)
   }
 
+  // Obtenir les données pour l'affichage
+  const filteredConversations = getFilteredConversations()
+  const prestaCount = getPrestaConversations().length
+  const clientCount = getClientConversations().length
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -292,7 +325,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
               activeTab === 'prestateurs' && styles.activeTabText,
             ]}
           >
-            Prestataires ({prestaConversations.length})
+            Prestataires ({prestaCount})
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -305,7 +338,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
               activeTab === 'clients' && styles.activeTabText,
             ]}
           >
-            Clients ({clientConversations.length})
+            Clients ({clientCount})
           </Text>
         </TouchableOpacity>
       </View>
@@ -337,7 +370,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
       <FlatList
         data={filteredConversations}
         renderItem={renderConversationItem}
-        keyExtractor={(item) => `${item.type}-${item.id}`}
+        keyExtractor={(item) => `${item.type}-${item.id}-${activeTab}`}
         contentContainerStyle={styles.conversationsList}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyList}
