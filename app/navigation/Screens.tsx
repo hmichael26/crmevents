@@ -170,7 +170,7 @@ export default () => {
       <Stack.Screen
         name="Prestataire"
         component={Prestataire}
-        options={screenOptions.eventPresta}
+        options={{ title: 'PRESTATAIRES', ...screenOptions.eventPresta }}
       />
 
       <Stack.Screen
@@ -209,7 +209,7 @@ export default () => {
       <Stack.Screen
         name="InboxClient"
         component={InboxClient}
-        options={{ title: 'derouler', ...screenOptions.chat }}
+        options={{ title: 'DEROULER', ...screenOptions.chat }}
       />
     </Stack.Navigator>
   )

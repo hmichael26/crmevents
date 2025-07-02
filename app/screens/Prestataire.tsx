@@ -635,7 +635,10 @@ export const Prestataire = () => {
                 {loadingStates.searching ? (
                   <ActivityIndicator color="white" />
                 ) : (
-                  <Text style={styles.searchButtonText}>Rechercher</Text>
+                  <>
+                    <Icon name="search" size={18} color="white" />
+                    <Text style={styles.searchButtonText}>Rechercher</Text>
+                  </>
                 )}
               </Button>
               <TouchableOpacity
@@ -833,7 +836,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 5,
     borderColor: '#ddd',
-    borderRadius: 15,
+    borderRadius: 10,
     flex: 1,
     justifyContent: 'center',
     height: 30,
@@ -848,7 +851,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 15,
+    borderRadius: 10,
     padding: 4,
     fontSize: 11,
     fontWeight: 'bold',
@@ -857,10 +860,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchButton: {
+    flexDirection: 'row',
     backgroundColor: '#9932CC',
     borderRadius: 8,
     padding: 8,
     alignItems: 'center',
+    width: 150,
+    gap: 10,
   },
   searchButtonText: {
     color: 'white',

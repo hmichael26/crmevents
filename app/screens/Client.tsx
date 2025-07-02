@@ -446,7 +446,7 @@ export const Client = () => {
                 onPress={handleReset}
                 disabled={loadingStates.searching}
               >
-                <Icon name="refresh" size={20} color="#9932CC" />
+                <Icon name="refresh" size={30} color="#9932CC" />
               </TouchableOpacity>
             </View>
 
@@ -586,9 +586,6 @@ const styles = StyleSheet.create({
   resetButton: {
     padding: 8,
     borderRadius: 25,
-    backgroundColor: '#f8f9fa',
-    borderWidth: 1,
-    borderColor: '#e9ecef',
   },
   progressContainer: {
     flexDirection: 'row',

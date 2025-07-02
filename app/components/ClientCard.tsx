@@ -449,7 +449,6 @@ export const ClientCard = React.memo(
               {renderEditableField('nom', 'Nom du client', 'person')}
               {renderEditableField('tel', 'Téléphone', 'call')}
               {renderEditableField('infos', 'Site web / Infos', 'globe')}
-              {renderEditableField('logo', 'Logo (nom du fichier)', 'image')}
             </View>
           </View>
         ) : (
