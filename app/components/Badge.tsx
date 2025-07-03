@@ -54,8 +54,8 @@ const Badge: React.FC<BadgeProps> = ({
               right: -23,
               top: -23,
               margin: 20,
-              width: 30,
-              height: 25,
+              width: 45,
+              height: 45,
               borderRadius: 55,
               display: 'flex',
               justifyContent: 'center',
@@ -71,6 +71,7 @@ const Badge: React.FC<BadgeProps> = ({
             fontSize: 16,
             fontWeight: '',
             textTransform: 'uppercase',
+            paddingVertical: 5,
           }}
         >
           {text}

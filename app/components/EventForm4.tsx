@@ -36,6 +36,7 @@ import PdfModal from './PdfModal'
 import { useApi } from '../context/useApi'
 import DevisInterface from './DevisInterface'
 import Dropdown from './Dropdown'
+import { useToast } from './ToastComponent'
 
 // ===========================
 // CONSTANTES RESPONSIVES
@@ -68,6 +69,7 @@ const isLargeScreen = width >= 400
 // COMPOSANT PRINCIPAL
 // ===========================
 const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
+  const { showToast, ToastComponent } = useToast()
   // ===========================
   // HOOKS & API
   // ===========================
@@ -90,6 +92,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     email: '',
     tel: '',
   })
+
   const [badges, setBadges] = useState([])
   const [activeBadge, setActiveBadge] = useState(0)
   const [activeBadgeData, setActiveBadgeData] = useState(null)
@@ -160,8 +163,28 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
       ...prev,
       [field]: value,
     }))
-  }
 
+    // Mise à jour immédiate de prestataireModifications ET onDataChange
+    if (activeBadgeData) {
+      const updatedData = {
+        ...formFields,
+        [field]: value, // Nouvelle valeur
+      }
+
+      // Mettre à jour le state local
+      setPrestataireModifications((prev) => {
+        const newModifications = {
+          ...prev,
+          [activeBadgeData.nom_presta]: updatedData,
+        }
+
+        // Appeler onDataChange avec les nouvelles données
+        onDataChange(newModifications)
+
+        return newModifications
+      })
+    }
+  }
   const handleOptionSelect = async (option, type) => {
     if (type === 1) {
       if (option === 'SUPPRIMER') {
@@ -374,6 +397,8 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
           id_evt: idevt,
         })
 
+        showToast('✅ Demande envoyée avec succès !', 'success')
+
         onRefresh()
       } else {
         response = await sendDemande({
@@ -381,7 +406,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
           id_presta: activeBadgeData?.id_presta,
           id_evt: idevt,
         })
-        console.log(response)
+        showToast('✅ Demande envoyée avec succès !', 'success')
         onRefresh()
       }
     } catch (error) {
@@ -904,6 +929,8 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
             />
           ),
       )}
+
+      <ToastComponent />
     </SafeAreaView>
   )
 }

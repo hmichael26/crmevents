@@ -444,6 +444,7 @@ export const Client = () => {
               <TouchableOpacity
                 style={styles.resetButton}
                 onPress={handleReset}
+                style={{ marginLeft: 40 }}
                 disabled={loadingStates.searching}
               >
                 <Icon name="refresh" size={30} color="#9932CC" />

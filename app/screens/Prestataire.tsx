@@ -672,6 +672,7 @@ export const Prestataire = () => {
                   setSearchResults(null)
                   setSelectForm(initialFormState)
                 }}
+                style={{ marginLeft: 40 }}
               >
                 <Icon name="refresh" size={30} color="#9932CC" />
               </TouchableOpacity>
@@ -794,8 +795,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 20,
+
     color: '#9932CC',
     marginBottom: 10,
     textAlign: 'center',
@@ -891,7 +892,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#9932CC',
     borderRadius: 8,
-    padding: 8,
+
     alignItems: 'center',
     width: 150,
     gap: 10,
