@@ -135,6 +135,25 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     }
   }, [item])
 
+  const transformSimple = (prestataireModifications) => {
+    return Object.entries(prestataireModifications)
+      .filter(
+        ([nomPresta, modifications]) =>
+          // Filtrer ceux qui ont un id_presta ET au moins un champ rempli
+          modifications.id_presta &&
+          (modifications.comment ||
+            modifications.email ||
+            modifications.tel ||
+            modifications.contact),
+      )
+      .map(([nomPresta, modifications]) => ({
+        id_presta: modifications.id_presta.toString(),
+        comm_prestataire: modifications.comment || '',
+        tel_presta: modifications.tel || modifications.contact || '',
+        email_presta: modifications.email || '',
+      }))
+  }
+
   // Mise à jour des champs quand on change de prestataire actif
   useEffect(() => {
     if (activeBadgeData) {
@@ -151,7 +170,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
   // Notification des changements
   useEffect(() => {
     if (prestataireModifications) {
-      onDataChange(prestataireModifications)
+      const data = transformSimple(prestataireModifications)
+      //  console.log({ prestaFields: data })
+      onDataChange({ prestaFields: data })
+      //    console.log(prestataireModifications)
     }
   }, [prestataireModifications])
 
@@ -175,7 +197,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
       setPrestataireModifications((prev) => {
         const newModifications = {
           ...prev,
-          [activeBadgeData.nom_presta]: updatedData,
+          [activeBadgeData.nom_presta]: {
+            id_presta: activeBadgeData.id_presta,
+            ...updatedData,
+          },
         }
 
         // Appeler onDataChange avec les nouvelles données
