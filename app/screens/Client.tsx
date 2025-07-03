@@ -427,28 +427,29 @@ export const Client = () => {
 
             {/* Boutons d'action */}
             <View style={styles.buttonContainer}>
-              <Button
-                gradient={gradients.primary}
-                style={styles.searchButton}
-                onPress={submit}
-                disabled={
-                  loadingStates.searching || searchQuery.trim().length < 2
-                }
-              >
-                {loadingStates.searching ? (
-                  <ActivityIndicator color="white" size="small" />
-                ) : (
-                  <>
-                    <Icon name="search" size={18} color="white" />
-                    <Text style={styles.searchButtonText}>Rechercher</Text>
-                  </>
-                )}
-              </Button>
+              <View style={styles.searchButtonContainer}>
+                <Button
+                  gradient={gradients.primary}
+                  style={styles.searchButton}
+                  onPress={submit}
+                  disabled={
+                    loadingStates.searching || searchQuery.trim().length < 2
+                  }
+                >
+                  {loadingStates.searching ? (
+                    <ActivityIndicator color="white" size="small" />
+                  ) : (
+                    <>
+                      <Icon name="search" size={18} color="white" />
+                      <Text style={styles.searchButtonText}>Rechercher</Text>
+                    </>
+                  )}
+                </Button>
+              </View>
 
               <TouchableOpacity
                 style={styles.resetButton}
                 onPress={handleReset}
-                style={{ marginLeft: 40 }}
                 disabled={loadingStates.searching}
               >
                 <Icon name="refresh" size={30} color="#9932CC" />
@@ -571,8 +572,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
+    justifyContent: 'space-between', // Distribue l'espace entre les éléments
+    paddingHorizontal: 30,
   },
   searchButton: {
     flexDirection: 'row',
@@ -589,7 +590,7 @@ const styles = StyleSheet.create({
     fontWeight: '',
   },
   resetButton: {
-    padding: 8,
+    flex: 0.1,
     borderRadius: 25,
   },
   progressContainer: {
@@ -678,6 +679,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     color: '#333',
+  },
+
+  searchButtonContainer: {
+    flex: 1,
+    alignItems: 'center', // Centre le bouton horizontalement
+    paddingLeft: 25, // Espacement à gauche
   },
 })
 
