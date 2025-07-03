@@ -222,6 +222,8 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     color: '#000',
+    textTransform: 'uppercase',
+    fontWeight: '600',
   },
   timestamp: {
     fontSize: 12,

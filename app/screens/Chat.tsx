@@ -98,6 +98,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
     const uniqueClients = new Map()
 
     if (Array.isArray(chatData.client)) {
+      console.log('chatData.client', chatData.client)
       chatData.client.forEach((client: any) => {
         const clientId = client.id_soc || client.id
         if (clientId && !uniqueClients.has(clientId)) {
@@ -480,7 +481,8 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    textTransform: 'uppercase',
     color: '#000',
     flex: 1,
   },
