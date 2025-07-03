@@ -50,7 +50,7 @@ const EmptyState = React.memo(({ message, onRetry }) => (
 ))
 
 export const Client = () => {
-  const { getClient, updateClient, deleteClient } = useApi()
+  const { getClient, udpateClient, deleteClient } = useApi()
 
   const navigation = useNavigation()
   const scrollViewRef = useRef(null)
@@ -316,7 +316,11 @@ export const Client = () => {
   const onModify = useCallback(
     async (data) => {
       try {
-        const response = await updateClient(data)
+        //console.log('data', data)
+        const response = await udpateClient({
+          id_client: data.id_client,
+          ...data,
+        })
         if (response) {
           await fetchData(currentPage, true)
         }
@@ -329,9 +333,9 @@ export const Client = () => {
   )
 
   const onDelete = useCallback(
-    async (data) => {
+    async (data: { id_client: any }) => {
       try {
-        await deleteClient(data)
+        await deleteClient({ id_client: data.id_client })
         await fetchData(currentPage, true)
       } catch (error) {
         console.error('Erreur lors de la suppression:', error)

@@ -80,6 +80,7 @@ export const useApi = () => {
   const sendChat = (data) => makeRequest('send-chat', data)
   const createDerouler = (data) => makeRequest('create-deroule', data)
   const getClient = (data) => makeRequest('search-client', data)
+  const udpateClient = (data) => makeRequest('update-client', data)
 
   //   const addPresta = (data) => makeRequest('add-presta-interroge', data);
 
@@ -117,6 +118,7 @@ export const useApi = () => {
     // Autres actions
     sendDemandes,
     getClient,
+    udpateClient,
     // ... autres actions
   }
 }
