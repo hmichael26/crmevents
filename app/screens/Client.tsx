@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
 
     alignItems: 'center',
-    width: 150,
+    width: 200,
     gap: 10,
   },
   searchButtonText: {
@@ -590,7 +590,6 @@ const styles = StyleSheet.create({
     fontWeight: '',
   },
   resetButton: {
-    flex: 0.1,
     borderRadius: 25,
   },
   progressContainer: {

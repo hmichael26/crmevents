@@ -239,8 +239,9 @@ const EventMenu: React.FC<EventMenuProps> = ({ route }) => {
               bold
               align="center"
               marginBottom={30}
-              size={20}
+              size={18}
               transform="uppercase"
+              style={{ flex: 1, justifyContent: 'center', flexWrap: 'wrap' }}
             >
               {item.evt}
             </Text>

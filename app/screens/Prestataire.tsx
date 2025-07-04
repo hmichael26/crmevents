@@ -651,28 +651,30 @@ export const Prestataire = () => {
             </View>
 
             <View style={styles.buttonContainer}>
-              <Button
-                gradient={gradients.primary}
-                style={styles.searchButton}
-                onPress={submit}
-                disabled={loadingStates.searching}
-              >
-                {loadingStates.searching ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <>
-                    <Icon name="search" size={18} color="white" />
-                    <Text style={styles.searchButtonText}>Rechercher</Text>
-                  </>
-                )}
-              </Button>
+              <View style={styles.searchButtonContainer}>
+                <Button
+                  gradient={gradients.primary}
+                  style={styles.searchButton}
+                  onPress={submit}
+                  disabled={loadingStates.searching}
+                >
+                  {loadingStates.searching ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <>
+                      <Icon name="search" size={18} color="white" />
+                      <Text style={styles.searchButtonText}>Rechercher</Text>
+                    </>
+                  )}
+                </Button>
+              </View>
+
               <TouchableOpacity
                 onPress={() => {
                   cleanupMemory()
                   setSearchResults(null)
                   setSelectForm(initialFormState)
                 }}
-                style={{ marginLeft: 40 }}
               >
                 <Icon name="refresh" size={30} color="#9932CC" />
               </TouchableOpacity>
@@ -894,8 +896,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
 
     alignItems: 'center',
-    width: 150,
+    width: 200,
     gap: 10,
+    marginVertical: 5,
   },
   searchButtonText: {
     color: 'white',
@@ -909,9 +912,9 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
     alignItems: 'center',
+    justifyContent: 'space-between', // Distribue l'espace entre les éléments
+    paddingHorizontal: 30,
   },
   resultCountHighlight: {
     color: '#9932CC',
@@ -939,6 +942,11 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     padding: 4,
+  },
+  searchButtonContainer: {
+    flex: 1,
+    alignItems: 'center', // Centre le bouton horizontalement
+    paddingLeft: 25, // Espacement à gauche
   },
 })
 

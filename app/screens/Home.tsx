@@ -224,8 +224,7 @@ const Home = (props: DrawerContentComponentProps) => {
                       resizeMode="cover" // Garde l'image proportionnée tout en remplissant le contour
                     />
                     <Text style={{ fontWeight: 'bold', fontSize: 13 }}>
-                      {(item as any).ent} - {(item as any).com} -{' '}
-                      {(item as any).ref}
+                      {(item as any).ent}
                     </Text>
                   </View>
                   <Text
@@ -237,6 +236,16 @@ const Home = (props: DrawerContentComponentProps) => {
                   >
                     {(item as any).evt}
                   </Text>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      paddingHorizontal: 10,
+                      fontSize: 13,
+                    }}
+                  >
+                    {(item as any).com} - Ref : {(item as any).ref}
+                  </Text>
+
                   <Text
                     style={{
                       fontWeight: 'bold',

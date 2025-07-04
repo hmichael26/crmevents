@@ -162,7 +162,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
       setFormFields({
         comment: savedModifications?.comment || activeBadgeData.comment || '',
         email: savedModifications?.email || activeBadgeData.email || '',
-        tel: savedModifications?.contact || activeBadgeData.contact || '',
+        tel: savedModifications?.tel || activeBadgeData.contact || '',
       })
     }
   }, [activeBadgeData])
@@ -885,10 +885,8 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                   </View>
                   <View style={styles.contactInputContainer}>
                     <TextInputWithIcon
-                      value={formFields.contact}
-                      onChangeText={(text) =>
-                        handleFieldChange('contact', text)
-                      }
+                      value={formFields.tel}
+                      onChangeText={(text) => handleFieldChange('tel', text)}
                       placeholder="PRÉNOM & TÉLÉPHONE"
                     />
                   </View>
