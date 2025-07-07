@@ -196,18 +196,20 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
           </Button>
         ))}
 
-      <Button
-        flex={1}
-        gradient={gradients.light}
-        marginBottom={sizes.base}
-        onPress={() =>
-          handleNavigation('EventPresta', { ...item, isNew: true })
-        }
-      >
-        <Text bold transform="uppercase">
-          + Ajouter un Deroule
-        </Text>
-      </Button>
+      {data && data.arrderoules.length < 5 && (
+        <Button
+          flex={1}
+          gradient={gradients.light}
+          marginBottom={sizes.base}
+          onPress={() =>
+            handleNavigation('EventPresta', { ...item, isNew: true })
+          }
+        >
+          <Text bold transform="uppercase">
+            + Ajouter un Deroule
+          </Text>
+        </Button>
+      )}
     </Block>
   )
 }
