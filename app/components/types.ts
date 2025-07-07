@@ -14,5 +14,7 @@ export interface ModalFormProps {
     onClose: () => void;
     onSubmit: () => void;
     formParam: any;
+    badge: string;
+    maxDevis: () => boolean;
 }
 

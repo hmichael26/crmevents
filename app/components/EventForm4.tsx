@@ -299,6 +299,12 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     }
   }
 
+  const getMaxDevis = () => {
+    if (!activeBadgeData) return 0
+
+    return activeBadgeData?.all_devis?.length < 5
+  }
+
   const getAllModifications = () => {
     saveCurrentChanges()
     return Object.values(prestataireModifications)
@@ -945,6 +951,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
             <ModalForm
               key={index}
               visible={activeBadge !== 0 && modalFormDevis}
+              maxDevis={getMaxDevis}
               onClose={() => setModalFormDevis(false)}
               onSubmit={onRefresh}
               formParam={NewDevisParam}

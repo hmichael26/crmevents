@@ -25,6 +25,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
   visible,
   onClose,
   badge,
+  maxDevis,
   formParam,
   onSubmit,
 }) => {
@@ -100,6 +101,8 @@ const ModalForm: React.FC<ModalFormProps> = ({
     onClose()
   }
 
+  console.log(maxDevis())
+
   return (
     <Modal
       animationType="slide"
@@ -120,24 +123,45 @@ const ModalForm: React.FC<ModalFormProps> = ({
               { justifyContent: 'center', alignItems: 'center' },
             ]}
           >
-            <Button
-              style={[
-                styles.fileUploadButton,
-                { backgroundColor: useTheme().colors.info },
-              ]}
-              gradient={gradients.info}
-              marginBottom={sizes.base / 2}
-              // height={sizes.xl}
+            {maxDevis() ? (
+              <Button
+                style={[
+                  styles.fileUploadButton,
+                  { backgroundColor: useTheme().colors.info },
+                ]}
+                gradient={gradients.info}
+                marginBottom={sizes.base / 2}
+                // height={sizes.xl}
 
-              rounded={true}
-              round={false}
-              onPress={() =>
-                handleFileUpload(selectedFiles).then(setSelectedFiles)
-              }
-            >
-              <Ionicons name="cloud-upload-outline" size={24} color="white" />
-              <Text style={styles.fileUploadButtonText}>Ajouter des devis</Text>
-            </Button>
+                rounded={true}
+                round={false}
+                onPress={() =>
+                  handleFileUpload(selectedFiles).then(setSelectedFiles)
+                }
+              >
+                <Ionicons name="cloud-upload-outline" size={24} color="white" />
+                <Text style={styles.fileUploadButtonText}>
+                  Ajouter des devis
+                </Text>
+              </Button>
+            ) : (
+              <Button
+                style={[
+                  styles.fileUploadButton,
+                  { backgroundColor: useTheme().colors.info },
+                ]}
+                gradient={gradients.info}
+                marginBottom={sizes.base / 2}
+                // height={sizes.xl}
+                onPress={onClose}
+                rounded={true}
+                round={false}
+              >
+                <Text style={styles.fileUploadButtonText}>
+                  LE MAX DEVIS A ÉTÉ DÉJÀ ENREGISTRÉ
+                </Text>
+              </Button>
+            )}
 
             <ScrollView
               style={styles.fileListContainer}
@@ -175,35 +199,37 @@ const ModalForm: React.FC<ModalFormProps> = ({
             </ScrollView>
           </View>
 
-          <View style={styles.buttonContainer}>
-            <Button
-              flex={1}
-              gradient={gradients.secondary}
-              style={[
-                styles.button,
-                { backgroundColor: useTheme().colors.text },
-              ]}
-              onPress={onClose}
-            >
-              <Text style={styles.buttonTextCancel}>Annuler</Text>
-            </Button>
+          {maxDevis() && (
+            <View style={styles.buttonContainer}>
+              <Button
+                flex={1}
+                gradient={gradients.secondary}
+                style={[
+                  styles.button,
+                  { backgroundColor: useTheme().colors.text },
+                ]}
+                onPress={onClose}
+              >
+                <Text style={styles.buttonTextCancel}>Annuler</Text>
+              </Button>
 
-            <Button
-              flex={1}
-              gradient={gradients.primary}
-              style={[
-                styles.button,
-                styles.buttonSubmit,
-                { backgroundColor: useTheme().colors.primary },
-              ]}
-              onPress={handleSubmit}
-              disabled={isSubmitting}
-            >
-              <Text style={[styles.buttonTextSubmit]}>
-                {isSubmitting ? 'Envoi en cours...' : 'Soumettre'}
-              </Text>
-            </Button>
-          </View>
+              <Button
+                flex={1}
+                gradient={gradients.primary}
+                style={[
+                  styles.button,
+                  styles.buttonSubmit,
+                  { backgroundColor: useTheme().colors.primary },
+                ]}
+                onPress={handleSubmit}
+                disabled={isSubmitting}
+              >
+                <Text style={[styles.buttonTextSubmit]}>
+                  {isSubmitting ? 'Envoi en cours...' : 'Soumettre'}
+                </Text>
+              </Button>
+            </View>
+          )}
         </Animated.View>
       </View>
     </Modal>
