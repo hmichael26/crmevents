@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useCallback, useMemo } from 'react'
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from 'react-native'
 import { useApi } from '../context/useApi'
 import { useTheme } from '../hooks'
@@ -21,170 +22,232 @@ export const ProviderCard = ({
   handleSelect,
   handleUnSelect,
   isSelected,
+  disabled = false, // Nouvelle prop pour désactiver la carte
 }) => {
   const { userdata } = useContext(AuthContext)
   const admin = userdata?.user?.admin
 
-  const { deletepresta } = useApi()
+  // États locaux
   const [isLoading, setIsLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editedProvider, setEditedProvider] = useState(provider)
   const [modal, setModal] = useState(false)
   const [modalField, setModalField] = useState('')
 
-  const handleModify = async () => {
-    if (isEditing) {
-      setIsLoading(true) // Démarrer le chargement
-      try {
-        const data = { ...editedProvider, id_presta: provider.id }
-        await onModify(data) // Assurez-vous que `onModify` est une fonction asynchrone
-      } catch (error) {
-        console.error('Erreur lors de la modification :', error)
-      } finally {
-        setIsLoading(false) // Terminer le chargement
-      }
-    }
-    setIsEditing(!isEditing)
-    console.log(editedProvider)
-  }
+  // Indicateur si la carte est désactivée
+  const isDisabled = useMemo(() => disabled || isLoading, [disabled, isLoading])
 
-  const handleDelete = async () => {
-    if (!provider.id) return
+  // 🔧 HANDLE MODIFY CORRIGÉ
+  const handleModify = useCallback(async () => {
+    if (isEditing) {
+      // Mode sauvegarde
+      console.log('🔧 Sauvegarde des modifications prestataire:', provider.id)
+      setIsLoading(true)
+
+      try {
+        const data = {
+          ...editedProvider,
+          id_presta: provider.id,
+          id: provider.id, // Assure la compatibilité avec différents formats d'ID
+        }
+
+        console.log('📝 Données à sauvegarder:', data)
+
+        // Appel de la fonction onModify du parent (qui gère déjà l'actualisation)
+        await onModify(data)
+
+        // Sortie du mode édition seulement si la modification a réussi
+        setIsEditing(false)
+
+        console.log('✅ Modification prestataire terminée avec succès')
+      } catch (error) {
+        console.error('🔴 Erreur lors de la modification prestataire:', error)
+
+        // En cas d'erreur, on restaure les données originales
+        setEditedProvider(provider)
+
+        Alert.alert(
+          'Erreur',
+          'Impossible de modifier le prestataire. Les modifications ont été annulées.',
+        )
+      } finally {
+        setIsLoading(false)
+      }
+    } else {
+      // Mode édition
+      console.log('✏️ Passage en mode édition pour prestataire:', provider.id)
+      setIsEditing(true)
+      setEditedProvider(provider) // Réinitialise avec les données actuelles
+    }
+  }, [isEditing, editedProvider, provider, onModify])
+
+  // 🗑️ HANDLE DELETE CORRIGÉ
+  const handleDelete = useCallback(async () => {
+    if (!provider.id) {
+      Alert.alert('Erreur', 'ID du prestataire manquant')
+      return
+    }
+
+    console.log('🗑️ Demande de suppression prestataire:', provider.id)
 
     Alert.alert(
-      'Supprimer prestataire',
-      'Êtes-vous sûr de vouloir supprimer ce prestataire ?',
+      'Confirmer la suppression',
+      `Êtes-vous sûr de vouloir supprimer "${provider.nom}" ?`,
       [
-        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
         {
           text: 'Supprimer',
+          style: 'destructive',
           onPress: async () => {
-            setIsLoading(true) // Démarrer le chargement
+            setIsLoading(true)
+
             try {
-              await onDelete({ id_presta: provider.id }) // Assurez-vous que `onDelete` est une fonction asynchrone
+              const deleteData = {
+                id_presta: provider.id,
+                id: provider.id, // Compatibilité avec différents formats
+              }
+
+              console.log('🗑️ Suppression en cours:', deleteData)
+
+              // Appel de la fonction onDelete du parent (qui gère déjà l'actualisation)
+              await onDelete(deleteData)
+
+              console.log('✅ Suppression prestataire terminée avec succès')
             } catch (error) {
-              console.error('Erreur lors de la suppression :', error)
+              console.error(
+                '🔴 Erreur lors de la suppression prestataire:',
+                error,
+              )
+              Alert.alert('Erreur', 'Impossible de supprimer le prestataire')
             } finally {
-              setIsLoading(false) // Terminer le chargement
+              setIsLoading(false)
             }
           },
-          style: 'destructive',
         },
       ],
       { cancelable: false },
     )
-  }
+  }, [provider.id, provider.nom, onDelete])
 
-  const handleInputChange = (field, value) => {
-    // console.log(field, value)
+  // 🎯 HANDLE SELECTION
+  const handleSelectionToggle = useCallback(() => {
+    const isCurrentlySelected = isSelected(provider.id)
 
-    if (field === 'fk_departement') {
-      setEditedProvider((prev) => ({ ...prev, dept: value.name }))
-      // editedProvider.dept = value.libelle;
+    console.log(
+      `🎯 ${isCurrentlySelected ? 'Désélection' : 'Sélection'} prestataire:`,
+      provider.id,
+    )
+
+    if (isCurrentlySelected) {
+      handleUnSelect(provider.id)
+    } else {
+      handleSelect(provider.id)
     }
-    if (field === 'fk_ville') {
-      setEditedProvider((prev) => ({ ...prev, ville: value.name }))
-    }
-    if (field === 'fk_region') {
-      setEditedProvider((prev) => ({ ...prev, region: value.name }))
-    }
+  }, [provider.id, isSelected, handleSelect, handleUnSelect])
 
-    setEditedProvider((prev) => ({ ...prev, [field]: value.id }))
-  }
+  // 📝 HANDLE INPUT CHANGE OPTIMISÉ
+  const handleInputChange = useCallback((field, value) => {
+    console.log('📝 Modification champ:', field, value)
 
-  const openModal = (field) => {
+    setEditedProvider((prev) => {
+      const newProvider = { ...prev }
+
+      // Gestion spéciale pour les champs avec sélection
+      if (field === 'fk_departement') {
+        newProvider.dept = value.name || value.libelle
+        newProvider[field] = value.id
+      } else if (field === 'fk_ville') {
+        newProvider.ville = value.name || value.libelle
+        newProvider[field] = value.id
+      } else if (field === 'fk_region') {
+        newProvider.region = value.name || value.libelle
+        newProvider[field] = value.id
+      } else {
+        // Champs texte simples
+        newProvider[field] = typeof value === 'object' ? value.id : value
+      }
+
+      return newProvider
+    })
+  }, [])
+
+  // 🔍 OPEN MODAL
+  const openModal = useCallback((field) => {
+    console.log('🔍 Ouverture modal pour champ:', field)
     setModalField(field)
     setModal(true)
-  }
+  }, [])
 
-  const renderEditableField = (field, placeholder) => {
-    if (
-      field === 'fk_departement' ||
-      field === 'fk_ville' ||
-      field === 'fk_region'
-    ) {
+  // 📱 RENDER EDITABLE FIELD
+  const renderEditableField = useCallback(
+    (field, placeholder) => {
+      const isSelectField = [
+        'fk_departement',
+        'fk_ville',
+        'fk_region',
+      ].includes(field)
+
+      if (isSelectField) {
+        const displayValue =
+          field === 'fk_departement'
+            ? editedProvider.dept
+            : field === 'fk_ville'
+            ? editedProvider.ville
+            : field === 'fk_region'
+            ? editedProvider.region
+            : ''
+
+        return (
+          <View style={styles.editFieldContainer}>
+            <Text style={styles.fieldLabel}>{placeholder}</Text>
+            <TextInput
+              style={[styles.input, styles.selectInput]}
+              placeholder={placeholder}
+              value={displayValue || ''}
+              editable={false}
+            />
+            <TouchableOpacity
+              style={[styles.selectButton, isDisabled && styles.disabledButton]}
+              onPress={() => openModal(field)}
+              disabled={isDisabled}
+            >
+              <Text
+                style={[
+                  styles.selectButtonText,
+                  isDisabled && styles.disabledText,
+                ]}
+              >
+                Sélectionner
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )
+      }
+
       return (
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            width: '100%',
-            gap: 10,
-            alignContent: 'center',
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: 'bold',
-              color: '#666',
-              marginRight: 10,
-            }}
-          >
-            {placeholder}
-          </Text>
+        <View style={styles.editFieldContainer}>
+          <Text style={styles.fieldLabel}>{placeholder}</Text>
           <TextInput
-            style={[styles.input, { flex: 1 }]}
+            style={[styles.input, styles.textInput]}
+            value={editedProvider[field] || ''}
+            onChangeText={(text) => handleInputChange(field, text)}
             placeholder={placeholder}
-            value={
-              field === 'fk_departement'
-                ? editedProvider.dept
-                : field === 'fk_ville'
-                ? editedProvider.ville
-                : field === 'fk_region'
-                ? editedProvider.region
-                : ''
-            }
-            editable={false} // Make the TextInput non-editable
+            editable={!isDisabled}
           />
-          <TouchableOpacity
-            style={[
-              styles.button,
-              { backgroundColor: '#ccc', marginBottom: 7 },
-            ]}
-            onPress={() => openModal(field)}
-          >
-            <Text style={styles.buttonText}>Select</Text>
-          </TouchableOpacity>
         </View>
       )
-    }
-
-    return (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-          alignItems: 'center',
-          width: '100%',
-          alignContent: 'center',
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 16,
-            fontWeight: 'bold',
-            color: '#666',
-            marginRight: 10,
-          }}
-        >
-          {placeholder}
-        </Text>
-        <TextInput
-          style={[styles.input, { flex: 1 }]}
-          value={editedProvider[field]}
-          onChangeText={(text) => handleInputChange(field, text)}
-          placeholder={placeholder}
-        />
-      </View>
-    )
-  }
+    },
+    [editedProvider, openModal, handleInputChange, isDisabled],
+  )
 
   return (
-    <View style={styles.providerCard}>
+    <View style={[styles.providerCard, isDisabled && styles.disabledCard]}>
+      {/* Mode édition */}
       {isEditing ? (
-        <>
+        <View style={styles.editContainer}>
           {renderEditableField('nom', 'Nom')}
           {renderEditableField('tel', 'Téléphone')}
           {renderEditableField('email1', 'Email')}
@@ -193,20 +256,21 @@ export const ProviderCard = ({
           {renderEditableField('fk_departement', 'Département')}
           {renderEditableField('fk_ville', 'Ville')}
           {renderEditableField('fk_region', 'Région')}
-        </>
+        </View>
       ) : (
-        <>
+        /* Mode affichage */
+        <View style={styles.displayContainer}>
           <Text style={styles.providerName}>{provider.nom}</Text>
 
           <View style={styles.tagContainer}>
             {provider.tel && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>{provider.tel}</Text>
+                <Text style={styles.tagText}>📞 {provider.tel}</Text>
               </View>
             )}
             {provider.email1 && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>{provider.email1}</Text>
+                <Text style={styles.tagText}>📧 {provider.email1}</Text>
               </View>
             )}
           </View>
@@ -214,110 +278,119 @@ export const ProviderCard = ({
           <View style={styles.tagContainer}>
             {provider.nb_salle && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>{provider.nb_salle} salles</Text>
+                <Text style={styles.tagText}>
+                  🏢 {provider.nb_salle} salles
+                </Text>
               </View>
             )}
             {provider.nb_chbre && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>{provider.nb_chbre} ch.</Text>
+                <Text style={styles.tagText}>🛏️ {provider.nb_chbre} ch.</Text>
               </View>
             )}
           </View>
 
           <View style={styles.tagContainer}>
-            {provider.fk_departement && provider.dept && (
+            {provider.dept && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>{provider.dept}</Text>
+                <Text style={styles.tagText}>📍 {provider.dept}</Text>
               </View>
             )}
-            {provider.fk_ville && provider.ville && (
+            {provider.ville && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>{provider.ville}</Text>
+                <Text style={styles.tagText}>🏙️ {provider.ville}</Text>
               </View>
             )}
-            {provider.fk_region && provider.region && (
+            {provider.region && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>{provider.region}</Text>
+                <Text style={styles.tagText}>🗺️ {provider.region}</Text>
               </View>
             )}
           </View>
-        </>
+        </View>
       )}
 
+      {/* Boutons d'action */}
       <View style={styles.actionButtons}>
+        {/* Bouton Modifier/Enregistrer */}
         <Button
           gradient={useTheme().gradients.primary}
-          style={[{ backgroundColor: useTheme().colors.primary }]}
+          style={styles.actionButton}
           flex={1}
           onPress={handleModify}
-          disabled={isLoading} // Désactiver le bouton pendant le chargement
+          disabled={isDisabled}
         >
-          <Text style={[styles.modifyButtonText, { padding: 0 }]}>
-            {isLoading && isEditing
-              ? 'En cours...'
-              : isEditing
-              ? 'Enregistrer'
-              : 'Modifier'}
-          </Text>
+          {isLoading && isEditing ? (
+            <ActivityIndicator color="white" size="small" />
+          ) : (
+            <Text style={styles.actionButtonText}>
+              {isEditing ? 'Enregistrer' : 'Modifier'}
+            </Text>
+          )}
         </Button>
+
+        {/* Bouton Annuler (en mode édition) */}
         {isEditing && (
           <Button
             flex={1}
             gradient={useTheme().gradients.secondary}
-            style={[{ backgroundColor: useTheme().colors.primary }]}
+            style={styles.actionButton}
             onPress={() => {
+              console.log('🚫 Annulation des modifications')
               setIsEditing(false)
+              setEditedProvider(provider) // Restaure les données originales
             }}
-            disabled={isLoading} // Désactiver le bouton pendant le chargement
+            disabled={isDisabled}
           >
-            <Text style={styles.modifyButtonText}>Annuler</Text>
+            <Text style={styles.actionButtonText}>Annuler</Text>
           </Button>
         )}
 
+        {/* Bouton Supprimer (hors mode édition) */}
         {!isEditing && (
           <Button
             gradient={useTheme().gradients.danger}
-            //style={[styles.deleteButton]}
+            style={styles.actionButton}
             flex={1}
             onPress={handleDelete}
-            disabled={isLoading}
+            disabled={isDisabled}
           >
-            <Text style={styles.deleteButtonText}>
-              {isLoading ? 'Suppression...' : 'Supprimer'}
-            </Text>
+            {isLoading ? (
+              <ActivityIndicator color="white" size="small" />
+            ) : (
+              <Text style={styles.actionButtonText}>Supprimer</Text>
+            )}
           </Button>
         )}
 
+        {/* Bouton Sélectionner (admin seulement) */}
         {admin == 1 && (
-          <>
-            <Button
-              gradient={
-                isSelected(provider.id)
-                  ? useTheme().gradients.secondary
-                  : useTheme().gradients.info
-              }
-              flex={1}
-              onPress={() => {
-                isSelected(provider.id)
-                  ? handleUnSelect(provider.id)
-                  : handleSelect(provider.id)
-              }}
-              disabled={isLoading}
-            >
-              <Text style={styles.modifyButtonText}>
-                {isSelected(provider.id) ? 'Désélectionner' : 'Sélectionner'}
-              </Text>
-            </Button>
-          </>
+          <Button
+            gradient={
+              isSelected(provider.id)
+                ? useTheme().gradients.secondary
+                : useTheme().gradients.info
+            }
+            flex={1}
+            style={styles.actionButton}
+            onPress={handleSelectionToggle}
+            disabled={isDisabled}
+          >
+            <Text style={styles.actionButtonText}>
+              {isSelected(provider.id) ? 'Désélectionner' : 'Sélectionner'}
+            </Text>
+          </Button>
         )}
       </View>
 
+      {/* Modal de sélection */}
       <SelectionModal
-        visible={modal}
+        visible={modal && !isDisabled}
         field={modalField}
-        onSelectItem={(item) => (
-          handleInputChange(modalField, item), setModal(false)
-        )}
+        onSelectItem={(item) => {
+          handleInputChange(modalField, item)
+          setModal(false)
+        }}
         onClose={() => setModal(false)}
       />
     </View>
@@ -332,20 +405,29 @@ const styles = StyleSheet.create({
     gap: 12,
     marginVertical: 8,
   },
+  disabledCard: {
+    opacity: 0.6,
+    backgroundColor: '#f0f0f0',
+  },
+  displayContainer: {
+    gap: 12,
+  },
+  editContainer: {
+    gap: 8,
+  },
   providerName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
     backgroundColor: '#B8B8D1',
-    padding: 8,
+    padding: 12,
     borderRadius: 8,
     textAlign: 'center',
   },
   tagContainer: {
     flexDirection: 'row',
-    flexWrap: 'nowrap',
+    flexWrap: 'wrap',
     gap: 8,
-    //  justifyContent: 'center',
     alignItems: 'center',
   },
   tag: {
@@ -356,7 +438,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     flex: 1,
-
+    minWidth: 100,
     justifyContent: 'center',
   },
   tagText: {
@@ -364,33 +446,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-  actionButtons: {
-    flex: 1,
+  editFieldContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 4,
-    height: 40,
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 4,
   },
-  modifyButton: {
-    borderRadius: 20,
-    paddingVertical: 0,
-    paddingHorizontal: 20,
-  },
-  modifyButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  deleteButton: {
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    flex: 1,
-  },
-  deleteButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    minWidth: 80,
   },
   input: {
     backgroundColor: '#fff',
@@ -399,14 +465,48 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: '#ddd',
-    marginBottom: 8,
   },
-  button: {
-    padding: 10,
-    borderRadius: 5,
+  textInput: {
+    flex: 1,
   },
-  buttonText: {
+  selectInput: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+  },
+  selectButton: {
+    backgroundColor: '#9932CC',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  selectButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+  },
+  disabledText: {
+    color: '#999',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginTop: 8,
+  },
+  actionButton: {
+    minHeight: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  actionButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: '600',
+    fontSize: 14,
   },
 })
+
+export default React.memo(ProviderCard)

@@ -75,6 +75,7 @@ export const Client = () => {
   const [loadingStates, setLoadingStates] = useState({
     searching: false,
     loadingMore: false,
+    updating: false, // Nouvel état pour les mises à jour
   })
 
   // 🧹 FONCTION DE NETTOYAGE MÉMOIRE
@@ -102,7 +103,7 @@ export const Client = () => {
   const cleanupAfterSearch = useCallback(() => {
     console.log('🔄 Client - Nettoyage post-recherche...')
 
-    // Vide les sélections précédentes
+    // Vide les sélections précédentes (uniquement lors d'une nouvelle recherche)
     setSelectClient([])
 
     // Reset pagination
@@ -236,10 +237,17 @@ export const Client = () => {
     }
   }, [searchQuery])
 
-  const fetchData = async (page, isNewSearch = false) => {
+  // 📊 FONCTION FETCHDATA AMÉLIORÉE
+  const fetchData = async (
+    page = 1,
+    isNewSearch = false,
+    showProgress = true,
+  ) => {
     try {
-      if (isNewSearch) {
+      if (isNewSearch && showProgress) {
         setSearchProgress(`Recherche de "${searchQuery}"...`)
+      } else if (showProgress) {
+        setSearchProgress('Actualisation des données...')
       }
 
       const formattedData = {
@@ -247,12 +255,14 @@ export const Client = () => {
         current_page: page,
       }
 
+      console.log('🔍 Recherche avec paramètres:', formattedData)
+
       const response = await withTimeout(
         getClient(formattedData),
         'Recherche de clients',
       )
 
-      console.log(response)
+      console.log('📊 Réponse API:', response)
 
       if (!response.data) {
         setHasMore(false)
@@ -265,28 +275,96 @@ export const Client = () => {
       const newData = response.data
 
       if (isNewSearch) {
+        // Nouvelle recherche : remplace toutes les données
         setSearchResults(newData)
-        setSearchProgress(`${newData.nb_tot_client} clients trouvés`)
+        setCurrentPage(page)
+        if (showProgress) {
+          setSearchProgress(`${newData.nb_tot_client} clients trouvés`)
+        }
       } else {
-        setSearchResults((prev) => ({
-          nb_tot_client: newData.nb_tot_client,
-          all_clients: [...(prev?.all_clients || []), ...newData.all_clients],
-        }))
+        // Actualisation : garde les données existantes ou les remplace selon le contexte
+        if (page === 1) {
+          // Si on actualise la première page, on remplace tout
+          setSearchResults(newData)
+          setCurrentPage(1)
+        } else {
+          // Chargement de pages supplémentaires
+          setSearchResults((prev) => ({
+            nb_tot_client: newData.nb_tot_client,
+            all_clients: [...(prev?.all_clients || []), ...newData.all_clients],
+          }))
+          setCurrentPage(page)
+        }
       }
 
       const totalPagesReceived = Math.ceil(newData.nb_tot_client / PAGE_SIZE)
       setHasMore(page < totalPagesReceived)
+
+      console.log('✅ Données mises à jour avec succès')
     } catch (error) {
-      console.error('Erreur lors de la recherche:', error)
+      console.error('🔴 Erreur lors de la recherche:', error)
       setHasMore(false)
       throw error
     }
   }
 
+  // 🔄 FONCTION D'ACTUALISATION COMPLÈTE
+  const refreshCurrentSearch = useCallback(async () => {
+    if (!searchQuery.trim() || !searchResults) {
+      console.log('⚠️ Aucune recherche à actualiser')
+      return
+    }
+
+    console.log('🔄 Actualisation de la recherche courante...')
+    setLoadingState('updating', true)
+
+    try {
+      // Recharge toutes les pages jusqu'à la page courante
+      let allClients = []
+
+      for (let page = 1; page <= currentPage; page++) {
+        const formattedData = {
+          search: searchQuery.trim(),
+          current_page: page,
+        }
+
+        const response = await withTimeout(
+          getClient(formattedData),
+          `Actualisation page ${page}`,
+        )
+
+        if (response.data?.all_clients) {
+          allClients = [...allClients, ...response.data.all_clients]
+        }
+      }
+
+      // Met à jour les résultats avec toutes les données actualisées
+      setSearchResults({
+        all_clients: allClients,
+        nb_tot_client: searchResults.nb_tot_client, // Garde le nombre total
+      })
+
+      setSearchProgress('Données actualisées avec succès')
+
+      // Nettoie le message après 2 secondes
+      setTimeout(() => {
+        setSearchProgress(null)
+      }, 2000)
+
+      console.log('✅ Actualisation terminée')
+    } catch (error) {
+      console.error("🔴 Erreur lors de l'actualisation:", error)
+      Alert.alert('Erreur', "Impossible d'actualiser les données")
+    } finally {
+      setLoadingState('updating', false)
+    }
+  }, [searchQuery, searchResults, currentPage])
+
   // 📄 PAGINATION OPTIMISÉE
   const handleScroll = useCallback(
     async (event) => {
-      if (loadingStates.loadingMore || !hasMore) return
+      if (loadingStates.loadingMore || !hasMore || loadingStates.updating)
+        return
 
       const {
         layoutMeasurement,
@@ -300,8 +378,7 @@ export const Client = () => {
         try {
           setLoadingState('loadingMore', true)
           const nextPage = currentPage + 1
-          await fetchData(nextPage, false)
-          setCurrentPage(nextPage)
+          await fetchData(nextPage, false, false)
         } catch (error) {
           console.error('Error loading more data:', error)
         } finally {
@@ -309,40 +386,103 @@ export const Client = () => {
         }
       }
     },
-    [currentPage, hasMore, loadingStates.loadingMore],
+    [currentPage, hasMore, loadingStates.loadingMore, loadingStates.updating],
   )
 
-  // 🔧 ACTIONS CRUD OPTIMISÉES
+  // 🔧 ACTIONS CRUD OPTIMISÉES ET CORRIGÉES
   const onModify = useCallback(
     async (data) => {
+      console.log('🔧 Modification du client:', data.id_client)
+      setLoadingState('updating', true)
+
       try {
-        //console.log('data', data)
         const response = await udpateClient({
           id_client: data.id_client,
           ...data,
         })
+
+        console.log('📝 Réponse modification:', response)
+
         if (response) {
-          await fetchData(currentPage, true)
+          console.log('✅ Modification réussie, actualisation des données...')
+          await refreshCurrentSearch()
+
+          // Message de succès
+          Alert.alert('Succès', 'Client modifié avec succès')
+        } else {
+          throw new Error('Réponse invalide du serveur')
         }
       } catch (error) {
-        console.error('Erreur lors de la modification:', error)
-        Alert.alert('Erreur', 'Impossible de modifier le client')
+        console.error('🔴 Erreur lors de la modification:', error)
+        Alert.alert(
+          'Erreur',
+          error.message || 'Impossible de modifier le client',
+        )
+      } finally {
+        setLoadingState('updating', false)
       }
     },
-    [currentPage],
+    [refreshCurrentSearch],
   )
 
   const onDelete = useCallback(
-    async (data: { id_client: any }) => {
-      try {
-        await deleteClient({ id_client: data.id_client })
-        await fetchData(currentPage, true)
-      } catch (error) {
-        console.error('Erreur lors de la suppression:', error)
-        Alert.alert('Erreur', 'Impossible de supprimer le client')
-      }
+    async (data) => {
+      console.log('🗑️ Suppression du client:', data.id_client)
+
+      // Confirmation avant suppression
+      Alert.alert(
+        'Confirmation',
+        'Êtes-vous sûr de vouloir supprimer ce client ?',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            text: 'Supprimer',
+            style: 'destructive',
+            onPress: async () => {
+              setLoadingState('updating', true)
+
+              try {
+                const response = await deleteClient({
+                  id_client: data.id_client,
+                })
+
+                console.log('🗑️ Réponse suppression:', response)
+
+                if (response) {
+                  console.log(
+                    '✅ Suppression réussie, actualisation des données...',
+                  )
+
+                  // Retire le client supprimé des sélections s'il y était
+                  setSelectClient((prev) =>
+                    prev.filter((selectedId) => selectedId !== data.id_client),
+                  )
+
+                  await refreshCurrentSearch()
+
+                  // Message de succès
+                  Alert.alert('Succès', 'Client supprimé avec succès')
+                } else {
+                  throw new Error('Réponse invalide du serveur')
+                }
+              } catch (error) {
+                console.error('🔴 Erreur lors de la suppression:', error)
+                Alert.alert(
+                  'Erreur',
+                  error.message || 'Impossible de supprimer le client',
+                )
+              } finally {
+                setLoadingState('updating', false)
+              }
+            },
+          },
+        ],
+      )
     },
-    [currentPage],
+    [refreshCurrentSearch],
   )
 
   // 🧹 CLEANUP AU DÉMONTAGE
@@ -369,6 +509,8 @@ export const Client = () => {
     setSearchResults(null)
     setSearchQuery('')
     setSelectClient([])
+    setCurrentPage(1)
+    setHasMore(true)
   }, [cleanupMemory])
 
   return (
@@ -386,12 +528,16 @@ export const Client = () => {
           <Text style={styles.title}>CLIENTS</Text>
 
           {/* Indicateur de progression */}
-          {(searchProgress || showLongWaitMessage) && (
+          {(searchProgress ||
+            showLongWaitMessage ||
+            loadingStates.updating) && (
             <View style={styles.progressContainer}>
               <ActivityIndicator color="#9932CC" />
               <Text style={styles.progressText}>
-                {searchProgress ||
-                  'La requête prend plus de temps que prévu... Veuillez patienter.'}
+                {loadingStates.updating
+                  ? 'Mise à jour en cours...'
+                  : searchProgress ||
+                    'La requête prend plus de temps que prévu... Veuillez patienter.'}
               </Text>
             </View>
           )}
@@ -414,11 +560,13 @@ export const Client = () => {
                 returnKeyType="search"
                 autoCapitalize="words"
                 autoCorrect={false}
+                editable={!loadingStates.updating}
               />
               {searchQuery.length > 0 && (
                 <TouchableOpacity
                   style={styles.clearButton}
                   onPress={() => setSearchQuery('')}
+                  disabled={loadingStates.updating}
                 >
                   <Icon name="close-circle" size={17} color="#999" />
                 </TouchableOpacity>
@@ -433,7 +581,9 @@ export const Client = () => {
                   style={styles.searchButton}
                   onPress={submit}
                   disabled={
-                    loadingStates.searching || searchQuery.trim().length < 2
+                    loadingStates.searching ||
+                    loadingStates.updating ||
+                    searchQuery.trim().length < 2
                   }
                 >
                   {loadingStates.searching ? (
@@ -450,7 +600,7 @@ export const Client = () => {
               <TouchableOpacity
                 style={styles.resetButton}
                 onPress={handleReset}
-                disabled={loadingStates.searching}
+                disabled={loadingStates.searching || loadingStates.updating}
               >
                 <Icon name="refresh" size={30} color="#9932CC" />
               </TouchableOpacity>
@@ -481,6 +631,7 @@ export const Client = () => {
                   gradient={gradients.success}
                   padding={8}
                   onPress={() => console.log('Validation:', selectClient)}
+                  disabled={loadingStates.updating}
                 >
                   <Text style={styles.searchButtonText}>Valider</Text>
                 </Button>
@@ -500,6 +651,7 @@ export const Client = () => {
                       handleSelect={handleSelect}
                       handleUnSelect={handleUnselect}
                       isSelected={isSelected}
+                      disabled={loadingStates.updating} // Désactive les actions pendant la mise à jour
                     />
                   ))
                 ) : (
@@ -537,7 +689,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-
     color: '#9932CC',
     marginBottom: 20,
     textAlign: 'center',
@@ -572,14 +723,13 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between', // Distribue l'espace entre les éléments
+    justifyContent: 'space-between',
     paddingHorizontal: 30,
   },
   searchButton: {
     flexDirection: 'row',
     backgroundColor: '#9932CC',
     borderRadius: 8,
-
     alignItems: 'center',
     width: 200,
     gap: 10,
@@ -587,7 +737,7 @@ const styles = StyleSheet.create({
   searchButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '',
+    fontWeight: '500',
   },
   resetButton: {
     borderRadius: 25,
@@ -647,7 +797,7 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     color: '#9932CC',
-    fontWeight: '',
+    fontWeight: '500',
   },
   resultCount: {
     textAlign: 'center',
@@ -659,7 +809,7 @@ const styles = StyleSheet.create({
   },
   resultCountHighlight: {
     color: '#9932CC',
-    fontWeight: '',
+    fontWeight: '600',
     fontSize: 18,
   },
   selectionContainer: {
@@ -679,11 +829,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-
   searchButtonContainer: {
     flex: 1,
-    alignItems: 'center', // Centre le bouton horizontalement
-    paddingLeft: 25, // Espacement à gauche
+    alignItems: 'center',
+    paddingLeft: 25,
   },
 })
 

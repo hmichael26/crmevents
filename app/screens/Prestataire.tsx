@@ -94,6 +94,7 @@ export const Prestataire = () => {
     searching: false,
     loadingMore: false,
     assigning: false,
+    updating: false, // Nouvel état pour les mises à jour
   })
 
   // États de recherche
@@ -106,7 +107,7 @@ export const Prestataire = () => {
 
   // 🧹 FONCTION DE NETTOYAGE MÉMOIRE
   const cleanupMemory = useCallback(() => {
-    console.log('🧹 Nettoyage mémoire en cours...')
+    console.log('🧹 Prestataire - Nettoyage mémoire en cours...')
 
     // Nettoie les timeouts
     Object.values(timeoutRefs.current).forEach(clearTimeout)
@@ -123,12 +124,12 @@ export const Prestataire = () => {
     setAssignProgress(null)
     setShowLongWaitMessage(false)
 
-    console.log('✅ Mémoire nettoyée')
+    console.log('✅ Prestataire - Mémoire nettoyée')
   }, [])
 
   // 🔄 NETTOYAGE APRÈS RECHERCHE
   const cleanupAfterSearch = useCallback(() => {
-    console.log('🔄 Nettoyage post-recherche...')
+    console.log('🔄 Prestataire - Nettoyage post-recherche...')
 
     // Vide les sélections précédentes
     setSelectPresta([])
@@ -142,12 +143,12 @@ export const Prestataire = () => {
       setSearchProgress(null)
     }, 2000)
 
-    console.log('✅ Nettoyage post-recherche terminé')
+    console.log('✅ Prestataire - Nettoyage post-recherche terminé')
   }, [])
 
   // 🗑️ NETTOYAGE APRÈS ASSIGNATION
   const cleanupAfterAssignment = useCallback(() => {
-    console.log('🗑️ Nettoyage post-assignation...')
+    console.log('🗑️ Prestataire - Nettoyage post-assignation...')
 
     // Vide complètement les sélections
     setSelectPresta([])
@@ -163,7 +164,7 @@ export const Prestataire = () => {
       setAssignProgress(null)
     }, 2000)
 
-    console.log('✅ Nettoyage post-assignation terminé')
+    console.log('✅ Prestataire - Nettoyage post-assignation terminé')
   }, [])
 
   // Helper pour les états de chargement
@@ -341,10 +342,17 @@ export const Prestataire = () => {
     }
   }, [selectForm])
 
-  const fetchData = async (page, isNewSearch = false) => {
+  // 📊 FONCTION FETCHDATA AMÉLIORÉE
+  const fetchData = async (
+    page = 1,
+    isNewSearch = false,
+    showProgress = true,
+  ) => {
     try {
-      if (isNewSearch) {
+      if (isNewSearch && showProgress) {
         setSearchProgress('Recherche des prestataires...')
+      } else if (showProgress) {
+        setSearchProgress('Actualisation des données...')
       }
 
       const filteredForm = Object.fromEntries(
@@ -371,10 +379,14 @@ export const Prestataire = () => {
         current_page: page,
       }
 
+      console.log('🔍 Recherche prestataires avec paramètres:', formattedData)
+
       const response = await withTimeout(
         getPrestaBy(formattedData),
         'Recherche de prestataires',
       )
+
+      console.log('📊 Réponse API prestataires:', response)
 
       if (!response.data) {
         setHasMore(false)
@@ -387,28 +399,118 @@ export const Prestataire = () => {
       const newData = response.data
 
       if (isNewSearch) {
+        // Nouvelle recherche : remplace toutes les données
         setSearchResults(newData)
-        setSearchProgress(`${newData.nb_tot_presta} prestataires trouvés`)
+        setCurrentPage(page)
+        if (showProgress) {
+          setSearchProgress(`${newData.nb_tot_presta} prestataires trouvés`)
+        }
       } else {
-        setSearchResults((prev) => ({
-          nb_tot_presta: newData.nb_tot_presta,
-          all_prests: [...(prev?.all_prests || []), ...newData.all_prests],
-        }))
+        // Actualisation : garde les données existantes ou les remplace selon le contexte
+        if (page === 1) {
+          // Si on actualise la première page, on remplace tout
+          setSearchResults(newData)
+          setCurrentPage(1)
+        } else {
+          // Chargement de pages supplémentaires
+          setSearchResults((prev) => ({
+            nb_tot_presta: newData.nb_tot_presta,
+            all_prests: [...(prev?.all_prests || []), ...newData.all_prests],
+          }))
+          setCurrentPage(page)
+        }
       }
 
       const totalPagesReceived = Math.ceil(newData.nb_tot_presta / PAGE_SIZE)
       setHasMore(page < totalPagesReceived)
+
+      console.log('✅ Données prestataires mises à jour avec succès')
     } catch (error) {
-      console.error('Erreur lors de la recherche:', error)
+      console.error('🔴 Erreur lors de la recherche prestataires:', error)
       setHasMore(false)
       throw error
     }
   }
 
+  // 🔄 FONCTION D'ACTUALISATION COMPLÈTE
+  const refreshCurrentSearch = useCallback(async () => {
+    if (!searchResults) {
+      console.log('⚠️ Aucune recherche prestataire à actualiser')
+      return
+    }
+
+    console.log('🔄 Actualisation de la recherche prestataires courante...')
+    setLoadingState('updating', true)
+
+    try {
+      // Recharge toutes les pages jusqu'à la page courante
+      let allPrestataires = []
+
+      for (let page = 1; page <= currentPage; page++) {
+        const filteredForm = Object.fromEntries(
+          Object.entries(selectForm).filter(([_, value]) => value !== ''),
+        )
+
+        const mappedKeys = {
+          providerType: 'fk_type',
+          postalCode: 'cp',
+          minRooms: 'nb_chbre',
+          maxRooms: 'nb_salle',
+          nom: 'nom',
+          city: 'fk_ville',
+          department: 'fk_departement',
+          region: 'fk_region',
+        }
+
+        const formattedData = {
+          ...Object.entries(filteredForm).reduce((acc, [key, value]) => {
+            const newKey = mappedKeys[key] || key
+            acc[newKey] = value
+            return acc
+          }, {}),
+          current_page: page,
+        }
+
+        const response = await withTimeout(
+          getPrestaBy(formattedData),
+          `Actualisation page ${page}`,
+        )
+
+        if (response.data?.all_prests) {
+          allPrestataires = [...allPrestataires, ...response.data.all_prests]
+        }
+      }
+
+      // Met à jour les résultats avec toutes les données actualisées
+      setSearchResults({
+        all_prests: allPrestataires,
+        nb_tot_presta: searchResults.nb_tot_presta, // Garde le nombre total
+      })
+
+      setSearchProgress('Données prestataires actualisées avec succès')
+
+      // Nettoie le message après 2 secondes
+      setTimeout(() => {
+        setSearchProgress(null)
+      }, 2000)
+
+      console.log('✅ Actualisation prestataires terminée')
+    } catch (error) {
+      console.error("🔴 Erreur lors de l'actualisation prestataires:", error)
+      Alert.alert(
+        'Erreur',
+        "Impossible d'actualiser les données des prestataires",
+      )
+    } finally {
+      setLoadingState('updating', false)
+    }
+  }, [selectForm, searchResults, currentPage])
+
   // 📄 PAGINATION OPTIMISÉE
   const handleScroll = useCallback(
     async (event) => {
-      if (loadingStates.loadingMore || !hasMore) return
+      if (loadingStates.loadingMore || !hasMore || loadingStates.updating)
+        return
 
       const {
         layoutMeasurement,
@@ -422,8 +524,7 @@ export const Prestataire = () => {
         try {
           setLoadingState('loadingMore', true)
           const nextPage = currentPage + 1
-          await fetchData(nextPage, false)
-          setCurrentPage(nextPage)
+          await fetchData(nextPage, false, false)
         } catch (error) {
           console.error('Error loading more data:', error)
         } finally {
@@ -431,7 +532,7 @@ export const Prestataire = () => {
         }
       }
     },
-    [currentPage, hasMore, loadingStates.loadingMore],
+    [currentPage, hasMore, loadingStates.loadingMore, loadingStates.updating],
   )
 
   // 🎯 ASSIGNATION OPTIMISÉE
@@ -482,39 +583,106 @@ export const Prestataire = () => {
     [selectPresta, cleanupAfterAssignment, cleanupMemory],
   )
 
-  // 🔧 ACTIONS CRUD OPTIMISÉES
+  // 🔧 ACTIONS CRUD OPTIMISÉES ET CORRIGÉES
   const onModify = useCallback(
     async (data) => {
+      console.log('🔧 Modification du prestataire:', data.id)
+      setLoadingState('updating', true)
+
       try {
         const response = await updatepresta(data)
+
+        console.log('📝 Réponse modification prestataire:', response)
+
         if (response) {
-          await fetchData(currentPage, true)
+          console.log(
+            '✅ Modification prestataire réussie, actualisation des données...',
+          )
+          await refreshCurrentSearch()
+
+          // Message de succès
+          Alert.alert('Succès', 'Prestataire modifié avec succès')
+        } else {
+          throw new Error('Réponse invalide du serveur')
         }
       } catch (error) {
-        console.error('Erreur lors de la modification:', error)
-        Alert.alert('Erreur', 'Impossible de modifier le prestataire')
+        console.error('🔴 Erreur lors de la modification prestataire:', error)
+        Alert.alert(
+          'Erreur',
+          error.message || 'Impossible de modifier le prestataire',
+        )
+      } finally {
+        setLoadingState('updating', false)
       }
     },
-    [currentPage],
+    [refreshCurrentSearch],
   )
 
   const onDelete = useCallback(
     async (data) => {
-      try {
-        await deletepresta(data)
-        await fetchData(currentPage, true)
-      } catch (error) {
-        console.error('Erreur lors de la suppression:', error)
-        Alert.alert('Erreur', 'Impossible de supprimer le prestataire')
-      }
+      console.log('🗑️ Suppression du prestataire:', data.id)
+
+      // Confirmation avant suppression
+      Alert.alert(
+        'Confirmation',
+        'Êtes-vous sûr de vouloir supprimer ce prestataire ?',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            text: 'Supprimer',
+            style: 'destructive',
+            onPress: async () => {
+              setLoadingState('updating', true)
+
+              try {
+                const response = await deletepresta(data)
+
+                console.log('🗑️ Réponse suppression prestataire:', response)
+
+                if (response) {
+                  console.log(
+                    '✅ Suppression prestataire réussie, actualisation des données...',
+                  )
+
+                  // Retire le prestataire supprimé des sélections s'il y était
+                  setSelectPresta((prev) =>
+                    prev.filter((selectedId) => selectedId !== data.id),
+                  )
+
+                  await refreshCurrentSearch()
+
+                  // Message de succès
+                  Alert.alert('Succès', 'Prestataire supprimé avec succès')
+                } else {
+                  throw new Error('Réponse invalide du serveur')
+                }
+              } catch (error) {
+                console.error(
+                  '🔴 Erreur lors de la suppression prestataire:',
+                  error,
+                )
+                Alert.alert(
+                  'Erreur',
+                  error.message || 'Impossible de supprimer le prestataire',
+                )
+              } finally {
+                setLoadingState('updating', false)
+              }
+            },
+          },
+        ],
+      )
     },
-    [currentPage],
+    [refreshCurrentSearch],
   )
 
   // 🧹 CLEANUP AU DÉMONTAGE
   useEffect(() => {
     return () => {
-      console.log('🧹 Cleanup au démontage du composant')
+      console.log('🧹 Prestataire - Cleanup au démontage du composant')
       cleanupMemory()
     }
   }, [cleanupMemory])
@@ -522,12 +690,22 @@ export const Prestataire = () => {
   // 🚨 CLEANUP SUR CHANGEMENT DE NAVIGATION
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
-      console.log('🚨 Navigation blur - nettoyage')
+      console.log('🚨 Prestataire - Navigation blur - nettoyage')
       cleanupMemory()
     })
 
     return unsubscribe
   }, [navigation, cleanupMemory])
+
+  // 🎯 FONCTION DE RESET
+  const handleReset = useCallback(() => {
+    cleanupMemory()
+    setSearchResults(null)
+    setSelectForm(initialFormState)
+    setSelectPresta([])
+    setCurrentPage(1)
+    setHasMore(true)
+  }, [cleanupMemory])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -544,13 +722,18 @@ export const Prestataire = () => {
           <Text style={styles.title}>PRESTATAIRES</Text>
 
           {/* Indicateur de progression */}
-          {(searchProgress || assignProgress || showLongWaitMessage) && (
+          {(searchProgress ||
+            assignProgress ||
+            showLongWaitMessage ||
+            loadingStates.updating) && (
             <View style={styles.progressContainer}>
               <ActivityIndicator color="#9932CC" />
               <Text style={styles.progressText}>
-                {assignProgress ||
-                  searchProgress ||
-                  'La requête prend plus de temps que prévu... Veuillez patienter.'}
+                {loadingStates.updating
+                  ? 'Mise à jour en cours...'
+                  : assignProgress ||
+                    searchProgress ||
+                    'La requête prend plus de temps que prévu... Veuillez patienter.'}
               </Text>
             </View>
           )}
@@ -564,6 +747,7 @@ export const Prestataire = () => {
                 placeholder="Sélectionner une région"
                 onFocus={handleRegionFocus}
                 loading={loadingStates.regions}
+                disabled={loadingStates.updating}
               />
               <PickerWrapper
                 selectedValue={selectForm.department}
@@ -574,6 +758,7 @@ export const Prestataire = () => {
                 placeholder="Sélectionner un département"
                 onFocus={handleDepartmentFocus}
                 loading={loadingStates.departments}
+                disabled={loadingStates.updating}
               />
             </View>
 
@@ -585,6 +770,7 @@ export const Prestataire = () => {
                 placeholder="Sélectionner une ville"
                 onFocus={handleCityFocus}
                 loading={loadingStates.cities}
+                disabled={loadingStates.updating}
               />
               <PickerWrapper
                 selectedValue={selectForm.providerType}
@@ -595,6 +781,7 @@ export const Prestataire = () => {
                 placeholder="Type de prestataire"
                 onFocus={handleProviderTypeFocus}
                 loading={loadingStates.providerTypes}
+                disabled={loadingStates.updating}
               />
             </View>
 
@@ -604,18 +791,21 @@ export const Prestataire = () => {
                 value={selectForm.postalCode}
                 onChangeText={(text) => handleInputChange('postalCode', text)}
                 keyboardType="numeric"
+                editable={!loadingStates.updating}
               />
               <CustomTextInput
                 placeholder="Nb de chambre min."
                 value={selectForm.minRooms}
                 onChangeText={(text) => handleInputChange('minRooms', text)}
                 keyboardType="numeric"
+                editable={!loadingStates.updating}
               />
               <CustomTextInput
                 placeholder="Nb de salle min."
                 value={selectForm.maxRooms}
                 onChangeText={(text) => handleInputChange('maxRooms', text)}
                 keyboardType="numeric"
+                editable={!loadingStates.updating}
               />
             </View>
 
@@ -637,12 +827,14 @@ export const Prestataire = () => {
                   returnKeyType="search"
                   autoCapitalize="words"
                   autoCorrect={false}
+                  editable={!loadingStates.updating}
                 />
 
                 {selectForm.nom.length > 0 && (
                   <TouchableOpacity
                     style={styles.clearButton}
                     onPress={() => setSelectForm({ ...selectForm, nom: '' })}
+                    disabled={loadingStates.updating}
                   >
                     <Icon name="close-circle" size={17} color="#999" />
                   </TouchableOpacity>
@@ -656,7 +848,7 @@ export const Prestataire = () => {
                   gradient={gradients.primary}
                   style={styles.searchButton}
                   onPress={submit}
-                  disabled={loadingStates.searching}
+                  disabled={loadingStates.searching || loadingStates.updating}
                 >
                   {loadingStates.searching ? (
                     <ActivityIndicator color="white" />
@@ -670,11 +862,8 @@ export const Prestataire = () => {
               </View>
 
               <TouchableOpacity
-                onPress={() => {
-                  cleanupMemory()
-                  setSearchResults(null)
-                  setSelectForm(initialFormState)
-                }}
+                onPress={handleReset}
+                disabled={loadingStates.searching || loadingStates.updating}
               >
                 <Icon name="refresh" size={30} color="#9932CC" />
               </TouchableOpacity>
@@ -703,7 +892,7 @@ export const Prestataire = () => {
                   gradient={gradients.primary}
                   padding={5}
                   onPress={() => setModalShow(true)}
-                  disabled={loadingStates.assigning}
+                  disabled={loadingStates.assigning || loadingStates.updating}
                 >
                   <Text style={styles.searchButtonText}>Valider</Text>
                 </Button>
@@ -723,6 +912,7 @@ export const Prestataire = () => {
                       handleSelect={handleSelect}
                       handleUnSelect={handleUnselect}
                       isSelected={isSelected}
+                      disabled={loadingStates.updating} // Désactive les actions pendant la mise à jour
                     />
                   ))
                 ) : (
@@ -752,13 +942,22 @@ export const Prestataire = () => {
 
 // 🎯 COMPOSANTS OPTIMISÉS AVEC MEMO
 const PickerWrapper = React.memo(
-  ({ selectedValue, onValueChange, items, placeholder, onFocus, loading }) => (
+  ({
+    selectedValue,
+    onValueChange,
+    items,
+    placeholder,
+    onFocus,
+    loading,
+    disabled,
+  }) => (
     <View style={[styles.pickerContainer, { width: '50%' }]}>
       <Picker
         selectedValue={selectedValue}
         onValueChange={onValueChange}
         style={styles.picker}
         onFocus={onFocus}
+        enabled={!disabled}
       >
         <Picker.Item label={loading ? 'Chargement...' : placeholder} value="" />
         {!loading &&
@@ -798,7 +997,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-
     color: '#9932CC',
     marginBottom: 10,
     textAlign: 'center',
@@ -894,7 +1092,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#9932CC',
     borderRadius: 8,
-
     alignItems: 'center',
     width: 200,
     gap: 10,
@@ -913,7 +1110,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between', // Distribue l'espace entre les éléments
+    justifyContent: 'space-between',
     paddingHorizontal: 30,
   },
   resultCountHighlight: {
@@ -945,8 +1142,8 @@ const styles = StyleSheet.create({
   },
   searchButtonContainer: {
     flex: 1,
-    alignItems: 'center', // Centre le bouton horizontalement
-    paddingLeft: 25, // Espacement à gauche
+    alignItems: 'center',
+    paddingLeft: 25,
   },
 })
 

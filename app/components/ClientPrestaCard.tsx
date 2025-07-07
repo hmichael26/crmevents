@@ -24,6 +24,7 @@ import { GRADIENTS } from '../constants/light'
 import Icon from 'react-native-vector-icons/AntDesign'
 import { ArrowUpCircle, ThumbsDown, ThumbsUp } from 'react-native-feather'
 import logo from '../assets/images/splash.png'
+import VoteButtons from './VoteButtons'
 
 // Constants
 const { width, height } = Dimensions.get('window')
@@ -173,9 +174,9 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
   return (
     <FlatList
       data={prestaInterroger}
-      renderItem={({ item }) => (
+      renderItem={({ item, index }) => (
         <PrestaCardItem
-          key={`presta-${item.id_presta}`}
+          key={`presta-${index}`}
           item={item}
           refreshData={refreshData}
           derouleId={activeDerouler.id}
@@ -256,7 +257,6 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
 
           if (response.code === 'SUCCESS') {
             console.log('🟢 Vote envoyé avec succès')
-            await refreshData()
           } else {
             throw new Error(response.message || 'Erreur lors du vote')
           }
@@ -339,6 +339,15 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
       openGoogleMaps(item.ggmap, item.location)
     }, [item.ggmap, item.location])
 
+    // Vote success handler
+    const handleVoteSuccess = useCallback(() => {
+      console.log('🟢 Vote réussi, actualisation des données')
+    }, [refreshData])
+
+    // Vote error handler
+    const handleVoteError = useCallback((errorMessage: string) => {
+      console.error('🔴 Erreur vote:', errorMessage)
+    }, [])
     return (
       <View style={[styles.card, { flexDirection: 'row' }]}>
         {/* Main card content with image */}
@@ -425,48 +434,14 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
             )}
 
             {/* Like/Dislike buttons */}
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  isVoting && styles.actionButtonDisabled,
-                ]}
-                onPress={() => handleSendPouce(1, 0)}
-                disabled={isVoting}
-                activeOpacity={0.7}
-              >
-                {isVoting ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <ThumbsUp
-                    stroke={'#fff'}
-                    fill={item?.pouce_leve == 1 ? '#fff' : 'transparent'}
-                    width={20}
-                    height={20}
-                  />
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  isVoting && styles.actionButtonDisabled,
-                ]}
-                onPress={() => handleSendPouce(0, 1)}
-                disabled={isVoting}
-                activeOpacity={0.7}
-              >
-                {isVoting ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <ThumbsDown
-                    stroke={'#fff'}
-                    fill={item?.pouce_baisse == 1 ? '#fff' : 'transparent'}
-                    width={20}
-                    height={20}
-                  />
-                )}
-              </TouchableOpacity>
-            </View>
+            {/* Vote Buttons Component */}
+            <VoteButtons
+              item={item}
+              eventData={eventData}
+              derouleId={derouleId}
+              onVoteSuccess={handleVoteSuccess}
+              onVoteError={handleVoteError}
+            />
           </ImageBackground>
         </View>
 
