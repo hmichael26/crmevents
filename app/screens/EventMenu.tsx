@@ -14,6 +14,7 @@ import AuthContext from '../context/AuthContext'
 import { useApi } from '../context/useApi'
 import * as SecureStore from 'expo-secure-store'
 import StatusDropdown from '../components/StatusDrop'
+import { useToast } from '../components/ToastComponent'
 
 type RootStackParamList = {
   EventMenu: { item: ItemType }
@@ -48,6 +49,8 @@ interface ButtonsProps {
 }
 
 const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
+  const { showToast, ToastComponent } = useToast()
+
   const storedToken = async () => {
     try {
       const value = await SecureStore.getItemAsync('accessToken')
@@ -63,7 +66,6 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
   const [data, setData] = useState<ItemType | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  console.log(item)
   // Charger les données à chaque fois que l'écran devient actif
   useFocusEffect(
     useCallback(() => {
@@ -183,9 +185,16 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
       <Block marginBottom={sizes.base} marginTop={sizes.base}>
         <StatusDropdown
           initialStatus={data?.type}
-          itemId={item.id}
+          itemId={item.idevt}
           onStatusChange={(newStatus, apiResponse) => {
-            console.log('Nouveau statut:', newStatus)
+            if (apiResponse?.code == 'SUCCESS') {
+              showToast(
+                '✅ Statut mis à jour vers: ' + newStatus.label,
+                'success',
+              )
+            } else {
+              showToast('❌ Erreur lors de la mise à jour du statut', 'error')
+            }
           }}
         />
       </Block>
@@ -221,6 +230,8 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
           </Text>
         </Button>
       )}
+
+      <ToastComponent />
     </Block>
   )
 }

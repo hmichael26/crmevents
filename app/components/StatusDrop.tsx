@@ -9,12 +9,15 @@ import {
   Alert,
 } from 'react-native'
 import { useApi } from '../context/useApi'
+import { useToast } from '../components/ToastComponent'
 
 const StatusDropdown = ({
   initialStatus = 'Nouveau',
   onStatusChange,
   itemId,
 }) => {
+  const { showToast, ToastComponent } = useToast()
+
   const [selectedStatus, setSelectedStatus] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -23,12 +26,13 @@ const StatusDropdown = ({
   // Liste des statuts disponibles - memoized pour éviter les recréations
   const statusOptions = useMemo(
     () => [
-      { id: 1, label: 'A affiner', value: 'a_affiner', color: '#FBCF33' }, // warning
-      { id: 2, label: 'Conclu', value: 'conclu', color: '#98EC2D' }, // success
-      { id: 3, label: 'Envoyer', value: 'envoyer', color: '#21D4FD' }, // info
-      { id: 4, label: 'Hot', value: 'hot', color: '#FF667C' }, // danger
-      { id: 5, label: 'Nouveau', value: 'nouveau', color: '#7928CA' }, // primary
-      { id: 6, label: 'Perdu', value: 'perdu', color: '#627594' }, // secondary
+      { id: 1, label: 'À affiner', value: 'a_affiner', color: '#4f37da' }, // À affiner
+
+      { id: 3, label: 'Envoyer', value: 'envoyer', color: '#690ec2' }, // Envoyer
+      { id: 4, label: 'Hot', value: 'hot', color: '#f025b6' }, // Hot
+      { id: 5, label: 'Nouveau', value: 'nouveau', color: '#03a9f5' }, // Nouveau
+
+      { id: 7, label: 'À valider', value: 'a_valider', color: '#404fe9' }, // Nouveau statut ajouté
     ],
     [],
   )
@@ -60,14 +64,16 @@ const StatusDropdown = ({
 
       try {
         const response = await updateSelect({
-          id: itemId,
-          status: newStatus.value,
+          id_evt: itemId,
+          statut: newStatus.value,
         })
 
-        if (response?.ok) {
+        console.log(response)
+
+        if (response?.code == 'SUCCESS') {
           setSelectedStatus(newStatus.value)
           onStatusChange?.(newStatus, response)
-          Alert.alert('Succès', `Statut mis à jour vers: ${newStatus.label}`)
+          showToast('✅ Statut mis à jour vers: ' + newStatus.label, 'success')
         } else {
           throw new Error('Erreur lors de la mise à jour')
         }
