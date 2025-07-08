@@ -171,68 +171,69 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
   }
 
   return (
-    <Block paddingHorizontal={sizes.padding}>
-      <Button
-        flex={1}
-        gradient={gradients.primary}
-        onPress={() => handlepush()}
-      >
-        <Text white bold transform="uppercase">
-          Detail de l'Evenement
-        </Text>
-      </Button>
-
-      <Block marginBottom={sizes.base} marginTop={sizes.base}>
-        <StatusDropdown
-          initialStatus={data?.type}
-          itemId={item.idevt}
-          onStatusChange={(newStatus, apiResponse) => {
-            if (apiResponse?.code == 'SUCCESS') {
-              showToast(
-                '✅ Statut mis à jour vers: ' + newStatus.label,
-                'success',
-              )
-            } else {
-              showToast('❌ Erreur lors de la mise à jour du statut', 'error')
-            }
-          }}
-        />
-      </Block>
-
-      {data &&
-        data.arrderoules.map((item: any, index: number) => (
-          <Button
-            flex={1}
-            gradient={gradients[itemGradients[index]]}
-            key={item.id || index}
-            marginBottom={sizes.base / 2}
-            onPress={() =>
-              handleNavigation('EventPresta', { ...item, isNew: false })
-            }
-          >
-            <Text white bold transform="uppercase">
-              {item.titre_deroule}
-            </Text>
-          </Button>
-        ))}
-
-      {data && data.arrderoules.length <= 5 && (
+    <>
+      <ToastComponent />
+      <Block paddingHorizontal={sizes.padding}>
         <Button
           flex={1}
-          gradient={gradients.light}
-          marginBottom={sizes.base}
-          onPress={() =>
-            handleNavigation('EventPresta', { ...item, isNew: true })
-          }
+          gradient={gradients.primary}
+          onPress={() => handlepush()}
         >
-          <Text bold transform="uppercase">
-            + Ajouter un Deroule
+          <Text white bold transform="uppercase">
+            Detail de l'Evenement
           </Text>
         </Button>
-      )}
 
-      <ToastComponent />
-    </Block>
+        <Block marginBottom={sizes.base} marginTop={sizes.base}>
+          <StatusDropdown
+            initialStatus={data?.type}
+            itemId={item.idevt}
+            onStatusChange={(newStatus, apiResponse) => {
+              if (apiResponse?.code == 'SUCCESS') {
+                showToast(
+                  '✅ Statut mis à jour vers: ' + newStatus.label,
+                  'success',
+                )
+              } else {
+                showToast('❌ Erreur lors de la mise à jour du statut', 'error')
+              }
+            }}
+          />
+        </Block>
+
+        {data &&
+          data.arrderoules.map((item: any, index: number) => (
+            <Button
+              flex={1}
+              gradient={gradients[itemGradients[index]]}
+              key={item.id || index}
+              marginBottom={sizes.base / 2}
+              onPress={() =>
+                handleNavigation('EventPresta', { ...item, isNew: false })
+              }
+            >
+              <Text white bold transform="uppercase">
+                {item.titre_deroule}
+              </Text>
+            </Button>
+          ))}
+
+        {data && data.arrderoules.length <= 5 && (
+          <Button
+            flex={1}
+            gradient={gradients.light}
+            marginBottom={sizes.base}
+            onPress={() =>
+              handleNavigation('EventPresta', { ...item, isNew: true })
+            }
+          >
+            <Text bold transform="uppercase">
+              + Ajouter un Deroule
+            </Text>
+          </Button>
+        )}
+      </Block>
+    </>
   )
 }
 
