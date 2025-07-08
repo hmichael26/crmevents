@@ -214,8 +214,8 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   statusText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '500',
     color: '#333333',
     letterSpacing: 0.5,
   },
@@ -257,10 +257,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F8FF',
   },
   dropdownItemText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#333333',
     marginLeft: 12,
-    fontWeight: '600',
+    fontWeight: '400',
   },
   selectedItemText: {
     fontWeight: '700',
