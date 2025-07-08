@@ -13,6 +13,7 @@ import { Block, Button, Text } from '../components/'
 import AuthContext from '../context/AuthContext'
 import { useApi } from '../context/useApi'
 import * as SecureStore from 'expo-secure-store'
+import StatusDropdown from '../components/StatusDrop'
 
 type RootStackParamList = {
   EventMenu: { item: ItemType }
@@ -62,6 +63,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
   const [data, setData] = useState<ItemType | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  console.log(item)
   // Charger les données à chaque fois que l'écran devient actif
   useFocusEffect(
     useCallback(() => {
@@ -171,7 +173,6 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
       <Button
         flex={1}
         gradient={gradients.primary}
-        marginBottom={sizes.base}
         onPress={() => handlepush()}
       >
         <Text white bold transform="uppercase">
@@ -179,13 +180,23 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
         </Text>
       </Button>
 
+      <Block marginBottom={sizes.base} marginTop={sizes.base}>
+        <StatusDropdown
+          initialStatus={data?.type}
+          itemId={item.id}
+          onStatusChange={(newStatus, apiResponse) => {
+            console.log('Nouveau statut:', newStatus)
+          }}
+        />
+      </Block>
+
       {data &&
         data.arrderoules.map((item: any, index: number) => (
           <Button
             flex={1}
             gradient={gradients[itemGradients[index]]}
             key={item.id || index}
-            marginBottom={sizes.base}
+            marginBottom={sizes.base / 2}
             onPress={() =>
               handleNavigation('EventPresta', { ...item, isNew: false })
             }

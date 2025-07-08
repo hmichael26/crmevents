@@ -176,6 +176,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             derouleTitle: titleFromResponse,
             fields: responseData.fields || prevData.fields,
           }))
+          console.log('responseData', responseData)
           setData0(responseData)
           setIsDataLoaded(true)
         }
