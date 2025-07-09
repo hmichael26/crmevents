@@ -196,7 +196,7 @@ const Home = (props: DrawerContentComponentProps) => {
           showsVerticalScrollIndicator={true}
           keyExtractor={(item, index) => index.toString()}
           style={{ paddingHorizontal: sizes.padding }}
-          contentContainerStyle={{ paddingBottom: sizes.l }}
+          contentContainerStyle={{ paddingBottom: 180 }}
           renderItem={({ item }) => (
             <TouchableWithoutFeedback onPress={() => goToEvtsScreen(item)}>
               <Block card padding={sizes.sm} marginTop={sizes.sm}>
