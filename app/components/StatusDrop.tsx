@@ -16,6 +16,7 @@ const StatusDropdown = ({
   onStatusChange,
   itemId,
 }) => {
+  console.log('initialStatus', initialStatus)
   const { showToast, ToastComponent } = useToast()
 
   const [selectedStatus, setSelectedStatus] = useState('')
@@ -27,8 +28,8 @@ const StatusDropdown = ({
   const statusOptions = useMemo(
     () => [
       { id: 5, label: 'Nouveau', value: 'Nouveau', color: '#03a9f5' }, // Nouveau
-      { id: 7, label: 'À valider', value: 'a_valider', color: '#404fe9' }, // Nouveau statut ajouté
-      { id: 1, label: 'À affiner', value: 'a_affiner', color: '#4f37da' }, // À affiner
+      { id: 7, label: 'A valider', value: 'a_valider', color: '#404fe9' }, // Nouveau statut ajouté
+      { id: 1, label: 'A affiner', value: 'a_affiner', color: '#4f37da' }, // À affiner
       { id: 3, label: 'Envoyé', value: 'Envoyer', color: '#690ec2' }, // Envoyer
       { id: 4, label: 'Hot', value: 'Hot', color: '#f025b6' }, // Hot
     ],

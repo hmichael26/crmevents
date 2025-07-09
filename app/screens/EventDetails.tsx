@@ -41,17 +41,39 @@ import { AuthContext } from '../context/AuthContext'
 import { useToast } from '../components/ToastComponent'
 
 type RootStackParamList = {
-  EventDetails: { item: ItemType } // Définir les paramètres de l'écran
+  EventDetails: { item?: ItemType } // item devient optionnel
 }
 
 type EventDetailsRouteProp = RouteProp<RootStackParamList, 'EventDetails'>
 
 interface ItemType {
-  evt: string
-  id: number
-  ref: number
-  name: string
-  description: string
+  idevt?: number
+  evt?: string
+  id?: number
+  ref?: number | string
+  name?: string
+  description?: string
+  date_reception?: any
+  pax?: string
+  zone?: string
+  types_evts?: any
+  date_deb?: any
+  date_fin?: any
+  flexible_dates?: boolean
+  budget?: string
+  commentaires_dates?: string
+  format?: string
+  clt?: string
+  ent?: string
+  clt_email?: string
+  clt_telfix?: string
+  clt_telport?: string
+  clt_infos?: string
+  publish_as_company?: any
+  list_clients?: any[]
+  commission_10?: boolean
+  commission_12?: boolean
+  commission_15?: boolean
 }
 
 interface EventDetailsProps {
@@ -109,9 +131,15 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
   const eventTypes = userdata.all_types_evts
 
-  const { item } = route.params
+  // Récupérer l'item des paramètres de route (peut être undefined)
+  const item = route?.params?.item || null
 
-  console.log(item)
+  // Déterminer si on est en mode création ou édition
+  const isCreatingNew = !item || !item.idevt
+  const eventRef = item?.ref || 'Nouveau'
+
+  // console.log('Item:', item)
+  // console.log('Mode création:', isCreatingNew)
 
   const navigation = useNavigation()
 
@@ -152,43 +180,79 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current
 
   const convertExistingClientsToFormat = (clients: any[]) => {
+    if (!clients || !Array.isArray(clients)) return []
     return clients.map((client) => ({
       id: parseInt(client.id_client),
       nom: `${client.prenom_client} ${client.nom_client}`.trim(),
     }))
   }
 
+  // Valeurs par défaut pour un nouvel événement
+  const getDefaultFormData1 = (): FormData1 => ({
+    idevt: undefined,
+    evt: '',
+    date_reception: new Date(),
+    ref: '',
+    pax: '',
+    zone: '',
+    types_evts: [],
+    date_deb: null,
+    date_fin: null,
+    flexible_dates: false,
+    budget: '',
+    commentaires_dates: '',
+    format: '',
+  })
+
+  const getDefaultFormData2 = (): FormData2 => ({
+    idevt: undefined,
+    clt: '',
+    ent: '',
+    clt_email: '',
+    clt_telfix: '',
+    clt_telport: '',
+    clt_infos: '',
+    publish_as_company: false,
+    clients: [],
+  })
+
+  const getDefaultFormData3 = (): FormData3 => ({
+    idevt: undefined,
+    commission_10: false,
+    commission_12: false,
+    commission_15: false,
+  })
+
   const [formData, setFormData] = useState<FormData1>(() => {
-    if (item) {
+    if (item && !isCreatingNew) {
       return {
-        idevt: item.idevt || '',
+        idevt: item.idevt || undefined,
         evt: item.evt || '',
         date_reception:
           item.date_reception instanceof Date
-            ? item.date_reception // Si c'est déjà une date, utilise-la
+            ? item.date_reception
             : item.date_reception
-            ? parseDate(item.date_reception) // Sinon, applique le parsing
-            : null, // Si aucune date, retourne null
-
-        ref: item.ref || '',
+            ? parseDate(item.date_reception)
+            : null,
+        ref: item.ref?.toString() || '',
         pax: item.pax || '',
         zone: item.zone || '',
         types_evts: Array.isArray(item?.types_evts)
-          ? item.types_evts // Si c'est déjà un tableau, utilise-le directement
+          ? item.types_evts
           : item.types_evts
-          ? parseSelectedIds(item?.types_evts) // Sinon, applique le parsing
+          ? parseSelectedIds(item?.types_evts)
           : [],
         date_deb:
           item.date_deb instanceof Date
-            ? item.date_deb // Si c'est déjà une date, utilise-la
+            ? item.date_deb
             : item.date_deb
-            ? parseDate(item.date_deb) // Sinon, applique le parsing
+            ? parseDate(item.date_deb)
             : null,
         date_fin:
           item.date_fin instanceof Date
-            ? item.date_fin // Si c'est déjà une date, utilise-la
+            ? item.date_fin
             : item.date_fin
-            ? parseDate(item.date_fin) // Sinon, applique le parsing
+            ? parseDate(item.date_fin)
             : null,
         flexible_dates: item.flexible_dates || false,
         budget: item.budget || '',
@@ -196,13 +260,13 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
         format: item.format || '',
       }
     }
-    return {}
+    return getDefaultFormData1()
   })
 
   const [formData2, setFormData2] = useState<FormData2>(() => {
-    if (item) {
+    if (item && !isCreatingNew) {
       return {
-        idevt: item.idevt || '',
+        idevt: item.idevt || undefined,
         clt: item.clt || '',
         ent: item.ent || '',
         clt_email: item.clt_email || '',
@@ -213,19 +277,19 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
         clients: convertExistingClientsToFormat(item.list_clients) || [],
       }
     }
-    return {}
+    return getDefaultFormData2()
   })
 
   const [formData3, setFormData3] = useState<FormData3>(() => {
-    if (item) {
+    if (item && !isCreatingNew) {
       return {
-        idevt: item.idevt || '',
+        idevt: item.idevt || undefined,
         commission_10: item.commission_10 || false,
         commission_12: item.commission_12 || false,
         commission_15: item.commission_15 || false,
       }
     }
-    return {}
+    return getDefaultFormData3()
   })
 
   const FormIds = (data: any) => {
@@ -267,7 +331,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     }
 
     const combinedData: Record<string, any> = {
-      idevt: formData.idevt,
+      // Inclure l'ID seulement si on édite un événement existant
+      ...(formData.idevt && { idevt: formData.idevt }),
       nom: formData.evt,
       date_reception: formData.date_reception,
       ref: formData.ref,
@@ -323,9 +388,22 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     return formData
   }
 
-  const handleSaveForm = () => {
-    showToast('✅ Données sauvegardées avec succès !', 'success')
-    validForm(formDataObj)
+  const handleSaveForm = async () => {
+    try {
+      const actionText = isCreatingNew ? 'créé' : 'modifié'
+      showToast(`✅ Événement ${actionText} avec succès !`, 'success')
+
+      await validForm(formDataObj)
+
+      // Optionnel : rediriger vers la liste des événements après création
+      if (isCreatingNew) {
+        // navigation.navigate('Home') // ou navigation.goBack()
+      }
+    } catch (error) {
+      const actionText = isCreatingNew ? 'création' : 'modification'
+      showToast(`❌ Erreur lors de la ${actionText} de l'événement`, 'error')
+      console.error('Erreur sauvegarde:', error)
+    }
   }
 
   useEffect(() => {
@@ -371,7 +449,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       <View style={{ marginHorizontal: 30 }}>
         <Button gradient={gradients.primary} marginBottom={sizes.base}>
           <Text white transform="uppercase" size={18}>
-            Détails de l'Event {item.ref}
+            {isCreatingNew
+              ? 'Nouveau projet'
+              : `Détails de l'Event ${eventRef}`}
           </Text>
         </Button>
 
@@ -407,6 +487,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
           >
             <Text white transform="uppercase" size={15}>
               Clients
+              {isCreatingNew && ' + '}
             </Text>
           </Button>
           <Button
@@ -481,7 +562,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
               onPress={handleSaveForm}
             >
               <Text white transform="uppercase" size={getFontSize(13)}>
-                Sauvegarder
+                {isCreatingNew ? 'Créer' : 'Sauvegarder'}
               </Text>
             </Button>
           </View>

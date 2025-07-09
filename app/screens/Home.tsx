@@ -5,6 +5,7 @@ import {
   Image,
   TouchableWithoutFeedback,
   Alert,
+  RefreshControl, // Ajout de RefreshControl
 } from 'react-native'
 import { useData, useTheme } from '../hooks/'
 import { Block, Button, Input, Text } from '../components/'
@@ -35,7 +36,7 @@ const Home = (props: DrawerContentComponentProps) => {
   const [products, setProducts] = useState(following)
   const { colors, gradients, sizes } = useTheme()
   const {
-    isloading,
+    isLoading,
     location,
     userdata,
     usertoken,
@@ -47,6 +48,9 @@ const Home = (props: DrawerContentComponentProps) => {
   const [filteredEvents, setFilteredEvents] = useState([])
   const [categories, setCategories] = useState<ICategory[]>([])
   const [active, setActive] = useState('')
+
+  // État pour gérer le refresh
+  const [refreshing, setRefreshing] = useState(false)
 
   const handleProducts = useCallback(
     (tab: number) => {
@@ -114,6 +118,24 @@ const Home = (props: DrawerContentComponentProps) => {
     )
   }
 
+  // Fonction pour gérer le refresh
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      await getUserData(usertoken) // Passer le token explicitement
+    } catch (error) {
+      console.error('Erreur lors du refresh:', error)
+      // Optionnel : afficher une alerte d'erreur à l'utilisateur
+      Alert.alert(
+        'Erreur',
+        'Impossible de rafraîchir les données. Veuillez réessayer.',
+        [{ text: 'OK' }],
+      )
+    } finally {
+      setRefreshing(false)
+    }
+  }, [getUserData, usertoken])
+
   const newEvents = userdata?.newevts ? userdata?.newevts : []
 
   const handleTextChange = _.throttle((event) => {
@@ -131,6 +153,14 @@ const Home = (props: DrawerContentComponentProps) => {
         keyExtractor={(item, index) => index.toString()}
         style={{ paddingVertical: sizes.padding }}
         contentContainerStyle={{ paddingBottom: sizes.l }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing || isLoading}
+            onRefresh={onRefresh}
+            colors={[colors.primary]} // Couleur du spinner sur Android
+            tintColor={colors.primary} // Couleur du spinner sur iOS
+          />
+        }
         renderItem={({ item }) => (
           <View style={{ flex: 1 }}>
             <EventCard item={item} navigation={navigation} />
@@ -197,6 +227,14 @@ const Home = (props: DrawerContentComponentProps) => {
           keyExtractor={(item, index) => index.toString()}
           style={{ paddingHorizontal: sizes.padding }}
           contentContainerStyle={{ paddingBottom: 180 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing || isLoading}
+              onRefresh={onRefresh}
+              colors={[colors.primary]} // Couleur du spinner sur Android
+              tintColor={colors.primary} // Couleur du spinner sur iOS
+            />
+          }
           renderItem={({ item }) => (
             <TouchableWithoutFeedback onPress={() => goToEvtsScreen(item)}>
               <Block card padding={sizes.sm} marginTop={sizes.sm}>

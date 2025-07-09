@@ -100,6 +100,11 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
       to: 'Prestataire',
       icon: assets.office,
     },
+    admin == 1 && {
+      name: 'NOUVEAU PROJET',
+      to: 'Eventdetails',
+      icon: assets.document,
+    },
   ].filter(Boolean) // Cela supprime toutes les valeurs `falsy` du tableau
 
   return (
