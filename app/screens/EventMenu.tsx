@@ -20,7 +20,6 @@ type RootStackParamList = {
   EventMenu: { item: ItemType }
   Eventdetails: { item: ItemType }
   EventPresta: { item: ItemType }
-  // Ajouter d'autres écrans si nécessaire
 }
 
 interface ItemType {

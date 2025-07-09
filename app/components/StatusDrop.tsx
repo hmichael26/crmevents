@@ -26,12 +26,12 @@ const StatusDropdown = ({
   // Liste des statuts disponibles - memoized pour éviter les recréations
   const statusOptions = useMemo(
     () => [
-      { id: 5, label: 'Nouveau', value: 'nouveau', color: '#03a9f5' }, // Nouveau
+      { id: 5, label: 'Nouveau', value: 'Nouveau', color: '#03a9f5' }, // Nouveau
       { id: 7, label: 'À valider', value: 'a_valider', color: '#404fe9' }, // Nouveau statut ajouté
       { id: 1, label: 'À affiner', value: 'a_affiner', color: '#4f37da' }, // À affiner
 
-      { id: 3, label: 'Envoyer', value: 'envoyer', color: '#690ec2' }, // Envoyer
-      { id: 4, label: 'Hot', value: 'hot', color: '#f025b6' }, // Hot
+      { id: 3, label: 'Envoyer', value: 'Envoyer', color: '#690ec2' }, // Envoyer
+      { id: 4, label: 'Hot', value: 'Hot', color: '#f025b6' }, // Hot
     ],
     [],
   )
