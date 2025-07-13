@@ -35,73 +35,81 @@ type Form1Props = {
   onDataChange: (data: FormData, type: string) => void
 }
 
-// Helper function to convert date-like input to Date object
-const parseDate = (date?: Date | string): Date => {
-  if (date instanceof Date) return date
+// Fonction helper pour formater les dates d'affichage
+const formatDateForDisplay = (date: any): string => {
+  if (!date) return '' // Retourne une chaîne vide si pas de date
+
+  if (date instanceof Date) {
+    return date.toLocaleDateString()
+  }
+
+  // Si c'est une string, essaie de la parser
   if (typeof date === 'string') {
     const parsedDate = new Date(date)
-    return isNaN(parsedDate.getTime()) ? new Date() : parsedDate
+    return isNaN(parsedDate.getTime()) ? '' : parsedDate.toLocaleDateString()
   }
-  return new Date()
+
+  return ''
+}
+
+// Fonction helper pour parser les dates
+const parseDate = (date?: Date | string): Date | null => {
+  if (!date) return null
+
+  if (date instanceof Date) return date
+
+  if (typeof date === 'string') {
+    const parsedDate = new Date(date)
+    return isNaN(parsedDate.getTime()) ? null : parsedDate
+  }
+
+  return null
+}
+
+// Fonction helper pour parser les IDs sélectionnés
+const parseSelectedIds = (typesEvts: string | null | undefined): string[] => {
+  if (!typesEvts) return []
+
+  return typesEvts
+    .split(',')
+    .map((id) => id.trim())
+    .filter((id) => id !== '')
 }
 
 const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
-  const parseSelectedIds = (typesEvts: string | null | undefined): string[] => {
-    // Cas null ou undefined
-    if (!typesEvts) return []
-
-    return typesEvts
-      .split(',') // Sépare les éléments par la virgule
-      .map((id) => id.trim()) // Enlève les espaces autour de chaque élément
-      .filter((id) => id !== '') // Supprime les éléments vides
-  }
-
+  // Initialisation du state avec gestion propre des dates
   const [formData, setFormData] = useState<FormData>({
-    idevt: item.idevt || '',
+    idevt: item.idevt || 0,
     evt: item.evt || '',
-    date_reception:
-      item.date_reception instanceof Date
-        ? item.date_reception // Si c'est déjà une date, utilise-la
-        : item.date_reception
-        ? parseDate(item.date_reception) // Sinon, applique le parsing
-        : null, // Si aucune date, retourne null
-
+    date_reception: parseDate(item.date_reception),
     ref: item.ref || '',
     pax: item.pax || '',
     zone: item.zone || '',
     types_evts: Array.isArray(item?.types_evts)
-      ? item.types_evts // Si c'est déjà un tableau, utilise-le directement
+      ? item.types_evts
       : item.types_evts
-      ? parseSelectedIds(item?.types_evts) // Sinon, applique le parsing
+      ? parseSelectedIds(item?.types_evts)
       : [],
-    date_deb:
-      item.date_deb instanceof Date
-        ? item.date_deb // Si c'est déjà une date, utilise-la
-        : item.date_deb
-        ? parseDate(item.date_deb) // Sinon, applique le parsing
-        : null,
-    date_fin:
-      item.date_fin instanceof Date
-        ? item.date_fin // Si c'est déjà une date, utilise-la
-        : item.date_fin
-        ? parseDate(item.date_fin) // Sinon, applique le parsing
-        : null,
+    date_deb: parseDate(item.date_deb),
+    date_fin: parseDate(item.date_fin),
     flexible_dates: item.flexible_dates || false,
     budget: item.budget || '',
     commentaires_dates: item.commentaires_dates || '',
     format: item.format || '',
   })
 
-  //console.log(formData.types_evts,item.types_evts.split(','),eventTypes)
+  // États pour le DateTimePicker
   const [show, setShow] = useState(false)
   const [currentDatePicker, setCurrentDatePicker] = useState<
     'date_reception' | 'date_deb' | 'date_fin'
   >('date_reception')
 
+  // Effect pour notifier les changements au parent
   useEffect(() => {
     onDataChange(formData, 'form1')
   }, [formData])
 
+  // Fonction pour mettre à jour un champ
   const updateFormField = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({
       ...prev,
@@ -109,23 +117,16 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
     }))
   }
 
+  // Gestion du changement de date
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    const currentDate = selectedDate || new Date()
     setShow(false)
 
-    switch (currentDatePicker) {
-      case 'date_reception':
-        updateFormField('date_reception', currentDate)
-        break
-      case 'date_deb':
-        updateFormField('date_deb', currentDate)
-        break
-      case 'date_fin':
-        updateFormField('date_fin', currentDate)
-        break
+    if (selectedDate) {
+      updateFormField(currentDatePicker, selectedDate)
     }
   }
 
+  // Affichage du DateTimePicker
   const showDatepicker = (
     datePickerType: 'date_reception' | 'date_deb' | 'date_fin',
   ) => {
@@ -133,48 +134,71 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
     setShow(true)
   }
 
+  // Gestion des sélections multiples
   const handleSelectionChange = (selectedIds: string[]) => {
     updateFormField('types_evts', selectedIds)
   }
 
+  // Préparation des options pour MultiSelect
   const options = Array.isArray(eventTypes)
     ? eventTypes.map((item) => ({ id: item.id, label: item.libelle }))
     : eventTypes
     ? [{ id: eventTypes.id, label: eventTypes.libelle }]
     : []
 
+  // Fonction pour obtenir la date actuelle pour le DateTimePicker
+  const getCurrentPickerDate = (): Date => {
+    let currentDate: Date | null = null
+
+    switch (currentDatePicker) {
+      case 'date_reception':
+        currentDate = formData.date_reception
+        break
+      case 'date_deb':
+        currentDate = formData.date_deb
+        break
+      case 'date_fin':
+        currentDate = formData.date_fin
+        break
+    }
+
+    return currentDate instanceof Date ? currentDate : new Date()
+  }
+
   return (
     <View style={styles.container}>
+      {/* Titre de l'événement */}
       <TextInputWithIcon
         placeholder="Titre de l'Event"
         value={formData.evt}
         onChangeText={(text) => updateFormField('evt', text)}
       />
 
+      {/* Date de création et référence */}
       <View style={styles.inputContainer}>
         <TextInputWithIcon
           iconName="calendar"
           placeholder="Date de creation"
           editable={false}
-          value={
-            formData.date_reception instanceof Date
-              ? formData.date_reception.toLocaleDateString()
-              : new Date(formData.date_reception).toLocaleDateString()
-          }
-          style={{ width: '50%' }}
+          value={formatDateForDisplay(formData.date_reception)}
+          style={[formData.idevt != 0 ? { width: '50%' } : { width: '100%' }]}
           onPress={() => showDatepicker('date_reception')}
         />
 
-        <TextInputWithIcon
-          placeholder="REF Projet : 931"
-          style={{ width: '50%' }}
-          value={formData.ref}
-          onChangeText={(text) => updateFormField('ref', text)}
-          editable={false}
-          selectTextOnFocus={false}
-          pointerEvents="none"
-        />
+        {formData.idevt != 0 && (
+          <TextInputWithIcon
+            placeholder="REF Projet"
+            style={{ width: '50%' }}
+            value={formData.ref}
+            onChangeText={(text) => updateFormField('ref', text)}
+            editable={false}
+            selectTextOnFocus={false}
+            pointerEvents="none"
+          />
+        )}
       </View>
+
+      {/* Pax et Zone géographique */}
       <View style={styles.inputContainer}>
         <TextInputWithIcon
           iconName="mail"
@@ -191,6 +215,8 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           onChangeText={(text) => updateFormField('zone', text)}
         />
       </View>
+
+      {/* Sélection multiple des types d'événements */}
       <View>
         <MultiSelect
           options={options}
@@ -199,16 +225,13 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
         />
       </View>
 
+      {/* Dates de début et fin */}
       <View style={styles.inputContainer}>
         <TextInputWithIcon
           iconName="calendar"
           placeholder="Début"
           editable={false}
-          value={
-            formData.date_deb instanceof Date
-              ? formData.date_deb.toLocaleDateString()
-              : new Date(formData.date_deb).toLocaleDateString()
-          }
+          value={formatDateForDisplay(formData.date_deb)}
           style={{ width: '50%' }}
           onPress={() => showDatepicker('date_deb')}
         />
@@ -216,15 +239,13 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           iconName="calendar"
           placeholder="Fin"
           editable={false}
-          value={
-            formData.date_fin instanceof Date
-              ? formData.date_fin.toLocaleDateString()
-              : new Date(formData.date_fin).toLocaleDateString()
-          }
+          value={formatDateForDisplay(formData.date_fin)}
           style={{ width: '50%' }}
           onPress={() => showDatepicker('date_fin')}
         />
       </View>
+
+      {/* Switch dates flexibles et Budget */}
       <View style={styles.inputContainer}>
         <SwitchTextBox
           label="Dates flexibles"
@@ -240,56 +261,39 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           value={formData.budget}
           onChangeText={(text) => updateFormField('budget', text)}
         />
-
-        {show && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={
-              currentDatePicker === 'date_reception'
-                ? formData.date_reception instanceof Date
-                  ? formData.date_reception
-                  : new Date(formData.date_reception)
-                : currentDatePicker === 'date_deb'
-                ? formData.date_deb instanceof Date
-                  ? formData.date_deb
-                  : new Date(formData.date_deb)
-                : formData.date_fin instanceof Date
-                ? formData.date_fin
-                : new Date(formData.date_fin)
-            }
-            mode="date"
-            is24Hour={true}
-            display="default"
-            onChange={onChange}
-          />
-        )}
       </View>
 
+      {/* Commentaire pour le prestataire */}
       <TextInputWithIcon
         placeholder="Commentaire pour le prestataire"
         multiline
         numberOfLines={4}
-        style={{
-          height: 100,
-          borderColor: '#ccc',
-          borderWidth: 2,
-        }}
+        style={styles.textArea}
         value={formData.commentaires_dates}
         onChangeText={(text) => updateFormField('commentaires_dates', text)}
       />
 
+      {/* Commentaire personnel */}
       <TextInputWithIcon
         placeholder="Commentaire Personnel"
         multiline
         numberOfLines={4}
-        style={{
-          height: 100,
-          borderColor: '#ccc',
-          borderWidth: 2,
-        }}
+        style={styles.textArea}
         value={formData.format}
         onChangeText={(text) => updateFormField('format', text)}
       />
+
+      {/* DateTimePicker */}
+      {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={getCurrentPickerDate()}
+          mode="date"
+          is24Hour={true}
+          display="default"
+          onChange={onChange}
+        />
+      )}
     </View>
   )
 }
@@ -307,6 +311,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     width: '100%',
     gap: 4,
+  },
+  textArea: {
+    height: 100,
+    borderColor: '#ccc',
+    borderWidth: 2,
   },
 })
 

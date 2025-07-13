@@ -238,6 +238,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 
 const EventMenu: React.FC<EventMenuProps> = ({ route }) => {
   const { item } = route.params
+  console.log(item)
   const { sizes } = useTheme()
   const navigation = useNavigation<EventMenuNavigationProp>()
 
@@ -267,7 +268,7 @@ const EventMenu: React.FC<EventMenuProps> = ({ route }) => {
               transform="uppercase"
               style={{ flex: 1, justifyContent: 'center', flexWrap: 'wrap' }}
             >
-              {item.evt}
+              {item?.evt}
             </Text>
             <Buttons item={item} navigation={navigation} />
           </Block>

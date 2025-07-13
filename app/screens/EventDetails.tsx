@@ -400,21 +400,29 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       }
 
       /*  // Validation : le nom est obligatoire en mode édition aussi
-      if (!formData.evt || formData.evt.trim() === '') {
-        showToast("❌ Le nom de l'événement est obligatoire", 'error')
-        return
-      }*/
+    if (!formData.evt || formData.evt.trim() === '') {
+      showToast("❌ Le nom de l'événement est obligatoire", 'error')
+      return
+    }*/
 
+      // Appel de la fonction de validation/sauvegarde
+      const response = await validForm(formDataObj)
+
+      // Affichage du toast de succès seulement après validation réussie
       const actionText = isCreatingNew ? 'créé' : 'modifié'
       showToast(`✅ Événement ${actionText} avec succès !`, 'success')
 
-      console.log('FormData:', formDataObj)
-      const response = await validForm(formDataObj)
+      console.log(response.idevt)
 
-      console.log(response)
       // Optionnel : rediriger vers la liste des événements après création
       if (isCreatingNew) {
-        // navigation.navigate('Home') // ou navigation.goBack()
+        console.log(formDataObj)
+        navigation.navigate('EventMenu', {
+          item: {
+            evt: formData.evt,
+            idevt: response.idevt,
+          },
+        })
       }
     } catch (error) {
       const actionText = isCreatingNew ? 'création' : 'modification'
