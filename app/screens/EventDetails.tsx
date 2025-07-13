@@ -189,7 +189,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
   // Valeurs par défaut pour un nouvel événement
   const getDefaultFormData1 = (): FormData1 => ({
-    idevt: undefined,
+    idevt: 0, // Fixé à 0 pour la création
     evt: '',
     date_reception: new Date(),
     ref: '',
@@ -205,7 +205,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   })
 
   const getDefaultFormData2 = (): FormData2 => ({
-    idevt: undefined,
+    idevt: 0, // Fixé à 0 pour la création
     clt: '',
     ent: '',
     clt_email: '',
@@ -217,7 +217,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   })
 
   const getDefaultFormData3 = (): FormData3 => ({
-    idevt: undefined,
+    idevt: 0, // Fixé à 0 pour la création
     commission_10: false,
     commission_12: false,
     commission_15: false,
@@ -331,8 +331,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     }
 
     const combinedData: Record<string, any> = {
-      // Inclure l'ID seulement si on édite un événement existant
-      ...(formData.idevt && { idevt: formData.idevt }),
+      // Pour la création, on fixe idevt à 0, sinon on utilise l'ID existant
+      idevt: isCreatingNew ? 0 : formData.idevt,
       nom: formData.evt,
       date_reception: formData.date_reception,
       ref: formData.ref,
@@ -358,12 +358,15 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       clients: FormIds(formData2.clients),
     }
 
-    // Supprimer les clés avec des valeurs nulles ou indéfinies
-    Object.keys(combinedData).forEach(
-      (key) =>
-        (combinedData[key] === null || combinedData[key] === undefined) &&
-        delete combinedData[key],
-    )
+    // Supprimer les clés avec des valeurs nulles ou indéfinies (sauf idevt pour la création)
+    Object.keys(combinedData).forEach((key) => {
+      if (
+        key !== 'idevt' &&
+        (combinedData[key] === null || combinedData[key] === undefined)
+      ) {
+        delete combinedData[key]
+      }
+    })
 
     return combinedData
   }
@@ -390,11 +393,25 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
   const handleSaveForm = async () => {
     try {
+      // Validation : le nom est obligatoire en mode création
+      if (isCreatingNew && (!formData.evt || formData.evt.trim() === '')) {
+        showToast("❌ Le nom de l'événement est obligatoire", 'error')
+        return
+      }
+
+      /*  // Validation : le nom est obligatoire en mode édition aussi
+      if (!formData.evt || formData.evt.trim() === '') {
+        showToast("❌ Le nom de l'événement est obligatoire", 'error')
+        return
+      }*/
+
       const actionText = isCreatingNew ? 'créé' : 'modifié'
       showToast(`✅ Événement ${actionText} avec succès !`, 'success')
 
-      await validForm(formDataObj)
+      console.log('FormData:', formDataObj)
+      const response = await validForm(formDataObj)
 
+      console.log(response)
       // Optionnel : rediriger vers la liste des événements après création
       if (isCreatingNew) {
         // navigation.navigate('Home') // ou navigation.goBack()
@@ -487,7 +504,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
           >
             <Text white transform="uppercase" size={15}>
               Clients
-              {isCreatingNew && ' + '}
             </Text>
           </Button>
           <Button

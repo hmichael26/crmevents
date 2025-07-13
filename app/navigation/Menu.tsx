@@ -100,13 +100,11 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
       to: 'Prestataire',
       icon: assets.office,
     },
-    admin == 1 && {
-      name: 'NOUVEAU PROJET',
-      to: 'Eventdetails',
-      icon: assets.document,
-    },
   ].filter(Boolean) // Cela supprime toutes les valeurs `falsy` du tableau
 
+  const handleNewProject = () => {
+    navigation.navigate('Eventdetails')
+  }
   return (
     <DrawerContentScrollView
       {...props}
@@ -173,6 +171,19 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
           marginVertical={sizes.sm}
           gradient={gradients.menu}
         />
+
+        {admin == 1 && (
+          <Button
+            row
+            justify="center"
+            onPress={handleNewProject}
+            gradient={gradients.info}
+          >
+            <Text p color={colors.white} size={15} center>
+              NOUVEAU PROJET +
+            </Text>
+          </Button>
+        )}
 
         <Button
           row

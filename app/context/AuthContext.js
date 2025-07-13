@@ -263,6 +263,7 @@ export const AuthProvider = ({ children }) => {
         timeout: 70000, // Timeout étendu
       })
 
+      //  console.log('FormData:', response)
       if (response.data.code === 'SUCCESS') {
         await getUserData(usertoken)
         callback?.()

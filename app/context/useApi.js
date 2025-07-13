@@ -82,6 +82,7 @@ export const useApi = () => {
   const getClient = (data) => makeRequest('search-client', data)
   const udpateClient = (data) => makeRequest('update-client', data)
   const updateSelect = (data) => makeRequest('update-statut', data)
+  const getProjetcs = (data) => makeRequest('get-projects', data)
 
   //   const addPresta = (data) => makeRequest('add-presta-interroge', data);
 
@@ -121,6 +122,7 @@ export const useApi = () => {
     getClient,
     udpateClient,
     updateSelect,
+    getProjetcs,
     // ... autres actions
   }
 }
