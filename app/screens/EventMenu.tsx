@@ -72,8 +72,9 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
         setIsLoading(true)
         console.log("Rechargement des données de l'événement")
 
-        getevent({ idevt: item.idevt, token: storedToken })
+        getevent({ idevt: item.idevt })
           .then((response) => {
+            //console.log(response.data)
             setData(response.data)
           })
           .catch((error) => {
@@ -133,7 +134,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
         },
         {
           text: 'OK',
-          onPress: () => handleNavigation('Eventdetails', item),
+          onPress: () => handleNavigation('Eventdetails', data), // Utilisez `data` au lieu de `item`
         },
       ],
       { cancelable: true },
@@ -145,7 +146,11 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
       const value = await getevent({ idevt: item.idevt, token: storedToken })
 
       if (value.data) {
-        handleNavigation('Eventdetails', value.data)
+        // Passez toutes les données de l'événement, pas seulement evt et idevt
+        handleNavigation('Eventdetails', {
+          ...value.data,
+          idevt: value.data.idevt || item.idevt, // Assurez-vous que idevt est présent
+        })
         return
       } else {
         return
@@ -163,10 +168,6 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
         </Text2>
       </View>
     )
-  }
-
-  if (!data.arrderoules || data.arrderoules.length === 0) {
-    return <Text p>Aucun deroule associé à cet évènement</Text>
   }
 
   return (
@@ -238,11 +239,11 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 
 const EventMenu: React.FC<EventMenuProps> = ({ route }) => {
   const { item } = route.params
-  console.log(item)
+  // console.log(item)
   const { sizes } = useTheme()
   const navigation = useNavigation<EventMenuNavigationProp>()
 
-  // console.log(item)
+  //console.log(item)
 
   return (
     <SafeAreaView

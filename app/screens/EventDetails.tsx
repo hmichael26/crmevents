@@ -136,6 +136,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
   // Déterminer si on est en mode création ou édition
   const isCreatingNew = !item || !item.idevt
+
   const eventRef = item?.ref || 'Nouveau'
 
   // console.log('Item:', item)
@@ -226,7 +227,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   const [formData, setFormData] = useState<FormData1>(() => {
     if (item && !isCreatingNew) {
       return {
-        idevt: item.idevt || undefined,
+        idevt: item?.idevt || 0,
         evt: item.evt || '',
         date_reception:
           item.date_reception instanceof Date
@@ -291,6 +292,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     }
     return getDefaultFormData3()
   })
+
+  console.log(isCreatingNew, item, formData)
 
   const FormIds = (data: any) => {
     if (data) {
@@ -412,12 +415,12 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       const actionText = isCreatingNew ? 'créé' : 'modifié'
       showToast(`✅ Événement ${actionText} avec succès !`, 'success')
 
-      console.log(response.idevt)
+      //   console.log(response.idevt)
 
       // Optionnel : rediriger vers la liste des événements après création
       if (isCreatingNew) {
-        console.log(formDataObj)
-        navigation.navigate('EventMenu', {
+        // console.log(formDataObj)
+        navigation.replace('EventMenu', {
           item: {
             evt: formData.evt,
             idevt: response.idevt,

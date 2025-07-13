@@ -77,6 +77,7 @@ const parseSelectedIds = (typesEvts: string | null | undefined): string[] => {
 }
 
 const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
+  console.log(item.idevt)
   // Initialisation du state avec gestion propre des dates
   const [formData, setFormData] = useState<FormData>({
     idevt: item.idevt || 0,
@@ -164,6 +165,8 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
 
     return currentDate instanceof Date ? currentDate : new Date()
   }
+
+  console.log(formData.idevt, item)
 
   return (
     <View style={styles.container}>
