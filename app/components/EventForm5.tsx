@@ -216,10 +216,10 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
                 style={{
                   fontSize: 20,
                   color: colors.danger,
-                  fontWeight: 'bold',
+                  fontWeight: '600',
                 }}
               >
-                X
+                x
               </Text>
             </TouchableOpacity>
             <DateField
@@ -247,10 +247,10 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
                 style={{
                   fontSize: 20,
                   color: colors.danger,
-                  fontWeight: 'bold',
+                  fontWeight: '600',
                 }}
               >
-                X
+                x
               </Text>
             </TouchableOpacity>
             <TextInput
@@ -287,10 +287,10 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
                 style={{
                   fontSize: 20,
                   color: colors.danger,
-                  fontWeight: 'bold',
+                  fontWeight: '600',
                 }}
               >
-                X
+                x
               </Text>
             </TouchableOpacity>
             <Picker
