@@ -187,7 +187,7 @@ export const useToast = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 10,
+    top: 0,
     left: 20,
     right: 20,
     zIndex: 9999,

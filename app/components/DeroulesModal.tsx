@@ -180,7 +180,7 @@ const DeroulesModal: React.FC<DeroulesModalProps> = ({
           <Text style={styles.modalTitle}>
             {selectedArrDeroule
               ? 'Sélectionner un déroulé'
-              : 'Sélectionner un groupe de déroulés'}
+              : 'Sélectionner un projet'}
           </Text>
 
           {isLoadingData ? (
