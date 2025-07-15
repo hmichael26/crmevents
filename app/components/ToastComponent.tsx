@@ -14,27 +14,39 @@ const Toast = ({
   visible,
   message,
   type = 'success',
-  duration = 3000,
+  duration = 1000,
   onHide,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current
-  const slideAnim = useRef(new Animated.Value(-100)).current
+  const slideAnim = useRef(new Animated.Value(-80)).current
+  const progressAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
     if (visible) {
+      // Reset progress
+      progressAnim.setValue(0)
+
       // Animation d'entrée
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 300,
+          duration: 500,
           useNativeDriver: true,
         }),
-        Animated.timing(slideAnim, {
+        Animated.spring(slideAnim, {
           toValue: 0,
-          duration: 300,
+          tension: 80,
+          friction: 10,
           useNativeDriver: true,
         }),
       ]).start()
+
+      // Animation de la barre de progression
+      Animated.timing(progressAnim, {
+        toValue: 1,
+        duration: duration,
+        useNativeDriver: false,
+      }).start()
 
       // Auto-hide après la durée spécifiée
       const timer = setTimeout(() => {
@@ -43,18 +55,18 @@ const Toast = ({
 
       return () => clearTimeout(timer)
     }
-  }, [visible, duration]) // Ajout de duration dans les dépendances
+  }, [visible, duration])
 
   const hideToast = useCallback(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 300,
+        duration: 250,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
-        toValue: -100,
-        duration: 300,
+        toValue: -80,
+        duration: 250,
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -62,37 +74,64 @@ const Toast = ({
     })
   }, [fadeAnim, slideAnim, onHide])
 
-  const getToastStyle = () => {
+  const getToastConfig = () => {
     switch (type) {
       case 'success':
-        return styles.successToast
+        return {
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Transparence ajoutée
+          borderColor: '#22C55E',
+          textColor: '#1F2937',
+          iconBg: 'rgba(220, 252, 231, 0.8)', // Transparence ajoutée
+          iconColor: '#22C55E',
+          icon: '✓',
+          progressColor: '#22C55E',
+        }
       case 'error':
-        return styles.errorToast
+        return {
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Transparence ajoutée
+          borderColor: '#EF4444',
+          textColor: '#1F2937',
+          iconBg: 'rgba(254, 226, 226, 0.8)', // Transparence ajoutée
+          iconColor: '#EF4444',
+          icon: '✕',
+          progressColor: '#EF4444',
+        }
       case 'warning':
-        return styles.warningToast
+        return {
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Transparence ajoutée
+          borderColor: '#F59E0B',
+          textColor: '#1F2937',
+          iconBg: 'rgba(254, 243, 199, 0.8)', // Transparence ajoutée
+          iconColor: '#F59E0B',
+          icon: '⚠',
+          progressColor: '#F59E0B',
+        }
       case 'info':
-        return styles.infoToast
+        return {
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Transparence ajoutée
+          borderColor: '#3B82F6',
+          textColor: '#1F2937',
+          iconBg: 'rgba(219, 234, 254, 0.8)', // Transparence ajoutée
+          iconColor: '#3B82F6',
+          icon: 'ℹ',
+          progressColor: '#3B82F6',
+        }
       default:
-        return styles.successToast
-    }
-  }
-
-  const getTextStyle = () => {
-    switch (type) {
-      case 'success':
-        return styles.successText
-      case 'error':
-        return styles.errorText
-      case 'warning':
-        return styles.warningText
-      case 'info':
-        return styles.infoText
-      default:
-        return styles.successText
+        return {
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Transparence ajoutée
+          borderColor: '#22C55E',
+          textColor: '#1F2937',
+          iconBg: 'rgba(220, 252, 231, 0.8)', // Transparence ajoutée
+          iconColor: '#22C55E',
+          icon: '✓',
+          progressColor: '#22C55E',
+        }
     }
   }
 
   if (!visible) return null
+
+  const config = getToastConfig()
 
   return (
     <Animated.View
@@ -105,11 +144,44 @@ const Toast = ({
       ]}
     >
       <TouchableOpacity
-        style={[styles.toast, getToastStyle()]}
+        style={[
+          styles.toast,
+          {
+            backgroundColor: config.backgroundColor,
+            borderLeftColor: config.borderColor,
+          },
+        ]}
         onPress={hideToast}
         activeOpacity={0.8}
       >
-        <Text style={[styles.message, getTextStyle()]}>{message}</Text>
+        <View style={styles.toastContent}>
+          <View
+            style={[styles.iconContainer, { backgroundColor: config.iconBg }]}
+          >
+            <Text style={[styles.iconText, { color: config.iconColor }]}>
+              {config.icon}
+            </Text>
+          </View>
+          <Text style={[styles.message, { color: config.textColor }]}>
+            {message}
+          </Text>
+        </View>
+
+        {/* Barre de progression */}
+        <View style={styles.progressBarContainer}>
+          <Animated.View
+            style={[
+              styles.progressBar,
+              {
+                backgroundColor: config.progressColor,
+                width: progressAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ['0%', '100%'],
+                }),
+              },
+            ]}
+          />
+        </View>
       </TouchableOpacity>
     </Animated.View>
   )
@@ -121,7 +193,7 @@ export const useToast = () => {
     visible: false,
     message: '',
     type: 'success',
-    duration: 3000,
+    duration: 1000,
   })
 
   // Référence pour éviter les appels multiples
@@ -129,7 +201,7 @@ export const useToast = () => {
   const lastToastRef = useRef(null)
 
   const showToast = useCallback(
-    (message, type = 'success', duration = 3000) => {
+    (message, type = 'success', duration = 1000) => {
       // Éviter les doubles appels avec le même message
       const toastKey = `${message}-${type}-${Date.now()}`
       if (lastToastRef.current === toastKey) {
@@ -187,53 +259,59 @@ export const useToast = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 0,
+    top: 60,
     left: 20,
     right: 20,
     zIndex: 9999,
   },
   toast: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderRadius: 16,
+    borderLeftWidth: 5,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 6,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 10,
+    overflow: 'hidden',
+  },
+  toastContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  iconText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   message: {
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
+    fontSize: 15,
+    fontWeight: '600',
+    flex: 1,
+    lineHeight: 22,
   },
-  // Styles pour les différents types
-  successToast: {
-    backgroundColor: '#4CAF50',
+  progressBarContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
-  errorToast: {
-    backgroundColor: '#F44336',
-  },
-  warningToast: {
-    backgroundColor: '#FF9800',
-  },
-  infoToast: {
-    backgroundColor: '#2196F3',
-  },
-  successText: {
-    color: '#FFFFFF',
-  },
-  errorText: {
-    color: '#FFFFFF',
-  },
-  warningText: {
-    color: '#FFFFFF',
-  },
-  infoText: {
-    color: '#FFFFFF',
+  progressBar: {
+    height: '100%',
+    borderRadius: 2,
   },
 })
 
