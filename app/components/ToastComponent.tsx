@@ -155,13 +155,6 @@ const Toast = ({
         activeOpacity={0.9}
       >
         <View style={styles.toastContent}>
-          <View
-            style={[styles.iconContainer, { backgroundColor: config.iconBg }]}
-          >
-            <Text style={[styles.iconText, { color: config.iconColor }]}>
-              {config.icon}
-            </Text>
-          </View>
           <Text style={[styles.message, { color: config.textColor }]}>
             {message}
           </Text>
