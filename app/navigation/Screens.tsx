@@ -82,7 +82,7 @@ export default () => {
       <Stack.Screen
         name="Chat"
         component={ChatScreen}
-        options={{ title: ' CHAT DU DEROULER', ...screenOptions.chat }}
+        options={{ title: ' CHAT DU DEROULÉ', ...screenOptions.chat }}
       />
 
       <Stack.Screen

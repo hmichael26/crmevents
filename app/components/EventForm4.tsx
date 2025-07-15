@@ -345,10 +345,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uriToOpen)
       } else {
-        console.log("LE PARTAGE N'EST PAS DISPONIBLE SUR CET APPAREIL")
+        showToast("❌ Impossible d'ouvrir le PDF", 'error')
       }
     } catch (error) {
-      console.error("ERREUR LORS DE L'OUVERTURE DU PDF :", error)
+      showToast("❌ Erreur lors de l'ouverture du PDF", 'error')
     }
   }
 
@@ -374,13 +374,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
         id_deroule: item?.id_deroule,
         id_presta: activeBadgeData?.id_presta,
       })
-      Alert.alert('SUCCÈS', 'LE BADGE A ÉTÉ SUPPRIMÉ AVEC SUCCÈS.')
+      showToast('✅ Badge supprimé avec succès !', 'success')
     } catch (error) {
       console.error('ERREUR LORS DE LA SUPPRESSION DU BADGE :', error)
-      Alert.alert(
-        'ERREUR',
-        'LA SUPPRESSION DU BADGE A ÉCHOUÉ. VEUILLEZ RÉESSAYER.',
-      )
+      showToast('❌ Erreur lors de la suppression du badge', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -436,10 +433,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
       }
     } catch (error) {
       console.error('Erreur lors de la demande:', error)
-      Alert.alert(
-        'Erreur',
-        'Impossible de demander le déroulé. Veuillez réessayer.',
-      )
+      showToast('❌ Erreur lors de la demande', 'error')
     }
   }
 
@@ -543,7 +537,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
           onClose={() => setModalVisible2(false)}
           onConfirm={confirmDeleteBadge}
           onCancel={() => setModalVisible2(false)}
-          message="VOULEZ-VOUS VRAIMENT SUPPRIMER CE BADGE ?"
+          message="SUPPRIMER CE PRESTATAIRE ?"
         />
 
         {/* Contenu principal quand un badge est actif */}

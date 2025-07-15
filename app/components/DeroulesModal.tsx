@@ -67,7 +67,7 @@ const DeroulesModal: React.FC<DeroulesModalProps> = ({
     setIsLoadingData(true)
     try {
       const response = await getProjetcs()
-      console.log('Données récupérées:', response.data.newevts)
+      // console.log('Données récupérées:', response.data.newevts)
       setArrderoules(response.data.newevts || [])
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error)
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   assignButton: {
-    padding: 15,
+    padding: 5,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 15,
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
   assignButtonText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 15,
   },
   closeButton: {
     marginTop: 15,

@@ -293,7 +293,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     return getDefaultFormData3()
   })
 
-  console.log(isCreatingNew, item, formData)
+  //  console.log(isCreatingNew, item, formData)
 
   const FormIds = (data: any) => {
     if (data) {
