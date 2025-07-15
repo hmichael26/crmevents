@@ -14,7 +14,7 @@ const Toast = ({
   visible,
   message,
   type = 'success',
-  duration = 1000,
+  duration = 2000,
   onHide,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -78,50 +78,50 @@ const Toast = ({
     switch (type) {
       case 'success':
         return {
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Transparence ajoutée
+          backgroundColor: 'rgba(255, 255, 255, 0.9)', // Transparence ajoutée
           borderColor: '#22C55E',
           textColor: '#1F2937',
-          iconBg: 'rgba(220, 252, 231, 0.8)', // Transparence ajoutée
+          iconBg: 'rgba(220, 252, 231, 0.9)', // Transparence ajoutée
           iconColor: '#22C55E',
           icon: '✓',
           progressColor: '#22C55E',
         }
       case 'error':
         return {
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Transparence ajoutée
+          backgroundColor: 'rgba(255, 255, 255, 0.9)', // Transparence ajoutée
           borderColor: '#EF4444',
           textColor: '#1F2937',
-          iconBg: 'rgba(254, 226, 226, 0.8)', // Transparence ajoutée
+          iconBg: 'rgba(254, 226, 226, 0.9)', // Transparence ajoutée
           iconColor: '#EF4444',
           icon: '✕',
           progressColor: '#EF4444',
         }
       case 'warning':
         return {
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Transparence ajoutée
+          backgroundColor: 'rgba(255, 255, 255, 0.9)', // Transparence ajoutée
           borderColor: '#F59E0B',
           textColor: '#1F2937',
-          iconBg: 'rgba(254, 243, 199, 0.8)', // Transparence ajoutée
+          iconBg: 'rgba(254, 243, 199, 0.9)', // Transparence ajoutée
           iconColor: '#F59E0B',
           icon: '⚠',
           progressColor: '#F59E0B',
         }
       case 'info':
         return {
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Transparence ajoutée
+          backgroundColor: 'rgba(255, 255, 255, 0.9)', // Transparence ajoutée
           borderColor: '#3B82F6',
           textColor: '#1F2937',
-          iconBg: 'rgba(219, 234, 254, 0.8)', // Transparence ajoutée
+          iconBg: 'rgba(219, 234, 254, 0.9)', // Transparence ajoutée
           iconColor: '#3B82F6',
           icon: 'ℹ',
           progressColor: '#3B82F6',
         }
       default:
         return {
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Transparence ajoutée
+          backgroundColor: 'rgba(255, 255, 255, 0.9)', // Transparence ajoutée
           borderColor: '#22C55E',
           textColor: '#1F2937',
-          iconBg: 'rgba(220, 252, 231, 0.8)', // Transparence ajoutée
+          iconBg: 'rgba(220, 252, 231, 0.9)', // Transparence ajoutée
           iconColor: '#22C55E',
           icon: '✓',
           progressColor: '#22C55E',
@@ -152,7 +152,7 @@ const Toast = ({
           },
         ]}
         onPress={hideToast}
-        activeOpacity={0.8}
+        activeOpacity={0.9}
       >
         <View style={styles.toastContent}>
           <View
@@ -193,7 +193,7 @@ export const useToast = () => {
     visible: false,
     message: '',
     type: 'success',
-    duration: 1000,
+    duration: 2000,
   })
 
   // Référence pour éviter les appels multiples
@@ -201,7 +201,7 @@ export const useToast = () => {
   const lastToastRef = useRef(null)
 
   const showToast = useCallback(
-    (message, type = 'success', duration = 1000) => {
+    (message, type = 'success', duration = 2000) => {
       // Éviter les doubles appels avec le même message
       const toastKey = `${message}-${type}-${Date.now()}`
       if (lastToastRef.current === toastKey) {
@@ -225,7 +225,7 @@ export const useToast = () => {
       // Reset de la référence après un délai
       toastTimeoutRef.current = setTimeout(() => {
         lastToastRef.current = null
-      }, 1000)
+      }, 2000)
     },
     [],
   )
