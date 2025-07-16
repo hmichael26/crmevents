@@ -218,7 +218,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
             </Button>
           ))}
 
-        {data && data.arrderoules.length <= 5 && (
+        {data && data.arrderoules.length < 5 && (
           <Button
             flex={1}
             gradient={gradients.light}
