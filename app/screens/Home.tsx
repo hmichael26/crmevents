@@ -93,7 +93,7 @@ const Home = (props: DrawerContentComponentProps) => {
 
       try {
         const response = await getProjetcs()
-        console.log('Données récupérées:', response.data.newevts)
+        //   console.log('Données récupérées:', response.data.newevts)
         setProjectsData(response.data.newevts)
         isInitialLoad.current = false
       } catch (error) {

@@ -249,7 +249,9 @@ const Login = () => {
                   <Text
                     semibold
                     onPress={() =>
-                      Linking.openURL('https://www.example.com/terms')
+                      Linking.openURL(
+                        'https://myappcrm.com/termes-conditions.php',
+                      )
                     }
                   >
                     Termes et Conditions
