@@ -1,34 +1,39 @@
 {
-    "build": {
-        "preview": {
-            "android": {
-                "buildType": "apk"
-            }, "env": {
-                "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
-            }
-        },
-        "preview2": {
-            "android": {
-                "gradleCommand": ":app:assembleRelease"
-            }
-        },
-        "preview3": {
-            "developmentClient": true
-        },
-        "preview4": {
-            "distribution": "internal"
-        },
-        "developement": {
-            "developmentClient": true,
-            "distribution": "internal"
-        },
-        "production": {
-            "android": {
-                "buildType": "app-bundle"
-            },
-            "env": {
-                "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
-            }
-        }
+  "build": {
+    "preview": {
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+      }
+    },
+    "preview2": {
+      "android": {
+        "gradleCommand": ":app:assembleRelease"
+      }
+    },
+    "preview3": {
+      "developmentClient": true
+    },
+    "preview4": {
+      "distribution": "internal"
+    },
+    "developement": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+      }
     }
+  },
+  "cli": {
+    "appVersionSource": "remote"
+  }
 }

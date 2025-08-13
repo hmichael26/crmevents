@@ -2,7 +2,7 @@
   "expo": {
     "name": "CRM Events",
     "slug": "crmevents",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./app/assets/images/splash.png",
     "scheme": "myapp",
@@ -14,18 +14,22 @@
     },
     "ios": {
       "supportsTablet": true,
+      "buildNumber": "1.0.1",
       "bundleIdentifier": "com.crmevents.myapp",
       "entitlements": {
         "aps-environment": "production"
       },
       "infoPlist": {
-        "UIBackgroundModes": [
-          "remote-notification"
-        ]
+        "UIBackgroundModes": ["remote-notification"]
       }
     },
     "android": {
       "package": "com.crmevents.myapp",
+      "compileSdkVersion": 35,
+      "targetSdkVersion": 35,
+      "minSdkVersion": 23,
+      "versionCode": 2,
+      "versionName": "2.0.0",
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/images/icon.png",
         "backgroundColor": "#ffffff"
@@ -35,7 +39,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-     
+
       "favicon": "./app/assets/images/favicon.png",
       "name": "CRM Events"
     },
@@ -47,27 +51,29 @@
         {
           "filePermission": true
         }
-      ],[
+      ],
+      [
         "expo-av",
         {
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ],
-     
+
       [
         "expo-build-properties",
         {
           "ios": {
             "useFrameworks": "static"
+          },
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0"
           }
         }
       ],
-      
-       
-        "expo-notifications"
-      
-      
-      
+
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true
