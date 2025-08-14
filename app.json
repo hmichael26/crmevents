@@ -20,7 +20,9 @@
         "aps-environment": "production"
       },
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
       }
     },
     "android": {
@@ -39,7 +41,6 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-
       "favicon": "./app/assets/images/favicon.png",
       "name": "CRM Events"
     },
@@ -58,7 +59,6 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ],
-
       [
         "expo-build-properties",
         {
@@ -72,8 +72,10 @@
           }
         }
       ],
-
-      "expo-notifications"
+      "expo-notifications",
+      "expo-font",
+      "expo-localization",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
