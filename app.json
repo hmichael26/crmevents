@@ -16,13 +16,16 @@
       "supportsTablet": true,
       "buildNumber": "1.0.1",
       "bundleIdentifier": "com.crmevents.myapp",
+      "deploymentTarget": "13.0",
       "entitlements": {
         "aps-environment": "production"
       },
       "infoPlist": {
         "UIBackgroundModes": [
+          "remote-notification",
           "remote-notification"
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -36,7 +39,14 @@
         "foregroundImage": "./app/assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -85,9 +95,10 @@
         "origin": false
       },
       "eas": {
-        "projectId": "208bdf9e-cee4-4672-acb7-847d2a2c70b5"
-      }
+        "projectId": "a241f533-0f5e-4876-b35a-60fda30d8b3c"
+      },
+      "companyName": "260 agency"
     },
-    "owner": "hmichael26"
+    "owner": "pierre.ahoble"
   }
 }
