@@ -20,10 +20,7 @@
         "aps-environment": "production"
       },
       "infoPlist": {
-        "UIBackgroundModes": [
-          "remote-notification",
-          "remote-notification"
-        ],
+        "UIBackgroundModes": ["remote-notification", "remote-notification"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -34,8 +31,9 @@
       "minSdkVersion": 23,
       "versionCode": 2,
       "versionName": "2.0.0",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
-        "foregroundImage": "./app/assets/images/icon.png",
+        "foregroundImage": "./app/assets/images/splash.png",
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./google-services.json",

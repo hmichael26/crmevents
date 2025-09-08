@@ -529,7 +529,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
               white={step === 'deroule'}
               black={step !== 'deroule'}
               transform="uppercase"
-              size={15}
+              size={12}
             >
               Déroulé
             </Text>
@@ -546,7 +546,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
               white={step === 'Presta'}
               black={step !== 'Presta'}
               transform="uppercase"
-              size={15}
+              size={12}
             >
               {!isDataLoaded && item?.id
                 ? 'Chargement...'

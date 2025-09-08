@@ -15,6 +15,7 @@ import {
   Alert,
   Linking,
   StatusBar,
+  Keyboard,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { Audio } from 'expo-av'
@@ -22,6 +23,7 @@ import * as DocumentPicker from 'expo-document-picker'
 import { useTheme } from '../hooks'
 import { useApi } from '../context/useApi'
 import { AuthContext } from '../context/AuthContext'
+import { ScrollView } from 'react-native-gesture-handler'
 
 interface ChatMessage {
   id: string
@@ -46,6 +48,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
   const { getChat, sendChat } = useApi()
 
   const { userdata } = useContext(AuthContext)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
 
   const param = route.params
 
@@ -93,6 +96,30 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
     // Nettoyer l'intervalle au démontage du composant
     return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height)
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({ animated: true })
+        }, 100)
+      },
+    )
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0)
+      },
+    )
+
+    return () => {
+      keyboardDidHideListener?.remove()
+      keyboardDidShowListener?.remove()
+    }
   }, [])
 
   const loadMessages = async () => {
@@ -337,58 +364,58 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
           <Text style={styles.headerTitle}>{param.Receiver}</Text>
         </View>
       </View>
-
-      {/* Messages */}
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Chargement des messages...</Text>
-        </View>
-      ) : (
-        <FlatList
-          ref={flatListRef}
-          data={transformedMessages}
-          renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.messagesList}
-          showsVerticalScrollIndicator={true}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
-            />
-          }
-          onContentSizeChange={() => {
-            flatListRef.current?.scrollToEnd({ animated: true })
-          }}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Pas de nouveaux message</Text>
-              <Text style={styles.emptySubtext}>Commencez à discuter !</Text>
-            </View>
-          }
-        />
-      )}
-
       {/* Input Area */}
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 25}
+        style={{
+          flex: 1,
+          paddingBottom: keyboardHeight > 0 ? keyboardHeight / 15 : 24,
+        }}
       >
-        <View style={styles.inputContainer}>
-          <TouchableOpacity
-            style={styles.attachButton}
-            onPress={handleAttachment}
-          >
-            <Feather name="paperclip" size={22} color="#666" />
-            {selectedAttachment &&
-              !('canceled' in selectedAttachment) &&
-              selectedAttachment.assets && (
-                <View style={styles.attachmentBadge} />
-              )}
-          </TouchableOpacity>
+        {/* Messages */}
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={styles.loadingText}>Chargement des messages...</Text>
+          </View>
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={transformedMessages}
+            renderItem={renderMessage}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={[
+              styles.messagesList,
+              // Ajouter un padding bottom quand le clavier est ouvert
+            ]}
+            automaticallyAdjustKeyboardInsets={true}
+            showsVerticalScrollIndicator={true}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                colors={[colors.primary]}
+                tintColor={colors.primary}
+              />
+            }
+            onContentSizeChange={() => {
+              flatListRef.current?.scrollToEnd({ animated: true })
+            }}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Pas de nouveaux message</Text>
+                <Text style={styles.emptySubtext}>Commencez à discuter !</Text>
+              </View>
+            }
+          />
+        )}
+
+        <View
+          style={[
+            styles.inputContainer,
+            { marginBottom: keyboardHeight > 0 ? keyboardHeight : 0 },
+          ]}
+        >
           <View
             style={{
               flex: 1,
@@ -407,6 +434,12 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
               onChangeText={setInputText}
               multiline
               placeholderTextColor={colors.text}
+              onFocus={() => {
+                // Scroll vers le bas quand l'input est focalisé
+                setTimeout(() => {
+                  flatListRef.current?.scrollToEnd({ animated: true })
+                }, 200)
+              }}
             />
 
             <View style={styles.innerShadow} />
