@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '',
     textTransform: 'uppercase',
   },

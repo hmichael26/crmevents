@@ -48,3 +48,67 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+# Build APK pour tests
+
+eas build --platform android --profile preview
+
+# Résultat : APK installable directement sur Android
+
+# Parfait pour : Tests internes, partage avec testeurs
+
+# Build pour simulateur iOS
+
+eas build --platform ios --profile preview
+
+# Résultat : Build pour simulateur Xcode uniquement
+
+# Parfait pour : Tests sur simulateur, debugging
+
+# Build APK en mode Release (optimisé)
+
+eas build --platform android --profile preview2
+
+# Utilise : gradleCommand ":app:assembleRelease"
+
+# Résultat : APK optimisé pour production
+
+# Build iOS en configuration Release
+
+eas build --platform ios --profile preview2
+
+# Configuration : Release (optimisé)
+
+# Résultat : IPA optimisé
+
+# Build avec Development Client
+
+eas build --platform ios --profile preview3
+
+# Permet :
+
+# - Bibliothèques natives personnalisées
+
+# - Debugging avancé
+
+# - Hot reload avec code natif
+
+# 1. Build le development client
+
+eas build --platform ios --profile preview3
+
+# 2. Installer sur appareil/simulateur
+
+# 3. Démarrer le serveur de dev
+
+npx expo start --dev-client
+
+# 4. Scanner le QR code avec votre development client
+
+# Build AAB pour Google Play
+
+eas build --platform android --profile production
+
+# Résultat : Android App Bundle (.aab)
+
+# Destination : Google Play Store

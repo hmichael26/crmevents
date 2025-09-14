@@ -3,6 +3,7 @@
     "name": "CRM Events",
     "slug": "crmevents",
     "version": "1.0.1",
+    "jsEngine": "hermes",
     "orientation": "portrait",
     "icon": "./app/assets/images/splash.png",
     "scheme": "myapp",
@@ -14,17 +15,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "1.0.1",
+      "buildNumber": "1.0.2",
       "bundleIdentifier": "com.crmevents.myapp",
       "deploymentTarget": "13.0",
       "entitlements": {
         "aps-environment": "production"
       },
       "infoPlist": {
-        "UIBackgroundModes": [
-          "remote-notification",
-          "remote-notification"
-        ],
+        "UIBackgroundModes": ["remote-notification", "remote-notification"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -35,8 +33,9 @@
       "minSdkVersion": 23,
       "versionCode": 2,
       "versionName": "2.0.0",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
-        "foregroundImage": "./app/assets/images/icon.png",
+        "foregroundImage": "./app/assets/images/splash.png",
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./google-services.json",
