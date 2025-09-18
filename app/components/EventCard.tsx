@@ -44,7 +44,7 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
             </Button>
 
             <Button
-              gradient={gradients.info}
+              gradient={gradients.primary}
               style={styles.consultButton}
               onPress={() => navigation.navigate('ClientPresta', { item })}
             >

@@ -12,6 +12,8 @@ import {
   TouchableWithoutFeedback,
   Alert,
   RefreshControl,
+  Text as TextField,
+  Platform, // 👈 Ajout pour iOS
 } from 'react-native'
 import { useData, useTheme } from '../hooks/'
 import { Block, Button, Input, Text } from '../components/'
@@ -54,30 +56,44 @@ const Home = (props: DrawerContentComponentProps) => {
   const [filteredEvents, setFilteredEvents] = useState([])
   const [categories, setCategories] = useState<ICategory[]>([])
   const [active, setActive] = useState('')
+
+  // 🔧 FIX 1: Un seul état pour le loading
   const [refreshing, setRefreshing] = useState(false)
   const [projectsData, setProjectsData] = useState([])
-  const [loadingProjects, setLoadingProjects] = useState(false)
+
+  // 🔧 FIX 2: Ajout d'un état pour forcer le re-render sur iOS
+  const [refreshKey, setRefreshKey] = useState(0)
 
   // Ref pour éviter les appels multiples
   const isFetching = useRef(false)
   const lastFetchTime = useRef(0)
   const isInitialLoad = useRef(true)
   const lastFocusTime = useRef(0)
-  const FETCH_COOLDOWN = 1500 // 1.5 secondes de cooldown entre les appels
-  const FOCUS_COOLDOWN = 3000 // 3 secondes de cooldown pour les focus
+  const FETCH_COOLDOWN = 1500
+  const FOCUS_COOLDOWN = 3000
 
-  // Fonction pour récupérer les projets avec protection contre les appels multiples
+  // 🔧 FIX 3: Fonction helper pour arrêter le loading proprement
+  const stopLoading = useCallback(() => {
+    setRefreshing(false)
+
+    // Force re-render sur iOS pour débloquer le loader
+    if (Platform.OS === 'ios') {
+      setTimeout(() => {
+        setRefreshKey((prev) => prev + 1)
+      }, 100)
+    }
+  }, [])
+
+  // 🔧 FIX 4: Fonction de fetch améliorée avec gestion d'erreur robuste
   const fetchProjects = useCallback(
     async (force = false) => {
       const now = Date.now()
 
-      // Vérifier si un appel est déjà en cours
       if (isFetching.current && !force) {
         console.log('Fetch déjà en cours, abandon')
         return
       }
 
-      // Vérifier le cooldown (sauf si forcé ou premier chargement)
       if (
         !force &&
         !isInitialLoad.current &&
@@ -89,34 +105,55 @@ const Home = (props: DrawerContentComponentProps) => {
 
       isFetching.current = true
       lastFetchTime.current = now
-      setLoadingProjects(true)
+
+      // 🔧 Important: un seul setState pour le loading
+      setRefreshing(true)
 
       try {
         const response = await getProjetcs()
-        //   console.log('Données récupérées:', response.data.newevts)
         setProjectsData(response.data.newevts)
         isInitialLoad.current = false
+
+        // 🔧 FIX 5: Délai pour iOS avant d'arrêter le loader
+        if (Platform.OS === 'ios') {
+          setTimeout(() => {
+            stopLoading()
+          }, 300)
+        } else {
+          stopLoading()
+        }
       } catch (error) {
         console.error('Erreur lors du fetch:', error)
+
+        // 🔧 FIX 6: Toujours arrêter le loader même en cas d'erreur
+        stopLoading()
+
         Alert.alert(
           'Erreur',
           'Impossible de récupérer les données. Veuillez réessayer.',
           [{ text: 'OK' }],
         )
       } finally {
-        setLoadingProjects(false)
+        // 🔧 FIX 7: Nettoyage robuste
         isFetching.current = false
+
+        // Double sécurité: arrêter le loader après un délai max
+        setTimeout(() => {
+          if (refreshing) {
+            console.log('Force stop loading après timeout')
+            stopLoading()
+          }
+        }, 5000) // 5 secondes max
       }
     },
-    [getProjetcs],
+    [getProjetcs, refreshing, stopLoading],
   )
 
-  // Utiliser useFocusEffect avec un cooldown pour éviter les refresh sur les changements d'état
+  // Utiliser useFocusEffect avec un cooldown
   useFocusEffect(
     useCallback(() => {
       const now = Date.now()
 
-      // Premier chargement ou vraie navigation (après un certain délai)
       if (
         isInitialLoad.current ||
         now - lastFocusTime.current > FOCUS_COOLDOWN
@@ -194,21 +231,10 @@ const Home = (props: DrawerContentComponentProps) => {
     )
   }
 
-  // Fonction pour gérer le refresh manuel
+  // 🔧 FIX 8: Fonction de refresh simplifiée
   const onRefresh = useCallback(async () => {
-    setRefreshing(true)
-    try {
-      await fetchProjects(true) // Forcer le refresh
-    } catch (error) {
-      console.error('Erreur lors du refresh:', error)
-      Alert.alert(
-        'Erreur',
-        'Impossible de rafraîchir les données. Veuillez réessayer.',
-        [{ text: 'OK' }],
-      )
-    } finally {
-      setRefreshing(false)
-    }
+    console.log('Manual refresh triggered')
+    await fetchProjects(true)
   }, [fetchProjects])
 
   const newEvents =
@@ -221,22 +247,29 @@ const Home = (props: DrawerContentComponentProps) => {
     setInputValue(text)
   }, 3300)
 
+  // 🔧 FIX 9: RefreshControl avec configuration iOS optimisée
+  const refreshControlProps = {
+    refreshing: refreshing,
+    onRefresh: onRefresh,
+    colors: [colors.primary],
+    tintColor: colors.primary,
+    // Options spécifiques iOS
+    ...(Platform.OS === 'ios' && {
+      title: 'Actualisation...',
+      titleColor: colors.primary,
+    }),
+  }
+
   if (userdata?.user?.admin == 0) {
     return (
       <FlatList
+        key={refreshKey} // 🔧 Force re-render sur iOS
         data={newEvents}
         showsVerticalScrollIndicator={true}
         keyExtractor={(item, index) => index.toString()}
         style={{ paddingVertical: sizes.padding }}
         contentContainerStyle={{ paddingBottom: sizes.l }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing || loadingProjects}
-            onRefresh={onRefresh}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
-          />
-        }
+        refreshControl={<RefreshControl {...refreshControlProps} />}
         renderItem={({ item }) => (
           <View style={{ flex: 1 }}>
             <EventCard item={item} navigation={navigation} />
@@ -254,7 +287,7 @@ const Home = (props: DrawerContentComponentProps) => {
           search
           value={InputValue}
           onChange={handleTextChange}
-          placeholder={i18n.t('common.search')}
+          placeholder={'nom de projet'}
         />
       </Block>
 
@@ -263,7 +296,6 @@ const Home = (props: DrawerContentComponentProps) => {
         <Block
           scroll
           horizontal
-          renderToHardwareTextureAndroid
           showsHorizontalScrollIndicator={false}
           contentOffset={{ x: -sizes.padding, y: 0 }}
         >
@@ -296,77 +328,84 @@ const Home = (props: DrawerContentComponentProps) => {
       {/* products list */}
       <View>
         <FlatList
+          key={refreshKey} // 🔧 Force re-render sur iOS
           data={filteredEvents}
           showsVerticalScrollIndicator={true}
           keyExtractor={(item, index) => index.toString()}
           style={{ paddingHorizontal: sizes.padding }}
           contentContainerStyle={{ paddingBottom: 180 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing || loadingProjects}
-              onRefresh={onRefresh}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
-            />
-          }
+          refreshControl={<RefreshControl {...refreshControlProps} />}
           renderItem={({ item }) => (
             <TouchableWithoutFeedback onPress={() => goToEvtsScreen(item)}>
-              <Block card padding={sizes.sm} marginTop={sizes.sm}>
-                <View>
+              <Block card padding={20} marginTop={sizes.sm}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
                   <View
                     style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      paddingHorizontal: 10,
+                      flexDirection: 'column',
+                      alignItems: 'start',
+                      gap: 5,
                     }}
                   >
-                    <Image
-                      source={{
-                        uri:
-                          'https://www.goseminaire.com/crm/upload/' +
-                          (item as any).logo,
-                      }}
-                      style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 20,
-                        overflow: 'hidden',
-                        marginRight: 10,
-                      }}
-                      resizeMode="cover"
-                    />
-                    <Text style={{ fontWeight: 'bold', fontSize: 13 }}>
+                    <TextField style={{ fontWeight: 'bold', fontSize: 30 }}>
                       {(item as any).ent}
-                    </Text>
-                  </View>
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                      paddingHorizontal: 10,
-                      fontSize: 13,
-                    }}
-                  >
-                    {(item as any).evt}
-                  </Text>
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                      paddingHorizontal: 10,
-                      fontSize: 13,
-                    }}
-                  >
-                    {(item as any).com} - Ref : {(item as any).ref}
-                  </Text>
+                    </TextField>
 
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                      paddingHorizontal: 10,
-                      fontSize: 13,
+                    <TextField style={{ fontSize: 12 }}>
+                      {(item as any).evt}
+                    </TextField>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        gap: 10,
+                      }}
+                    >
+                      <TextField style={{ fontSize: 13 }}>
+                        {(item as any).com}
+                      </TextField>
+
+                      <TextField
+                        style={{
+                          paddingHorizontal: 20,
+                          fontSize: 13,
+                        }}
+                      >
+                        Ref :
+                        <TextField
+                          style={{
+                            fontSize: 13,
+                            color: '#FF3B30',
+                          }}
+                        >
+                          {(item as any).ref}
+                        </TextField>
+                      </TextField>
+                    </View>
+
+                    <TextField style={{ fontSize: 13 }}>
+                      {(item as any).clt}
+                    </TextField>
+                  </View>
+                  <Image
+                    source={{
+                      uri:
+                        'https://www.goseminaire.com/crm/upload/' +
+                        (item as any).logo,
                     }}
-                  >
-                    {(item as any).clt}
-                  </Text>
+                    style={{
+                      width: 125,
+                      height: 125,
+                      borderRadius: 10,
+                      overflow: 'hidden',
+                    }}
+                    resizeMode="contain"
+                  />
                 </View>
               </Block>
             </TouchableWithoutFeedback>
