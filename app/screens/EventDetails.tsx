@@ -12,6 +12,7 @@ import {
   Platform,
   Animated,
   PixelRatio,
+  ActivityIndicator,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/Ionicons' // Remplacez 'Ionicons' par l'icône de votre choix
@@ -126,6 +127,8 @@ type FormData3 = {
 const fontScale = PixelRatio.getFontScale()
 
 const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
+  const [isSaving, setIsSaving] = useState(false)
+
   const { userdata, validForm, getUserData } = useContext(AuthContext)
   const { showToast, ToastComponent } = useToast()
 
@@ -395,7 +398,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   }
 
   const handleSaveForm = async () => {
+    if (isSaving) return
     try {
+      setIsSaving(true)
+
       // Validation : le nom est obligatoire en mode création
       if (isCreatingNew && (!formData.evt || formData.evt.trim() === '')) {
         showToast("❌ Le nom de l'événement est obligatoire", 'error')
@@ -431,6 +437,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       const actionText = isCreatingNew ? 'création' : 'modification'
       showToast(`❌ Erreur lors de la ${actionText} de l'événement`, 'error')
       console.error('Erreur sauvegarde:', error)
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -587,10 +595,30 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
               rounded={false}
               round={false}
               onPress={handleSaveForm}
+              disabled={isSaving} // 🔧 Désactiver pendant la sauvegarde
+              style={[
+                isSaving && { opacity: 0.8 }, // 🔧 Légère transparence pendant le loading
+                styles.saveButton,
+              ]}
             >
-              <Text white transform="uppercase" size={getFontSize(13)}>
-                {isCreatingNew ? 'Créer' : 'Sauvegarder'}
-              </Text>
+              <View style={styles.buttonContent}>
+                {isSaving && (
+                  <ActivityIndicator
+                    size="small"
+                    color="#000"
+                    style={{ marginRight: 8 }}
+                  />
+                )}
+                <Text white transform="uppercase" size={getFontSize(13)}>
+                  {isSaving
+                    ? isCreatingNew
+                      ? 'Création...'
+                      : 'Sauvegarde...'
+                    : isCreatingNew
+                    ? 'Créer'
+                    : 'Sauvegarder'}
+                </Text>
+              </View>
             </Button>
           </View>
         </Animated.View>
@@ -655,6 +683,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  saveButton: {
+    minHeight: 48, // Hauteur fixe pour éviter les variations
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })
 export default EventDetails

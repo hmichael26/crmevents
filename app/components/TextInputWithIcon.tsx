@@ -26,21 +26,21 @@ const TextInputWithIcon: React.FC<TextInputWithIconProps> = ({
   ...props
 }) => {
   return (
-    <View style={[styles.inputContainer, style]}>
+    <Pressable onPress={onPress} style={[styles.inputContainer, style]}>
       {iconName && (
         <Icon name={iconName} size={20} color="gray" style={styles.icon} />
       )}
       {fonsiName && (
         <Fontisto name={fonsiName} size={20} color="gray" style={styles.icon} />
       )}
-      <Pressable onPress={onPress}>
+      <View>
         <TextInput
           style={[styles.input]}
           {...props}
           placeholderTextColor="#ccc"
         />
-      </Pressable>
-    </View>
+      </View>
+    </Pressable>
   )
 }
 

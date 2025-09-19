@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Dimensions } from 'react-native'
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TextInput,
+} from 'react-native'
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon'
 import MultiSelect from './MultiSelectBox'
 import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import Input from './Input'
 
 const { width, height } = Dimensions.get('window')
 
@@ -171,10 +181,20 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
   return (
     <View style={styles.container}>
       {/* Titre de l'événement */}
-      <TextInputWithIcon
+      <TextInput
         placeholder="Titre de l'Event"
         value={formData.evt}
         onChangeText={(text) => updateFormField('evt', text)}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+
+          borderWidth: 1,
+          borderColor: '#ccc',
+          borderRadius: 5,
+          paddingHorizontal: 10,
+          marginBottom: 13,
+        }}
       />
 
       {/* Date de création et référence */}
@@ -204,7 +224,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
       {/* Pax et Zone géographique */}
       <View style={styles.inputContainer}>
         <TextInputWithIcon
-          iconName="mail"
+          iconName="person"
           placeholder="Pax"
           style={{ width: '30%' }}
           value={formData.pax}
@@ -265,26 +285,35 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           onChangeText={(text) => updateFormField('budget', text)}
         />
       </View>
-
-      {/* Commentaire pour le prestataire */}
-      <TextInputWithIcon
-        placeholder="Commentaire pour le prestataire"
-        multiline
-        numberOfLines={4}
-        style={styles.textArea}
-        value={formData.commentaires_dates}
-        onChangeText={(text) => updateFormField('commentaires_dates', text)}
-      />
-
-      {/* Commentaire personnel */}
-      <TextInputWithIcon
-        placeholder="Commentaire Personnel"
-        multiline
-        numberOfLines={4}
-        style={styles.textArea}
-        value={formData.format}
-        onChangeText={(text) => updateFormField('format', text)}
-      />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0} // Ajuster selon votre header
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Commentaire pour le prestataire */}
+          <TextInput
+            placeholder="Commentaire pour le prestataire"
+            multiline
+            numberOfLines={4}
+            style={[styles.textArea, styles.textInput]}
+            value={formData.commentaires_dates}
+            onChangeText={(text) => updateFormField('commentaires_dates', text)}
+          />
+          {/* Commentaire personnel */}
+          <TextInput
+            placeholder="Commentaire Personnel"
+            multiline
+            numberOfLines={4}
+            style={[styles.textArea, styles.textInput]}
+            value={formData.format}
+            onChangeText={(text) => updateFormField('format', text)}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* DateTimePicker */}
       {show && (
@@ -319,6 +348,14 @@ const styles = StyleSheet.create({
     height: 100,
     borderColor: '#ccc',
     borderWidth: 2,
+  },
+  textInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 13,
   },
 })
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import {
   View,
   StyleSheet,
@@ -6,55 +6,54 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   Text,
-  FlatList
-} from 'react-native';
-import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
-import Button from './Button';
-import { useTheme } from '../hooks';
-import ClientAutocomplete from './ClientAutoComplete';
+  FlatList,
+  TextInput,
+  Platform,
+} from 'react-native'
+import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon'
+import Button from './Button'
+import { useTheme } from '../hooks'
+import ClientAutocomplete from './ClientAutoComplete'
+import ClientAutoDropdownComplete from './ClientAutoDropdownComplete'
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window')
 
 interface Client {
-  id: number;
-  nom: string;
+  id: number
+  nom: string
 }
 
 interface ExistingClient {
-  id_client: string;
-  nom_client: string;
-  prenom_client: string;
+  id_client: string
+  nom_client: string
+  prenom_client: string
 }
 interface FormData {
-  idevt?: Number;
-  clt?: string;
-  ent?: string;
-  clt_email?: string;
-  clt_telfix?: string;
-  clt_telport?: string;
-  clt_infos?: string;
-  publish_as_company?: any;
-  clients?: Client[];
+  idevt?: Number
+  clt?: string
+  ent?: string
+  clt_email?: string
+  clt_telfix?: string
+  clt_telport?: string
+  clt_infos?: string
+  publish_as_company?: any
+  clients?: Client[]
 }
 
 type Form2Props = {
-  item?: any;
-  onDataChange: (data: FormData, type: string) => void;
-  clients?: Client[];
-  clientData?: any[];
-};
+  item?: any
+  onDataChange: (data: FormData, type: string) => void
+  clients?: Client[]
+  clientData?: any[]
+}
 
 const Form2: React.FC<Form2Props> = ({
   item = {},
   onDataChange,
   clients: initialClients,
-  clientData = []
+  clientData = [],
 }) => {
-
-  const { assets, colors, gradients, sizes } = useTheme();
-
-
-
+  const { assets, colors, gradients, sizes } = useTheme()
 
   // State to manage form data
   const [formData, setFormData] = useState<FormData>({
@@ -66,107 +65,172 @@ const Form2: React.FC<Form2Props> = ({
     clt_telport: item.clt_telport || '',
     clt_infos: item.clt_infos || '',
     publish_as_company: item.publish_as_company || false,
-    clients: initialClients || []
-  });
+    clients: initialClients || [],
+  })
 
   // console.log(formData.clients)
   // State for client management
   const [clients, setClients] = useState<Client[]>(() => {
-    return formData.clients || [];
-  });
+    return formData.clients || []
+  })
 
   //console.log(clientData)
 
   // Effect to update parent component whenever form data changes
   useEffect(() => {
-    onDataChange({
-      ...formData,
-      clients
-    }, 'form2');
-  }, [formData, clients]);
+    onDataChange(
+      {
+        ...formData,
+        clients,
+      },
+      'form2',
+    )
+  }, [formData, clients])
 
   // Update a specific field in form data
   const updateFormField = (field: keyof FormData, value: string | boolean) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
-    }));
-  };
+      [field]: value,
+    }))
+  }
 
   const addClient = () => {
-    const newClients = [...clients, { id: Date.now(), nom: '' }];
-    setClients(newClients);
-  };
+    const newClients = [...clients, { id: Date.now(), nom: '' }]
+    setClients(newClients)
+  }
 
   const removeClient = (id: number) => {
-    const newClients = clients.filter(client => client.id !== id);
-    setClients(newClients);
-  };
+    const newClients = clients.filter((client) => client.id !== id)
+    setClients(newClients)
+  }
 
-  const updateClientSelection = (selectedClient: Client, currentClientId: number) => {
-    const newClients = clients.map(client =>
+  const updateClientSelection = (
+    selectedClient: Client,
+    currentClientId: number,
+  ) => {
+    const newClients = clients.map((client) =>
       client.id === currentClientId
         ? {
-          id: selectedClient.id,
-          nom: selectedClient.nom
-        }
-        : client
-    );
+            id: selectedClient.id,
+            nom: selectedClient.nom,
+          }
+        : client,
+    )
 
-    setClients(newClients);
-  };
+    setClients(newClients)
+  }
 
   const renderClientItem = ({ item: client }: { item: Client }) => (
-    <View
-      key={client.id}
-      style={styles.clientContainer}
-    >
+    <View key={client.id} style={styles.clientContainer}>
       <ClientAutocomplete
         clients={clientData || []}
-        onSelectClient={(selectedClient) => updateClientSelection(selectedClient, client.id)}
+        onSelectClient={(selectedClient) =>
+          updateClientSelection(selectedClient, client.id)
+        }
         initialClient={client}
       />
-      <TouchableOpacity onPress={() => removeClient(client.id)} style={{ paddingHorizontal: 10, paddingBottom: 5 }}>
-        <Text style={{ fontSize: 23, color: colors.primary, fontWeight: "bold" }}>x</Text>
+      <TouchableOpacity
+        onPress={() => removeClient(client.id)}
+        style={{ paddingHorizontal: 10, paddingBottom: 5 }}
+      >
+        <Text
+          style={{ fontSize: 23, color: colors.primary, fontWeight: 'bold' }}
+        >
+          x
+        </Text>
       </TouchableOpacity>
     </View>
-  );
-
+  )
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <TextInputWithIcon
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
+      <TextInput
         placeholder="Prénom NOM"
         value={formData.clt}
         onChangeText={(text) => updateFormField('clt', text)}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+
+          borderWidth: 1,
+          borderColor: '#ccc',
+          borderRadius: 5,
+          paddingHorizontal: 10,
+          marginBottom: 13,
+        }}
       />
 
       <View style={styles.inputContainer}>
-        <TextInputWithIcon
+        <TextInput
           placeholder="Entreprise"
-          style={{ width: "50%" }}
+          style={{
+            width: '50%',
+            flexDirection: 'row',
+            alignItems: 'center',
+
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 5,
+            paddingHorizontal: 10,
+            marginBottom: 13,
+          }}
           value={formData.ent}
           onChangeText={(text) => updateFormField('ent', text)}
         />
 
-        <TextInputWithIcon
+        <TextInput
           placeholder="Email"
-          style={{ width: "50%" }}
+          style={{
+            width: '50%',
+            flexDirection: 'row',
+            alignItems: 'center',
+
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 5,
+            paddingHorizontal: 10,
+            marginBottom: 13,
+          }}
           value={formData.clt_email}
           onChangeText={(text) => updateFormField('clt_email', text)}
         />
       </View>
 
       <View style={styles.inputContainer}>
-        <TextInputWithIcon
+        <TextInput
           placeholder="Téléphone fixe"
-          style={{ width: "50%" }}
+          style={{
+            width: '50%',
+            flexDirection: 'row',
+            alignItems: 'center',
+
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 5,
+            paddingHorizontal: 10,
+            marginBottom: 13,
+          }}
           value={formData.clt_telfix}
           onChangeText={(text) => updateFormField('clt_telfix', text)}
         />
-        <TextInputWithIcon
+        <TextInput
           placeholder="Téléphone portable"
-          style={{ width: "50%" }}
+          style={{
+            width: '50%',
+            flexDirection: 'row',
+            alignItems: 'center',
+
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 5,
+            paddingHorizontal: 10,
+            marginBottom: 13,
+          }}
           value={formData.clt_telport}
           onChangeText={(text) => updateFormField('clt_telport', text)}
         />
@@ -176,9 +240,11 @@ const Form2: React.FC<Form2Props> = ({
         <SwitchTextBox
           label="Publier au nom de l'entreprise"
           placeholder="Enter notification details"
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
           toogleValue={formData.publish_as_company}
-          onToggle={(value) => { updateFormField('publish_as_company', value) }}
+          onToggle={(value) => {
+            updateFormField('publish_as_company', value)
+          }}
         />
       </View>
 
@@ -189,14 +255,23 @@ const Form2: React.FC<Form2Props> = ({
         style={{
           height: 100,
           borderColor: '#ccc',
-          borderWidth: 2
+          borderWidth: 2,
         }}
         value={formData.clt_infos}
         onChangeText={(text) => updateFormField('clt_infos', text)}
       />
 
-      <View style={{ flexDirection: "row", gap: 2, alignItems: "center", justifyContent: "space-around" }}>
-        <Text style={{ fontSize: 16, color: colors.primary }}>Ajouter d'autres clients</Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: 2,
+          alignItems: 'center',
+          justifyContent: 'space-around',
+        }}
+      >
+        <Text style={{ fontSize: 16, color: colors.primary }}>
+          Ajouter d'autres clients
+        </Text>
         <Button
           flex={0.6}
           gradient={gradients.warning}
@@ -206,7 +281,7 @@ const Form2: React.FC<Form2Props> = ({
           style={{ marginTop: 10 }}
           onPress={addClient}
         >
-          <Text style={{ fontSize: 16, color: "white" }}> + Ajouter</Text>
+          <Text style={{ fontSize: 16, color: 'white' }}> + Ajouter</Text>
         </Button>
       </View>
 
@@ -215,42 +290,45 @@ const Form2: React.FC<Form2Props> = ({
         renderItem={renderClientItem}
         keyExtractor={(client) => client.id}
         contentContainerStyle={styles.clientListContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled" // ⭐ SOLUTION PRINCIPALE
+        nestedScrollEnabled={true}
       />
     </KeyboardAvoidingView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     padding: 5,
     marginHorizontal: 15,
-    flex: 1
+    flex: 1,
   },
   inputContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 0,
-    width: "100%",
-    gap: 4
+    width: '100%',
+    gap: 4,
   },
   clientListContainer: {
-    paddingBottom: 20
+    paddingBottom: 20,
   },
   clientContainer: {
-    flexDirection: "row",
-    alignContent: "center",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderColor: "#ccc",
+    flexDirection: 'row',
+    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 10,
-    marginVertical: 5
+    marginVertical: 5,
   },
   clientInput: {
     flex: 1,
-    marginRight: 10
-  }
-});
+    marginRight: 10,
+  },
+})
 
-export default Form2;
+export default Form2

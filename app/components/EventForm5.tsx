@@ -7,14 +7,16 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Platform,
 } from 'react-native'
 import { useTheme } from '../hooks'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { Picker } from '@react-native-picker/picker'
+import { Picker, PickerIOS } from '@react-native-picker/picker'
 import Button from './Button'
 import { AuthContext } from '../context/AuthContext'
 
 const { height } = Dimensions.get('window')
+const FIELD_HEIGHT = 50
 
 interface DateFieldProps {
   date: Date
@@ -31,14 +33,16 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange }) => {
   }
 
   return (
-    <View style={{ flex: 1, flexDirection: 'row', alignContent: 'center' }}>
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
       <TouchableOpacity
         onPress={() => setShow(true)}
-        style={{ marginTop: 5, marginHorizontal: 5 }}
+        style={{ padding: 5, marginHorizontal: 5 }}
       >
-        <Text style={{ textAlign: 'center', fontSize: 15 }}>
-          {date.toLocaleDateString()}
-        </Text>
+        <Text style={{ fontSize: 15 }}>{date.toLocaleDateString()}</Text>
       </TouchableOpacity>
       {show && (
         <DateTimePicker
@@ -209,9 +213,13 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               padding: 10,
               borderRadius: 10,
               marginHorizontal: 7,
+              height: FIELD_HEIGHT,
             }}
           >
-            <TouchableOpacity onPress={() => removeField(index)}>
+            <TouchableOpacity
+              onPress={() => removeField(index)}
+              style={{ flexDirection: 'row', alignItems: 'center' }}
+            >
               <Text
                 style={{
                   fontSize: 20,
@@ -237,12 +245,16 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               alignContent: 'center',
               borderColor: '#ccc',
               borderWidth: 1,
-              padding: 10,
+              paddingHorizontal: 10,
               borderRadius: 10,
               marginHorizontal: 7,
+              height: FIELD_HEIGHT,
             }}
           >
-            <TouchableOpacity onPress={() => removeField(index)}>
+            <TouchableOpacity
+              onPress={() => removeField(index)}
+              style={{ flexDirection: 'row', alignItems: 'center' }}
+            >
               <Text
                 style={{
                   fontSize: 20,
@@ -255,10 +267,11 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
             </TouchableOpacity>
             <TextInput
               style={{
-                fontSize: 18,
+                fontSize: 16,
                 color: '#000',
-                textAlign: 'center',
+
                 marginLeft: 7,
+                flex: 1,
               }}
               value={field.value as string}
               onChangeText={(newText: string) => updateField(index, newText)}
@@ -274,12 +287,13 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               flex: 1,
               flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'space-between',
+              justifyContent: 'center',
               borderColor: '#ccc',
               borderWidth: 1,
               paddingHorizontal: 10,
               borderRadius: 10,
               marginHorizontal: 7,
+              height: FIELD_HEIGHT,
             }}
           >
             <TouchableOpacity onPress={() => removeField(index)}>
@@ -293,19 +307,36 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
                 x
               </Text>
             </TouchableOpacity>
-            <Picker
-              selectedValue={field.value as string}
-              style={[styles.picker, { flex: 1 }]}
-              onValueChange={(itemValue) => updateField(index, itemValue)}
-            >
-              {dynamicOptions.map((option) => (
-                <Picker.Item
-                  key={option.id}
-                  label={option.libelle}
-                  value={option.libelle}
-                />
-              ))}
-            </Picker>
+            {Platform.OS === 'ios' ? (
+              <PickerIOS
+                selectedValue={field.value as string}
+                style={[styles.picker, { flex: 1 }]}
+                onValueChange={(itemValue) => updateField(index, itemValue)}
+              >
+                {dynamicOptions.map((option) => (
+                  <Picker.Item
+                    key={option.id}
+                    label={option.libelle}
+                    value={option.libelle}
+                  />
+                ))}
+              </PickerIOS>
+            ) : (
+              <Picker
+                selectedValue={field.value as string}
+                style={[styles.picker, { flex: 1 }]}
+                onValueChange={(itemValue) => updateField(index, itemValue)}
+                mode="dialog"
+              >
+                {dynamicOptions.map((option) => (
+                  <Picker.Item
+                    key={option.id}
+                    label={option.libelle}
+                    value={option.libelle}
+                  />
+                ))}
+              </Picker>
+            )}
           </View>
         )
     }
@@ -405,7 +436,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   buttonText: {
-    fontWeight: '',
     fontSize: 16,
     color: 'white',
   },
