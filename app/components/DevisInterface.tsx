@@ -76,8 +76,11 @@ const DevisInterface = ({
   const updateDevisStatus = async (devisId, status) => {
     setIsSubmitting(true)
     try {
-      const apiStatus = status.toLowerCase() // API attend lowercase
+      console.log(devisId, status)
+      const apiStatus = status.toLowerCase()
+      console.log(apiStatus)
       const response = await validdevis({ id_devis: devisId, valid: apiStatus })
+      console.log(response)
       setDevisSelections((prev) => ({ ...prev, [devisId]: status }))
       Alert.alert('CONFIRMATION', 'VOTRE DEVIS A ÉTÉ MIS À JOUR AVEC SUCCÈS')
     } catch (error) {

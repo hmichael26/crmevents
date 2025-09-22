@@ -94,7 +94,7 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {item.comm_deroule || "Discuter avec l'admin sur ce sujet"}
+            {item.comm_deroule || 'Discuter avec votre conseiller sur ce sujet'}
           </Text>
         </View>
       </View>

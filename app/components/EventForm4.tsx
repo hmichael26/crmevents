@@ -261,6 +261,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     if (currentForm === 1) {
       setSelectedOption('SUPPRIMER')
     } else if (currentForm === 2) {
+      console.log(activeBadgeData, activeBadgeData?.id_presta)
       await validbrochure({
         id_presta: activeBadgeData?.id_presta,
         valid: 'supprimer',

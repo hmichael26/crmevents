@@ -46,7 +46,18 @@ type Form2Props = {
   clients?: Client[]
   clientData?: any[]
 }
-
+const clientNames = [
+  'Jean DUPONT',
+  'Marie MARTIN',
+  'Pierre BERNARD',
+  'Sophie DUBOIS',
+  'Antoine MOREAU',
+  'Isabelle PETIT',
+  'François DURAND',
+  'Catherine LEROY',
+  'Nicolas MICHEL',
+  'Sylvie GARCIA',
+]
 const Form2: React.FC<Form2Props> = ({
   item = {},
   onDataChange,
@@ -149,18 +160,12 @@ const Form2: React.FC<Form2Props> = ({
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
-      <TextInput
+      <ClientAutoDropdownComplete
         placeholder="Prénom NOM"
         value={formData.clt}
         onChangeText={(text) => updateFormField('clt', text)}
+        data={clientData} // Votre tableau de données
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-
-          borderWidth: 1,
-          borderColor: '#ccc',
-          borderRadius: 5,
-          paddingHorizontal: 10,
           marginBottom: 13,
         }}
       />
@@ -248,14 +253,17 @@ const Form2: React.FC<Form2Props> = ({
         />
       </View>
 
-      <TextInputWithIcon
+      <TextInput
         placeholder="Infos Client"
         multiline
         numberOfLines={4}
         style={{
           height: 100,
+          borderWidth: 1,
           borderColor: '#ccc',
-          borderWidth: 2,
+          borderRadius: 5,
+          paddingHorizontal: 10,
+          marginBottom: 13,
         }}
         value={formData.clt_infos}
         onChangeText={(text) => updateFormField('clt_infos', text)}
@@ -292,7 +300,6 @@ const Form2: React.FC<Form2Props> = ({
         contentContainerStyle={styles.clientListContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled" // ⭐ SOLUTION PRINCIPALE
-        nestedScrollEnabled={true}
       />
     </KeyboardAvoidingView>
   )
