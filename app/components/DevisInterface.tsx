@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Alert, View, StyleSheet, Dimensions, PixelRatio } from 'react-native'
 import Button from './Button'
 import { Picker } from '@react-native-picker/picker'
@@ -34,8 +34,10 @@ const DevisInterface = ({
   sizes,
   getFontSize,
   openDevis,
-  colors, // Ajout du paramètre colors pour la cohérence
+  colors,
 }) => {
+  console.log('📋 DevisInterface - données reçues:', activeBadgeData)
+
   // ===========================
   // ÉTATS LOCAUX
   // ===========================
@@ -43,6 +45,10 @@ const DevisInterface = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [modalVisible2, setModalVisible2] = useState(false)
   const [selectedDevisId, setSelectedDevisId] = useState(null)
+
+  // Nouvel état pour gérer les devis supprimés localement
+  const [locallyDeletedDevis, setLocallyDeletedDevis] = useState(new Set())
+  const [localDevisData, setLocalDevisData] = useState([])
 
   // ===========================
   // HOOKS & API
@@ -57,37 +63,164 @@ const DevisInterface = ({
   ]
 
   // ===========================
+  // DONNÉES FILTRÉES
+  // ===========================
+
+  // Filtrer les devis visibles (exclure les supprimés localement et ceux avec valid = 3)
+  const visibleDevis = useMemo(() => {
+    if (!activeBadgeData?.all_devis) return []
+
+    return activeBadgeData.all_devis.filter((devis) => {
+      const isNotDeleted =
+        devis.valid != 3 && !locallyDeletedDevis.has(devis.id_devis)
+      console.log(
+        `📋 Devis ${devis.id_devis}: valid=${
+          devis.valid
+        }, locallyDeleted=${locallyDeletedDevis.has(
+          devis.id_devis,
+        )}, visible=${isNotDeleted}`,
+      )
+      return isNotDeleted
+    })
+  }, [activeBadgeData?.all_devis, locallyDeletedDevis])
+
+  // ===========================
   // EFFETS
   // ===========================
+
+  // Initialiser les sélections des devis
   useEffect(() => {
     if (!activeBadgeData?.all_devis) return
 
     const initialSelections = {}
     activeBadgeData.all_devis.forEach((devis) => {
-      initialSelections[devis.id_devis] =
-        devis.valid === '1' ? 'OUI' : devis.valid === '2' ? 'NON' : ''
+      // Ne pas inclure les devis déjà supprimés (valid = 3)
+      if (devis.valid != 3) {
+        initialSelections[devis.id_devis] =
+          devis.valid === '1' ? 'OUI' : devis.valid === '2' ? 'NON' : ''
+      }
     })
+
+    console.log('🔧 Sélections initiales des devis:', initialSelections)
     setDevisSelections(initialSelections)
   }, [activeBadgeData])
+
+  // Réinitialiser les suppressions locales quand les données changent
+  useEffect(() => {
+    if (activeBadgeData?.all_devis) {
+      // Nettoyer les suppressions locales qui ne correspondent plus aux données actuelles
+      setLocallyDeletedDevis((prevDeleted) => {
+        const currentDevisIds = new Set(
+          activeBadgeData.all_devis.map((d) => d.id_devis),
+        )
+        const stillValidDeleted = new Set()
+
+        prevDeleted.forEach((id) => {
+          if (currentDevisIds.has(id)) {
+            stillValidDeleted.add(id)
+          }
+        })
+
+        if (stillValidDeleted.size !== prevDeleted.size) {
+          console.log('🔧 Nettoyage des suppressions locales:', {
+            avant: Array.from(prevDeleted),
+            après: Array.from(stillValidDeleted),
+          })
+        }
+
+        return stillValidDeleted
+      })
+    }
+  }, [activeBadgeData?.all_devis])
 
   // ===========================
   // GESTIONNAIRES D'ÉVÉNEMENTS
   // ===========================
+
   const updateDevisStatus = async (devisId, status) => {
     setIsSubmitting(true)
+
     try {
-      console.log(devisId, status)
+      console.log(
+        `🔄 Mise à jour du devis ${devisId} vers le statut: ${status}`,
+      )
+
+      // Si c'est une suppression, cacher immédiatement le devis localement
+      if (status === 'SUPPRIMER') {
+        console.log(`🗑️ Suppression locale immédiate du devis ${devisId}`)
+        setLocallyDeletedDevis((prev) => new Set(prev).add(devisId))
+
+        // Supprimer de la sélection locale aussi
+        setDevisSelections((prev) => {
+          const newSelections = { ...prev }
+          delete newSelections[devisId]
+          return newSelections
+        })
+      } else {
+        // Pour les autres statuts, mettre à jour immédiatement l'interface
+        setDevisSelections((prev) => ({ ...prev, [devisId]: status }))
+      }
+
+      // Appel API en arrière-plan
       const apiStatus = status.toLowerCase()
-      console.log(apiStatus)
+      console.log(`📡 Envoi API avec statut: ${apiStatus}`)
+
       const response = await validdevis({ id_devis: devisId, valid: apiStatus })
-      console.log(response)
-      setDevisSelections((prev) => ({ ...prev, [devisId]: status }))
-      Alert.alert('CONFIRMATION', 'VOTRE DEVIS A ÉTÉ MIS À JOUR AVEC SUCCÈS')
+      console.log('✅ Réponse API:', response)
+
+      // Message de confirmation approprié
+      const successMessage =
+        status === 'SUPPRIMER'
+          ? 'DEVIS SUPPRIMÉ AVEC SUCCÈS'
+          : 'VOTRE DEVIS A ÉTÉ MIS À JOUR AVEC SUCCÈS'
+
+      Alert.alert('CONFIRMATION', successMessage)
     } catch (error) {
-      console.error('ERREUR LORS DE LA MISE À JOUR DU DEVIS:', error)
+      console.error('🔴 Erreur lors de la mise à jour du devis:', error)
+
+      // En cas d'erreur, annuler les modifications locales
+      if (status === 'SUPPRIMER') {
+        console.log(
+          `↩️ Annulation de la suppression locale du devis ${devisId}`,
+        )
+        setLocallyDeletedDevis((prev) => {
+          const newDeleted = new Set(prev)
+          newDeleted.delete(devisId)
+          return newDeleted
+        })
+
+        // Restaurer dans la sélection
+        const originalDevis = activeBadgeData?.all_devis?.find(
+          (d) => d.id_devis === devisId,
+        )
+        if (originalDevis) {
+          const originalStatus =
+            originalDevis.valid === '1'
+              ? 'OUI'
+              : originalDevis.valid === '2'
+              ? 'NON'
+              : ''
+          setDevisSelections((prev) => ({ ...prev, [devisId]: originalStatus }))
+        }
+      } else {
+        // Pour les autres statuts, restaurer la valeur précédente
+        const originalDevis = activeBadgeData?.all_devis?.find(
+          (d) => d.id_devis === devisId,
+        )
+        if (originalDevis) {
+          const originalStatus =
+            originalDevis.valid === '1'
+              ? 'OUI'
+              : originalDevis.valid === '2'
+              ? 'NON'
+              : ''
+          setDevisSelections((prev) => ({ ...prev, [devisId]: originalStatus }))
+        }
+      }
+
       Alert.alert(
         'ERREUR',
-        'LA MISE À JOUR DU DEVIS A ÉCHOUÉ. VEUILLEZ RÉESSAYER.',
+        'LA MISE À JOUR DU DEVIS A ÉCHOUÉ. LES MODIFICATIONS ONT ÉTÉ ANNULÉES.',
       )
     } finally {
       setIsSubmitting(false)
@@ -95,6 +228,8 @@ const DevisInterface = ({
   }
 
   const handleOptionSelect = (devisId, itemValue) => {
+    console.log(`👆 Sélection pour devis ${devisId}: ${itemValue}`)
+
     if (itemValue === 'SUPPRIMER') {
       setSelectedDevisId(devisId)
       setModalVisible2(true)
@@ -104,6 +239,7 @@ const DevisInterface = ({
   }
 
   const confirmDeletion = () => {
+    console.log(`✅ Confirmation de suppression du devis ${selectedDevisId}`)
     if (selectedDevisId) {
       updateDevisStatus(selectedDevisId, 'SUPPRIMER')
       setModalVisible2(false)
@@ -112,6 +248,7 @@ const DevisInterface = ({
   }
 
   const handleCancelDeletion = () => {
+    console.log('❌ Annulation de la suppression')
     setModalVisible2(false)
     setSelectedDevisId(null)
   }
@@ -119,17 +256,34 @@ const DevisInterface = ({
   // ===========================
   // RENDU CONDITIONNEL
   // ===========================
+
   if (!activeBadgeData?.all_devis || activeBadgeData.all_devis.length === 0) {
+    console.log('⚠️ Aucun devis disponible')
     return null
   }
+
+  if (visibleDevis.length === 0) {
+    console.log('⚠️ Tous les devis sont cachés/supprimés')
+    return (
+      <View style={styles.emptyContainer}>
+        <Text size={getFontSize(14)} style={styles.emptyText}>
+          AUCUN DEVIS DISPONIBLE
+        </Text>
+      </View>
+    )
+  }
+
+  console.log(
+    `📋 Rendu de ${visibleDevis.length} devis visibles sur ${activeBadgeData.all_devis.length} total`,
+  )
 
   // ===========================
   // RENDU PRINCIPAL
   // ===========================
   return (
     <>
-      {activeBadgeData.all_devis.map((item, index) => (
-        <View key={item.id_devis || index} style={styles.actionRow}>
+      {visibleDevis.map((item, index) => (
+        <View key={`devis-${item.id_devis}-${index}`} style={styles.actionRow}>
           <Button
             flex={1}
             gradient={gradients.info}
@@ -164,6 +318,7 @@ const DevisInterface = ({
               defaultValue={{
                 [item.id_devis]: devisSelections[item.id_devis],
               }}
+              disabled={isSubmitting}
             />
           </Button>
         </View>
@@ -204,7 +359,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#ccc', // Idéalement, utiliser colors.border si disponible
+    borderColor: '#ccc',
     paddingHorizontal: getResponsiveWidth(2),
     borderRadius: 10,
     marginBottom: getResponsiveHeight(0.5),
@@ -212,14 +367,11 @@ const styles = StyleSheet.create({
     marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
   },
   infoBox: {
-    // flex: isSmallScreen ? 0 : 1,
     width: isSmallScreen ? '100%' : 'auto',
     flexDirection: 'column',
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    //  padding: getResponsiveWidth(1.5),
-    //marginTop: isSmallScreen ? getResponsiveHeight(1) : 0,
   },
   actionRow: {
     flexDirection: isSmallScreen ? 'column' : 'row',
@@ -228,6 +380,16 @@ const styles = StyleSheet.create({
     gap: getResponsiveWidth(2),
     marginHorizontal: getResponsiveWidth(1),
     marginVertical: getResponsiveHeight(0.5),
+  },
+  emptyContainer: {
+    padding: getResponsiveHeight(2),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    color: '#999',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 })
 
