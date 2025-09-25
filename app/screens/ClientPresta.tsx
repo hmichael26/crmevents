@@ -563,7 +563,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorTitle: {
-    fontWeight: '',
     textAlign: 'center',
   },
   errorDetails: {
@@ -575,7 +574,6 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     color: '#fff',
-    fontWeight: '',
   },
   emptyContainer: {
     flex: 1,
@@ -583,7 +581,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyTitle: {
-    fontWeight: '',
     textAlign: 'center',
   },
   emptySubtitle: {
@@ -594,7 +591,6 @@ const styles = StyleSheet.create({
   },
   emptyButtonText: {
     color: '#fff',
-    fontWeight: '',
   },
 })
 

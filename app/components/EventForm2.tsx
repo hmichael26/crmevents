@@ -169,128 +169,129 @@ const Form2: React.FC<Form2Props> = ({
           marginBottom: 13,
         }}
       />
+      <View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Entreprise"
+            style={{
+              width: '50%',
+              flexDirection: 'row',
+              alignItems: 'center',
 
-      <View style={styles.inputContainer}>
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 5,
+              paddingHorizontal: 10,
+              marginBottom: 13,
+            }}
+            value={formData.ent}
+            onChangeText={(text) => updateFormField('ent', text)}
+          />
+
+          <TextInput
+            placeholder="Email"
+            style={{
+              width: '50%',
+              flexDirection: 'row',
+              alignItems: 'center',
+
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 5,
+              paddingHorizontal: 10,
+              marginBottom: 13,
+            }}
+            value={formData.clt_email}
+            onChangeText={(text) => updateFormField('clt_email', text)}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Téléphone fixe"
+            style={{
+              width: '50%',
+              flexDirection: 'row',
+              alignItems: 'center',
+
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 5,
+              paddingHorizontal: 10,
+              marginBottom: 13,
+            }}
+            value={formData.clt_telfix}
+            onChangeText={(text) => updateFormField('clt_telfix', text)}
+          />
+          <TextInput
+            placeholder="Téléphone portable"
+            style={{
+              width: '50%',
+              flexDirection: 'row',
+              alignItems: 'center',
+
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 5,
+              paddingHorizontal: 10,
+              marginBottom: 13,
+            }}
+            value={formData.clt_telport}
+            onChangeText={(text) => updateFormField('clt_telport', text)}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <SwitchTextBox
+            label="Publier au nom de l'entreprise"
+            placeholder="Enter notification details"
+            style={{ width: '100%' }}
+            toogleValue={formData.publish_as_company}
+            onToggle={(value) => {
+              updateFormField('publish_as_company', value)
+            }}
+          />
+        </View>
+
         <TextInput
-          placeholder="Entreprise"
+          placeholder="Infos Client"
+          multiline
+          numberOfLines={4}
           style={{
-            width: '50%',
-            flexDirection: 'row',
-            alignItems: 'center',
-
+            height: 100,
             borderWidth: 1,
             borderColor: '#ccc',
             borderRadius: 5,
             paddingHorizontal: 10,
             marginBottom: 13,
           }}
-          value={formData.ent}
-          onChangeText={(text) => updateFormField('ent', text)}
+          value={formData.clt_infos}
+          onChangeText={(text) => updateFormField('clt_infos', text)}
         />
 
-        <TextInput
-          placeholder="Email"
+        <View
           style={{
-            width: '50%',
             flexDirection: 'row',
+            gap: 2,
             alignItems: 'center',
-
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            marginBottom: 13,
+            justifyContent: 'space-around',
           }}
-          value={formData.clt_email}
-          onChangeText={(text) => updateFormField('clt_email', text)}
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Téléphone fixe"
-          style={{
-            width: '50%',
-            flexDirection: 'row',
-            alignItems: 'center',
-
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            marginBottom: 13,
-          }}
-          value={formData.clt_telfix}
-          onChangeText={(text) => updateFormField('clt_telfix', text)}
-        />
-        <TextInput
-          placeholder="Téléphone portable"
-          style={{
-            width: '50%',
-            flexDirection: 'row',
-            alignItems: 'center',
-
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            marginBottom: 13,
-          }}
-          value={formData.clt_telport}
-          onChangeText={(text) => updateFormField('clt_telport', text)}
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <SwitchTextBox
-          label="Publier au nom de l'entreprise"
-          placeholder="Enter notification details"
-          style={{ width: '100%' }}
-          toogleValue={formData.publish_as_company}
-          onToggle={(value) => {
-            updateFormField('publish_as_company', value)
-          }}
-        />
-      </View>
-
-      <TextInput
-        placeholder="Infos Client"
-        multiline
-        numberOfLines={4}
-        style={{
-          height: 100,
-          borderWidth: 1,
-          borderColor: '#ccc',
-          borderRadius: 5,
-          paddingHorizontal: 10,
-          marginBottom: 13,
-        }}
-        value={formData.clt_infos}
-        onChangeText={(text) => updateFormField('clt_infos', text)}
-      />
-
-      <View
-        style={{
-          flexDirection: 'row',
-          gap: 2,
-          alignItems: 'center',
-          justifyContent: 'space-around',
-        }}
-      >
-        <Text style={{ fontSize: 16, color: colors.primary }}>
-          Ajouter d'autres clients
-        </Text>
-        <Button
-          flex={0.6}
-          gradient={gradients.warning}
-          marginBottom={sizes.base}
-          rounded={false}
-          round={false}
-          style={{ marginTop: 10 }}
-          onPress={addClient}
         >
-          <Text style={{ fontSize: 16, color: 'white' }}> + Ajouter</Text>
-        </Button>
+          <Text style={{ fontSize: 16, color: colors.primary }}>
+            Ajouter d'autres clients
+          </Text>
+          <Button
+            flex={0.6}
+            gradient={gradients.warning}
+            marginBottom={sizes.base}
+            rounded={false}
+            round={false}
+            style={{ marginTop: 10 }}
+            onPress={addClient}
+          >
+            <Text style={{ fontSize: 16, color: 'white' }}> + Ajouter</Text>
+          </Button>
+        </View>
       </View>
 
       <FlatList

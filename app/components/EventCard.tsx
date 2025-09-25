@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { View, Text, StyleSheet, Image } from 'react-native'
 import { Button } from '../components'
 import { useTheme } from '../hooks'
+import { AuthContext } from '../context/AuthContext'
 
 interface EventCardProps {
   item: any
@@ -9,6 +10,17 @@ interface EventCardProps {
 }
 
 export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
+  const { userdata } = useContext(AuthContext)
+
+  /* {
+      Receiver: `Admin - ${derouleTitle}`,
+      chat: {
+        idevt: idevt,
+        from_user: userdata.user.IDC,
+        //iduser2: admin, // Admin ID
+        id_deroule: derouleId,
+      },*/
+
   const { colors, gradients, sizes } = useTheme()
 
   return (
@@ -24,7 +36,7 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
                 'https://www.goseminaire.com/crm/upload/' + (item as any).logo,
             }}
             style={styles.logo}
-            resizeMode="cover"
+            resizeMode="contain"
           />
         </View>
         <View style={styles.infoContainer}>
@@ -33,7 +45,7 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
               <Text style={styles.infoText}>pax: {item.pax || 0}</Text>
             </Button>
             {true && (
-              <Button gradient={gradients.primary} style={styles.statusButton}>
+              <Button gradient={gradients.info} style={styles.statusButton}>
                 <Text style={styles.statusText}>Event en cours</Text>
               </Button>
             )}
@@ -44,20 +56,30 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
             </Button>
 
             <Button
+              gradient={gradients.black}
+              style={styles.consultButton}
+              onPress={() =>
+                navigation.navigate('Inbox', {
+                  Receiver: `Conseiller pour ${item.evt}`,
+                  chat: {
+                    idevt: item.idevt,
+                    from_user: userdata.user.IDC,
+                    //iduser2: admin, // Admin ID
+                    id_deroule: item.idevt,
+                  },
+                })
+              }
+            >
+              <Text style={styles.consultText}>Chat</Text>
+            </Button>
+          </View>
+          <View style={styles.infoRow}>
+            <Button
               gradient={gradients.primary}
               style={styles.consultButton}
               onPress={() => navigation.navigate('ClientPresta', { item })}
             >
               <Text style={styles.consultText}>Consulter</Text>
-            </Button>
-          </View>
-          <View style={styles.infoRow}>
-            <Button
-              gradient={gradients.black}
-              style={styles.consultButton}
-              onPress={() => navigation.navigate('InboxClient', { item })}
-            >
-              <Text style={styles.consultText}>Chat</Text>
             </Button>
           </View>
         </View>

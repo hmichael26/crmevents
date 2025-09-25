@@ -354,15 +354,15 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       <View style={styles.header}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
+        <TouchableOpacity
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+          onPress={() => navigation.goBack()}
+        >
+          <View style={styles.backButton}>
             <Feather name="arrow-left" size={25} color="#303133" />
-          </TouchableOpacity>
+          </View>
           <Text style={styles.headerTitle}>{param.Receiver}</Text>
-        </View>
+        </TouchableOpacity>
       </View>
       {/* Input Area */}
       <KeyboardAvoidingView

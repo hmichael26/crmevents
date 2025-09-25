@@ -290,6 +290,10 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
       ],
     )
 
+    const handleOpenWebsite = (link) => {
+      Linking.openURL(link)
+    }
+
     // Modal handlers
     const openModalWithImages = useCallback(
       (images?: Array<{ image: string }>) => {
@@ -382,6 +386,7 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
                 flex={1}
                 style={[styles.venueName, { paddingHorizontal: 0 }]}
                 gradient={GRADIENTS.success}
+                onPress={() => handleOpenWebsite(item.site_internet)}
               >
                 <Text
                   style={[
@@ -400,7 +405,7 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
               <Button
                 gradient={GRADIENTS.info}
                 style={[styles.priceTag, isSmallDevice && { width: 60 }]}
-                width={isSmallDevice ? 60 : 70}
+                width={isSmallDevice ? 60 : 150}
               >
                 <Text
                   style={[
