@@ -352,7 +352,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
       <View style={styles.header}>
         <TouchableOpacity
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 14,
     paddingVertical: 10,
-    marginTop: 16,
+    marginTop: 20,
     gap: 4,
   },
   backButton: {

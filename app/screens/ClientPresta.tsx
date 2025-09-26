@@ -11,12 +11,14 @@ import {
   Alert,
   Dimensions,
   PixelRatio,
+  TouchableOpacity,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import ClientPrestaCard from '../components/ClientPrestaCard'
 import { useApi } from '../context/useApi'
 import { Block, Button } from '../components'
 import { useTheme } from '../hooks'
+import { Feather } from '@expo/vector-icons'
 
 // Types pour une meilleure sécurité
 interface Deroule {
@@ -439,6 +441,10 @@ const ClientPresta: React.FC<ClientPrestaProps> = ({ route, navigation }) => {
                 paddingHorizontal: getResponsivePadding(40),
                 paddingVertical: getResponsivePadding(15),
               },
+              {
+                flex: 1,
+                maxHeight: getResponsiveHeight(10),
+              },
             ]}
             onPress={() => navigation.goBack()}
           >
@@ -455,6 +461,18 @@ const ClientPresta: React.FC<ClientPrestaProps> = ({ route, navigation }) => {
 
   return (
     <Block style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+          onPress={() => navigation.goBack()}
+        >
+          <View style={styles.backButton}>
+            <Feather name="arrow-left" size={25} color="#303133" />
+          </View>
+          <Text style={styles.headerTitle}>PRESTATAIRE</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Navigation par onglets avec responsive */}
       <View
         style={[
@@ -531,6 +549,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingVertical: getResponsiveSpacing(20),
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 17,
+    marginTop: 20,
+    gap: 4,
+  },
+  backButton: {
+    padding: 4,
+  },
+  headerTitle: {
+    fontSize: 15,
+    width: '90%',
+    fontWeight: '600',
+    color: '#000',
+  },
+  moreButton: {
+    padding: 4,
   },
   tabContainer: {
     borderBottomWidth: 1,

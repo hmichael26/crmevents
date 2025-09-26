@@ -312,8 +312,18 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
-
+      <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+          onPress={() => navigation.goBack()}
+        >
+          <View style={styles.backButton}>
+            <Feather name="arrow-left" size={25} color="#303133" />
+          </View>
+          <Text style={styles.headerTitle}>CHAT DU DEROULÉ</Text>
+        </TouchableOpacity>
+      </View>
       {/* Onglets */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
@@ -394,6 +404,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 0,
+    marginTop: 40,
+    gap: 4,
+  },
+  backButton: {
+    padding: 4,
+  },
+  headerTitle: {
+    fontSize: 15,
+    width: '90%',
+    fontWeight: '600',
+    color: '#000',
+  },
+  moreButton: {
+    padding: 4,
   },
   loadingContainer: {
     flex: 1,

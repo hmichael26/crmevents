@@ -82,7 +82,7 @@ export default () => {
       <Stack.Screen
         name="Chat"
         component={ChatScreen}
-        options={{ title: ' CHAT DU DEROULÉ', ...screenOptions.chat }}
+        options={{ headerShown: false }}
       />
 
       <Stack.Screen
@@ -197,7 +197,7 @@ export default () => {
       <Stack.Screen
         name="ClientPresta"
         component={ClientPresta}
-        options={{ title: ' PRESTATAIRE', ...screenOptions.back }}
+        options={{ headerShown: false }}
       />
 
       <Stack.Screen
@@ -209,7 +209,7 @@ export default () => {
       <Stack.Screen
         name="InboxClient"
         component={InboxClient}
-        options={{ title: "CHATTER AVEC L'ADMIN", ...screenOptions.chat }}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   )

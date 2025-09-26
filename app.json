@@ -3,7 +3,6 @@
     "name": "CRM Events",
     "slug": "crmevents",
     "version": "1.0.1",
-    "jsEngine": "hermes",
     "orientation": "portrait",
     "icon": "./app/assets/images/splash.png",
     "scheme": "myapp",
@@ -15,15 +14,13 @@
     },
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "1.0.2",
+      "buildNumber": "1.0.1",
       "bundleIdentifier": "com.crmevents.myapp",
-      "deploymentTarget": "13.0",
       "entitlements": {
         "aps-environment": "production"
       },
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification", "remote-notification"],
-        "ITSAppUsesNonExemptEncryption": false
+        "UIBackgroundModes": ["remote-notification"]
       }
     },
     "android": {
@@ -33,23 +30,16 @@
       "minSdkVersion": 23,
       "versionCode": 2,
       "versionName": "2.0.0",
-      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
-        "foregroundImage": "./app/assets/images/splash.png",
+        "foregroundImage": "./app/assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "googleServicesFile": "./google-services.json",
-      "permissions": [
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.INTERNET",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
-      ]
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
+
       "favicon": "./app/assets/images/favicon.png",
       "name": "CRM Events"
     },
@@ -68,6 +58,7 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ],
+
       [
         "expo-build-properties",
         {
@@ -81,10 +72,8 @@
           }
         }
       ],
-      "expo-notifications",
-      "expo-font",
-      "expo-localization",
-      "expo-web-browser"
+
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true
@@ -94,10 +83,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "a241f533-0f5e-4876-b35a-60fda30d8b3c"
-      },
-      "companyName": "260 agency"
+        "projectId": "208bdf9e-cee4-4672-acb7-847d2a2c70b5"
+      }
     },
-    "owner": "pierre.ahoble"
+    "owner": "hmichael26"
   }
 }

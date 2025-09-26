@@ -111,8 +111,18 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
-
+      <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+          onPress={() => navigation.goBack()}
+        >
+          <View style={styles.backButton}>
+            <Feather name="arrow-left" size={25} color="#303133" />
+          </View>
+          <Text style={styles.headerTitle}>CHATTER AVEC L'ADMIN</Text>
+        </TouchableOpacity>
+      </View>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Feather
