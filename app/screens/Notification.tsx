@@ -6,7 +6,6 @@ import {
   SafeAreaView,
   TouchableOpacity,
   FlatList,
-  StatusBar,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { useTheme } from '../hooks'

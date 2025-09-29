@@ -8,7 +8,6 @@ import {
   Image,
   FlatList,
   TextInput,
-  StatusBar,
   Alert,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
@@ -111,7 +110,6 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
       <View style={styles.header}>
         <TouchableOpacity
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}

@@ -8,7 +8,6 @@ import {
   Image,
   FlatList,
   TextInput,
-  StatusBar,
   Alert,
   ActivityIndicator,
 } from 'react-native'
@@ -304,7 +303,6 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
         {renderLoading()}
       </SafeAreaView>
     )
@@ -312,7 +310,6 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
       <View style={styles.header}>
         <TouchableOpacity
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}

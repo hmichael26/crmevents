@@ -2,7 +2,7 @@
   "expo": {
     "name": "CRM Events",
     "slug": "crmevents",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./app/assets/images/splash.png",
     "scheme": "myapp",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "1.0.1",
+      "buildNumber": "2.0.0",
       "bundleIdentifier": "com.crmevents.myapp",
       "entitlements": {
         "aps-environment": "production"
@@ -31,7 +31,7 @@
       "versionCode": 2,
       "versionName": "2.0.0",
       "adaptiveIcon": {
-        "foregroundImage": "./app/assets/images/icon.png",
+        "foregroundImage": "./app/assets/images/splash.png",
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./google-services.json"

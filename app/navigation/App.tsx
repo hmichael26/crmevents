@@ -111,13 +111,18 @@ const App = () => {
   const [appInitProgress, setAppInitProgress] = useState('Initialisation...')
   const { colors } = useTheme()
 
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     'OpenSans-Light': require('../assets/fonts/OpenSans-Light.ttf'),
     'OpenSans-Regular': require('../assets/fonts/OpenSans-Regular.ttf'),
     'OpenSans-SemiBold': require('../assets/fonts/OpenSans-SemiBold.ttf'),
     'OpenSans-ExtraBold': require('../assets/fonts/OpenSans-ExtraBold.ttf'),
     'OpenSans-Bold': require('../assets/fonts/OpenSans-Bold.ttf'),
   })
+
+  // Gestion des erreurs de polices
+  if (fontError) {
+    console.warn('Erreur de chargement des polices:', fontError)
+  }
 
   const prepareApp = useCallback(async () => {
     try {
@@ -169,7 +174,7 @@ const App = () => {
     <ThemeProvider theme={theme} setTheme={setTheme}>
       <AuthProvider>
         <NavigationContainer theme={navigationTheme}>
-          <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
+         
           <SecureNavigator />
         </NavigationContainer>
       </AuthProvider>
