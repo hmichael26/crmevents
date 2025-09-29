@@ -174,7 +174,6 @@ const App = () => {
     <ThemeProvider theme={theme} setTheme={setTheme}>
       <AuthProvider>
         <NavigationContainer theme={navigationTheme}>
-         
           <SecureNavigator />
         </NavigationContainer>
       </AuthProvider>
