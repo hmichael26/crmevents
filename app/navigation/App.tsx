@@ -151,6 +151,16 @@ const App = () => {
     prepareApp()
   }, [prepareApp])
 
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      StatusBar.setTranslucent(true)
+    }
+    StatusBar.setBarStyle(isDark ? 'light-content' : 'dark-content')
+    return () => {
+      StatusBar.setBarStyle('default')
+    }
+  }, [isDark])
+
   // Écran de chargement de l'app avec progression
   if (!isReady) {
     return <ModernSplashScreen />
@@ -174,6 +184,7 @@ const App = () => {
     <ThemeProvider theme={theme} setTheme={setTheme}>
       <AuthProvider>
         <NavigationContainer theme={navigationTheme}>
+          <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
           <SecureNavigator />
         </NavigationContainer>
       </AuthProvider>

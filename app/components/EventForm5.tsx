@@ -307,7 +307,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
                 x
               </Text>
             </TouchableOpacity>
-            {Platform.OS === 'ios' ? (
+            {Platform.OS == 'ios' ? (
               <PickerIOS
                 selectedValue={field.value as string}
                 style={[styles.picker, { flex: 1 }]}
@@ -315,6 +315,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               >
                 {dynamicOptions.map((option) => (
                   <Picker.Item
+                    style={{ flex: 1 ,color: '#000'}}
                     key={option.id}
                     label={option.libelle}
                     value={option.libelle}
@@ -330,6 +331,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               >
                 {dynamicOptions.map((option) => (
                   <Picker.Item
+                    style={{ flex: 1 ,color: '#000'}}
                     key={option.id}
                     label={option.libelle}
                     value={option.libelle}

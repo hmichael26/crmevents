@@ -46,18 +46,7 @@ type Form2Props = {
   clients?: Client[]
   clientData?: any[]
 }
-const clientNames = [
-  'Jean DUPONT',
-  'Marie MARTIN',
-  'Pierre BERNARD',
-  'Sophie DUBOIS',
-  'Antoine MOREAU',
-  'Isabelle PETIT',
-  'François DURAND',
-  'Catherine LEROY',
-  'Nicolas MICHEL',
-  'Sylvie GARCIA',
-]
+
 const Form2: React.FC<Form2Props> = ({
   item = {},
   onDataChange,
@@ -186,6 +175,7 @@ const Form2: React.FC<Form2Props> = ({
             }}
             value={formData.ent}
             onChangeText={(text) => updateFormField('ent', text)}
+            placeholderTextColor={'#000'}
           />
 
           <TextInput
@@ -203,6 +193,7 @@ const Form2: React.FC<Form2Props> = ({
             }}
             value={formData.clt_email}
             onChangeText={(text) => updateFormField('clt_email', text)}
+            placeholderTextColor={'#000'}
           />
         </View>
 
@@ -222,6 +213,7 @@ const Form2: React.FC<Form2Props> = ({
             }}
             value={formData.clt_telfix}
             onChangeText={(text) => updateFormField('clt_telfix', text)}
+            placeholderTextColor={'#000'}
           />
           <TextInput
             placeholder="Téléphone portable"
@@ -238,6 +230,7 @@ const Form2: React.FC<Form2Props> = ({
             }}
             value={formData.clt_telport}
             onChangeText={(text) => updateFormField('clt_telport', text)}
+            placeholderTextColor={'#000'}
           />
         </View>
 
@@ -267,6 +260,7 @@ const Form2: React.FC<Form2Props> = ({
           }}
           value={formData.clt_infos}
           onChangeText={(text) => updateFormField('clt_infos', text)}
+          placeholderTextColor={'#000'}
         />
 
         <View

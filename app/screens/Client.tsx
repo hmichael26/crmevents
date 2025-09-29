@@ -561,6 +561,7 @@ export const Client = () => {
                 autoCapitalize="words"
                 autoCorrect={false}
                 editable={!loadingStates.updating}
+                placeholderTextColor={'#000'}
               />
               {searchQuery.length > 0 && (
                 <TouchableOpacity

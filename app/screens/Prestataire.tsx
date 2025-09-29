@@ -828,6 +828,7 @@ export const Prestataire = () => {
                   autoCapitalize="words"
                   autoCorrect={false}
                   editable={!loadingStates.updating}
+                  placeholderTextColor={'#000'}
                 />
 
                 {selectForm.nom.length > 0 && (
@@ -959,7 +960,7 @@ const PickerWrapper = React.memo(
         onFocus={onFocus}
         enabled={!disabled}
       >
-        <Picker.Item label={loading ? 'Chargement...' : placeholder} value="" />
+        <Picker.Item label={loading ? 'Chargement...' : placeholder} value="" style={{ color: '#000' }} />
         {!loading &&
           items.map((item, index) => (
             <Picker.Item
@@ -981,7 +982,7 @@ const PickerWrapper = React.memo(
 )
 
 const CustomTextInput = React.memo(({ ...props }) => (
-  <TextInput style={[styles.input, styles.inputHalf]} {...props} />
+  <TextInput style={[styles.input, styles.inputHalf]} {...props}  placeholderTextColor={'#000'}/>
 ))
 
 const styles = StyleSheet.create({

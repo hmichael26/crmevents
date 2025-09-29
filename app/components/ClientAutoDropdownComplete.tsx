@@ -82,6 +82,7 @@ const ClientAutoDropdownComplete = ({
     <SafeAreaView>
       <View style={[styles.container, style]}>
         <TextInput
+         placeholderTextColor={'#000'}
           ref={textInputRef}
           placeholder={placeholder}
           value={value}
@@ -154,10 +155,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   suggestionsContainer: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
+   
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#ccc',

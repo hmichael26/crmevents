@@ -407,8 +407,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 14,
-    paddingVertical: 0,
-    marginTop: 40,
+    paddingVertical: 5,
+    marginTop: 50 ,
     gap: 4,
   },
   backButton: {

@@ -195,6 +195,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           paddingHorizontal: 10,
           marginBottom: 13,
         }}
+        placeholderTextColor={'#000'}
       />
 
       {/* Date de création et référence */}
@@ -302,6 +303,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
             style={[styles.textArea, styles.textInput]}
             value={formData.commentaires_dates}
             onChangeText={(text) => updateFormField('commentaires_dates', text)}
+            placeholderTextColor={'#000'}
           />
           {/* Commentaire personnel */}
           <TextInput
@@ -311,6 +313,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
             style={[styles.textArea, styles.textInput]}
             value={formData.format}
             onChangeText={(text) => updateFormField('format', text)}
+            placeholderTextColor={'#000'}
           />
         </ScrollView>
       </KeyboardAvoidingView>
