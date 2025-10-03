@@ -12,7 +12,10 @@ import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon'
 import MultiSelect from './MultiSelectBox'
 import DateTimePicker, {
   DateTimePickerEvent,
+  
 } from '@react-native-community/datetimepicker'
+import DatePicker from 'react-native-date-picker'
+
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import Input from './Input'
 
@@ -320,13 +323,16 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
 
       {/* DateTimePicker */}
       {show && (
+        
         <DateTimePicker
+          
           testID="dateTimePicker"
           value={getCurrentPickerDate()}
           mode="date"
           is24Hour={true}
-          display="default"
+          display="material"
           onChange={onChange}
+          
         />
       )}
     </View>

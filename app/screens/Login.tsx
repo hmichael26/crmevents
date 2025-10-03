@@ -134,12 +134,14 @@ const Login = () => {
           keyboard
           marginTop={-(sizes.height * 0.03 - sizes.l)}
           behavior={!isAndroid ? 'padding' : 'height'}
+         
         >
           <Block
             flex={0}
             radius={sizes.sm}
             marginHorizontal="8%"
-            shadow={!isAndroid} // disabled shadow on Android due to blur overlay + elevation issue
+           
+            
           >
             <Block
               blur
@@ -149,6 +151,13 @@ const Login = () => {
               overflow="hidden"
               justify="space-evenly"
               paddingVertical={sizes.sm}
+               style={{
+              backgroundColor: 'white',
+              
+              borderRadius: 60,
+            
+            
+            }}
             >
               <Text p center marginTop={10} size={22}>
                 Connexion
