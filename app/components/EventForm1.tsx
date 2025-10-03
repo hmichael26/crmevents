@@ -12,14 +12,15 @@ import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon'
 import MultiSelect from './MultiSelectBox'
 import DateTimePicker, {
   DateTimePickerEvent,
-  
 } from '@react-native-community/datetimepicker'
-import DatePicker from 'react-native-date-picker'
+import { Datepicker, Layout, Text, IconElement } from '@ui-kitten/components'
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import Input from './Input'
+import Icon from 'react-native-vector-icons/Ionicons'
 
 const { width, height } = Dimensions.get('window')
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 type EventType = {
   id: string
@@ -90,7 +91,8 @@ const parseSelectedIds = (typesEvts: string | null | undefined): string[] => {
 }
 
 const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
-  console.log(item.idevt)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+
   // Initialisation du state avec gestion propre des dates
   const [formData, setFormData] = useState<FormData>({
     idevt: item.idevt || 0,
@@ -179,163 +181,217 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
     return currentDate instanceof Date ? currentDate : new Date()
   }
 
-  console.log(formData.idevt, item)
+  // console.log(formData.idevt, item)
+  const insets = useSafeAreaInsets()
 
   return (
-    <View style={styles.container}>
-      {/* Titre de l'événement */}
-      <TextInput
-        placeholder="Titre de l'Event"
-        value={formData.evt}
-        onChangeText={(text) => updateFormField('evt', text)}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={'padding'}
+      keyboardVerticalOffset={insets.top}
+    >
+      <View style={styles.container}>
+        {/* Titre de l'événement */}
+        <TextInput
+          placeholder="Titre de l'Event"
+          value={formData.evt}
+          onChangeText={(text) => updateFormField('evt', text)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            height: 40,
 
-          borderWidth: 1,
-          borderColor: '#ccc',
-          borderRadius: 5,
-          paddingHorizontal: 10,
-          marginBottom: 13,
-        }}
-        placeholderTextColor={'#000'}
-      />
-
-      {/* Date de création et référence */}
-      <View style={styles.inputContainer}>
-        <TextInputWithIcon
-          iconName="calendar"
-          placeholder="Date de creation"
-          editable={false}
-          value={formatDateForDisplay(formData.date_reception)}
-          style={[formData.idevt != 0 ? { width: '50%' } : { width: '100%' }]}
-          onPress={() => showDatepicker('date_reception')}
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 5,
+            paddingHorizontal: 10,
+            marginBottom: 13,
+          }}
+          placeholderTextColor={'#000'}
         />
 
-        {formData.idevt != 0 && (
+        {/* Date de création et référence */}
+        <View style={styles.inputContainer}>
+          <View
+            style={[
+              formData.idevt != 0 ? { width: '50%' } : { width: '100%' },
+              {
+                marginBottom: 12,
+                height: 40,
+              },
+            ]}
+          >
+            <Datepicker
+              placeholder="Sélectionner une date"
+              style={{
+                width: '100%',
+              }}
+              min={new Date(2000, 0, 1)} // 🆕 Date minimale
+              max={new Date(2030, 11, 31)} // 🆕 Date maximale
+              controlStyle={{
+                backgroundColor: '#fff',
+
+                borderColor: '#ccc',
+                borderWidth: 1,
+              }}
+              size="medium"
+              status="primary"
+              accessoryLeft={
+                <Icon
+                  name="calendar"
+                  size={20}
+                  color="#ccc"
+                  style={{ marginRight: 10 }}
+                />
+              }
+              backdropStyle={{ backgroundColor: '#000', opacity: 0.3 }}
+              date={formData.date_reception}
+              onSelect={(nextDate) =>
+                updateFormField('date_reception', nextDate)
+              }
+            />
+          </View>
+
+          {formData.idevt != 0 && (
+            <TextInputWithIcon
+              placeholder="REF Projet"
+              style={{ width: '50%', height: 40 }}
+              value={formData.ref}
+              onChangeText={(text) => updateFormField('ref', text)}
+              editable={false}
+              selectTextOnFocus={false}
+              pointerEvents="none"
+            />
+          )}
+        </View>
+
+        {/* Pax et Zone géographique */}
+        <View style={styles.inputContainer}>
           <TextInputWithIcon
-            placeholder="REF Projet"
-            style={{ width: '50%' }}
-            value={formData.ref}
-            onChangeText={(text) => updateFormField('ref', text)}
-            editable={false}
-            selectTextOnFocus={false}
-            pointerEvents="none"
+            iconName="person"
+            placeholder="Pax"
+            style={{ width: '30%' }}
+            value={formData.pax}
+            onChangeText={(text) => updateFormField('pax', text)}
           />
-        )}
-      </View>
 
-      {/* Pax et Zone géographique */}
-      <View style={styles.inputContainer}>
-        <TextInputWithIcon
-          iconName="person"
-          placeholder="Pax"
-          style={{ width: '30%' }}
-          value={formData.pax}
-          onChangeText={(text) => updateFormField('pax', text)}
-        />
-
-        <TextInputWithIcon
-          placeholder="Zone geographique"
-          style={{ width: '70%' }}
-          value={formData.zone}
-          onChangeText={(text) => updateFormField('zone', text)}
-        />
-      </View>
-
-      {/* Sélection multiple des types d'événements */}
-      <View>
-        <MultiSelect
-          options={options}
-          selectedOptions={formData.types_evts}
-          onSelectionChange={handleSelectionChange}
-        />
-      </View>
-
-      {/* Dates de début et fin */}
-      <View style={styles.inputContainer}>
-        <TextInputWithIcon
-          iconName="calendar"
-          placeholder="Début"
-          editable={false}
-          value={formatDateForDisplay(formData.date_deb)}
-          style={{ width: '50%' }}
-          onPress={() => showDatepicker('date_deb')}
-        />
-        <TextInputWithIcon
-          iconName="calendar"
-          placeholder="Fin"
-          editable={false}
-          value={formatDateForDisplay(formData.date_fin)}
-          style={{ width: '50%' }}
-          onPress={() => showDatepicker('date_fin')}
-        />
-      </View>
-
-      {/* Switch dates flexibles et Budget */}
-      <View style={styles.inputContainer}>
-        <SwitchTextBox
-          label="Dates flexibles"
-          placeholder="Flexibilite"
-          style={{ width: '60%' }}
-          toogleValue={formData.flexible_dates}
-          onToggle={(value) => updateFormField('flexible_dates', value)}
-        />
-        <TextInputWithIcon
-          fonsiName="euro"
-          placeholder="Budget"
-          style={{ width: '40%' }}
-          value={formData.budget}
-          onChangeText={(text) => updateFormField('budget', text)}
-        />
-      </View>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0} // Ajuster selon votre header
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Commentaire pour le prestataire */}
-          <TextInput
-            placeholder="Commentaire pour le prestataire"
-            multiline
-            numberOfLines={4}
-            style={[styles.textArea, styles.textInput]}
-            value={formData.commentaires_dates}
-            onChangeText={(text) => updateFormField('commentaires_dates', text)}
-            placeholderTextColor={'#000'}
+          <TextInputWithIcon
+            placeholder="Zone geographique"
+            style={{ width: '70%' }}
+            value={formData.zone}
+            onChangeText={(text) => updateFormField('zone', text)}
           />
-          {/* Commentaire personnel */}
-          <TextInput
-            placeholder="Commentaire Personnel"
-            multiline
-            numberOfLines={4}
-            style={[styles.textArea, styles.textInput]}
-            value={formData.format}
-            onChangeText={(text) => updateFormField('format', text)}
-            placeholderTextColor={'#000'}
-          />
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
 
-      {/* DateTimePicker */}
-      {show && (
-        
-        <DateTimePicker
-          
-          testID="dateTimePicker"
-          value={getCurrentPickerDate()}
-          mode="date"
-          is24Hour={true}
-          display="material"
-          onChange={onChange}
-          
+        {/* Sélection multiple des types d'événements */}
+        <View>
+          <MultiSelect
+            options={options}
+            selectedOptions={formData.types_evts}
+            onSelectionChange={handleSelectionChange}
+          />
+        </View>
+
+        {/* Dates de début et fin */}
+        <View style={styles.inputContainer}>
+          <View style={{ width: '50%', marginBottom: 10 }}>
+            <Datepicker
+              placeholder="Date début"
+              style={{
+                width: '100%',
+              }}
+              min={new Date(2000, 0, 1)} // 🆕 Date minimale
+              max={new Date(2030, 11, 31)} // 🆕 Date maximale
+              controlStyle={{
+                backgroundColor: '#fff',
+
+                borderColor: '#ccc',
+                borderWidth: 1,
+              }}
+              size="medium"
+              status="primary"
+              accessoryLeft={
+                <Icon
+                  name="calendar"
+                  size={20}
+                  color="#ccc"
+                  style={{ marginRight: 10 }}
+                />
+              }
+              date={formData.date_deb}
+              onSelect={(nextDate) => updateFormField('date_deb', nextDate)}
+            />
+          </View>
+          <View style={{ width: '50%', marginBottom: 10 }}>
+            <Datepicker
+              placeholder="Date fin"
+              style={{
+                width: '100%',
+              }}
+              min={new Date(2000, 0, 1)} // 🆕 Date minimale
+              max={new Date(2030, 11, 31)} // 🆕 Date maximale
+              controlStyle={{
+                backgroundColor: '#fff',
+
+                borderColor: '#ccc',
+                borderWidth: 1,
+              }}
+              size="medium"
+              status="primary"
+              accessoryLeft={
+                <Icon
+                  name="calendar"
+                  size={20}
+                  color="#ccc"
+                  style={{ marginRight: 10 }}
+                />
+              }
+              date={formData.date_fin}
+              onSelect={(nextDate) => updateFormField('date_fin', nextDate)}
+            />
+          </View>
+        </View>
+
+        {/* Switch dates flexibles et Budget */}
+        <View style={styles.inputContainer}>
+          <SwitchTextBox
+            label="Dates flexibles"
+            placeholder="Flexibilite"
+            style={{ width: '60%' }}
+            toogleValue={formData.flexible_dates}
+            onToggle={(value) => updateFormField('flexible_dates', value)}
+          />
+          <TextInputWithIcon
+            fonsiName="euro"
+            placeholder="Budget"
+            style={{ width: '40%' }}
+            value={formData.budget}
+            onChangeText={(text) => updateFormField('budget', text)}
+          />
+        </View>
+
+        {/* Commentaire pour le prestataire */}
+        <TextInput
+          placeholder="Commentaire pour le prestataire"
+          multiline
+          numberOfLines={4}
+          style={[styles.textArea, styles.textInput]}
+          value={formData.commentaires_dates}
+          onChangeText={(text) => updateFormField('commentaires_dates', text)}
+          placeholderTextColor={'#000'}
         />
-      )}
-    </View>
+        {/* Commentaire personnel */}
+        <TextInput
+          placeholder="Commentaire Personnel"
+          multiline
+          numberOfLines={4}
+          style={[styles.textArea, styles.textInput]}
+          value={formData.format}
+          onChangeText={(text) => updateFormField('format', text)}
+          placeholderTextColor={'#000'}
+        />
+      </View>
+    </KeyboardAvoidingView>
   )
 }
 

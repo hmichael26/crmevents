@@ -24,9 +24,13 @@ interface Client {
 }
 
 interface ExistingClient {
-  id_client: string
-  nom_client: string
-  prenom_client: string
+  id: string
+  nom: string
+  prenom: string
+  email?: string
+  tel_fixe?: string
+  tel_port?: string
+  infos?: string
 }
 interface FormData {
   idevt?: Number
@@ -89,10 +93,47 @@ const Form2: React.FC<Form2Props> = ({
 
   // Update a specific field in form data
   const updateFormField = (field: keyof FormData, value: string | boolean) => {
+    // Mise à jour standard
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }))
+
+    // Si le champ modifié est le nom du client, tenter de récupérer le client associé
+    if (field === 'clt' && typeof value === 'string') {
+      const normalized = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim()
+      const target = normalized(value)
+
+      let found: ExistingClient | null = null
+      if (Array.isArray(clientData)) {
+        // Essai 1: correspondance exacte "prenom nom" ou "nom prenom"
+        found =
+          (clientData.find((c: any) => {
+            const full1 = normalized(`${c.prenom || ''} ${c.nom || ''}`)
+            const full2 = normalized(`${c.nom || ''} ${c.prenom || ''}`)
+            return full1 === target || full2 === target
+          }) as ExistingClient | undefined) || null
+
+        // Essai 2: fallback en "includes"
+        if (!found) {
+          found =
+            (clientData.find((c: any) => {
+              const full = normalized(`${c.prenom || ''} ${c.nom || ''}`)
+              return full.includes(target)
+            }) as ExistingClient | undefined) || null
+        }
+      }
+
+      if (found) {
+        setFormData((prev) => ({
+          ...prev,
+          clt_email: found.email ?? prev.clt_email,
+          clt_telfix: found.tel_fixe ?? prev.clt_telfix,
+          clt_telport: found.tel_port ?? prev.clt_telport,
+          clt_infos: found.infos ?? prev.clt_infos,
+        }))
+      }
+    }
   }
 
   const addClient = () => {
@@ -172,6 +213,7 @@ const Form2: React.FC<Form2Props> = ({
               borderRadius: 5,
               paddingHorizontal: 10,
               marginBottom: 13,
+              height: 40,
             }}
             value={formData.ent}
             onChangeText={(text) => updateFormField('ent', text)}
@@ -184,7 +226,7 @@ const Form2: React.FC<Form2Props> = ({
               width: '50%',
               flexDirection: 'row',
               alignItems: 'center',
-
+              height: 40,
               borderWidth: 1,
               borderColor: '#ccc',
               borderRadius: 5,
@@ -204,7 +246,7 @@ const Form2: React.FC<Form2Props> = ({
               width: '50%',
               flexDirection: 'row',
               alignItems: 'center',
-
+              height: 40,
               borderWidth: 1,
               borderColor: '#ccc',
               borderRadius: 5,
@@ -221,7 +263,7 @@ const Form2: React.FC<Form2Props> = ({
               width: '50%',
               flexDirection: 'row',
               alignItems: 'center',
-
+              height: 40,
               borderWidth: 1,
               borderColor: '#ccc',
               borderRadius: 5,
@@ -291,7 +333,7 @@ const Form2: React.FC<Form2Props> = ({
       <FlatList
         data={clients}
         renderItem={renderClientItem}
-        keyExtractor={(client) => client.id}
+        keyExtractor={(client) => client.id.toString()}
         contentContainerStyle={styles.clientListContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled" // ⭐ SOLUTION PRINCIPALE

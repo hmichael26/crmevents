@@ -18,6 +18,10 @@ import 'intl-pluralrules'
 import Constants from 'expo-constants'
 import { LogBox } from 'react-native'
 import Toast from 'react-native-toast-message'
+import * as eva from '@eva-design/eva'
+import { ApplicationProvider } from '@ui-kitten/components'
+import { KeyboardProvider } from 'react-native-keyboard-controller'
+
 LogBox.ignoreAllLogs() // si tu veux ignorer les warnings
 
 // Pour capturer les erreurs globales :
@@ -78,10 +82,12 @@ export default function App() {
 
   return (
     <>
-      <DataProvider>
-        <AppNavigation />
-      </DataProvider>
-      <Toast />
+      <ApplicationProvider {...eva} theme={eva.light}>
+        <DataProvider>
+          <AppNavigation />
+        </DataProvider>
+        <Toast />
+      </ApplicationProvider>
     </>
   )
 }

@@ -23,6 +23,7 @@ const ClientAutoDropdownComplete = ({
   maxSuggestions = 5,
   useModal = false, // Option pour utiliser une Modal
 }) => {
+  // console.log(data)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [filteredClients, setFilteredClients] = useState([])
   const [modalVisible, setModalVisible] = useState(false)
@@ -82,7 +83,7 @@ const ClientAutoDropdownComplete = ({
     <SafeAreaView>
       <View style={[styles.container, style]}>
         <TextInput
-         placeholderTextColor={'#000'}
+          placeholderTextColor={'#000'}
           ref={textInputRef}
           placeholder={placeholder}
           value={value}
@@ -155,7 +156,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   suggestionsContainer: {
-   
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#ccc',
