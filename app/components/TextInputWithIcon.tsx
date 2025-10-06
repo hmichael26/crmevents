@@ -33,13 +33,13 @@ const TextInputWithIcon: React.FC<TextInputWithIconProps> = ({
       {fonsiName && (
         <Fontisto name={fonsiName} size={20} color="gray" style={styles.icon} />
       )}
-      <View>
+     
         <TextInput
-          style={[styles.input]}
+          style={styles.input}
           {...props}
           placeholderTextColor="#ccc"
         />
-      </View>
+      
     </Pressable>
   )
 }
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    width: '100%',
     height: 40,
   },
   switchContainer: {

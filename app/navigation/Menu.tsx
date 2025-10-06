@@ -74,7 +74,8 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
   const handleNavigation = useCallback(
     (to: string) => {
       setActive(to)
-      navigation.navigate(to)
+      // Si l'écran est dans le navigateur imbriqué "Screens"
+      navigation.navigate('Screens', { screen: to })
     },
     [navigation, setActive],
   )
@@ -103,7 +104,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
   ].filter(Boolean) // Cela supprime toutes les valeurs `falsy` du tableau
 
   const handleNewProject = () => {
-    navigation.navigate('Eventdetails')
+    navigation.navigate('Screens', { screen: 'Eventdetails' })
   }
   return (
     <DrawerContentScrollView

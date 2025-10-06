@@ -31,6 +31,8 @@ interface ExistingClient {
   tel_fixe?: string
   tel_port?: string
   infos?: string
+  ent?: string
+  publish_as_company?: any
 }
 interface FormData {
   idevt?: Number
@@ -57,6 +59,7 @@ const Form2: React.FC<Form2Props> = ({
   clients: initialClients,
   clientData = [],
 }) => {
+  console.log(item)
   const { assets, colors, gradients, sizes } = useTheme()
 
   // State to manage form data
@@ -101,7 +104,12 @@ const Form2: React.FC<Form2Props> = ({
 
     // Si le champ modifié est le nom du client, tenter de récupérer le client associé
     if (field === 'clt' && typeof value === 'string') {
-      const normalized = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim()
+      const normalized = (s: string) =>
+        s
+          .normalize('NFD')
+          .replace(/\p{Diacritic}/gu, '')
+          .toLowerCase()
+          .trim()
       const target = normalized(value)
 
       let found: ExistingClient | null = null
@@ -124,13 +132,17 @@ const Form2: React.FC<Form2Props> = ({
         }
       }
 
+      console.log('🔵 Client trouvé:', found)
       if (found) {
         setFormData((prev) => ({
           ...prev,
-          clt_email: found.email ?? prev.clt_email,
-          clt_telfix: found.tel_fixe ?? prev.clt_telfix,
-          clt_telport: found.tel_port ?? prev.clt_telport,
-          clt_infos: found.infos ?? prev.clt_infos,
+          // Remplacer avec les valeurs du client trouvé, même si elles sont vides
+          ent: found.ent || '',
+          clt_email: found.email || '',
+          clt_telfix: found.tel_fixe || '',
+          clt_telport: found.tel_port || '',
+          clt_infos: found.infos || '',
+          publish_as_company: found.publish_as_company || false,
         }))
       }
     }

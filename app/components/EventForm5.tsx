@@ -213,7 +213,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               padding: 10,
               borderRadius: 10,
               marginHorizontal: 7,
-              height: FIELD_HEIGHT,
+              height: FIELD_HEIGHT + 5,
             }}
           >
             <TouchableOpacity
@@ -248,7 +248,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               paddingHorizontal: 10,
               borderRadius: 10,
               marginHorizontal: 7,
-              height: FIELD_HEIGHT,
+              height: FIELD_HEIGHT + 5,
             }}
           >
             <TouchableOpacity
@@ -291,9 +291,10 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               borderColor: '#ccc',
               borderWidth: 1,
               paddingHorizontal: 10,
+
               borderRadius: 10,
               marginHorizontal: 7,
-              height: FIELD_HEIGHT,
+              height: FIELD_HEIGHT + 5,
             }}
           >
             <TouchableOpacity onPress={() => removeField(index)}>
@@ -315,7 +316,11 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               >
                 {dynamicOptions.map((option) => (
                   <Picker.Item
-                    style={{ flex: 1 ,color: '#000'}}
+                    style={{
+                      flex: 1,
+                      color: '#000',
+                      backgroundColor: '#fff',
+                    }}
                     key={option.id}
                     label={option.libelle}
                     value={option.libelle}
@@ -331,7 +336,12 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               >
                 {dynamicOptions.map((option) => (
                   <Picker.Item
-                    style={{ flex: 1 ,color: '#000'}}
+                    style={{
+                      flex: 1,
+                      color: '#000',
+                      backgroundColor: '#fff',
+                      fontSize: 16,
+                    }}
                     key={option.id}
                     label={option.libelle}
                     value={option.libelle}
@@ -426,9 +436,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   picker: {
-    borderColor: '#000',
-    borderWidth: 1,
-    borderRadius: 10,
+    backgroundColor: 'transparent',
+    color: '#000',
+    borderColor: '#ccc',
+    height: FIELD_HEIGHT,
   },
   buttonContainer: {
     marginTop: 10,

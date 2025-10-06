@@ -91,6 +91,7 @@ const parseSelectedIds = (typesEvts: string | null | undefined): string[] => {
 }
 
 const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
+  //console.log(item)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
 
   // Initialisation du state avec gestion propre des dates
@@ -244,7 +245,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
                   style={{ marginRight: 10 }}
                 />
               }
-              backdropStyle={{ backgroundColor: '#000', opacity: 0.3 }}
+              backdropStyle={{ backgroundColor: 'transparent', opacity: 0.3 }}
               date={formData.date_reception}
               onSelect={(nextDate) =>
                 updateFormField('date_reception', nextDate)

@@ -227,7 +227,7 @@ const Home = (props: DrawerContentComponentProps) => {
           },
         },
       ],
-      { cancelable: true },
+      { cancelable: true, userInterfaceStyle: 'light' },
     )
   }
 
