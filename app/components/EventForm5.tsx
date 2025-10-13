@@ -7,13 +7,13 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Platform,
 } from 'react-native'
 import { useTheme } from '../hooks'
-import DateTimePicker from '@react-native-community/datetimepicker'
-import { Picker, PickerIOS } from '@react-native-picker/picker'
+import { Datepicker } from '@ui-kitten/components'
 import Button from './Button'
 import { AuthContext } from '../context/AuthContext'
+import SelectOption from './SelectOption'
+import Icon from 'react-native-vector-icons/Ionicons'
 
 const { height } = Dimensions.get('window')
 const FIELD_HEIGHT = 50
@@ -24,36 +24,24 @@ interface DateFieldProps {
 }
 
 const DateField: React.FC<DateFieldProps> = ({ date, onDateChange }) => {
-  const [show, setShow] = useState(false)
-
-  const onChange = (event: Event, selectedDate?: Date) => {
-    const currentDate = selectedDate || date
-    setShow(false)
-    onDateChange(currentDate)
-  }
-
   return (
-    <View
-      style={{
-        flex: 1,
-      }}
-    >
-      <TouchableOpacity
-        onPress={() => setShow(true)}
-        style={{ padding: 5, marginHorizontal: 5 }}
-      >
-        <Text style={{ fontSize: 15 }}>{date.toLocaleDateString()}</Text>
-      </TouchableOpacity>
-      {show && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode="date"
-          is20Hour={true}
-          display="default"
-          onChange={onChange}
-        />
-      )}
+    <View style={{ flex: 1 }}>
+      <Datepicker
+        placeholder="Sélectionner une date"
+        style={{ width: '100%' }}
+        min={new Date(2000, 0, 1)}
+        max={new Date(2030, 11, 31)}
+        controlStyle={{
+          backgroundColor: 'transparent',
+          borderWidth: 0,
+          paddingHorizontal: 0,
+        }}
+        size="medium"
+        status="primary"
+        backdropStyle={{ backgroundColor: 'transparent', opacity: 0.3 }}
+        date={date}
+        onSelect={(nextDate) => onDateChange(nextDate)}
+      />
     </View>
   )
 }
@@ -81,7 +69,7 @@ interface Field {
 interface Form5Props {
   options: Option[]
   onDataChange: (data: any) => void
-  item?: any // Made item optional
+  item?: any
 }
 
 const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
@@ -173,7 +161,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         if (dynamicOptions.length > 0) {
           newField = {
             type: 'dynamic',
-            value: dynamicOptions[0].libelle,
+            value: dynamicOptions[0].libelle, // Utiliser le libelle maintenant
           }
         } else {
           newField = {
@@ -203,31 +191,13 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     switch (field.type) {
       case 'date':
         return (
-          <View
-            key={index}
-            style={{
-              flexDirection: 'row',
-              alignContent: 'center',
-              borderColor: '#ccc',
-              borderWidth: 1,
-              padding: 10,
-              borderRadius: 10,
-              marginHorizontal: 7,
-              height: FIELD_HEIGHT + 5,
-            }}
-          >
+          <View key={index} style={styles.fieldWrapper}>
             <TouchableOpacity
               onPress={() => removeField(index)}
-              style={{ flexDirection: 'row', alignItems: 'center' }}
+              style={styles.removeButton}
             >
-              <Text
-                style={{
-                  fontSize: 20,
-                  color: colors.danger,
-                  fontWeight: '600',
-                }}
-              >
-                x
+              <Text style={[styles.removeText, { color: colors.danger }]}>
+                ×
               </Text>
             </TouchableOpacity>
             <DateField
@@ -238,117 +208,45 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         )
       case 'text':
         return (
-          <View
-            key={index}
-            style={{
-              flexDirection: 'row',
-              alignContent: 'center',
-              borderColor: '#ccc',
-              borderWidth: 1,
-              paddingHorizontal: 10,
-              borderRadius: 10,
-              marginHorizontal: 7,
-              height: FIELD_HEIGHT + 5,
-            }}
-          >
+          <View key={index} style={styles.fieldWrapper}>
             <TouchableOpacity
               onPress={() => removeField(index)}
-              style={{ flexDirection: 'row', alignItems: 'center' }}
+              style={styles.removeButton}
             >
-              <Text
-                style={{
-                  fontSize: 20,
-                  color: colors.danger,
-                  fontWeight: '600',
-                }}
-              >
-                x
+              <Text style={[styles.removeText, { color: colors.danger }]}>
+                ×
               </Text>
             </TouchableOpacity>
             <TextInput
-              style={{
-                fontSize: 16,
-                color: '#000',
-
-                marginLeft: 7,
-                flex: 1,
-              }}
+              style={styles.textInput}
               value={field.value as string}
               onChangeText={(newText: string) => updateField(index, newText)}
-              placeholder="Enter text"
+              placeholder="Entrer du texte"
+              placeholderTextColor="#999"
             />
           </View>
         )
       case 'dynamic':
         return (
-          <View
-            key={index}
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderColor: '#ccc',
-              borderWidth: 1,
-              paddingHorizontal: 10,
-
-              borderRadius: 10,
-              marginHorizontal: 7,
-              height: FIELD_HEIGHT + 5,
-            }}
-          >
-            <TouchableOpacity onPress={() => removeField(index)}>
-              <Text
-                style={{
-                  fontSize: 20,
-                  color: colors.danger,
-                  fontWeight: '600',
-                }}
-              >
-                x
+          <View key={index} style={styles.dynamicFieldWrapper}>
+            <TouchableOpacity
+              onPress={() => removeField(index)}
+              style={styles.removeButtonDynamic}
+            >
+              <Text style={[styles.removeText, { color: colors.danger }]}>
+                ×
               </Text>
             </TouchableOpacity>
-            {Platform.OS == 'ios' ? (
-              <PickerIOS
-                selectedValue={field.value as string}
-                style={[styles.picker, { flex: 1 }]}
-                onValueChange={(itemValue) => updateField(index, itemValue)}
-              >
-                {dynamicOptions.map((option) => (
-                  <Picker.Item
-                    style={{
-                      flex: 1,
-                      color: '#000',
-                      backgroundColor: '#fff',
-                    }}
-                    key={option.id}
-                    label={option.libelle}
-                    value={option.libelle}
-                  />
-                ))}
-              </PickerIOS>
-            ) : (
-              <Picker
-                selectedValue={field.value as string}
-                style={[styles.picker, { flex: 1 }]}
-                onValueChange={(itemValue) => updateField(index, itemValue)}
-                mode="dialog"
-              >
-                {dynamicOptions.map((option) => (
-                  <Picker.Item
-                    style={{
-                      flex: 1,
-                      color: '#000',
-                      backgroundColor: '#fff',
-                      fontSize: 16,
-                    }}
-                    key={option.id}
-                    label={option.libelle}
-                    value={option.libelle}
-                  />
-                ))}
-              </Picker>
-            )}
+            <View style={{ flex: 1 }}>
+              <SelectOption
+                options={dynamicOptions}
+                selectedOption={field.value as string}
+                onSelectionChange={(selectedLibelle) =>
+                  updateField(index, selectedLibelle)
+                }
+                placeholder="Sélectionnez une option"
+              />
+            </View>
           </View>
         )
     }
@@ -356,15 +254,14 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
 
   return (
     <ScrollView style={styles.container}>
-      {(!item || item.length == 0 || fields.length === 0) ?? (
+      {(!item || item.length === 0 || fields.length === 0) && (
         <View style={styles.fieldContainer}>
-          <Text
-            style={{ color: colors.danger, fontSize: 20, textAlign: 'center' }}
-          >
-            chargement ...
+          <Text style={[styles.loadingText, { color: colors.danger }]}>
+            Aucun champ ajouté
           </Text>
         </View>
       )}
+
       {fields &&
         fields.map((field, index) => (
           <View key={index} style={styles.fieldContainer}>
@@ -382,13 +279,10 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
             <Text style={[styles.buttonText, styles.centerText]}>
               Champ DATE
             </Text>
-            <Text
-              style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}
-            >
-              +
-            </Text>
+            <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>
         </Button>
+
         <Button
           gradient={gradients.info}
           style={styles.button}
@@ -398,13 +292,10 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
             <Text style={[styles.buttonText, styles.centerText]}>
               Champ TEXT
             </Text>
-            <Text
-              style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}
-            >
-              +
-            </Text>
+            <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>
         </Button>
+
         <Button
           gradient={gradients.success}
           style={styles.button}
@@ -414,11 +305,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
             <Text style={[styles.buttonText, styles.centerText]}>
               Champ DYNAMIQUE
             </Text>
-            <Text
-              style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}
-            >
-              +
-            </Text>
+            <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>
         </Button>
       </View>
@@ -435,15 +322,60 @@ const styles = StyleSheet.create({
   fieldContainer: {
     marginBottom: 10,
   },
-  picker: {
-    backgroundColor: 'transparent',
-    color: '#000',
+  fieldWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderColor: '#ccc',
-    height: FIELD_HEIGHT,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    marginHorizontal: 7,
+    minHeight: FIELD_HEIGHT + 5,
+    backgroundColor: '#fff',
+  },
+  dynamicFieldWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    marginHorizontal: 7,
+    minHeight: FIELD_HEIGHT + 5,
+    backgroundColor: '#fff',
+  },
+  removeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10,
+  },
+  removeButtonDynamic: {
+    paddingRight: 10,
+    alignSelf: 'flex-start',
+    paddingTop: 5,
+  },
+  removeText: {
+    fontSize: 28,
+    fontWeight: '600',
+    lineHeight: 28,
+  },
+  textInput: {
+    fontSize: 16,
+    color: '#000',
+    flex: 1,
+    paddingVertical: 8,
+  },
+  loadingText: {
+    fontSize: 20,
+    textAlign: 'center',
+    paddingVertical: 20,
   },
   buttonContainer: {
     marginTop: 10,
     marginHorizontal: 10,
+    marginBottom: 20,
   },
   button: {
     marginBottom: 5,
@@ -461,6 +393,10 @@ const styles = StyleSheet.create({
   centerText: {
     textAlign: 'center',
     flex: 1,
+  },
+  plusIcon: {
+    fontSize: 25,
+    marginHorizontal: 5,
   },
 })
 
