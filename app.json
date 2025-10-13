@@ -20,6 +20,7 @@
         "aps-environment": "production"
       },
       "infoPlist": {
+        "NSUserTrackingUsageDescription": "Cette application utilise les notifications pour vous informer des mises à jour.",
         "UIBackgroundModes": ["remote-notification"]
       }
     },
