@@ -87,12 +87,12 @@ const SelectOption: React.FC<SelectOptionProps> = ({
                   key={option.id}
                   style={[
                     styles.option,
-                    selectedOption === option.libelle && styles.selectedOption,
+                    selectedOption == option.libelle && styles.selectedOption,
                   ]}
                   onPress={() => selectOption(option.libelle)}
                 >
                   <Text style={styles.optionText}>{option.libelle}</Text>
-                  {selectedOption === option.libelle && (
+                  {selectedOption == option.libelle && (
                     <Text style={styles.checkmark}>✓</Text>
                   )}
                 </TouchableOpacity>

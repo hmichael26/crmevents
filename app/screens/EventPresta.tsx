@@ -564,7 +564,6 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             placeholderTextColor="#999"
             value={derouleTitle}
             onChangeText={handleDerouleTitleChange}
-            blurOnSubmit={true}
             onSubmitEditing={() => Keyboard.dismiss()}
             onBlur={() => validateTitle(derouleTitle)} // Validation au blur
             maxLength={100}
@@ -813,7 +812,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 18,
     textAlign: 'center',
-    paddingVertical: 10,
+    paddingVertical: 5,
   },
   scrollViewContent: {
     padding: 6,
