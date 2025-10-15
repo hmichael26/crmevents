@@ -21,9 +21,12 @@ const FIELD_HEIGHT = 50
 interface DateFieldProps {
   date: Date
   onDateChange: (date: Date) => void
+  index: number
 }
 
-const DateField: React.FC<DateFieldProps> = ({ date, onDateChange }) => {
+const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
   return (
     <View style={{ flex: 1 }}>
       <Datepicker
@@ -40,7 +43,10 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange }) => {
         status="primary"
         backdropStyle={{ backgroundColor: 'transparent', opacity: 0.3 }}
         date={date}
-        onSelect={(nextDate) => onDateChange(nextDate)}
+        onSelect={(nextDate) => {
+          onDateChange(nextDate)
+          setIsOpen(false)
+        }}
       />
     </View>
   )
@@ -76,16 +82,40 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
   const { userdata } = useContext(AuthContext)
   const { gradients, colors } = useTheme()
 
+  // ✅ FIX 1: Amélioration du parsing de date avec validation
   const parseDate = (dateStr: string): Date => {
     if (!dateStr) return new Date()
 
+    // Parse format DD/MM/YYYY
     const parts = dateStr.split('/')
     if (parts.length === 3) {
-      const [day, month, year] = parts
-      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+      const [day, month, year] = parts.map((p) => parseInt(p, 10))
+
+      // Validation des valeurs
+      if (isNaN(day) || isNaN(month) || isNaN(year)) {
+        console.warn('Invalid date parts:', dateStr)
+        return new Date()
+      }
+
+      const date = new Date(year, month - 1, day)
+
+      // Vérification que la date est valide
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date created:', dateStr)
+        return new Date()
+      }
+
+      return date
     }
 
-    return new Date(dateStr)
+    // Essai de parsing direct
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) {
+      console.warn('Could not parse date:', dateStr)
+      return new Date()
+    }
+
+    return date
   }
 
   const determineFieldType = (fieldItem: any): FieldType => {
@@ -109,6 +139,9 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
 
   const [fields, setFields] = useState<Field[]>([])
   const [dynamicOptions, setDynamicOptions] = useState<Option[]>([])
+  const [openDatePickerIndex, setOpenDatePickerIndex] = useState<number | null>(
+    null,
+  )
 
   useEffect(() => {
     if (item && Array.isArray(item) && item.length > 0) {
@@ -132,17 +165,43 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     }
   }, [options])
 
+  // ✅ FIX 2: Ajout de validation avant la conversion de date
+  // Utilisation de useRef pour éviter les re-renders infinis
+  const onDataChangeRef = React.useRef(onDataChange)
+
+  useEffect(() => {
+    onDataChangeRef.current = onDataChange
+  }, [onDataChange])
+
   useEffect(() => {
     const formData = {
-      fields: fields.map((field) => ({
-        type: field.type,
-        value:
-          field.type === 'date'
-            ? (field.value as Date).toLocaleDateString('fr-FR')
-            : field.value,
-      })),
+      fields: fields.map((field) => {
+        if (field.type === 'date') {
+          // Vérification que la valeur est bien une Date valide
+          const dateValue =
+            field.value instanceof Date ? field.value : new Date(field.value)
+
+          if (isNaN(dateValue.getTime())) {
+            console.warn('Invalid date in field:', field)
+            return {
+              type: field.type,
+              value: new Date().toLocaleDateString('fr-FR'),
+            }
+          }
+
+          return {
+            type: field.type,
+            value: dateValue.toLocaleDateString('fr-FR'),
+          }
+        }
+
+        return {
+          type: field.type,
+          value: field.value,
+        }
+      }),
     }
-    onDataChange(formData)
+    onDataChangeRef.current(formData)
   }, [fields])
 
   const addRandomField = (option: number): void => {
@@ -161,7 +220,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         if (dynamicOptions.length > 0) {
           newField = {
             type: 'dynamic',
-            value: dynamicOptions[0].libelle, // Utiliser le libelle maintenant
+            value: dynamicOptions[0].libelle,
           }
         } else {
           newField = {
@@ -175,9 +234,24 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     setFields([...fields, newField])
   }
 
+  // ✅ FIX 3: Validation lors de la mise à jour d'un champ date
   const updateField = (index: number, newValue: Date | string): void => {
     const newFields = [...fields]
-    newFields[index].value = newValue
+
+    // Validation spécifique pour les dates
+    if (newFields[index].type === 'date') {
+      if (newValue instanceof Date && !isNaN(newValue.getTime())) {
+        newFields[index].value = newValue
+        // Fermer le DatePicker après sélection
+        setOpenDatePickerIndex(null)
+      } else {
+        console.warn('Attempted to set invalid date, keeping current value')
+        return
+      }
+    } else {
+      newFields[index].value = newValue
+    }
+
     setFields(newFields)
   }
 
@@ -190,6 +264,13 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
   const renderField = (field: Field, index: number) => {
     switch (field.type) {
       case 'date':
+        // ✅ FIX 4: Vérification et conversion sécurisée de la date
+        const dateValue =
+          field.value instanceof Date ? field.value : new Date(field.value)
+
+        // Si la date n'est pas valide, utiliser la date actuelle
+        const validDate = isNaN(dateValue.getTime()) ? new Date() : dateValue
+
         return (
           <View key={index} style={styles.fieldWrapper}>
             <TouchableOpacity
@@ -201,8 +282,9 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               </Text>
             </TouchableOpacity>
             <DateField
-              date={field.value as Date}
+              date={validDate}
               onDateChange={(newDate) => updateField(index, newDate)}
+              index={index}
             />
           </View>
         )
