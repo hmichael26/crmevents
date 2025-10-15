@@ -398,6 +398,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 5,
+    marginTop: 13,
     marginHorizontal: 10,
     flex: 1,
   },
@@ -413,7 +414,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 10,
     marginHorizontal: 7,
-    minHeight: FIELD_HEIGHT + 5,
+    minHeight: FIELD_HEIGHT + 7,
     backgroundColor: '#fff',
   },
   dynamicFieldWrapper: {
@@ -444,6 +445,7 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
   textInput: {
+    backgroundColor: '#fff',
     fontSize: 16,
     color: '#000',
     flex: 1,
