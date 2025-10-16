@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
-    marginTop: -50,
+    marginTop: -30,
     paddingHorizontal: 20,
   },
   blurCard: {
