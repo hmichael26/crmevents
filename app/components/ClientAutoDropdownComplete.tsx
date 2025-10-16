@@ -23,7 +23,7 @@ const ClientAutoDropdownComplete = ({
   maxSuggestions = 5,
   useModal = false, // Option pour utiliser une Modal
 }) => {
-  // console.log(data)
+  //  console.log(data)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [filteredClients, setFilteredClients] = useState([])
   const [modalVisible, setModalVisible] = useState(false)

@@ -33,6 +33,7 @@ interface ExistingClient {
   infos?: string
   ent?: string
   publish_as_company?: any
+  nom_entreprise?: string
 }
 interface FormData {
   idevt?: Number
@@ -80,8 +81,6 @@ const Form2: React.FC<Form2Props> = ({
   const [clients, setClients] = useState<Client[]>(() => {
     return formData.clients || []
   })
-
-  //console.log(clientData)
 
   // Effect to update parent component whenever form data changes
   useEffect(() => {
@@ -137,7 +136,7 @@ const Form2: React.FC<Form2Props> = ({
         setFormData((prev) => ({
           ...prev,
           // Remplacer avec les valeurs du client trouvé, même si elles sont vides
-          ent: found.ent || '',
+          ent: found.nom_entreprise || '',
           clt_email: found.email || '',
           clt_telfix: found.tel_fixe || '',
           clt_telport: found.tel_port || '',

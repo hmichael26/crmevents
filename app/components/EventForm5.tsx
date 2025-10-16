@@ -9,11 +9,11 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { useTheme } from '../hooks'
-import { Datepicker } from '@ui-kitten/components'
 import Button from './Button'
 import { AuthContext } from '../context/AuthContext'
 import SelectOption from './SelectOption'
 import Icon from 'react-native-vector-icons/Ionicons'
+import { CustomDatePicker } from './CustomDatePicker'
 
 const { height } = Dimensions.get('window')
 const FIELD_HEIGHT = 50
@@ -25,28 +25,48 @@ interface DateFieldProps {
 }
 
 const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isPickerVisible, setPickerVisible] = useState(false)
+  const { colors } = useTheme()
+
+  // Formater la date pour l'affichage (DD/MM/YYYY)
+  const formatDate = (date: Date): string => {
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  // Parser la date depuis le format DD/MM/YYYY
+  const parseDate = (dateStr: string): Date => {
+    const [day, month, year] = dateStr
+      .split('/')
+      .map((num) => parseInt(num, 10))
+    return new Date(year, month - 1, day)
+  }
+
+  const handleDateConfirm = (dateStr: string) => {
+    const parsedDate = parseDate(dateStr)
+    onDateChange(parsedDate)
+  }
 
   return (
     <View style={{ flex: 1 }}>
-      <Datepicker
-        placeholder="Sélectionner une date"
-        style={{ width: '100%' }}
-        min={new Date(2000, 0, 1)}
-        max={new Date(2030, 11, 31)}
-        controlStyle={{
-          backgroundColor: 'transparent',
-          borderWidth: 0,
-          paddingHorizontal: 0,
-        }}
-        size="medium"
-        status="primary"
-        backdropStyle={{ backgroundColor: 'transparent', opacity: 0.3 }}
-        date={date}
-        onSelect={(nextDate) => {
-          onDateChange(nextDate)
-          setIsOpen(false)
-        }}
+      <TouchableOpacity
+        style={styles.datePickerButton}
+        onPress={() => setPickerVisible(true)}
+      >
+        <Text style={styles.datePickerText}>{formatDate(date)}</Text>
+        <Icon name="calendar-outline" size={20} color={colors.primary} />
+      </TouchableOpacity>
+
+      <CustomDatePicker
+        visible={isPickerVisible}
+        onClose={() => setPickerVisible(false)}
+        onConfirm={handleDateConfirm}
+        initialDate="16/10/2025"
+        title="Sélectionner une date"
+        minDate={new Date(2000, 0, 1)}
+        maxDate={new Date(2030, 11, 31)}
       />
     </View>
   )
@@ -82,7 +102,6 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
   const { userdata } = useContext(AuthContext)
   const { gradients, colors } = useTheme()
 
-  // ✅ FIX 1: Amélioration du parsing de date avec validation
   const parseDate = (dateStr: string): Date => {
     if (!dateStr) return new Date()
 
@@ -139,9 +158,6 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
 
   const [fields, setFields] = useState<Field[]>([])
   const [dynamicOptions, setDynamicOptions] = useState<Option[]>([])
-  const [openDatePickerIndex, setOpenDatePickerIndex] = useState<number | null>(
-    null,
-  )
 
   useEffect(() => {
     if (item && Array.isArray(item) && item.length > 0) {
@@ -165,8 +181,6 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     }
   }, [options])
 
-  // ✅ FIX 2: Ajout de validation avant la conversion de date
-  // Utilisation de useRef pour éviter les re-renders infinis
   const onDataChangeRef = React.useRef(onDataChange)
 
   useEffect(() => {
@@ -177,7 +191,6 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     const formData = {
       fields: fields.map((field) => {
         if (field.type === 'date') {
-          // Vérification que la valeur est bien une Date valide
           const dateValue =
             field.value instanceof Date ? field.value : new Date(field.value)
 
@@ -234,16 +247,12 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     setFields([...fields, newField])
   }
 
-  // ✅ FIX 3: Validation lors de la mise à jour d'un champ date
   const updateField = (index: number, newValue: Date | string): void => {
     const newFields = [...fields]
 
-    // Validation spécifique pour les dates
     if (newFields[index].type === 'date') {
       if (newValue instanceof Date && !isNaN(newValue.getTime())) {
         newFields[index].value = newValue
-        // Fermer le DatePicker après sélection
-        setOpenDatePickerIndex(null)
       } else {
         console.warn('Attempted to set invalid date, keeping current value')
         return
@@ -264,11 +273,8 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
   const renderField = (field: Field, index: number) => {
     switch (field.type) {
       case 'date':
-        // ✅ FIX 4: Vérification et conversion sécurisée de la date
         const dateValue =
           field.value instanceof Date ? field.value : new Date(field.value)
-
-        // Si la date n'est pas valide, utiliser la date actuelle
         const validDate = isNaN(dateValue.getTime()) ? new Date() : dateValue
 
         return (
@@ -481,6 +487,21 @@ const styles = StyleSheet.create({
   plusIcon: {
     fontSize: 25,
     marginHorizontal: 5,
+  },
+  datePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+
+    flex: 1,
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#000',
   },
 })
 

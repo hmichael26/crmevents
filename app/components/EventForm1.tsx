@@ -7,20 +7,17 @@ import {
   Platform,
   ScrollView,
   TextInput,
+  TouchableOpacity,
+  Text,
 } from 'react-native'
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon'
 import MultiSelect from './MultiSelectBox'
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from '@react-native-community/datetimepicker'
-import { Datepicker, Layout, Text, IconElement } from '@ui-kitten/components'
-
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import Input from './Input'
 import Icon from 'react-native-vector-icons/Ionicons'
+import { CustomDatePicker } from './CustomDatePicker'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const { width, height } = Dimensions.get('window')
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 type EventType = {
   id: string
@@ -49,18 +46,25 @@ type Form1Props = {
   onDataChange: (data: FormData, type: string) => void
 }
 
-// Fonction helper pour formater les dates d'affichage
+// Fonction helper pour formater les dates en DD/MM/YYYY
 const formatDateForDisplay = (date: any): string => {
-  if (!date) return '' // Retourne une chaîne vide si pas de date
+  if (!date) return ''
 
   if (date instanceof Date) {
-    return date.toLocaleDateString()
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
   }
 
-  // Si c'est une string, essaie de la parser
   if (typeof date === 'string') {
     const parsedDate = new Date(date)
-    return isNaN(parsedDate.getTime()) ? '' : parsedDate.toLocaleDateString()
+    if (!isNaN(parsedDate.getTime())) {
+      const day = String(parsedDate.getDate()).padStart(2, '0')
+      const month = String(parsedDate.getMonth() + 1).padStart(2, '0')
+      const year = parsedDate.getFullYear()
+      return `${day}/${month}/${year}`
+    }
   }
 
   return ''
@@ -80,6 +84,12 @@ const parseDate = (date?: Date | string): Date | null => {
   return null
 }
 
+// Fonction helper pour parser une date depuis DD/MM/YYYY
+const parseDateFromString = (dateStr: string): Date => {
+  const [day, month, year] = dateStr.split('/').map((num) => parseInt(num, 10))
+  return new Date(year, month - 1, day)
+}
+
 // Fonction helper pour parser les IDs sélectionnés
 const parseSelectedIds = (typesEvts: string | null | undefined): string[] => {
   if (!typesEvts) return []
@@ -91,8 +101,7 @@ const parseSelectedIds = (typesEvts: string | null | undefined): string[] => {
 }
 
 const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
-  //console.log(item)
-  const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const insets = useSafeAreaInsets()
 
   // Initialisation du state avec gestion propre des dates
   const [formData, setFormData] = useState<FormData>({
@@ -115,11 +124,10 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
     format: item.format || '',
   })
 
-  // États pour le DateTimePicker
-  const [show, setShow] = useState(false)
-  const [currentDatePicker, setCurrentDatePicker] = useState<
-    'date_reception' | 'date_deb' | 'date_fin'
-  >('date_reception')
+  // États pour gérer les DatePickers
+  const [showDateReception, setShowDateReception] = useState(false)
+  const [showDateDeb, setShowDateDeb] = useState(false)
+  const [showDateFin, setShowDateFin] = useState(false)
 
   // Effect pour notifier les changements au parent
   useEffect(() => {
@@ -134,23 +142,6 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
     }))
   }
 
-  // Gestion du changement de date
-  const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShow(false)
-
-    if (selectedDate) {
-      updateFormField(currentDatePicker, selectedDate)
-    }
-  }
-
-  // Affichage du DateTimePicker
-  const showDatepicker = (
-    datePickerType: 'date_reception' | 'date_deb' | 'date_fin',
-  ) => {
-    setCurrentDatePicker(datePickerType)
-    setShow(true)
-  }
-
   // Gestion des sélections multiples
   const handleSelectionChange = (selectedIds: string[]) => {
     updateFormField('types_evts', selectedIds)
@@ -163,27 +154,21 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
     ? [{ id: eventTypes.id, label: eventTypes.libelle }]
     : []
 
-  // Fonction pour obtenir la date actuelle pour le DateTimePicker
-  const getCurrentPickerDate = (): Date => {
-    let currentDate: Date | null = null
-
-    switch (currentDatePicker) {
-      case 'date_reception':
-        currentDate = formData.date_reception
-        break
-      case 'date_deb':
-        currentDate = formData.date_deb
-        break
-      case 'date_fin':
-        currentDate = formData.date_fin
-        break
-    }
-
-    return currentDate instanceof Date ? currentDate : new Date()
+  // Handlers pour les DatePickers
+  const handleDateReceptionConfirm = (dateStr: string) => {
+    const date = parseDateFromString(dateStr)
+    updateFormField('date_reception', date)
   }
 
-  // console.log(formData.idevt, item)
-  const insets = useSafeAreaInsets()
+  const handleDateDebConfirm = (dateStr: string) => {
+    const date = parseDateFromString(dateStr)
+    updateFormField('date_deb', date)
+  }
+
+  const handleDateFinConfirm = (dateStr: string) => {
+    const date = parseDateFromString(dateStr)
+    updateFormField('date_fin', date)
+  }
 
   return (
     <KeyboardAvoidingView
@@ -197,18 +182,8 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           placeholder="Titre de l'Event"
           value={formData.evt}
           onChangeText={(text) => updateFormField('evt', text)}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            height: 40,
-
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            marginBottom: 13,
-          }}
-          placeholderTextColor={'#000'}
+          style={styles.titleInput}
+          placeholderTextColor={'#999'}
         />
 
         {/* Date de création et référence */}
@@ -216,40 +191,29 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           <View
             style={[
               formData.idevt != 0 ? { width: '50%' } : { width: '100%' },
-              {
-                marginBottom: 12,
-                height: 40,
-              },
+              { marginBottom: 12 },
             ]}
           >
-            <Datepicker
-              placeholder="Sélectionner une date"
-              style={{
-                width: '100%',
-              }}
-              min={new Date(2000, 0, 1)} // 🆕 Date minimale
-              max={new Date(2030, 11, 31)} // 🆕 Date maximale
-              controlStyle={{
-                backgroundColor: '#fff',
+            <TouchableOpacity
+              style={styles.datePickerButton}
+              onPress={() => setShowDateReception(true)}
+            >
+              <Icon name="calendar" size={20} color="#666" />
+              <Text style={styles.datePickerText}>
+                {formData.date_reception
+                  ? formatDateForDisplay(formData.date_reception)
+                  : 'Date de réception'}
+              </Text>
+            </TouchableOpacity>
 
-                borderColor: '#ccc',
-                borderWidth: 1,
-              }}
-              size="medium"
-              status="primary"
-              accessoryLeft={
-                <Icon
-                  name="calendar"
-                  size={20}
-                  color="#ccc"
-                  style={{ marginRight: 10 }}
-                />
-              }
-              backdropStyle={{ backgroundColor: 'transparent', opacity: 0.3 }}
-              date={formData.date_reception}
-              onSelect={(nextDate) =>
-                updateFormField('date_reception', nextDate)
-              }
+            <CustomDatePicker
+              visible={showDateReception}
+              onClose={() => setShowDateReception(false)}
+              onConfirm={handleDateReceptionConfirm}
+              initialDate={formatDateForDisplay(formData.date_reception)}
+              title="Date de réception"
+              minDate={new Date(2000, 0, 1)}
+              maxDate={new Date(2030, 11, 31)}
             />
           </View>
 
@@ -296,59 +260,50 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
         {/* Dates de début et fin */}
         <View style={styles.inputContainer}>
           <View style={{ width: '50%', marginBottom: 10 }}>
-            <Datepicker
-              placeholder="Date début"
-              style={{
-                width: '100%',
-              }}
-              min={new Date(2000, 0, 1)} // 🆕 Date minimale
-              max={new Date(2030, 11, 31)} // 🆕 Date maximale
-              controlStyle={{
-                backgroundColor: '#fff',
+            <TouchableOpacity
+              style={styles.datePickerButton}
+              onPress={() => setShowDateDeb(true)}
+            >
+              <Icon name="calendar" size={20} color="#666" />
+              <Text style={styles.datePickerText}>
+                {formData.date_deb
+                  ? formatDateForDisplay(formData.date_deb)
+                  : 'Date début'}
+              </Text>
+            </TouchableOpacity>
 
-                borderColor: '#ccc',
-                borderWidth: 1,
-              }}
-              size="medium"
-              status="primary"
-              accessoryLeft={
-                <Icon
-                  name="calendar"
-                  size={20}
-                  color="#ccc"
-                  style={{ marginRight: 10 }}
-                />
-              }
-              date={formData.date_deb}
-              onSelect={(nextDate) => updateFormField('date_deb', nextDate)}
+            <CustomDatePicker
+              visible={showDateDeb}
+              onClose={() => setShowDateDeb(false)}
+              onConfirm={handleDateDebConfirm}
+              initialDate={formatDateForDisplay(formData.date_deb)}
+              title="Date de début"
+              minDate={new Date(2000, 0, 1)}
+              maxDate={new Date(2030, 11, 31)}
             />
           </View>
-          <View style={{ width: '50%', marginBottom: 10 }}>
-            <Datepicker
-              placeholder="Date fin"
-              style={{
-                width: '100%',
-              }}
-              min={new Date(2000, 0, 1)} // 🆕 Date minimale
-              max={new Date(2030, 11, 31)} // 🆕 Date maximale
-              controlStyle={{
-                backgroundColor: '#fff',
 
-                borderColor: '#ccc',
-                borderWidth: 1,
-              }}
-              size="medium"
-              status="primary"
-              accessoryLeft={
-                <Icon
-                  name="calendar"
-                  size={20}
-                  color="#ccc"
-                  style={{ marginRight: 10 }}
-                />
-              }
-              date={formData.date_fin}
-              onSelect={(nextDate) => updateFormField('date_fin', nextDate)}
+          <View style={{ width: '50%', marginBottom: 10 }}>
+            <TouchableOpacity
+              style={styles.datePickerButton}
+              onPress={() => setShowDateFin(true)}
+            >
+              <Icon name="calendar" size={20} color="#666" />
+              <Text style={styles.datePickerText}>
+                {formData.date_fin
+                  ? formatDateForDisplay(formData.date_fin)
+                  : 'Date fin'}
+              </Text>
+            </TouchableOpacity>
+
+            <CustomDatePicker
+              visible={showDateFin}
+              onClose={() => setShowDateFin(false)}
+              onConfirm={handleDateFinConfirm}
+              initialDate={formatDateForDisplay(formData.date_fin)}
+              title="Date de fin"
+              minDate={new Date(2000, 0, 1)}
+              maxDate={new Date(2030, 11, 31)}
             />
           </View>
         </View>
@@ -379,8 +334,9 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           style={[styles.textArea, styles.textInput]}
           value={formData.commentaires_dates}
           onChangeText={(text) => updateFormField('commentaires_dates', text)}
-          placeholderTextColor={'#000'}
+          placeholderTextColor={'#999'}
         />
+
         {/* Commentaire personnel */}
         <TextInput
           placeholder="Commentaire Personnel"
@@ -389,7 +345,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           style={[styles.textArea, styles.textInput]}
           value={formData.format}
           onChangeText={(text) => updateFormField('format', text)}
-          placeholderTextColor={'#000'}
+          placeholderTextColor={'#999'}
         />
       </View>
     </KeyboardAvoidingView>
@@ -402,6 +358,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     flex: 1,
   },
+  titleInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 13,
+    fontSize: 16,
+    backgroundColor: '#fff',
+  },
   inputContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -410,18 +376,34 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: 4,
   },
+  datePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#fff',
+    gap: 8,
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#000',
+    flex: 1,
+  },
   textArea: {
     height: 100,
     borderColor: '#ccc',
-    borderWidth: 2,
+    borderWidth: 1,
+    textAlignVertical: 'top',
   },
   textInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
-
-    borderRadius: 5,
-    paddingHorizontal: 10,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingTop: 12,
     marginBottom: 13,
+    backgroundColor: '#fff',
   },
 })
 
