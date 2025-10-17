@@ -19,8 +19,8 @@ const { height } = Dimensions.get('window')
 const FIELD_HEIGHT = 50
 
 interface DateFieldProps {
-  date: Date
-  onDateChange: (date: Date) => void
+  date: string // ✅ String au lieu de Date
+  onDateChange: (date: string) => void // ✅ String au lieu de Date
   index: number
 }
 
@@ -28,25 +28,8 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
   const [isPickerVisible, setPickerVisible] = useState(false)
   const { colors } = useTheme()
 
-  // Formater la date pour l'affichage (DD/MM/YYYY)
-  const formatDate = (date: Date): string => {
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
-  // Parser la date depuis le format DD/MM/YYYY
-  const parseDate = (dateStr: string): Date => {
-    const [day, month, year] = dateStr
-      .split('/')
-      .map((num) => parseInt(num, 10))
-    return new Date(year, month - 1, day)
-  }
-
   const handleDateConfirm = (dateStr: string) => {
-    const parsedDate = parseDate(dateStr)
-    onDateChange(parsedDate)
+    onDateChange(dateStr) // ✅ Directement la string
   }
 
   return (
@@ -55,7 +38,9 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
         style={styles.datePickerButton}
         onPress={() => setPickerVisible(true)}
       >
-        <Text style={styles.datePickerText}>{formatDate(date)}</Text>
+        <Text style={styles.datePickerText}>
+          {date || 'Sélectionner une date'}
+        </Text>
         <Icon name="calendar-outline" size={20} color={colors.primary} />
       </TouchableOpacity>
 
@@ -63,7 +48,7 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
         visible={isPickerVisible}
         onClose={() => setPickerVisible(false)}
         onConfirm={handleDateConfirm}
-        initialDate="16/10/2025"
+        initialDate={date} // ✅ Passer la string directement
         title="Sélectionner une date"
         minDate={new Date(2000, 0, 1)}
         maxDate={new Date(2030, 11, 31)}
@@ -89,7 +74,7 @@ type FieldType = 'date' | 'text' | 'dynamic'
 
 interface Field {
   type: FieldType
-  value: Date | string
+  value: string // ✅ Toujours string maintenant
 }
 
 interface Form5Props {
@@ -98,44 +83,74 @@ interface Form5Props {
   item?: any
 }
 
+// ✅ Fonction pour formater n'importe quelle date en DD/MM/YYYY
+const formatDateForDisplay = (date: any): string => {
+  if (!date) return ''
+
+  try {
+    if (typeof date === 'string') {
+      // Ignorer les dates invalides
+      if (date.startsWith('-') || date.includes('-000001')) {
+        return ''
+      }
+
+      // Si déjà au format DD/MM/YYYY
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
+        return date
+      }
+
+      // Si format ISO: YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ss.sssZ
+      if (date.includes('-')) {
+        const datePart = date.includes('T') ? date.split('T')[0] : date
+        const parts = datePart.split('-').filter((p) => p)
+
+        if (parts.length === 3) {
+          const [year, month, day] = parts.map((p) => p.trim())
+          const yearNum = Number(year)
+
+          if (
+            year &&
+            month &&
+            day &&
+            yearNum >= 1900 &&
+            yearNum <= 2100 &&
+            !isNaN(Number(month)) &&
+            !isNaN(Number(day))
+          ) {
+            return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+          }
+        }
+      }
+    }
+
+    // Si objet Date
+    if (date instanceof Date) {
+      const year = date.getFullYear()
+      if (!isNaN(date.getTime()) && year >= 1900 && year <= 2100) {
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        return `${day}/${month}/${year}`
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ Erreur formatDateForDisplay:', date)
+  }
+
+  return ''
+}
+
+// ✅ Fonction pour obtenir la date actuelle au format DD/MM/YYYY
+const getTodayFormatted = (): string => {
+  const today = new Date()
+  const day = String(today.getDate()).padStart(2, '0')
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const year = today.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
 const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
   const { userdata } = useContext(AuthContext)
   const { gradients, colors } = useTheme()
-
-  const parseDate = (dateStr: string): Date => {
-    if (!dateStr) return new Date()
-
-    // Parse format DD/MM/YYYY
-    const parts = dateStr.split('/')
-    if (parts.length === 3) {
-      const [day, month, year] = parts.map((p) => parseInt(p, 10))
-
-      // Validation des valeurs
-      if (isNaN(day) || isNaN(month) || isNaN(year)) {
-        console.warn('Invalid date parts:', dateStr)
-        return new Date()
-      }
-
-      const date = new Date(year, month - 1, day)
-
-      // Vérification que la date est valide
-      if (isNaN(date.getTime())) {
-        console.warn('Invalid date created:', dateStr)
-        return new Date()
-      }
-
-      return date
-    }
-
-    // Essai de parsing direct
-    const date = new Date(dateStr)
-    if (isNaN(date.getTime())) {
-      console.warn('Could not parse date:', dateStr)
-      return new Date()
-    }
-
-    return date
-  }
 
   const determineFieldType = (fieldItem: any): FieldType => {
     if (
@@ -146,9 +161,11 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
       return fieldItem.type
     }
 
+    // Vérifier si la valeur ressemble à une date
     if (
       typeof fieldItem.value === 'string' &&
-      fieldItem.value.match(/^\d{2}\/\d{2}\/\d{4}$/)
+      (fieldItem.value.match(/^\d{2}\/\d{2}\/\d{4}$/) ||
+        fieldItem.value.includes('-'))
     ) {
       return 'date'
     }
@@ -163,11 +180,12 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     if (item && Array.isArray(item) && item.length > 0) {
       const initializedFields = item.map((fieldItem: any) => {
         const fieldType = determineFieldType(fieldItem)
+
         return {
           type: fieldType,
           value:
             fieldType === 'date'
-              ? parseDate(fieldItem.value)
+              ? formatDateForDisplay(fieldItem.value) || getTodayFormatted()
               : fieldItem.value || '',
         }
       })
@@ -189,30 +207,10 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
 
   useEffect(() => {
     const formData = {
-      fields: fields.map((field) => {
-        if (field.type === 'date') {
-          const dateValue =
-            field.value instanceof Date ? field.value : new Date(field.value)
-
-          if (isNaN(dateValue.getTime())) {
-            console.warn('Invalid date in field:', field)
-            return {
-              type: field.type,
-              value: new Date().toLocaleDateString('fr-FR'),
-            }
-          }
-
-          return {
-            type: field.type,
-            value: dateValue.toLocaleDateString('fr-FR'),
-          }
-        }
-
-        return {
-          type: field.type,
-          value: field.value,
-        }
-      }),
+      fields: fields.map((field) => ({
+        type: field.type,
+        value: field.value, // ✅ Toujours string maintenant
+      })),
     }
     onDataChangeRef.current(formData)
   }, [fields])
@@ -224,7 +222,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
 
     switch (randomType) {
       case 'date':
-        newField = { type: 'date', value: new Date() }
+        newField = { type: 'date', value: getTodayFormatted() } // ✅ String
         break
       case 'text':
         newField = { type: 'text', value: '' }
@@ -247,20 +245,9 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
     setFields([...fields, newField])
   }
 
-  const updateField = (index: number, newValue: Date | string): void => {
+  const updateField = (index: number, newValue: string): void => {
     const newFields = [...fields]
-
-    if (newFields[index].type === 'date') {
-      if (newValue instanceof Date && !isNaN(newValue.getTime())) {
-        newFields[index].value = newValue
-      } else {
-        console.warn('Attempted to set invalid date, keeping current value')
-        return
-      }
-    } else {
-      newFields[index].value = newValue
-    }
-
+    newFields[index].value = newValue // ✅ Toujours string
     setFields(newFields)
   }
 
@@ -273,10 +260,6 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
   const renderField = (field: Field, index: number) => {
     switch (field.type) {
       case 'date':
-        const dateValue =
-          field.value instanceof Date ? field.value : new Date(field.value)
-        const validDate = isNaN(dateValue.getTime()) ? new Date() : dateValue
-
         return (
           <View key={index} style={styles.fieldWrapper}>
             <TouchableOpacity
@@ -288,8 +271,8 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               </Text>
             </TouchableOpacity>
             <DateField
-              date={validDate}
-              onDateChange={(newDate) => updateField(index, newDate)}
+              date={field.value} // ✅ String
+              onDateChange={(newDate) => updateField(index, newDate)} // ✅ String
               index={index}
             />
           </View>
@@ -307,7 +290,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
             </TouchableOpacity>
             <TextInput
               style={styles.textInput}
-              value={field.value as string}
+              value={field.value}
               onChangeText={(newText: string) => updateField(index, newText)}
               placeholder="Entrer du texte"
               placeholderTextColor="#999"
@@ -328,7 +311,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
             <View style={{ flex: 1 }}>
               <SelectOption
                 options={dynamicOptions}
-                selectedOption={field.value as string}
+                selectedOption={field.value}
                 onSelectionChange={(selectedLibelle) =>
                   updateField(index, selectedLibelle)
                 }
@@ -496,7 +479,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
-
     flex: 1,
   },
   datePickerText: {

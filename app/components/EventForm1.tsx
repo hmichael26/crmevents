@@ -27,13 +27,13 @@ type EventType = {
 type FormData = {
   idevt?: Number
   evt?: string
-  date_reception?: any
+  date_reception?: string // ✅ String
   ref?: string
   pax?: string
   zone?: string
   types_evts?: any
-  date_deb?: any
-  date_fin?: any
+  date_deb?: string // ✅ String
+  date_fin?: string // ✅ String
   flexible_dates?: boolean
   budget?: string
   commentaires_dates?: string
@@ -46,48 +46,67 @@ type Form1Props = {
   onDataChange: (data: FormData, type: string) => void
 }
 
-// Fonction helper pour formater les dates en DD/MM/YYYY
+// ✅ Fonction UNIQUE pour convertir n'importe quel format en DD/MM/YYYY
 const formatDateForDisplay = (date: any): string => {
   if (!date) return ''
 
-  if (date instanceof Date) {
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  try {
+    // Si c'est déjà au format DD/MM/YYYY valide
+    if (typeof date === 'string') {
+      // ✅ Filtrer les dates avec année négative ou invalide
+      if (date.startsWith('-') || date.includes('-000001')) {
+        console.warn('⚠️ Date invalide ignorée:', date)
+        return ''
+      }
 
-  if (typeof date === 'string') {
-    const parsedDate = new Date(date)
-    if (!isNaN(parsedDate.getTime())) {
-      const day = String(parsedDate.getDate()).padStart(2, '0')
-      const month = String(parsedDate.getMonth() + 1).padStart(2, '0')
-      const year = parsedDate.getFullYear()
-      return `${day}/${month}/${year}`
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
+        return date
+      }
+
+      // Si format ISO: YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ss.sssZ
+      if (date.includes('-')) {
+        const datePart = date.includes('T') ? date.split('T')[0] : date
+        const parts = datePart.split('-').filter((p) => p) // Enlever les parties vides
+
+        if (parts.length === 3) {
+          const year = parts[0]?.trim()
+          const month = parts[1]?.trim()
+          const day = parts[2]?.trim()
+
+          // ✅ Vérifier que l'année est valide (entre 1900 et 2100)
+          const yearNum = Number(year)
+          if (
+            year &&
+            month &&
+            day &&
+            !isNaN(yearNum) &&
+            yearNum >= 1900 &&
+            yearNum <= 2100 &&
+            !isNaN(Number(month)) &&
+            !isNaN(Number(day))
+          ) {
+            return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+          }
+        }
+      }
     }
+
+    // Si c'est un objet Date valide
+    if (date instanceof Date) {
+      const year = date.getFullYear()
+      // ✅ Vérifier que la date est valide
+      if (!isNaN(date.getTime()) && year >= 1900 && year <= 2100) {
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        return `${day}/${month}/${year}`
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ Erreur formatDateForDisplay:', error)
+    console.warn('   Date reçue:', date, 'Type:', typeof date)
   }
 
   return ''
-}
-
-// Fonction helper pour parser les dates
-const parseDate = (date?: Date | string): Date | null => {
-  if (!date) return null
-
-  if (date instanceof Date) return date
-
-  if (typeof date === 'string') {
-    const parsedDate = new Date(date)
-    return isNaN(parsedDate.getTime()) ? null : parsedDate
-  }
-
-  return null
-}
-
-// Fonction helper pour parser une date depuis DD/MM/YYYY
-const parseDateFromString = (dateStr: string): Date => {
-  const [day, month, year] = dateStr.split('/').map((num) => parseInt(num, 10))
-  return new Date(year, month - 1, day)
 }
 
 // Fonction helper pour parser les IDs sélectionnés
@@ -103,11 +122,11 @@ const parseSelectedIds = (typesEvts: string | null | undefined): string[] => {
 const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
   const insets = useSafeAreaInsets()
 
-  // Initialisation du state avec gestion propre des dates
+  // ✅ Initialisation avec conversion en string une seule fois
   const [formData, setFormData] = useState<FormData>({
     idevt: item.idevt || 0,
     evt: item.evt || '',
-    date_reception: parseDate(item.date_reception),
+    date_reception: formatDateForDisplay(item.date_reception),
     ref: item.ref || '',
     pax: item.pax || '',
     zone: item.zone || '',
@@ -116,8 +135,8 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
       : item.types_evts
       ? parseSelectedIds(item?.types_evts)
       : [],
-    date_deb: parseDate(item.date_deb),
-    date_fin: parseDate(item.date_fin),
+    date_deb: formatDateForDisplay(item.date_deb),
+    date_fin: formatDateForDisplay(item.date_fin),
     flexible_dates: item.flexible_dates || false,
     budget: item.budget || '',
     commentaires_dates: item.commentaires_dates || '',
@@ -154,21 +173,20 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
     ? [{ id: eventTypes.id, label: eventTypes.libelle }]
     : []
 
-  // Handlers pour les DatePickers
+  // ✅ Handlers simplifiés - juste stocker la string DD/MM/YYYY
   const handleDateReceptionConfirm = (dateStr: string) => {
-    const date = parseDateFromString(dateStr)
-    updateFormField('date_reception', date)
+    updateFormField('date_reception', dateStr)
   }
 
   const handleDateDebConfirm = (dateStr: string) => {
-    const date = parseDateFromString(dateStr)
-    updateFormField('date_deb', date)
+    updateFormField('date_deb', dateStr)
   }
 
   const handleDateFinConfirm = (dateStr: string) => {
-    const date = parseDateFromString(dateStr)
-    updateFormField('date_fin', date)
+    updateFormField('date_fin', dateStr)
   }
+
+  console.log('📅 Date reception (string):', formData.date_reception)
 
   return (
     <KeyboardAvoidingView
@@ -200,9 +218,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
             >
               <Icon name="calendar" size={20} color="#666" />
               <Text style={styles.datePickerText}>
-                {formData.date_reception
-                  ? formatDateForDisplay(formData.date_reception)
-                  : 'Date de réception'}
+                {formData.date_reception || 'Date de réception'}
               </Text>
             </TouchableOpacity>
 
@@ -210,7 +226,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
               visible={showDateReception}
               onClose={() => setShowDateReception(false)}
               onConfirm={handleDateReceptionConfirm}
-              initialDate={formatDateForDisplay(formData.date_reception)}
+              initialDate={formData.date_reception}
               title="Date de réception"
               minDate={new Date(2000, 0, 1)}
               maxDate={new Date(2030, 11, 31)}
@@ -266,9 +282,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
             >
               <Icon name="calendar" size={20} color="#666" />
               <Text style={styles.datePickerText}>
-                {formData.date_deb
-                  ? formatDateForDisplay(formData.date_deb)
-                  : 'Date début'}
+                {formData.date_deb || 'Date début'}
               </Text>
             </TouchableOpacity>
 
@@ -276,7 +290,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
               visible={showDateDeb}
               onClose={() => setShowDateDeb(false)}
               onConfirm={handleDateDebConfirm}
-              initialDate={formatDateForDisplay(formData.date_deb)}
+              initialDate={formData.date_deb}
               title="Date de début"
               minDate={new Date(2000, 0, 1)}
               maxDate={new Date(2030, 11, 31)}
@@ -290,9 +304,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
             >
               <Icon name="calendar" size={20} color="#666" />
               <Text style={styles.datePickerText}>
-                {formData.date_fin
-                  ? formatDateForDisplay(formData.date_fin)
-                  : 'Date fin'}
+                {formData.date_fin || 'Date fin'}
               </Text>
             </TouchableOpacity>
 
@@ -300,7 +312,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
               visible={showDateFin}
               onClose={() => setShowDateFin(false)}
               onConfirm={handleDateFinConfirm}
-              initialDate={formatDateForDisplay(formData.date_fin)}
+              initialDate={formData.date_fin}
               title="Date de fin"
               minDate={new Date(2000, 0, 1)}
               maxDate={new Date(2030, 11, 31)}

@@ -306,6 +306,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     }
 
     try {
+      // console.log('📝 Payload:', payload)
       await validForm({ data: payload })
       setPrestataire([])
       showToast('✅ Données sauvegardées avec succès !', 'success')
