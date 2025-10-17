@@ -1,28 +1,48 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  Linking,
-  Platform,
-  StyleSheet,
-  KeyboardAvoidingView,
-  ScrollView,
-  Image,
-  Dimensions,
-} from 'react-native'
+import { ActivityIndicator, Linking, Platform } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import { AuthContext } from '../context/AuthContext'
-import { useTheme } from '../hooks/'
+import { useData, useTheme } from '../hooks/'
+import { useForm } from 'react-hook-form'
 import * as regex from '../constants/regex'
-import { LinearGradient } from 'expo-linear-gradient'
-import { BlurView } from 'expo-blur'
+import { Block, Button, Input, Image, Text, Checkbox } from '../components/'
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+import * as Notifications from 'expo-notifications'
+import * as Clipboard from 'expo-clipboard'
+import Constants from 'expo-constants'
+import Toast from 'react-native-toast-message'
 
-const { height, width } = Dimensions.get('window')
+const translations = {
+  en: {
+    translation: {
+      'login.title': 'Login Title',
+    },
+  },
+  fr: {
+    translation: {
+      'login.title': 'Titre de Connexion',
+    },
+  },
+}
+
+i18n.use(initReactI18next).init({
+  resources: translations,
+  lng: 'fr', // langue par défaut
+  fallbackLng: 'fr',
+  compatibilityJSON: 'v3', // Utiliser le format de compatibilité v3
+  interpolation: {
+    escapeValue: false, // React se charge déjà de l'échappement des valeurs
+  },
+})
+
 const isAndroid = Platform.OS === 'android'
 
+interface ILogin {
+  email: string
+  password: string
+  agreed: boolean
+}
 interface ILoginValidation {
   email: boolean
   password: boolean
@@ -31,7 +51,7 @@ interface ILoginValidation {
 
 const Login = () => {
   const navigation = useNavigation()
-  const { colors, gradients, sizes } = useTheme()
+  const { assets, colors, gradients, sizes } = useTheme()
   const { Login, isloading } = useContext(AuthContext)
 
   const [loginData, setLoginData] = useState({
@@ -39,330 +59,205 @@ const Login = () => {
     password: '',
     agreed: false,
   })
-  const [isValid, setIsValid] = useState<ILoginValidation>({
+  const [isValid, setIsValid] = useState({
     email: false,
     password: false,
-    agreed: false,
   })
   const [error, setError] = useState('')
 
-  const handleChange = useCallback((value: Partial<typeof loginData>) => {
+  // Gestion des changements dans les champs de formulaire
+  const handleChange = useCallback((value) => {
     setLoginData((state) => ({ ...state, ...value }))
   }, [])
 
+  // Validation des champs
   useEffect(() => {
     setIsValid({
       email: regex.email.test(loginData.email),
       password: regex.password.test(loginData.password),
-      agreed: loginData.agreed,
     })
   }, [loginData])
 
+  // Gestion de la connexion
   const handleSignIn = useCallback(async () => {
-    if (!isValid.email || !isValid.password || !isValid.agreed) {
+    if (!isValid.email || !isValid.password) {
       setError('Veuillez remplir tous les champs correctement.')
       return
     }
 
     try {
       await Login(loginData)
+      // navigation.navigate('Menu') // Redirection après connexion réussie
     } catch (err) {
+      // console.log(err)
       setError('Échec de la connexion. Vérifiez vos identifiants.')
     }
-  }, [isValid, loginData, Login])
+  }, [isValid, loginData, Login, navigation])
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={isAndroid ? 'height' : 'padding'}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Header avec image de fond */}
-        <LinearGradient colors={gradients.primary} style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Image
-              source={require('../assets/images/splash.png')}
-              style={styles.logo}
-            />
-          </View>
-          <Text style={styles.welcomeText}>Bienvenue sur CrmEvents</Text>
-        </LinearGradient>
+    <Block safe marginTop={sizes.md}>
+      <Block paddingHorizontal={sizes.s}>
+        <Block flex={0} style={{ zIndex: 0 }}>
+          <Image
+            background
+            resizeMode="cover"
+            padding={sizes.sm * 1.2}
+            radius={sizes.cardRadius}
+            source={assets.background}
+            height={sizes.height * 0.32}
+          >
+            <Block
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Image
+                source={require('../assets/images/splash.png')}
+                style={{
+                  width: 160,
+                  height: 160,
+                  borderRadius: 60,
+                }}
+              />
+            </Block>
 
-        {/* Formulaire de connexion */}
-        <View style={styles.formContainer}>
-          <BlurView intensity={90} style={styles.blurCard}>
-            <View style={styles.card}>
-              <Text style={styles.title}>Connexion</Text>
-
-              {/* Divider */}
-              <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-              </View>
-
-              {/* Email Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Email</Text>
-                <View
-                  style={[
-                    styles.inputWrapper,
-                    loginData.email && isValid.email && styles.inputSuccess,
-                    loginData.email && !isValid.email && styles.inputDanger,
-                  ]}
-                >
-                  <TextInput
-                    style={styles.input}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    placeholder="Entrez votre adresse e-mail"
-                    placeholderTextColor="#999"
-                    value={loginData.email}
-                    onChangeText={(value) => handleChange({ email: value })}
+            <Text h4 center white marginBottom={sizes.md}>
+              Bienvenue sur CrmEvents
+            </Text>
+          </Image>
+        </Block>
+        {/* login form */}
+        <Block
+          keyboard
+          marginTop={-(sizes.height * 0.03 - sizes.l)}
+          behavior={!isAndroid ? 'padding' : 'height'}
+        >
+          <Block flex={0} radius={sizes.sm} marginHorizontal="0%">
+            <Block
+              blur
+              flex={0}
+              // intensity={90}
+              radius={sizes.sm}
+              overflow="hidden"
+              justify="space-evenly"
+              paddingVertical={sizes.sm}
+              white
+            >
+              <Text p center marginTop={10} size={22}>
+                Connexion
+              </Text>
+              {/* social buttons */}
+              <Block row center justify="space-evenly" marginVertical={15}>
+                {/* <Button outlined gray shadow={!isAndroid}>
+                  <Image
+                    source={assets.facebook}
+                    height={sizes.m}
+                    width={sizes.m}
+                    color={isDark ? colors.icon : undefined}
                   />
-                </View>
-              </View>
-
-              {/* Password Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Mot de Passe</Text>
-                <View
-                  style={[
-                    styles.inputWrapper,
-                    loginData.password &&
-                      isValid.password &&
-                      styles.inputSuccess,
-                    loginData.password &&
-                      !isValid.password &&
-                      styles.inputDanger,
-                  ]}
-                >
-                  <TextInput
-                    style={styles.input}
-                    secureTextEntry
-                    autoCapitalize="none"
-                    placeholder="Entrez votre mot de passe"
-                    placeholderTextColor="#999"
-                    value={loginData.password}
-                    onChangeText={(value) => handleChange({ password: value })}
+                </Button>
+                <Button outlined gray shadow={!isAndroid}>
+                  <Image
+                    source={assets.apple}
+                    height={sizes.m}
+                    width={sizes.m}
+                    color={isDark ? colors.icon : undefined}
                   />
-                </View>
-              </View>
-
-              {/* Checkbox Terms */}
-              <TouchableOpacity
-                style={styles.checkboxContainer}
-                onPress={() => handleChange({ agreed: !loginData.agreed })}
-                activeOpacity={0.7}
+                </Button>
+                <Button outlined gray shadow={!isAndroid}>
+                  <Image
+                    source={assets.google}
+                    height={sizes.m}
+                    width={sizes.m}
+                    color={isDark ? colors.icon : undefined}
+                  />
+                </Button> */}
+              </Block>
+              <Block
+                row
+                flex={0}
+                align="center"
+                justify="center"
+                marginBottom={sizes.sm}
+                paddingHorizontal={sizes.xxl}
               >
-                <View
-                  style={[
-                    styles.checkbox,
-                    loginData.agreed && styles.checkboxChecked,
-                  ]}
-                >
-                  {loginData.agreed && <Text style={styles.checkmark}>✓</Text>}
-                </View>
-                <Text style={styles.checkboxText}>
-                  J'accepte les{' '}
-                  <Text
-                    style={styles.linkText}
-                    onPress={() =>
-                      Linking.openURL(
-                        'https://myappcrm.com/termes-conditions.php',
-                      )
-                    }
-                  >
-                    Termes et Conditions
-                  </Text>
-                </Text>
-              </TouchableOpacity>
+                <Block
+                  flex={0}
+                  height={1}
+                  width="50%"
+                  end={[1, 0]}
+                  start={[0, 1]}
+                  gradient={gradients.divider}
+                />
+                {/* <Text center marginHorizontal={sizes.s}>
+                  {"t('common.or')"}
+                </Text> */}
+                <Block
+                  flex={0}
+                  height={1}
+                  width="50%"
+                  end={[0, 1]}
+                  start={[1, 0]}
+                  gradient={gradients.divider}
+                />
+              </Block>
+              {/* form inputs */}
+              <Block
+                paddingHorizontal={sizes.sm * 2}
+                marginBottom={sizes.sm * 2}
+              >
+                <Input
+                  label="Email"
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  placeholder="Entrez votre adresse e-mail"
+                  value={loginData.email}
+                  onChangeText={(value) => handleChange({ email: value })}
+                  success={Boolean(loginData.email && isValid.email)}
+                  danger={Boolean(loginData.email && !isValid.email)}
+                />
+                <Input
+                  marginVertical={sizes.sm}
+                  label="Mot de Passe"
+                  secureTextEntry
+                  autoCapitalize="none"
+                  placeholder="Entrez votre mot de passe"
+                  value={loginData.password}
+                  onChangeText={(value) => handleChange({ password: value })}
+                  success={Boolean(loginData.password && isValid.password)}
+                  danger={Boolean(loginData.password && !isValid.password)}
+                />
+              </Block>
+              {/* checkbox terms */}
+              {/* Checkbox des termes et conditions */}
 
-              {/* Error Message */}
-              {error ? (
-                <View style={styles.errorContainer}>
-                  <Text style={styles.errorText}>{error}</Text>
-                </View>
-              ) : null}
-
-              {/* Login Button */}
-              <TouchableOpacity
+              <Button
+                gradient={gradients.primary}
                 onPress={handleSignIn}
                 disabled={Object.values(isValid).includes(false) || isloading}
-                activeOpacity={0.8}
+                paddingHorizontal={sizes.sm * 2}
               >
-                <LinearGradient
-                  colors={
-                    Object.values(isValid).includes(false) || isloading
-                      ? ['#ccc', '#aaa']
-                      : gradients.primary || ['#667eea', '#764ba2']
-                  }
-                  style={styles.button}
-                >
-                  {isloading ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.buttonText}>SE CONNECTER</Text>
-                  )}
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </BlurView>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+                {isloading ? (
+                  <ActivityIndicator color={colors.white} />
+                ) : (
+                  <Text bold white transform="uppercase">
+                    Se connecter
+                  </Text>
+                )}
+              </Button>
+
+              {error ? (
+                <Text color="red" center marginTop={sizes.s}>
+                  {error}
+                </Text>
+              ) : null}
+            </Block>
+          </Block>
+        </Block>
+      </Block>
+    </Block>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f7fa',
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  header: {
-    height: height * 0.35,
-    paddingTop: 40,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoContainer: {
-    marginBottom: 20,
-  },
-  logo: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-  },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#fff',
-    textAlign: 'center',
-  },
-  formContainer: {
-    flex: 1,
-    marginTop: -30,
-    paddingHorizontal: 20,
-  },
-  blurCard: {
-    borderRadius: 24,
-    overflow: 'hidden',
-  },
-  card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 24,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  divider: {
-    marginBottom: 24,
-  },
-  dividerLine: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  inputWrapper: {
-    borderWidth: 1.5,
-    borderColor: '#e0e0e0',
-    borderRadius: 12,
-    backgroundColor: '#fff',
-  },
-  inputSuccess: {
-    borderColor: '#34c759',
-  },
-  inputDanger: {
-    borderColor: '#ff3b30',
-  },
-  input: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#000',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderColor: '#007AFF',
-    borderRadius: 6,
-    marginRight: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: '#007AFF',
-  },
-  checkmark: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  checkboxText: {
-    fontSize: 14,
-    color: '#333',
-    flex: 1,
-  },
-  linkText: {
-    color: '#007AFF',
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-  errorContainer: {
-    backgroundColor: '#ffe5e5',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: '#ff3b30',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  button: {
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-})
 
 export default Login
