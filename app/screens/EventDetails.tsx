@@ -414,6 +414,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       return
     }*/
 
+      console.log(formDataObj)
+
       // Appel de la fonction de validation/sauvegarde
       const response = await validForm(formDataObj)
 
