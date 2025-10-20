@@ -191,7 +191,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={'padding'}
+      behavior={'height'}
       keyboardVerticalOffset={insets.top}
     >
       <View style={styles.container}>

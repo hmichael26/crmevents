@@ -1,5 +1,11 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import { ActivityIndicator, Linking, Platform } from 'react-native'
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  View,
+} from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import { AuthContext } from '../context/AuthContext'
 import { useData, useTheme } from '../hooks/'
@@ -128,84 +134,84 @@ const Login = () => {
           </Image>
         </Block>
         {/* login form */}
-        <Block
-          keyboard
-          marginTop={-(sizes.height * 0.03 - sizes.l)}
+        <KeyboardAvoidingView
+          style={{
+            marginTop: -(sizes.height * 0.03 - sizes.l),
+          }}
           behavior={!isAndroid ? 'padding' : 'height'}
         >
-          <Block flex={0} radius={sizes.sm} marginHorizontal="0%">
-            <Block
-              blur
-              flex={0}
-              // intensity={90}
-              radius={sizes.sm}
-              overflow="hidden"
-              justify="space-evenly"
-              paddingVertical={sizes.sm}
-              white
+          <View
+            style={{
+              borderRadius: sizes.sm,
+              marginHorizontal: 0,
+            }}
+          >
+            <View
+              style={{
+                borderRadius: sizes.sm,
+                overflow: 'hidden',
+                justifyContent: 'space-evenly',
+                paddingVertical: sizes.sm,
+                backgroundColor: 'white',
+                // Si vous avez un effet blur, vous devrez utiliser une librairie comme @react-native-community/blur
+              }}
             >
-              <Text p center marginTop={10} size={22}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  marginTop: 10,
+                  fontSize: 27,
+                }}
+                size={22}
+              >
                 Connexion
               </Text>
+
               {/* social buttons */}
-              <Block row center justify="space-evenly" marginVertical={15}>
-                {/* <Button outlined gray shadow={!isAndroid}>
-                  <Image
-                    source={assets.facebook}
-                    height={sizes.m}
-                    width={sizes.m}
-                    color={isDark ? colors.icon : undefined}
-                  />
-                </Button>
-                <Button outlined gray shadow={!isAndroid}>
-                  <Image
-                    source={assets.apple}
-                    height={sizes.m}
-                    width={sizes.m}
-                    color={isDark ? colors.icon : undefined}
-                  />
-                </Button>
-                <Button outlined gray shadow={!isAndroid}>
-                  <Image
-                    source={assets.google}
-                    height={sizes.m}
-                    width={sizes.m}
-                    color={isDark ? colors.icon : undefined}
-                  />
-                </Button> */}
-              </Block>
-              <Block
-                row
-                flex={0}
-                align="center"
-                justify="center"
-                marginBottom={sizes.sm}
-                paddingHorizontal={sizes.xxl}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-evenly',
+                  marginVertical: 15,
+                }}
               >
-                <Block
-                  flex={0}
-                  height={1}
-                  width="50%"
-                  end={[1, 0]}
-                  start={[0, 1]}
-                  gradient={gradients.divider}
+                {/* Boutons sociaux commentés */}
+              </View>
+
+              {/* Divider */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: sizes.sm,
+                  paddingHorizontal: sizes.xxl,
+                }}
+              >
+                <View
+                  style={{
+                    height: 1,
+                    width: '50%',
+                    backgroundColor: '#e0e0e0', // Remplacer par votre couleur de divider
+                  }}
                 />
-                {/* <Text center marginHorizontal={sizes.s}>
-                  {"t('common.or')"}
-                </Text> */}
-                <Block
-                  flex={0}
-                  height={1}
-                  width="50%"
-                  end={[0, 1]}
-                  start={[1, 0]}
-                  gradient={gradients.divider}
+                <View
+                  style={{
+                    height: 1,
+                    width: '50%',
+                    backgroundColor: '#e0e0e0',
+                  }}
                 />
-              </Block>
+              </View>
+
               {/* form inputs */}
-              <Block
-                paddingHorizontal={sizes.sm * 2}
-                marginBottom={sizes.sm * 2}
+              <View
+                style={{
+                  paddingHorizontal: sizes.sm * 2,
+                  marginBottom: sizes.sm * 2,
+                  gap: 35,
+                }}
               >
                 <Input
                   label="Email"
@@ -218,7 +224,7 @@ const Login = () => {
                   danger={Boolean(loginData.email && !isValid.email)}
                 />
                 <Input
-                  marginVertical={sizes.sm}
+                  style={{ marginVertical: sizes.sm }}
                   label="Mot de Passe"
                   secureTextEntry
                   autoCapitalize="none"
@@ -228,33 +234,46 @@ const Login = () => {
                   success={Boolean(loginData.password && isValid.password)}
                   danger={Boolean(loginData.password && !isValid.password)}
                 />
-              </Block>
-              {/* checkbox terms */}
-              {/* Checkbox des termes et conditions */}
+              </View>
 
               <Button
                 gradient={gradients.primary}
                 onPress={handleSignIn}
                 disabled={Object.values(isValid).includes(false) || isloading}
-                paddingHorizontal={sizes.sm * 2}
+                style={{
+                  paddingHorizontal: sizes.sm * 2,
+                }}
               >
                 {isloading ? (
                   <ActivityIndicator color={colors.white} />
                 ) : (
-                  <Text bold white transform="uppercase">
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      color: '#fff',
+                      textTransform: 'uppercase',
+                    }}
+                    white
+                  >
                     Se connecter
                   </Text>
                 )}
               </Button>
 
               {error ? (
-                <Text color="red" center marginTop={sizes.s}>
+                <Text
+                  style={{
+                    color: 'red',
+                    textAlign: 'center',
+                    marginTop: sizes.s,
+                  }}
+                >
                   {error}
                 </Text>
               ) : null}
-            </Block>
-          </Block>
-        </Block>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
       </Block>
     </Block>
   )

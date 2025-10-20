@@ -545,6 +545,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       <ScrollView
         style={{ flex: 1, paddingBottom: 25 }}
         contentContainerStyle={styles.scrollViewContent}
+        keyboardShouldPersistTaps="handled"
       >
         {step === 'date' && (
           <Form1
