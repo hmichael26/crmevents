@@ -70,7 +70,7 @@ interface ItemType {
   clt_telfix?: string
   clt_telport?: string
   clt_infos?: string
-  publish_as_company?: any
+  afficher_nom_client?: any
   list_clients?: any[]
   commission_10?: boolean
   commission_12?: boolean
@@ -113,7 +113,7 @@ type FormData2 = {
   clt_telfix?: string
   clt_telport?: string
   clt_infos?: string
-  publish_as_company?: any
+  afficher_nom_client?: any
   clients?: object[]
 }
 
@@ -216,7 +216,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     clt_telfix: '',
     clt_telport: '',
     clt_infos: '',
-    publish_as_company: false,
+    afficher_nom_client: false,
     clients: [],
   })
 
@@ -226,6 +226,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     commission_12: false,
     commission_15: false,
   })
+
+  console.log(item)
 
   const [formData, setFormData] = useState<FormData1>(() => {
     if (item && !isCreatingNew) {
@@ -277,7 +279,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
         clt_telfix: item.clt_telfix || '',
         clt_telport: item.clt_telport || '',
         clt_infos: item.clt_infos || '',
-        publish_as_company: item.publish_as_company || false,
+        afficher_nom_client: item.afficher_nom_client || false,
         clients: convertExistingClientsToFormat(item.list_clients) || [],
       }
     }
@@ -357,7 +359,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       tel_fixe: formData2.clt_telfix,
       tel_port: formData2.clt_telport,
       infos: formData2.clt_infos,
-      afficher_nom_client: formData2.publish_as_company,
+      afficher_nom_client: formData2.afficher_nom_client,
       commission_10: formData3.commission_10,
       commission_12: formData3.commission_12,
       commission_15: formData3.commission_15,
@@ -414,7 +416,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       return
     }*/
 
-      console.log(formDataObj)
+      //console.log(formDataObj)
 
       // Appel de la fonction de validation/sauvegarde
       const response = await validForm(formDataObj)

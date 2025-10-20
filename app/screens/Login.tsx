@@ -1,11 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Linking,
-  Platform,
-  View,
-} from 'react-native'
+import { ActivityIndicator, Linking, Platform, View } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import { AuthContext } from '../context/AuthContext'
 import { useData, useTheme } from '../hooks/'
@@ -18,7 +12,7 @@ import * as Notifications from 'expo-notifications'
 import * as Clipboard from 'expo-clipboard'
 import Constants from 'expo-constants'
 import Toast from 'react-native-toast-message'
-
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 const translations = {
   en: {
     translation: {
@@ -134,11 +128,10 @@ const Login = () => {
           </Image>
         </Block>
         {/* login form */}
-        <KeyboardAvoidingView
+        <KeyboardAwareScrollView
           style={{
             marginTop: -(sizes.height * 0.03 - sizes.l),
           }}
-          behavior={!isAndroid ? 'padding' : 'height'}
         >
           <View
             style={{
@@ -210,7 +203,7 @@ const Login = () => {
                 style={{
                   paddingHorizontal: sizes.sm * 2,
                   marginBottom: sizes.sm * 2,
-                  gap: 35,
+                  gap: 10,
                 }}
               >
                 <Input
@@ -273,7 +266,7 @@ const Login = () => {
               ) : null}
             </View>
           </View>
-        </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
       </Block>
     </Block>
   )

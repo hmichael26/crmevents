@@ -32,7 +32,7 @@ interface ExistingClient {
   tel_port?: string
   infos?: string
   ent?: string
-  publish_as_company?: any
+  afficher_nom_client?: any
   nom_entreprise?: string
 }
 interface FormData {
@@ -43,7 +43,7 @@ interface FormData {
   clt_telfix?: string
   clt_telport?: string
   clt_infos?: string
-  publish_as_company?: any
+  afficher_nom_client?: any
   clients?: Client[]
 }
 
@@ -72,10 +72,11 @@ const Form2: React.FC<Form2Props> = ({
     clt_telfix: item.clt_telfix || '',
     clt_telport: item.clt_telport || '',
     clt_infos: item.clt_infos || '',
-    publish_as_company: item.publish_as_company || false,
+    afficher_nom_client: item.afficher_nom_client || false,
     clients: initialClients || [],
   })
 
+  // console.log(item)
   // console.log(formData.clients)
   // State for client management
   const [clients, setClients] = useState<Client[]>(() => {
@@ -141,7 +142,7 @@ const Form2: React.FC<Form2Props> = ({
           clt_telfix: found.tel_fixe || '',
           clt_telport: found.tel_port || '',
           clt_infos: found.infos || '',
-          publish_as_company: found.publish_as_company || false,
+          afficher_nom_client: found.afficher_nom_client || false,
         }))
       }
     }
@@ -292,9 +293,9 @@ const Form2: React.FC<Form2Props> = ({
             label="Publier au nom de l'entreprise"
             placeholder="Enter notification details"
             style={{ width: '100%' }}
-            toogleValue={formData.publish_as_company}
+            toogleValue={formData.afficher_nom_client}
             onToggle={(value) => {
-              updateFormField('publish_as_company', value)
+              updateFormField('afficher_nom_client', value)
             }}
           />
         </View>

@@ -37,6 +37,7 @@ import { useApi } from '../context/useApi'
 import DevisInterface from './DevisInterface'
 import Dropdown from './Dropdown'
 import { useToast } from './ToastComponent'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
 // ===========================
 // CONSTANTES RESPONSIVES
@@ -91,6 +92,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     comment: '',
     email: '',
     tel: '',
+    budget: '',
   })
 
   const [badges, setBadges] = useState([])
@@ -144,13 +146,15 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
           (modifications.comment ||
             modifications.email ||
             modifications.tel ||
-            modifications.contact),
+            modifications.contact ||
+            modifications.budget),
       )
       .map(([nomPresta, modifications]) => ({
         id_presta: modifications.id_presta.toString(),
         comm_prestataire: modifications.comment || '',
         tel_presta: modifications.tel || modifications.contact || '',
         email_presta: modifications.email || '',
+        budget: modifications.budget || '',
       }))
   }
 
@@ -163,6 +167,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
         comment: savedModifications?.comment || activeBadgeData.comment || '',
         email: savedModifications?.email || activeBadgeData.email || '',
         tel: savedModifications?.tel || activeBadgeData.contact || '',
+        budget: savedModifications?.budget || activeBadgeData.budget || '',
       })
     }
   }, [activeBadgeData])
@@ -466,6 +471,8 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     id_presta: activeBadgeData?.id_presta,
   }
 
+  console.log(activeBadgeData)
+
   // ===========================
   // RENDU CONDITIONNEL
   // ===========================
@@ -491,7 +498,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
   // RENDU PRINCIPAL
   // ===========================
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <KeyboardAwareScrollView style={styles.safeArea}>
       {/* Modal PDF */}
       {false && (
         <PdfModal
@@ -709,15 +716,36 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     </Text>
                   </Button>
                   <Button flex={1} style={styles.infoBox}>
-                    <Text
-                      color={colors.primary}
+                    <View
                       style={{
-                        fontSize: getFontSize(isSmallScreen ? 11 : 13),
-                        textTransform: 'uppercase',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-around',
                       }}
                     >
-                      {activeBadgeData?.budget} €
-                    </Text>
+                      {' '}
+                      <TextInput
+                        style={{
+                          fontSize: getFontSize(isSmallScreen ? 11 : 13),
+                          textTransform: 'uppercase',
+                          color: colors.primary,
+                        }}
+                        value={activeBadgeData?.budget}
+                        onChangeText={(text) =>
+                          handleFieldChange('budget', text)
+                        }
+                        placeholder="Budget"
+                      />
+                      <Text
+                        style={{
+                          fontSize: getFontSize(isSmallScreen ? 11 : 13),
+                          textTransform: 'uppercase',
+                        }}
+                        color={colors.primary}
+                      >
+                        €
+                      </Text>
+                    </View>
                   </Button>
                 </View>
 
@@ -808,13 +836,36 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
               <View style={{ flex: 1, marginHorizontal: 2 }}>
                 {/* Section Notation */}
                 <View style={styles.ratingSection}>
-                  <View style={styles.thumbBox}>
-                    <Font6
-                      name="thumbs-down"
-                      color={colors.danger}
-                      size={getFontSize(isSmallScreen ? 18 : 23)}
-                    />
-                  </View>
+                  {activeBadgeData.pouce_baisse == 0 &&
+                  activeBadgeData.pouce_leve == 0 ? (
+                    <View style={styles.thumbBox}>
+                      <Text style={{}}>Aucune reponse du client</Text>
+                    </View>
+                  ) : (
+                    <>
+                      {/* Pouce baissé */}
+                      {activeBadgeData.pouce_baisse > 0 && (
+                        <View style={styles.thumbBox}>
+                          <Font6
+                            name="thumbs-down"
+                            color={colors.danger}
+                            size={getFontSize(isSmallScreen ? 18 : 23)}
+                          />
+                        </View>
+                      )}
+
+                      {/* Pouce levé */}
+                      {activeBadgeData.pouce_leve > 0 && (
+                        <View style={styles.thumbBox}>
+                          <Font6
+                            name="thumbs-up"
+                            color={colors.success}
+                            size={getFontSize(isSmallScreen ? 18 : 23)}
+                          />
+                        </View>
+                      )}
+                    </>
+                  )}
                 </View>
 
                 {/* Section Commission et Options */}
@@ -836,7 +887,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                         textTransform: 'uppercase',
                       }}
                     >
-                      0.5%
+                      {activeBadgeData.commission
+                        ? activeBadgeData.commission
+                        : 0}
+                      %
                     </Text>
                   </View>
                   <View style={styles.optionBox}>
@@ -949,7 +1003,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
       )}
 
       <ToastComponent />
-    </SafeAreaView>
+    </KeyboardAwareScrollView>
   )
 }
 
