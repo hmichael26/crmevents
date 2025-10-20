@@ -579,19 +579,24 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                 <Button flex={1} style={styles.infoBox}>
                   <Text
                     black
-                    size={getFontSize(isSmallScreen ? 10 : 12)}
+                    size={getFontSize(isSmallScreen ? 10 : 11)}
                     style={styles.infoTitle}
                   >
                     DEMANDE ENVOYÉE
                   </Text>
                   <Text
                     color={colors.primary}
-                    size={getFontSize(isSmallScreen ? 9 : 11)}
+                    size={getFontSize(isSmallScreen ? 9 : 10)}
                     style={styles.infoValue}
                   >
-                    {new Date(
-                      activeBadgeData?.date_demande_envoye,
-                    ).toLocaleDateString()}
+                    {activeBadgeData?.date_demande_envoye &&
+                    activeBadgeData.date_demande_envoye !=
+                      '0000-00-00 00:00:00' &&
+                    activeBadgeData.date_demande_envoye != '0000-00-00'
+                      ? new Date(
+                          activeBadgeData.date_demande_envoye,
+                        ).toLocaleDateString()
+                      : 'Aucun demande envoyée'}
                   </Text>
                 </Button>
               </View>
@@ -623,19 +628,23 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                 <Button flex={1} style={styles.infoBox}>
                   <Text
                     black
-                    size={getFontSize(isSmallScreen ? 11 : 13)}
+                    size={getFontSize(isSmallScreen ? 11 : 12)}
                     style={styles.infoTitle}
                   >
                     DEVIS REÇU LE
                   </Text>
                   <Text
                     color={colors.primary}
-                    size={getFontSize(isSmallScreen ? 11 : 13)}
+                    size={getFontSize(isSmallScreen ? 11 : 11)}
                     style={styles.infoValue}
                   >
-                    {new Date(
-                      activeBadgeData?.date_devis_recu,
-                    ).toLocaleDateString()}
+                    {activeBadgeData?.date_devis_recu &&
+                    activeBadgeData.date_devis_recu !== '0000-00-00 00:00:00' &&
+                    activeBadgeData.date_devis_recu !== '0000-00-00'
+                      ? new Date(
+                          activeBadgeData.date_devis_recu,
+                        ).toLocaleDateString()
+                      : 'Aucun devis recu'}
                   </Text>
                 </Button>
               </View>
@@ -730,7 +739,8 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                           textTransform: 'uppercase',
                           color: colors.primary,
                         }}
-                        value={activeBadgeData?.budget}
+                        keyboardType="numeric"
+                        value={formFields?.budget || '0'}
                         onChangeText={(text) =>
                           handleFieldChange('budget', text)
                         }
@@ -874,18 +884,19 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     <Text
                       color={colors.dark}
                       style={{
-                        fontSize: getFontSize(isSmallScreen ? 11 : 13),
                         textTransform: 'uppercase',
                       }}
+                      size={getFontSize(isSmallScreen ? 10 : 11)}
                     >
                       COMMISSION:{' '}
                     </Text>
                     <Text
                       color={colors.primary}
                       style={{
-                        fontSize: getFontSize(isSmallScreen ? 11 : 13),
+                        fontSize: getFontSize(isSmallScreen ? 11 : 11),
                         textTransform: 'uppercase',
                       }}
+                      size={getFontSize(isSmallScreen ? 10 : 11)}
                     >
                       {activeBadgeData.commission
                         ? activeBadgeData.commission
@@ -898,6 +909,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                       black
                       size={getFontSize(isSmallScreen ? 11 : 13)}
                       style={styles.upperCaseText}
+                      size={getFontSize(isSmallScreen ? 10 : 11)}
                     >
                       OPTION :{' '}
                     </Text>
