@@ -740,7 +740,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                           color: colors.primary,
                         }}
                         keyboardType="numeric"
-                        value={formFields?.budget || '0'}
+                        value={formFields?.budget}
                         onChangeText={(text) =>
                           handleFieldChange('budget', text)
                         }
