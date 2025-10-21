@@ -37,6 +37,7 @@ import { useApi } from '../context/useApi'
 import DevisInterface from './DevisInterface'
 import Dropdown from './Dropdown'
 import { useToast } from './ToastComponent'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
 // ===========================
 // CONSTANTES RESPONSIVES
@@ -91,6 +92,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     comment: '',
     email: '',
     tel: '',
+    budget: '',
   })
 
   const [badges, setBadges] = useState([])
@@ -144,13 +146,15 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
           (modifications.comment ||
             modifications.email ||
             modifications.tel ||
-            modifications.contact),
+            modifications.contact ||
+            modifications.budget),
       )
       .map(([nomPresta, modifications]) => ({
         id_presta: modifications.id_presta.toString(),
         comm_prestataire: modifications.comment || '',
         tel_presta: modifications.tel || modifications.contact || '',
         email_presta: modifications.email || '',
+        budget: modifications.budget || '',
       }))
   }
 
@@ -163,6 +167,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
         comment: savedModifications?.comment || activeBadgeData.comment || '',
         email: savedModifications?.email || activeBadgeData.email || '',
         tel: savedModifications?.tel || activeBadgeData.contact || '',
+        budget: savedModifications?.budget || activeBadgeData.budget || '',
       })
     }
   }, [activeBadgeData])
@@ -466,6 +471,8 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     id_presta: activeBadgeData?.id_presta,
   }
 
+  console.log(activeBadgeData)
+
   // ===========================
   // RENDU CONDITIONNEL
   // ===========================
@@ -491,7 +498,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
   // RENDU PRINCIPAL
   // ===========================
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <KeyboardAwareScrollView style={styles.safeArea}>
       {/* Modal PDF */}
       {false && (
         <PdfModal
@@ -572,19 +579,24 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                 <Button flex={1} style={styles.infoBox}>
                   <Text
                     black
-                    size={getFontSize(isSmallScreen ? 10 : 12)}
+                    size={getFontSize(isSmallScreen ? 10 : 11)}
                     style={styles.infoTitle}
                   >
                     DEMANDE ENVOYÉE
                   </Text>
                   <Text
                     color={colors.primary}
-                    size={getFontSize(isSmallScreen ? 9 : 11)}
+                    size={getFontSize(isSmallScreen ? 9 : 10)}
                     style={styles.infoValue}
                   >
-                    {new Date(
-                      activeBadgeData?.date_demande_envoye,
-                    ).toLocaleDateString()}
+                    {activeBadgeData?.date_demande_envoye &&
+                    activeBadgeData.date_demande_envoye !=
+                      '0000-00-00 00:00:00' &&
+                    activeBadgeData.date_demande_envoye != '0000-00-00'
+                      ? new Date(
+                          activeBadgeData.date_demande_envoye,
+                        ).toLocaleDateString()
+                      : 'Aucun demande envoyée'}
                   </Text>
                 </Button>
               </View>
@@ -616,19 +628,23 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                 <Button flex={1} style={styles.infoBox}>
                   <Text
                     black
-                    size={getFontSize(isSmallScreen ? 11 : 13)}
+                    size={getFontSize(isSmallScreen ? 11 : 12)}
                     style={styles.infoTitle}
                   >
                     DEVIS REÇU LE
                   </Text>
                   <Text
                     color={colors.primary}
-                    size={getFontSize(isSmallScreen ? 11 : 13)}
+                    size={getFontSize(isSmallScreen ? 11 : 11)}
                     style={styles.infoValue}
                   >
-                    {new Date(
-                      activeBadgeData?.date_devis_recu,
-                    ).toLocaleDateString()}
+                    {activeBadgeData?.date_devis_recu &&
+                    activeBadgeData.date_devis_recu !== '0000-00-00 00:00:00' &&
+                    activeBadgeData.date_devis_recu !== '0000-00-00'
+                      ? new Date(
+                          activeBadgeData.date_devis_recu,
+                        ).toLocaleDateString()
+                      : 'Aucun devis recu'}
                   </Text>
                 </Button>
               </View>
@@ -709,15 +725,37 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     </Text>
                   </Button>
                   <Button flex={1} style={styles.infoBox}>
-                    <Text
-                      color={colors.primary}
+                    <View
                       style={{
-                        fontSize: getFontSize(isSmallScreen ? 11 : 13),
-                        textTransform: 'uppercase',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-around',
                       }}
                     >
-                      {activeBadgeData?.budget} €
-                    </Text>
+                      {' '}
+                      <TextInput
+                        style={{
+                          fontSize: getFontSize(isSmallScreen ? 11 : 13),
+                          textTransform: 'uppercase',
+                          color: colors.primary,
+                        }}
+                        keyboardType="numeric"
+                        value={formFields?.budget}
+                        onChangeText={(text) =>
+                          handleFieldChange('budget', text)
+                        }
+                        placeholder="Budget"
+                      />
+                      <Text
+                        style={{
+                          fontSize: getFontSize(isSmallScreen ? 11 : 13),
+                          textTransform: 'uppercase',
+                        }}
+                        color={colors.primary}
+                      >
+                        €
+                      </Text>
+                    </View>
                   </Button>
                 </View>
 
@@ -808,13 +846,36 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
               <View style={{ flex: 1, marginHorizontal: 2 }}>
                 {/* Section Notation */}
                 <View style={styles.ratingSection}>
-                  <View style={styles.thumbBox}>
-                    <Font6
-                      name="thumbs-down"
-                      color={colors.danger}
-                      size={getFontSize(isSmallScreen ? 18 : 23)}
-                    />
-                  </View>
+                  {activeBadgeData.pouce_baisse == 0 &&
+                  activeBadgeData.pouce_leve == 0 ? (
+                    <View style={styles.thumbBox}>
+                      <Text style={{}}>Aucune reponse du client</Text>
+                    </View>
+                  ) : (
+                    <>
+                      {/* Pouce baissé */}
+                      {activeBadgeData.pouce_baisse > 0 && (
+                        <View style={styles.thumbBox}>
+                          <Font6
+                            name="thumbs-down"
+                            color={colors.danger}
+                            size={getFontSize(isSmallScreen ? 18 : 23)}
+                          />
+                        </View>
+                      )}
+
+                      {/* Pouce levé */}
+                      {activeBadgeData.pouce_leve > 0 && (
+                        <View style={styles.thumbBox}>
+                          <Font6
+                            name="thumbs-up"
+                            color={colors.success}
+                            size={getFontSize(isSmallScreen ? 18 : 23)}
+                          />
+                        </View>
+                      )}
+                    </>
+                  )}
                 </View>
 
                 {/* Section Commission et Options */}
@@ -823,20 +884,24 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     <Text
                       color={colors.dark}
                       style={{
-                        fontSize: getFontSize(isSmallScreen ? 11 : 13),
                         textTransform: 'uppercase',
                       }}
+                      size={getFontSize(isSmallScreen ? 10 : 11)}
                     >
                       COMMISSION:{' '}
                     </Text>
                     <Text
                       color={colors.primary}
                       style={{
-                        fontSize: getFontSize(isSmallScreen ? 11 : 13),
+                        fontSize: getFontSize(isSmallScreen ? 11 : 11),
                         textTransform: 'uppercase',
                       }}
+                      size={getFontSize(isSmallScreen ? 10 : 11)}
                     >
-                      0.5%
+                      {activeBadgeData.commission
+                        ? activeBadgeData.commission
+                        : 0}
+                      %
                     </Text>
                   </View>
                   <View style={styles.optionBox}>
@@ -844,6 +909,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                       black
                       size={getFontSize(isSmallScreen ? 11 : 13)}
                       style={styles.upperCaseText}
+                      size={getFontSize(isSmallScreen ? 10 : 11)}
                     >
                       OPTION :{' '}
                     </Text>
@@ -949,7 +1015,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
       )}
 
       <ToastComponent />
-    </SafeAreaView>
+    </KeyboardAwareScrollView>
   )
 }
 

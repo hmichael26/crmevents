@@ -17,7 +17,6 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native'
-import { Picker } from '@react-native-picker/picker'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { AuthContext } from '../context/AuthContext'
 import { useApi } from '../context/useApi'
@@ -26,6 +25,10 @@ import { Button } from '../components'
 import { useTheme } from '../hooks'
 import DeroulesModal from '../components/DeroulesModal'
 import { useNavigation } from '@react-navigation/native'
+import {
+  CustomPickerModal,
+  CustomSelector,
+} from '../components/CustomPickerModal'
 
 const initialFormState = {
   region: '',
@@ -63,6 +66,13 @@ export const Prestataire = () => {
     getprestaprms,
     assignPresta,
   } = useApi()
+
+  const [modalState, setModalState] = useState({
+    visible: false,
+    type: null, // 'region', 'department', 'city', 'providerType'
+    data: [],
+    loading: false,
+  })
 
   const navigation = useNavigation()
   const scrollViewRef = useRef(null)
@@ -232,65 +242,6 @@ export const Prestataire = () => {
       }
     },
     [],
-  )
-
-  // 📋 HANDLERS DROPDOWN OPTIMISÉS
-  const createDropdownHandler = useCallback(
-    (type, searchBy) => {
-      return async () => {
-        if (dropdownData[type].length > 0 || loadingStates[type]) return
-
-        setLoadingState(type, true)
-        try {
-          const response = await withTimeout(
-            getprestaprms({ searchby: searchBy }),
-            `Chargement ${type}`,
-          )
-
-          const dataKey = {
-            regions: 'all_regions',
-            departments: 'all_depts',
-            cities: 'all_cities',
-            providerTypes: 'all_categories',
-          }[type]
-
-          setDropdownDataKey(type, response.data[dataKey] || [])
-        } catch (error) {
-          console.error(`Erreur ${type}:`, error)
-          Alert.alert(
-            'Erreur',
-            error.message || `Impossible de charger ${type}`,
-          )
-        } finally {
-          setLoadingState(type, false)
-        }
-      }
-    },
-    [
-      dropdownData,
-      loadingStates,
-      withTimeout,
-      setLoadingState,
-      setDropdownDataKey,
-    ],
-  )
-
-  // Handlers spécifiques
-  const handleRegionFocus = useMemo(
-    () => createDropdownHandler('regions', 'region'),
-    [createDropdownHandler],
-  )
-  const handleDepartmentFocus = useMemo(
-    () => createDropdownHandler('departments', 'dept'),
-    [createDropdownHandler],
-  )
-  const handleCityFocus = useMemo(
-    () => createDropdownHandler('cities', 'ville'),
-    [createDropdownHandler],
-  )
-  const handleProviderTypeFocus = useMemo(
-    () => createDropdownHandler('providerTypes', 'categ'),
-    [createDropdownHandler],
   )
 
   // 🎯 GESTION SÉLECTIONS OPTIMISÉE
@@ -707,6 +658,76 @@ export const Prestataire = () => {
     setHasMore(true)
   }, [cleanupMemory])
 
+  // Remplacer les handlers dropdown existants
+  const openPickerModal = useCallback(
+    async (type, searchBy, title) => {
+      setModalState((prev) => ({ ...prev, visible: true, type, loading: true }))
+
+      if (dropdownData[type].length === 0) {
+        try {
+          const response = await withTimeout(
+            getprestaprms({ searchby: searchBy }),
+            `Chargement ${type}`,
+          )
+
+          const dataKey = {
+            regions: 'all_regions',
+            departments: 'all_depts',
+            cities: 'all_cities',
+            providerTypes: 'all_categories',
+          }[type]
+
+          const data = response.data[dataKey] || []
+          setDropdownDataKey(type, data)
+          setModalState((prev) => ({ ...prev, data, loading: false }))
+        } catch (error) {
+          console.error(`Erreur ${type}:`, error)
+          Alert.alert(
+            'Erreur',
+            error.message || `Impossible de charger ${type}`,
+          )
+          setModalState({
+            visible: false,
+            type: null,
+            data: [],
+            loading: false,
+          })
+        }
+      } else {
+        setModalState((prev) => ({
+          ...prev,
+          data: dropdownData[type],
+          loading: false,
+        }))
+      }
+    },
+    [dropdownData, withTimeout, setDropdownDataKey],
+  )
+
+  const closePickerModal = useCallback(() => {
+    setModalState({ visible: false, type: null, data: [], loading: false })
+  }, [])
+
+  const handleModalSelect = useCallback(
+    (value) => {
+      if (modalState.type) {
+        // Mapping du type modal vers la clé du formulaire
+        const formKeyMapping = {
+          regions: 'region',
+          departments: 'department',
+          cities: 'city',
+          providerTypes: 'providerType',
+        }
+
+        const formKey = formKeyMapping[modalState.type]
+        if (formKey) {
+          handleInputChange(formKey, value)
+        }
+      }
+    },
+    [modalState.type, handleInputChange],
+  )
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -740,48 +761,56 @@ export const Prestataire = () => {
 
           <View style={styles.searchSection}>
             <View style={styles.row}>
-              <PickerWrapper
-                selectedValue={selectForm.region}
-                onValueChange={(value) => handleInputChange('region', value)}
-                items={dropdownData.regions}
-                placeholder="Sélectionner une région"
-                onFocus={handleRegionFocus}
-                loading={loadingStates.regions}
-                disabled={loadingStates.updating}
-              />
-              <PickerWrapper
-                selectedValue={selectForm.department}
-                onValueChange={(value) =>
-                  handleInputChange('department', value)
+              <CustomSelector
+                value={selectForm.region}
+                onPress={() =>
+                  openPickerModal(
+                    'regions',
+                    'region',
+                    'Sélectionner une région',
+                  )
                 }
-                items={dropdownData.departments}
-                placeholder="Sélectionner un département"
-                onFocus={handleDepartmentFocus}
-                loading={loadingStates.departments}
+                placeholder="Sélectionner une région"
                 disabled={loadingStates.updating}
+                items={dropdownData.regions}
+              />
+              <CustomSelector
+                value={selectForm.department}
+                onPress={() =>
+                  openPickerModal(
+                    'departments',
+                    'dept',
+                    'Sélectionner un département',
+                  )
+                }
+                placeholder="Sélectionner un département"
+                disabled={loadingStates.updating}
+                items={dropdownData.departments}
               />
             </View>
 
             <View style={styles.row}>
-              <PickerWrapper
-                selectedValue={selectForm.city}
-                onValueChange={(value) => handleInputChange('city', value)}
-                items={dropdownData.cities}
-                placeholder="Sélectionner une ville"
-                onFocus={handleCityFocus}
-                loading={loadingStates.cities}
-                disabled={loadingStates.updating}
-              />
-              <PickerWrapper
-                selectedValue={selectForm.providerType}
-                onValueChange={(value) =>
-                  handleInputChange('providerType', value)
+              <CustomSelector
+                value={selectForm.city}
+                onPress={() =>
+                  openPickerModal('cities', 'ville', 'Sélectionner une ville')
                 }
-                items={dropdownData.providerTypes}
-                placeholder="Type de prestataire"
-                onFocus={handleProviderTypeFocus}
-                loading={loadingStates.providerTypes}
+                placeholder="Sélectionner une ville"
                 disabled={loadingStates.updating}
+                items={dropdownData.cities}
+              />
+              <CustomSelector
+                value={selectForm.providerType}
+                onPress={() =>
+                  openPickerModal(
+                    'providerTypes',
+                    'categ',
+                    'Type de prestataire',
+                  )
+                }
+                placeholder="Type de prestataire"
+                disabled={loadingStates.updating}
+                items={dropdownData.providerTypes}
               />
             </View>
 
@@ -931,7 +960,21 @@ export const Prestataire = () => {
           </View>
         </View>
       </ScrollView>
-
+      <CustomPickerModal
+        visible={modalState.visible}
+        onClose={closePickerModal}
+        items={modalState.data}
+        onSelect={handleModalSelect}
+        title={
+          {
+            regions: 'Sélectionner une région',
+            departments: 'Sélectionner un département',
+            cities: 'Sélectionner une ville',
+            providerTypes: 'Type de prestataire',
+          }[modalState.type] || 'Sélectionner'
+        }
+        loading={modalState.loading}
+      />
       <DeroulesModal
         isVisible={modalShow}
         onClose={() => setModalShow(false)}
@@ -941,48 +984,12 @@ export const Prestataire = () => {
   )
 }
 
-// 🎯 COMPOSANTS OPTIMISÉS AVEC MEMO
-const PickerWrapper = React.memo(
-  ({
-    selectedValue,
-    onValueChange,
-    items,
-    placeholder,
-    onFocus,
-    loading,
-    disabled,
-  }) => (
-    <View style={[styles.pickerContainer, { width: '50%' }]}>
-      <Picker
-        selectedValue={selectedValue}
-        onValueChange={onValueChange}
-        style={styles.picker}
-        onFocus={onFocus}
-        enabled={!disabled}
-      >
-        <Picker.Item label={loading ? 'Chargement...' : placeholder} value="" style={{ color: '#000' }} />
-        {!loading &&
-          items.map((item, index) => (
-            <Picker.Item
-              label={item.name || item.libelle}
-              value={item.id}
-              key={`${item.id}-${index}`}
-            />
-          ))}
-      </Picker>
-      {loading && (
-        <ActivityIndicator
-          style={styles.pickerLoading}
-          color="#9932CC"
-          size="small"
-        />
-      )}
-    </View>
-  ),
-)
-
 const CustomTextInput = React.memo(({ ...props }) => (
-  <TextInput style={[styles.input, styles.inputHalf]} {...props}  placeholderTextColor={'#000'}/>
+  <TextInput
+    style={[styles.input, styles.inputHalf]}
+    {...props}
+    placeholderTextColor={'#000'}
+  />
 ))
 
 const styles = StyleSheet.create({
@@ -1075,6 +1082,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: 8,
+    height: 45,
   },
   input: {
     flexDirection: 'row',

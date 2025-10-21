@@ -34,7 +34,6 @@ const DevisInterface = ({
   sizes,
   getFontSize,
   openDevis,
-  colors,
 }) => {
   console.log('📋 DevisInterface - données reçues:', activeBadgeData)
 
