@@ -21,10 +21,7 @@
       },
       "infoPlist": {
         "NSUserTrackingUsageDescription": "Cette application utilise les notifications pour vous informer des mises à jour.",
-        "UIBackgroundModes": [
-          "remote-notification",
-          "remote-notification"
-        ],
+        "UIBackgroundModes": ["remote-notification", "remote-notification"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -92,9 +89,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "a241f533-0f5e-4876-b35a-60fda30d8b3c"
+        "projectId": "208bdf9e-cee4-4672-acb7-847d2a2c70b5"
       }
     },
-    "owner": "pierre.ahoble"
+    "owner": "hmichael26"
   }
 }
