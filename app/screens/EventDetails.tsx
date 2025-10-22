@@ -227,7 +227,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
     commission_15: false,
   })
 
-  console.log(item)
+  //  console.log(item)
 
   const [formData, setFormData] = useState<FormData1>(() => {
     if (item && !isCreatingNew) {

@@ -15,6 +15,7 @@ import { AuthContext } from '../context/AuthContext'
 import SelectOption from './SelectOption'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { CustomDatePicker } from './CustomDatePicker'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 const { height } = Dimensions.get('window')
 const FIELD_HEIGHT = 50
@@ -325,7 +326,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={'height'}>
+    <KeyboardAwareScrollView style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         {(!item || item.length === 0 || fields.length === 0) && (
           <View style={styles.fieldContainer}>
@@ -383,7 +384,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
           </Button>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   )
 }
 

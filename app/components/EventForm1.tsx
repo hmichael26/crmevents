@@ -186,14 +186,10 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
     updateFormField('date_fin', dateStr)
   }
 
-  console.log('📅 Date reception (string):', formData.date_reception)
+  // console.log('📅 Date reception (string):', formData.date_reception)
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={'height'}
-      keyboardVerticalOffset={insets.top}
-    >
+    <KeyboardAwareScrollView style={{ flex: 1 }}>
       <View style={styles.container}>
         {/* Titre de l'événement */}
         <TextInput
@@ -257,6 +253,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           />
 
           <TextInputWithIcon
+            iconName="map"
             placeholder="Zone geographique"
             style={{ width: '70%' }}
             value={formData.zone}
@@ -360,7 +357,7 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
           placeholderTextColor={'#999'}
         />
       </View>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   )
 }
 

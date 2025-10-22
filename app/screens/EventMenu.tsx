@@ -70,7 +70,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
     useCallback(() => {
       if (item?.idevt) {
         setIsLoading(true)
-        console.log("Rechargement des données de l'événement")
+        //     console.log("Rechargement des données de l'événement")
 
         getevent({ idevt: item.idevt })
           .then((response) => {

@@ -15,6 +15,7 @@ import Button from './Button'
 import { useTheme } from '../hooks'
 import ClientAutocomplete from './ClientAutoComplete'
 import ClientAutoDropdownComplete from './ClientAutoDropdownComplete'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 const { width, height } = Dimensions.get('window')
 
@@ -60,7 +61,7 @@ const Form2: React.FC<Form2Props> = ({
   clients: initialClients,
   clientData = [],
 }) => {
-  console.log(item)
+  //  console.log(item)
   const { assets, colors, gradients, sizes } = useTheme()
 
   // State to manage form data
@@ -132,7 +133,7 @@ const Form2: React.FC<Form2Props> = ({
         }
       }
 
-      console.log('🔵 Client trouvé:', found)
+      //      console.log('🔵 Client trouvé:', found)
       if (found) {
         setFormData((prev) => ({
           ...prev,
@@ -197,11 +198,7 @@ const Form2: React.FC<Form2Props> = ({
   )
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-    >
+    <KeyboardAwareScrollView style={styles.container}>
       <ClientAutoDropdownComplete
         placeholder="Prénom NOM"
         value={formData.clt}
@@ -350,7 +347,7 @@ const Form2: React.FC<Form2Props> = ({
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled" // ⭐ SOLUTION PRINCIPALE
       />
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   )
 }
 

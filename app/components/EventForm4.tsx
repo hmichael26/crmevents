@@ -266,7 +266,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     if (currentForm === 1) {
       setSelectedOption('SUPPRIMER')
     } else if (currentForm === 2) {
-      console.log(activeBadgeData, activeBadgeData?.id_presta)
+      //    console.log(activeBadgeData, activeBadgeData?.id_presta)
       await validbrochure({
         id_presta: activeBadgeData?.id_presta,
         valid: 'supprimer',
@@ -456,7 +456,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
           JSON.stringify(updatedPresta) !== JSON.stringify(activeBadgeData)
 
         if (hasChanged) {
-          console.log('MISE À JOUR AUTOMATIQUE DES DONNÉES DU BADGE ACTIF')
+          //          console.log('MISE À JOUR AUTOMATIQUE DES DONNÉES DU BADGE ACTIF')
           setActiveBadgeData(updatedPresta)
         }
       }
@@ -471,7 +471,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     id_presta: activeBadgeData?.id_presta,
   }
 
-  console.log(activeBadgeData)
+  // console.log(activeBadgeData)
 
   // ===========================
   // RENDU CONDITIONNEL

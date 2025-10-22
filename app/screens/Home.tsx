@@ -90,7 +90,7 @@ const Home = (props: DrawerContentComponentProps) => {
       const now = Date.now()
 
       if (isFetching.current && !force) {
-        console.log('Fetch déjà en cours, abandon')
+        //  console.log('Fetch déjà en cours, abandon')
         return
       }
 
@@ -99,7 +99,7 @@ const Home = (props: DrawerContentComponentProps) => {
         !isInitialLoad.current &&
         now - lastFetchTime.current < FETCH_COOLDOWN
       ) {
-        console.log('Cooldown actif, abandon')
+        //  console.log('Cooldown actif, abandon')
         return
       }
 
@@ -140,7 +140,7 @@ const Home = (props: DrawerContentComponentProps) => {
         // Double sécurité: arrêter le loader après un délai max
         setTimeout(() => {
           if (refreshing) {
-            console.log('Force stop loading après timeout')
+            //  console.log('Force stop loading après timeout')
             stopLoading()
           }
         }, 5000) // 5 secondes max
@@ -158,11 +158,11 @@ const Home = (props: DrawerContentComponentProps) => {
         isInitialLoad.current ||
         now - lastFocusTime.current > FOCUS_COOLDOWN
       ) {
-        console.log('Screen focused, fetching projects...')
+        //     console.log('Screen focused, fetching projects...')
         lastFocusTime.current = now
         fetchProjects()
       } else {
-        console.log("Focus ignoré - changement d'état local")
+        // console.log("Focus ignoré - changement d'état local")
       }
     }, [fetchProjects]),
   )

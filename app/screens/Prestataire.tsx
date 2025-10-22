@@ -117,7 +117,7 @@ export const Prestataire = () => {
 
   // 🧹 FONCTION DE NETTOYAGE MÉMOIRE
   const cleanupMemory = useCallback(() => {
-    console.log('🧹 Prestataire - Nettoyage mémoire en cours...')
+    //  console.log('🧹 Prestataire - Nettoyage mémoire en cours...')
 
     // Nettoie les timeouts
     Object.values(timeoutRefs.current).forEach(clearTimeout)
@@ -134,12 +134,12 @@ export const Prestataire = () => {
     setAssignProgress(null)
     setShowLongWaitMessage(false)
 
-    console.log('✅ Prestataire - Mémoire nettoyée')
+    // console.log('✅ Prestataire - Mémoire nettoyée')
   }, [])
 
   // 🔄 NETTOYAGE APRÈS RECHERCHE
   const cleanupAfterSearch = useCallback(() => {
-    console.log('🔄 Prestataire - Nettoyage post-recherche...')
+    //   console.log('🔄 Prestataire - Nettoyage post-recherche...')
 
     // Vide les sélections précédentes
     setSelectPresta([])
@@ -153,12 +153,12 @@ export const Prestataire = () => {
       setSearchProgress(null)
     }, 2000)
 
-    console.log('✅ Prestataire - Nettoyage post-recherche terminé')
+    //   console.log('✅ Prestataire - Nettoyage post-recherche terminé')
   }, [])
 
   // 🗑️ NETTOYAGE APRÈS ASSIGNATION
   const cleanupAfterAssignment = useCallback(() => {
-    console.log('🗑️ Prestataire - Nettoyage post-assignation...')
+    //console.log('🗑️ Prestataire - Nettoyage post-assignation...')
 
     // Vide complètement les sélections
     setSelectPresta([])
@@ -174,7 +174,7 @@ export const Prestataire = () => {
       setAssignProgress(null)
     }, 2000)
 
-    console.log('✅ Prestataire - Nettoyage post-assignation terminé')
+    //  console.log('✅ Prestataire - Nettoyage post-assignation terminé')
   }, [])
 
   // Helper pour les états de chargement
@@ -330,14 +330,14 @@ export const Prestataire = () => {
         current_page: page,
       }
 
-      console.log('🔍 Recherche prestataires avec paramètres:', formattedData)
+      //    console.log('🔍 Recherche prestataires avec paramètres:', formattedData)
 
       const response = await withTimeout(
         getPrestaBy(formattedData),
         'Recherche de prestataires',
       )
 
-      console.log('📊 Réponse API prestataires:', response)
+      //      console.log('📊 Réponse API prestataires:', response)
 
       if (!response.data) {
         setHasMore(false)
@@ -354,7 +354,9 @@ export const Prestataire = () => {
         setSearchResults(newData)
         setCurrentPage(page)
         if (showProgress) {
-          setSearchProgress(`${newData.nb_tot_presta} prestataires trouvés`)
+          newData.nb_tot_presta > 0
+            ? setSearchProgress(`${newData.nb_tot_presta} prestataires trouvés`)
+            : setSearchProgress('Aucun prestataire trouvé')
         }
       } else {
         // Actualisation : garde les données existantes ou les remplace selon le contexte
@@ -375,7 +377,7 @@ export const Prestataire = () => {
       const totalPagesReceived = Math.ceil(newData.nb_tot_presta / PAGE_SIZE)
       setHasMore(page < totalPagesReceived)
 
-      console.log('✅ Données prestataires mises à jour avec succès')
+      //console.log('✅ Données prestataires mises à jour avec succès')
     } catch (error) {
       console.error('🔴 Erreur lors de la recherche prestataires:', error)
       setHasMore(false)
@@ -386,11 +388,11 @@ export const Prestataire = () => {
   // 🔄 FONCTION D'ACTUALISATION COMPLÈTE
   const refreshCurrentSearch = useCallback(async () => {
     if (!searchResults) {
-      console.log('⚠️ Aucune recherche prestataire à actualiser')
+      //console.log('⚠️ Aucune recherche prestataire à actualiser')
       return
     }
 
-    console.log('🔄 Actualisation de la recherche prestataires courante...')
+    //console.log('🔄 Actualisation de la recherche prestataires courante...')
     setLoadingState('updating', true)
 
     try {
@@ -445,7 +447,7 @@ export const Prestataire = () => {
         setSearchProgress(null)
       }, 2000)
 
-      console.log('✅ Actualisation prestataires terminée')
+      //console.log('✅ Actualisation prestataires terminée')
     } catch (error) {
       console.error("🔴 Erreur lors de l'actualisation prestataires:", error)
       Alert.alert(
@@ -537,18 +539,18 @@ export const Prestataire = () => {
   // 🔧 ACTIONS CRUD OPTIMISÉES ET CORRIGÉES
   const onModify = useCallback(
     async (data) => {
-      console.log('🔧 Modification du prestataire:', data.id)
+      //console.log('🔧 Modification du prestataire:', data.id)
       setLoadingState('updating', true)
 
       try {
         const response = await updatepresta(data)
 
-        console.log('📝 Réponse modification prestataire:', response)
+        //console.log('📝 Réponse modification prestataire:', response)
 
         if (response) {
-          console.log(
+          /*      console.log(
             '✅ Modification prestataire réussie, actualisation des données...',
-          )
+          )*/
           await refreshCurrentSearch()
 
           // Message de succès
@@ -571,7 +573,7 @@ export const Prestataire = () => {
 
   const onDelete = useCallback(
     async (data) => {
-      console.log('🗑️ Suppression du prestataire:', data.id)
+      //   console.log('🗑️ Suppression du prestataire:', data.id)
 
       // Confirmation avant suppression
       Alert.alert(
@@ -591,12 +593,12 @@ export const Prestataire = () => {
               try {
                 const response = await deletepresta(data)
 
-                console.log('🗑️ Réponse suppression prestataire:', response)
+                //   console.log('🗑️ Réponse suppression prestataire:', response)
 
                 if (response) {
-                  console.log(
+                  /*    console.log(
                     '✅ Suppression prestataire réussie, actualisation des données...',
-                  )
+                  )*/
 
                   // Retire le prestataire supprimé des sélections s'il y était
                   setSelectPresta((prev) =>
@@ -633,7 +635,7 @@ export const Prestataire = () => {
   // 🧹 CLEANUP AU DÉMONTAGE
   useEffect(() => {
     return () => {
-      console.log('🧹 Prestataire - Cleanup au démontage du composant')
+      //      console.log('🧹 Prestataire - Cleanup au démontage du composant')
       cleanupMemory()
     }
   }, [cleanupMemory])
@@ -641,7 +643,7 @@ export const Prestataire = () => {
   // 🚨 CLEANUP SUR CHANGEMENT DE NAVIGATION
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
-      console.log('🚨 Prestataire - Navigation blur - nettoyage')
+      //      console.log('🚨 Prestataire - Navigation blur - nettoyage')
       cleanupMemory()
     })
 
