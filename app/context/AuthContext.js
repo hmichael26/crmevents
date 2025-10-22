@@ -83,27 +83,27 @@ export const AuthProvider = ({ children }) => {
       token,
     }
 
-    try {
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ??
-        Constants?.easConfig?.projectId
+    // try {
+    //   const projectId =
+    //     Constants?.expoConfig?.extra?.eas?.projectId ??
+    //     Constants?.easConfig?.projectId
 
-      if (!projectId || typeof projectId !== 'string') {
-        console.warn(
-          '🟡 projectId manquant ou invalide pour ExpoPushTokenAsync',
-        )
-      } else {
-        const expoPushToken = await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-        if (expoPushToken?.data) {
-          data.pushtoken = expoPushToken.data
-          console.log('📩 Token push récupéré :', expoPushToken.data)
-        }
-      }
-    } catch (e) {
-      console.warn('⚠️ Erreur récup push token Expo :', e?.message || e)
-    }
+    //   if (!projectId || typeof projectId !== 'string') {
+    //     console.warn(
+    //       '🟡 projectId manquant ou invalide pour ExpoPushTokenAsync',
+    //     )
+    //   } else {
+    //     const expoPushToken = await Notifications.getExpoPushTokenAsync({
+    //       projectId,
+    //     })
+    //     if (expoPushToken?.data) {
+    //       data.pushtoken = expoPushToken.data
+    //       console.log('📩 Token push récupéré :', expoPushToken.data)
+    //     }
+    //   }
+    // } catch (e) {
+    //   console.warn('⚠️ Erreur récup push token Expo :', e?.message || e)
+    // }
 
     try {
       console.log('📤 Récupération des données utilisateur...')
