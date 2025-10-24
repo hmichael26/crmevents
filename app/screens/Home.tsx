@@ -39,6 +39,7 @@ const Home = (props: DrawerContentComponentProps) => {
   const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(
     null,
   )
+
   const [tab, setTab] = useState<number>(0)
   const { following, trending } = useData()
   const [products, setProducts] = useState(following)
@@ -54,7 +55,52 @@ const Home = (props: DrawerContentComponentProps) => {
   const [keyword, setKeyword] = useState('')
   const [InputValue, setInputValue] = useState('')
   const [filteredEvents, setFilteredEvents] = useState([])
-  const [categories, setCategories] = useState<ICategory[]>([])
+  const [categories, setCategories] = useState<any>([
+    {
+      id: 5,
+      label: 'Nouveau',
+      value: 'Nouveau',
+      color: '#03a9f5',
+      name: 'Nouveau Projet',
+    },
+    {
+      id: 7,
+      label: 'A valider',
+      value: 'a_valider',
+      color: '#404fe9',
+      name: 'Devis à Valider',
+    },
+    {
+      id: 1,
+      label: 'A affiner',
+      value: 'a_affiner',
+      color: '#4f37da',
+      name: 'Recherche à Affiner',
+    },
+    {
+      id: 3,
+      label: 'Envoyé',
+      value: 'Envoyer',
+      color: '#690ec2',
+      name: 'Devis Envoyé',
+    },
+    { id: 4, label: 'Hot', value: 'Hot', color: '#f025b6', name: 'HOT' },
+    {
+      id: 6,
+      label: 'Gagnés',
+      value: 'Conclu',
+      color: 'green',
+      name: ' Projets Gagnés',
+    },
+    {
+      id: 8,
+      label: 'Perdus',
+      value: 'Perdu',
+      color: '#f025b6',
+      name: 'Projets Perdus',
+    },
+  ])
+
   const [active, setActive] = useState('')
 
   // 🔧 FIX 1: Un seul état pour le loading
@@ -176,10 +222,10 @@ const Home = (props: DrawerContentComponentProps) => {
   )
 
   useEffect(() => {
-    setCategories(data?.categories)
-    setSelectedCategory(data?.categories[0])
-  }, [data.categories])
+    setSelectedCategory(categories[0])
+  }, [categories])
 
+  console.log(projectsData)
   useEffect(() => {
     if (Array.isArray(projectsData) && projectsData.length > 0) {
       const filteredEvents = projectsData.filter((event: any) => {
@@ -190,7 +236,7 @@ const Home = (props: DrawerContentComponentProps) => {
         const matchesKeyword =
           eventEvt.includes(keywordLower) || eventEnt.includes(keywordLower)
         const matchesCategory = selectedCategory
-          ? event.type == selectedCategory.id
+          ? event.type == selectedCategory.value
           : true
 
         return matchesKeyword && matchesCategory
