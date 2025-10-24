@@ -27,11 +27,49 @@ const StatusDropdown = ({
   // Liste des statuts disponibles - memoized pour éviter les recréations
   const statusOptions = useMemo(
     () => [
-      { id: 5, label: 'Nouveau', value: 'Nouveau', color: '#03a9f5' }, // Nouveau
-      { id: 7, label: 'A valider', value: 'a_valider', color: '#404fe9' }, // Nouveau statut ajouté
-      { id: 1, label: 'A affiner', value: 'a_affiner', color: '#4f37da' }, // À affiner
-      { id: 3, label: 'Envoyé', value: 'Envoyer', color: '#690ec2' }, // Envoyer
-      { id: 4, label: 'Hot', value: 'Hot', color: '#f025b6' }, // Hot
+      {
+        id: 5,
+        label: 'Nouveau',
+        value: 'Nouveau',
+        color: '#03a9f5',
+        name: 'Nouveau Projet',
+      },
+      {
+        id: 7,
+        label: 'A valider',
+        value: 'a_valider',
+        color: '#404fe9',
+        name: 'Devis à Valider',
+      },
+      {
+        id: 1,
+        label: 'A affiner',
+        value: 'a_affiner',
+        color: '#4f37da',
+        name: 'Recherche à Affiner',
+      },
+      {
+        id: 3,
+        label: 'Envoyé',
+        value: 'Envoyer',
+        color: '#690ec2',
+        name: 'Devis Envoyé',
+      },
+      { id: 4, label: 'Hot', value: 'Hot', color: '#f025b6', name: 'HOT' },
+      {
+        id: 6,
+        label: 'Gagnés',
+        value: 'Conclu',
+        color: 'green',
+        name: ' Projets Gagnés',
+      },
+      {
+        id: 8,
+        label: 'Perdus',
+        value: 'Perdu',
+        color: '#f025b6',
+        name: 'Projets Perdus',
+      },
     ],
     [],
   )
@@ -234,7 +272,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     minWidth: 200,
-    maxHeight: 300,
+    maxHeight: 400,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
