@@ -69,7 +69,6 @@
     "react-native": "0.79.5",
     "react-native-blob-util": "^0.21.2",
     "react-native-calendars": "^1.1305.0",
-    "react-native-date-picker": "^5.0.13",
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-element-dropdown": "^2.12.1",
     "react-native-feather": "^1.1.2",
