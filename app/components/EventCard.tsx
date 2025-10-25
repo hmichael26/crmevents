@@ -12,6 +12,8 @@ interface EventCardProps {
 export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
   const { userdata } = useContext(AuthContext)
 
+  //console.log(item)
+
   /* {
       Receiver: `Admin - ${derouleTitle}`,
       chat: {

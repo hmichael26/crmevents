@@ -37,7 +37,8 @@ import { useApi } from '../context/useApi'
 import DevisInterface from './DevisInterface'
 import Dropdown from './Dropdown'
 import { useToast } from './ToastComponent'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 // ===========================
 // CONSTANTES RESPONSIVES

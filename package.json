@@ -76,7 +76,6 @@
     "react-native-gesture-handler": "~2.24.0",
     "react-native-gifted-chat": "^2.4.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
-    "react-native-keyboard-controller": "^1.18.6",
     "react-native-multi-selectbox": "^1.5.0",
     "react-native-pager-view": "6.7.1",
     "react-native-pdf-renderer": "^1.6.0",

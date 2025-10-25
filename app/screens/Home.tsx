@@ -225,7 +225,7 @@ const Home = (props: DrawerContentComponentProps) => {
     setSelectedCategory(categories[0])
   }, [categories])
 
-  console.log(projectsData)
+  //console.log(projectsData)
   useEffect(() => {
     if (Array.isArray(projectsData) && projectsData.length > 0) {
       const filteredEvents = projectsData.filter((event: any) => {
@@ -307,22 +307,37 @@ const Home = (props: DrawerContentComponentProps) => {
   }
 
   if (userdata?.user?.admin == 0) {
-    return (
-      <FlatList
-        key={refreshKey} // 🔧 Force re-render sur iOS
-        data={newEvents}
-        showsVerticalScrollIndicator={true}
-        keyExtractor={(item, index) => index.toString()}
-        style={{ paddingVertical: sizes.padding }}
-        contentContainerStyle={{ paddingBottom: sizes.l }}
-        refreshControl={<RefreshControl {...refreshControlProps} />}
-        renderItem={({ item }) => (
-          <View style={{ flex: 1 }}>
-            <EventCard item={item} navigation={navigation} />
-          </View>
-        )}
-      />
-    )
+    if (Array.isArray(projectsData) && projectsData.length > 0) {
+      return (
+        <FlatList
+          key={refreshKey} // 🔧 Force re-render sur iOS
+          data={newEvents}
+          showsVerticalScrollIndicator={true}
+          keyExtractor={(item, index) => index.toString()}
+          style={{ paddingVertical: sizes.padding }}
+          contentContainerStyle={{ paddingBottom: sizes.l }}
+          refreshControl={<RefreshControl {...refreshControlProps} />}
+          renderItem={({ item }) => (
+            <View style={{ flex: 1 }}>
+              <EventCard item={item} navigation={navigation} />
+            </View>
+          )}
+        />
+      )
+    } else {
+      return (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#fff',
+          }}
+        >
+          <Text size={16}>Aucun projet à afficher</Text>
+        </View>
+      )
+    }
   }
 
   return (
