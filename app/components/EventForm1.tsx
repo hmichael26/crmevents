@@ -189,7 +189,14 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
   // console.log('📅 Date reception (string):', formData.date_reception)
 
   return (
-    <KeyboardAwareScrollView style={{ flex: 1 }}>
+    <KeyboardAwareScrollView
+      style={{ flex: 1 }}
+      enableOnAndroid={true} // ✅ Important pour Android
+      extraScrollHeight={20} // Espace supplémentaire
+      keyboardShouldPersistTaps="handled" // Clic en dehors ferme clavier
+      enableAutomaticScroll={true} // Scroll automatique
+      enableResetScrollToCoords={true} // Reset après fermeture clavier
+    >
       <View style={styles.container}>
         {/* Titre de l'événement */}
         <TextInput

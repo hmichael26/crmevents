@@ -499,7 +499,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
   // RENDU PRINCIPAL
   // ===========================
   return (
-    <KeyboardAwareScrollView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea}>
       {/* Modal PDF */}
       {false && (
         <PdfModal
@@ -844,7 +844,13 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                 />
               </View>
 
-              <View style={{ flex: 1, marginHorizontal: 2 }}>
+              <KeyboardAwareScrollView
+                style={{ flex: 1, marginHorizontal: 2 }}
+                scrollEnabled={true}
+                keyboardShouldPersistTaps="handled"
+                enableAutomaticScroll={true} // Scroll automatique
+                enableResetScrollToCoords={true} // Reset après fermeture clavier
+              >
                 {/* Section Notation */}
                 <View style={styles.ratingSection}>
                   {activeBadgeData.pouce_baisse == 0 &&
@@ -953,7 +959,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     />
                   </View>
                 </View>
-              </View>
+              </KeyboardAwareScrollView>
             </View>
 
             {/* Badges suivants */}
@@ -1016,7 +1022,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
       )}
 
       <ToastComponent />
-    </KeyboardAwareScrollView>
+    </SafeAreaView>
   )
 }
 

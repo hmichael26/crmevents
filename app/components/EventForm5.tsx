@@ -326,65 +326,71 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
   }
 
   return (
-    <KeyboardAwareScrollView style={{ flex: 1 }}>
-      <ScrollView style={styles.container}>
-        {(!item || item.length === 0 || fields.length === 0) && (
-          <View style={styles.fieldContainer}>
-            <Text style={[styles.loadingText, { color: colors.danger }]}>
-              Aucun champ ajouté
-            </Text>
-          </View>
-        )}
+    <ScrollView style={styles.container}>
+      {(!item || item.length === 0 || fields.length === 0) && (
+        <View style={styles.fieldContainer}>
+          <Text style={[styles.loadingText, { color: colors.danger }]}>
+            Aucun champ ajouté
+          </Text>
+        </View>
+      )}
 
+      <KeyboardAwareScrollView
+        enableOnAndroid={true}
+        extraScrollHeight={5}
+        keyboardShouldPersistTaps="handled"
+        enableAutomaticScroll={true}
+        enableResetScrollToCoords={true}
+      >
         {fields &&
           fields.map((field, index) => (
             <View key={index} style={styles.fieldContainer}>
               {renderField(field, index)}
             </View>
           ))}
+      </KeyboardAwareScrollView>
 
-        <View style={styles.buttonContainer}>
-          <Button
-            gradient={gradients.secondary}
-            style={styles.button}
-            onPress={() => addRandomField(0)}
-          >
-            <View style={styles.buttonContent}>
-              <Text style={[styles.buttonText, styles.centerText]}>
-                Champ DATE
-              </Text>
-              <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
-            </View>
-          </Button>
+      <View style={styles.buttonContainer}>
+        <Button
+          gradient={gradients.secondary}
+          style={styles.button}
+          onPress={() => addRandomField(0)}
+        >
+          <View style={styles.buttonContent}>
+            <Text style={[styles.buttonText, styles.centerText]}>
+              Champ DATE
+            </Text>
+            <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
+          </View>
+        </Button>
 
-          <Button
-            gradient={gradients.info}
-            style={styles.button}
-            onPress={() => addRandomField(1)}
-          >
-            <View style={styles.buttonContent}>
-              <Text style={[styles.buttonText, styles.centerText]}>
-                Champ TEXT
-              </Text>
-              <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
-            </View>
-          </Button>
+        <Button
+          gradient={gradients.info}
+          style={styles.button}
+          onPress={() => addRandomField(1)}
+        >
+          <View style={styles.buttonContent}>
+            <Text style={[styles.buttonText, styles.centerText]}>
+              Champ TEXT
+            </Text>
+            <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
+          </View>
+        </Button>
 
-          <Button
-            gradient={gradients.success}
-            style={styles.button}
-            onPress={() => addRandomField(2)}
-          >
-            <View style={styles.buttonContent}>
-              <Text style={[styles.buttonText, styles.centerText]}>
-                Champ DYNAMIQUE
-              </Text>
-              <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
-            </View>
-          </Button>
-        </View>
-      </ScrollView>
-    </KeyboardAwareScrollView>
+        <Button
+          gradient={gradients.success}
+          style={styles.button}
+          onPress={() => addRandomField(2)}
+        >
+          <View style={styles.buttonContent}>
+            <Text style={[styles.buttonText, styles.centerText]}>
+              Champ DYNAMIQUE
+            </Text>
+            <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
+          </View>
+        </Button>
+      </View>
+    </ScrollView>
   )
 }
 

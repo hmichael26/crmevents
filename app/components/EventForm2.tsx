@@ -198,7 +198,14 @@ const Form2: React.FC<Form2Props> = ({
   )
 
   return (
-    <KeyboardAwareScrollView style={styles.container}>
+    <KeyboardAwareScrollView
+      style={styles.container}
+      enableOnAndroid={true} // ✅ Important pour Android
+      extraScrollHeight={20} // Espace supplémentaire
+      keyboardShouldPersistTaps="handled" // Clic en dehors ferme clavier
+      enableAutomaticScroll={true} // Scroll automatique
+      enableResetScrollToCoords={true} // Reset après fermeture clavier
+    >
       <ClientAutoDropdownComplete
         placeholder="Prénom NOM"
         value={formData.clt}
