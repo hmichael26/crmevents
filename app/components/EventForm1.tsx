@@ -191,7 +191,6 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
   return (
     <KeyboardAwareScrollView
       style={{ flex: 1 }}
-      enableOnAndroid={true} // ✅ Important pour Android
       extraScrollHeight={20} // Espace supplémentaire
       keyboardShouldPersistTaps="handled" // Clic en dehors ferme clavier
       enableAutomaticScroll={true} // Scroll automatique
