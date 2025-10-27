@@ -15,7 +15,7 @@ import MultiSelect from './MultiSelectBox'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { CustomDatePicker } from './CustomDatePicker'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const { width, height } = Dimensions.get('window')
 
@@ -189,181 +189,173 @@ const Form1: React.FC<Form1Props> = ({ item, eventTypes, onDataChange }) => {
   // console.log('📅 Date reception (string):', formData.date_reception)
 
   return (
-    <KeyboardAwareScrollView
-      style={{ flex: 1 }}
-      extraScrollHeight={20} // Espace supplémentaire
-      keyboardShouldPersistTaps="handled" // Clic en dehors ferme clavier
-      enableAutomaticScroll={true} // Scroll automatique
-      enableResetScrollToCoords={true} // Reset après fermeture clavier
-    >
-      <View style={styles.container}>
-        {/* Titre de l'événement */}
-        <TextInput
-          placeholder="Titre de l'Event"
-          value={formData.evt}
-          onChangeText={(text) => updateFormField('evt', text)}
-          style={styles.titleInput}
-          placeholderTextColor={'#999'}
-        />
+    <View style={styles.container}>
+      {/* Titre de l'événement */}
+      <TextInput
+        placeholder="Titre de l'Event"
+        value={formData.evt}
+        onChangeText={(text) => updateFormField('evt', text)}
+        style={styles.titleInput}
+        placeholderTextColor={'#999'}
+      />
 
-        {/* Date de création et référence */}
-        <View style={styles.inputContainer}>
-          <View
-            style={[
-              formData.idevt != 0 ? { width: '50%' } : { width: '100%' },
-              { marginBottom: 12 },
-            ]}
+      {/* Date de création et référence */}
+      <View style={styles.inputContainer}>
+        <View
+          style={[
+            formData.idevt != 0 ? { width: '50%' } : { width: '100%' },
+            { marginBottom: 12 },
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDateReception(true)}
           >
-            <TouchableOpacity
-              style={styles.datePickerButton}
-              onPress={() => setShowDateReception(true)}
-            >
-              <Icon name="calendar" size={20} color="#666" />
-              <Text style={styles.datePickerText}>
-                {formData.date_reception || 'Date de réception'}
-              </Text>
-            </TouchableOpacity>
+            <Icon name="calendar" size={20} color="#666" />
+            <Text style={styles.datePickerText}>
+              {formData.date_reception || 'Date de réception'}
+            </Text>
+          </TouchableOpacity>
 
-            <CustomDatePicker
-              visible={showDateReception}
-              onClose={() => setShowDateReception(false)}
-              onConfirm={handleDateReceptionConfirm}
-              initialDate={formData.date_reception}
-              title="Date de réception"
-              minDate={new Date(2000, 0, 1)}
-              maxDate={new Date(2030, 11, 31)}
-            />
-          </View>
-
-          {formData.idevt != 0 && (
-            <TextInputWithIcon
-              placeholder="REF Projet"
-              style={{ width: '50%', height: 40 }}
-              value={formData.ref}
-              onChangeText={(text) => updateFormField('ref', text)}
-              editable={false}
-              selectTextOnFocus={false}
-              pointerEvents="none"
-            />
-          )}
+          <CustomDatePicker
+            visible={showDateReception}
+            onClose={() => setShowDateReception(false)}
+            onConfirm={handleDateReceptionConfirm}
+            initialDate={formData.date_reception}
+            title="Date de réception"
+            minDate={new Date(2000, 0, 1)}
+            maxDate={new Date(2030, 11, 31)}
+          />
         </View>
 
-        {/* Pax et Zone géographique */}
-        <View style={styles.inputContainer}>
+        {formData.idevt != 0 && (
           <TextInputWithIcon
-            iconName="person"
-            placeholder="Pax"
-            style={{ width: '30%' }}
-            value={formData.pax}
-            onChangeText={(text) => updateFormField('pax', text)}
+            placeholder="REF Projet"
+            style={{ width: '50%', height: 40 }}
+            value={formData.ref}
+            onChangeText={(text) => updateFormField('ref', text)}
+            editable={false}
+            selectTextOnFocus={false}
+            pointerEvents="none"
           />
+        )}
+      </View>
 
-          <TextInputWithIcon
-            iconName="map"
-            placeholder="Zone geographique"
-            style={{ width: '70%' }}
-            value={formData.zone}
-            onChangeText={(text) => updateFormField('zone', text)}
-          />
-        </View>
-
-        {/* Sélection multiple des types d'événements */}
-        <View>
-          <MultiSelect
-            options={options}
-            selectedOptions={formData.types_evts}
-            onSelectionChange={handleSelectionChange}
-          />
-        </View>
-
-        {/* Dates de début et fin */}
-        <View style={styles.inputContainer}>
-          <View style={{ width: '50%', marginBottom: 10 }}>
-            <TouchableOpacity
-              style={styles.datePickerButton}
-              onPress={() => setShowDateDeb(true)}
-            >
-              <Icon name="calendar" size={20} color="#666" />
-              <Text style={styles.datePickerText}>
-                {formData.date_deb || 'Date début'}
-              </Text>
-            </TouchableOpacity>
-
-            <CustomDatePicker
-              visible={showDateDeb}
-              onClose={() => setShowDateDeb(false)}
-              onConfirm={handleDateDebConfirm}
-              initialDate={formData.date_deb}
-              title="Date de début"
-              minDate={new Date(2000, 0, 1)}
-              maxDate={new Date(2030, 11, 31)}
-            />
-          </View>
-
-          <View style={{ width: '50%', marginBottom: 10 }}>
-            <TouchableOpacity
-              style={styles.datePickerButton}
-              onPress={() => setShowDateFin(true)}
-            >
-              <Icon name="calendar" size={20} color="#666" />
-              <Text style={styles.datePickerText}>
-                {formData.date_fin || 'Date fin'}
-              </Text>
-            </TouchableOpacity>
-
-            <CustomDatePicker
-              visible={showDateFin}
-              onClose={() => setShowDateFin(false)}
-              onConfirm={handleDateFinConfirm}
-              initialDate={formData.date_fin}
-              title="Date de fin"
-              minDate={new Date(2000, 0, 1)}
-              maxDate={new Date(2030, 11, 31)}
-            />
-          </View>
-        </View>
-
-        {/* Switch dates flexibles et Budget */}
-        <View style={styles.inputContainer}>
-          <SwitchTextBox
-            label="Dates flexibles"
-            placeholder="Flexibilite"
-            style={{ width: '60%' }}
-            toogleValue={formData.flexible_dates}
-            onToggle={(value) => updateFormField('flexible_dates', value)}
-          />
-          <TextInputWithIcon
-            fonsiName="euro"
-            placeholder="Budget"
-            style={{ width: '40%' }}
-            value={formData.budget}
-            onChangeText={(text) => updateFormField('budget', text)}
-          />
-        </View>
-
-        {/* Commentaire pour le prestataire */}
-        <TextInput
-          placeholder="Commentaire pour le prestataire"
-          multiline
-          numberOfLines={4}
-          style={[styles.textArea, styles.textInput]}
-          value={formData.commentaires_dates}
-          onChangeText={(text) => updateFormField('commentaires_dates', text)}
-          placeholderTextColor={'#999'}
+      {/* Pax et Zone géographique */}
+      <View style={styles.inputContainer}>
+        <TextInputWithIcon
+          iconName="person"
+          placeholder="Pax"
+          style={{ width: '30%' }}
+          value={formData.pax}
+          onChangeText={(text) => updateFormField('pax', text)}
         />
 
-        {/* Commentaire personnel */}
-        <TextInput
-          placeholder="Commentaire Personnel"
-          multiline
-          numberOfLines={4}
-          style={[styles.textArea, styles.textInput]}
-          value={formData.format}
-          onChangeText={(text) => updateFormField('format', text)}
-          placeholderTextColor={'#999'}
+        <TextInputWithIcon
+          iconName="map"
+          placeholder="Zone geographique"
+          style={{ width: '70%' }}
+          value={formData.zone}
+          onChangeText={(text) => updateFormField('zone', text)}
         />
       </View>
-    </KeyboardAwareScrollView>
+
+      {/* Sélection multiple des types d'événements */}
+      <View>
+        <MultiSelect
+          options={options}
+          selectedOptions={formData.types_evts}
+          onSelectionChange={handleSelectionChange}
+        />
+      </View>
+
+      {/* Dates de début et fin */}
+      <View style={styles.inputContainer}>
+        <View style={{ width: '50%', marginBottom: 10 }}>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDateDeb(true)}
+          >
+            <Icon name="calendar" size={20} color="#666" />
+            <Text style={styles.datePickerText}>
+              {formData.date_deb || 'Date début'}
+            </Text>
+          </TouchableOpacity>
+
+          <CustomDatePicker
+            visible={showDateDeb}
+            onClose={() => setShowDateDeb(false)}
+            onConfirm={handleDateDebConfirm}
+            initialDate={formData.date_deb}
+            title="Date de début"
+            minDate={new Date(2000, 0, 1)}
+            maxDate={new Date(2030, 11, 31)}
+          />
+        </View>
+
+        <View style={{ width: '50%', marginBottom: 10 }}>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDateFin(true)}
+          >
+            <Icon name="calendar" size={20} color="#666" />
+            <Text style={styles.datePickerText}>
+              {formData.date_fin || 'Date fin'}
+            </Text>
+          </TouchableOpacity>
+
+          <CustomDatePicker
+            visible={showDateFin}
+            onClose={() => setShowDateFin(false)}
+            onConfirm={handleDateFinConfirm}
+            initialDate={formData.date_fin}
+            title="Date de fin"
+            minDate={new Date(2000, 0, 1)}
+            maxDate={new Date(2030, 11, 31)}
+          />
+        </View>
+      </View>
+
+      {/* Switch dates flexibles et Budget */}
+      <View style={styles.inputContainer}>
+        <SwitchTextBox
+          label="Dates flexibles"
+          placeholder="Flexibilite"
+          style={{ width: '60%' }}
+          toogleValue={formData.flexible_dates}
+          onToggle={(value) => updateFormField('flexible_dates', value)}
+        />
+        <TextInputWithIcon
+          fonsiName="euro"
+          placeholder="Budget"
+          style={{ width: '40%' }}
+          value={formData.budget}
+          onChangeText={(text) => updateFormField('budget', text)}
+        />
+      </View>
+
+      {/* Commentaire pour le prestataire */}
+      <TextInput
+        placeholder="Commentaire pour le prestataire"
+        multiline
+        numberOfLines={4}
+        style={[styles.textArea, styles.textInput]}
+        value={formData.commentaires_dates}
+        onChangeText={(text) => updateFormField('commentaires_dates', text)}
+        placeholderTextColor={'#999'}
+      />
+
+      {/* Commentaire personnel */}
+      <TextInput
+        placeholder="Commentaire Personnel"
+        multiline
+        numberOfLines={4}
+        style={[styles.textArea, styles.textInput]}
+        value={formData.format}
+        onChangeText={(text) => updateFormField('format', text)}
+        placeholderTextColor={'#999'}
+      />
+    </View>
   )
 }
 

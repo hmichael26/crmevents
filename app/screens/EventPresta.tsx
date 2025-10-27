@@ -35,6 +35,7 @@ import { AuthContext } from '../context/AuthContext'
 import { useApi } from '../context/useApi'
 import ModalPresta from '../components/ModalPresta'
 import { useToast } from '../components/ToastComponent'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 const { width, height } = Dimensions.get('window')
 const fontScale = PixelRatio.getFontScale()
@@ -575,7 +576,10 @@ const EventPresta: React.FC = ({ route, navigation }) => {
         </View>
       )}
 
-      <ScrollView
+      <KeyboardAwareScrollView
+        scrollEnabled={true}
+        extraScrollHeight={20}
+        keyboardShouldPersistTaps="handled"
         style={{ flex: 1, paddingBottom: 25 }}
         contentContainerStyle={styles.scrollViewContent}
         refreshControl={
@@ -651,7 +655,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             />
           </>
         )}
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       {!isKeyboardVisible && (
         <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>

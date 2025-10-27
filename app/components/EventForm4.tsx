@@ -844,122 +844,114 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                 />
               </View>
 
-              <KeyboardAwareScrollView
-                style={{ flex: 1, marginHorizontal: 2 }}
-                scrollEnabled={true}
-                keyboardShouldPersistTaps="handled"
-                enableAutomaticScroll={true} // Scroll automatique
-                enableResetScrollToCoords={true} // Reset après fermeture clavier
-              >
-                {/* Section Notation */}
-                <View style={styles.ratingSection}>
-                  {activeBadgeData.pouce_baisse == 0 &&
-                  activeBadgeData.pouce_leve == 0 ? (
-                    <View style={styles.thumbBox}>
-                      <Text style={{}}>Aucune reponse du client</Text>
-                    </View>
-                  ) : (
-                    <>
-                      {/* Pouce baissé */}
-                      {activeBadgeData.pouce_baisse > 0 && (
-                        <View style={styles.thumbBox}>
-                          <Font6
-                            name="thumbs-down"
-                            color={colors.danger}
-                            size={getFontSize(isSmallScreen ? 18 : 23)}
-                          />
-                        </View>
-                      )}
-
-                      {/* Pouce levé */}
-                      {activeBadgeData.pouce_leve > 0 && (
-                        <View style={styles.thumbBox}>
-                          <Font6
-                            name="thumbs-up"
-                            color={colors.success}
-                            size={getFontSize(isSmallScreen ? 18 : 23)}
-                          />
-                        </View>
-                      )}
-                    </>
-                  )}
-                </View>
-
-                {/* Section Commission et Options */}
-                <View style={styles.commissionRow}>
-                  <View style={styles.commissionBox}>
-                    <Text
-                      color={colors.dark}
-                      style={{
-                        textTransform: 'uppercase',
-                      }}
-                      size={getFontSize(isSmallScreen ? 10 : 11)}
-                    >
-                      COMMISSION:{' '}
-                    </Text>
-                    <Text
-                      color={colors.primary}
-                      style={{
-                        fontSize: getFontSize(isSmallScreen ? 11 : 11),
-                        textTransform: 'uppercase',
-                      }}
-                      size={getFontSize(isSmallScreen ? 10 : 11)}
-                    >
-                      {activeBadgeData.commission
-                        ? activeBadgeData.commission
-                        : 0}
-                      %
-                    </Text>
+              {/* Section Notation */}
+              <View style={styles.ratingSection}>
+                {activeBadgeData.pouce_baisse == 0 &&
+                activeBadgeData.pouce_leve == 0 ? (
+                  <View style={styles.thumbBox}>
+                    <Text style={{}}>Aucune reponse du client</Text>
                   </View>
-                  <View style={styles.optionBox}>
-                    <Text
-                      black
-                      size={getFontSize(isSmallScreen ? 11 : 13)}
-                      style={styles.upperCaseText}
-                      size={getFontSize(isSmallScreen ? 10 : 11)}
-                    >
-                      OPTION :{' '}
-                    </Text>
-                    <Text
-                      color={colors.primary}
-                      size={getFontSize(isSmallScreen ? 9 : 11)}
-                      style={styles.upperCaseText}
-                    >
-                      MULTI-OPTION
-                    </Text>
-                  </View>
-                </View>
+                ) : (
+                  <>
+                    {/* Pouce baissé */}
+                    {activeBadgeData.pouce_baisse > 0 && (
+                      <View style={styles.thumbBox}>
+                        <Font6
+                          name="thumbs-down"
+                          color={colors.danger}
+                          size={getFontSize(isSmallScreen ? 18 : 23)}
+                        />
+                      </View>
+                    )}
 
-                {/* Section Commentaires */}
-                <View>
-                  <Input
-                    multiline
-                    numberOfLines={4}
-                    style={styles.commentInput}
-                    value={formFields.comment}
-                    onChangeText={(text) => handleFieldChange('comment', text)}
-                    placeholder="AUTRE PROPOSITION DE COMMISSION && COMMENTAIRES PRESTATAIRE"
+                    {/* Pouce levé */}
+                    {activeBadgeData.pouce_leve > 0 && (
+                      <View style={styles.thumbBox}>
+                        <Font6
+                          name="thumbs-up"
+                          color={colors.success}
+                          size={getFontSize(isSmallScreen ? 18 : 23)}
+                        />
+                      </View>
+                    )}
+                  </>
+                )}
+              </View>
+
+              {/* Section Commission et Options */}
+              <View style={styles.commissionRow}>
+                <View style={styles.commissionBox}>
+                  <Text
+                    color={colors.dark}
+                    style={{
+                      textTransform: 'uppercase',
+                    }}
+                    size={getFontSize(isSmallScreen ? 10 : 11)}
+                  >
+                    COMMISSION:{' '}
+                  </Text>
+                  <Text
+                    color={colors.primary}
+                    style={{
+                      fontSize: getFontSize(isSmallScreen ? 11 : 11),
+                      textTransform: 'uppercase',
+                    }}
+                    size={getFontSize(isSmallScreen ? 10 : 11)}
+                  >
+                    {activeBadgeData.commission
+                      ? activeBadgeData.commission
+                      : 0}
+                    %
+                  </Text>
+                </View>
+                <View style={styles.optionBox}>
+                  <Text
+                    black
+                    size={getFontSize(isSmallScreen ? 11 : 13)}
+                    style={styles.upperCaseText}
+                    size={getFontSize(isSmallScreen ? 10 : 11)}
+                  >
+                    OPTION :{' '}
+                  </Text>
+                  <Text
+                    color={colors.primary}
+                    size={getFontSize(isSmallScreen ? 9 : 11)}
+                    style={styles.upperCaseText}
+                  >
+                    MULTI-OPTION
+                  </Text>
+                </View>
+              </View>
+
+              {/* Section Commentaires */}
+              <View>
+                <Input
+                  multiline
+                  numberOfLines={4}
+                  style={styles.commentInput}
+                  value={formFields.comment}
+                  onChangeText={(text) => handleFieldChange('comment', text)}
+                  placeholder="AUTRE PROPOSITION DE COMMISSION && COMMENTAIRES PRESTATAIRE"
+                />
+              </View>
+
+              {/* Section Contacts */}
+              <View style={styles.contactRow}>
+                <View style={styles.contactInputContainer}>
+                  <TextInputWithIcon
+                    value={formFields.email}
+                    onChangeText={(text) => handleFieldChange('email', text)}
+                    placeholder="EMAIL PRESTATAIRE"
                   />
                 </View>
-
-                {/* Section Contacts */}
-                <View style={styles.contactRow}>
-                  <View style={styles.contactInputContainer}>
-                    <TextInputWithIcon
-                      value={formFields.email}
-                      onChangeText={(text) => handleFieldChange('email', text)}
-                      placeholder="EMAIL PRESTATAIRE"
-                    />
-                  </View>
-                  <View style={styles.contactInputContainer}>
-                    <TextInputWithIcon
-                      value={formFields.tel}
-                      onChangeText={(text) => handleFieldChange('tel', text)}
-                      placeholder="PRÉNOM & TÉLÉPHONE"
-                    />
-                  </View>
+                <View style={styles.contactInputContainer}>
+                  <TextInputWithIcon
+                    value={formFields.tel}
+                    onChangeText={(text) => handleFieldChange('tel', text)}
+                    placeholder="PRÉNOM & TÉLÉPHONE"
+                  />
                 </View>
-              </KeyboardAwareScrollView>
+              </View>
             </View>
 
             {/* Badges suivants */}

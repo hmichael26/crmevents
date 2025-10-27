@@ -40,6 +40,7 @@ import Form3 from '../components/EventForm3'
 import { RouteProp, useNavigation } from '@react-navigation/native'
 import { AuthContext } from '../context/AuthContext'
 import { useToast } from '../components/ToastComponent'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 type RootStackParamList = {
   EventDetails: { item?: ItemType } // item devient optionnel
@@ -544,10 +545,12 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
         </View>
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollView
         style={{ flex: 1, paddingBottom: 25 }}
         contentContainerStyle={styles.scrollViewContent}
         keyboardShouldPersistTaps="handled"
+        enableOnAndroid={true}
+        extraScrollHeight={20}
       >
         {step === 'date' && (
           <Form1
@@ -567,7 +570,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
         {step === 'com' && (
           <Form3 item={formData3} onDataChange={handleForm5DataChange} />
         )}
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       {!isKeyboardVisible && (
         <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>

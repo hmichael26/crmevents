@@ -335,20 +335,12 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         </View>
       )}
 
-      <KeyboardAwareScrollView
-        enableOnAndroid={true}
-        extraScrollHeight={5}
-        keyboardShouldPersistTaps="handled"
-        enableAutomaticScroll={true}
-        enableResetScrollToCoords={true}
-      >
-        {fields &&
-          fields.map((field, index) => (
-            <View key={index} style={styles.fieldContainer}>
-              {renderField(field, index)}
-            </View>
-          ))}
-      </KeyboardAwareScrollView>
+      {fields &&
+        fields.map((field, index) => (
+          <View key={index} style={styles.fieldContainer}>
+            {renderField(field, index)}
+          </View>
+        ))}
 
       <View style={styles.buttonContainer}>
         <Button
