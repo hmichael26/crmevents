@@ -22,7 +22,6 @@ import * as DocumentPicker from 'expo-document-picker'
 import { useTheme } from '../hooks'
 import { useApi } from '../context/useApi'
 import { AuthContext } from '../context/AuthContext'
-import { ScrollView } from 'react-native-gesture-handler'
 
 interface ChatMessage {
   id: string
@@ -201,15 +200,15 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
     if (attachment.url.startsWith('file://')) {
       Alert.alert(
-        'Impossible d’ouvrir',
-        'Ce fichier est local et ne peut pas être ouvert directement. Uploade-le d’abord ou ouvre-le via un lecteur intégré.',
+        "Impossible d'ouvrir",
+        "Ce fichier est local et ne peut pas être ouvert directement. Uploade-le d'abord ou ouvre-le via un lecteur intégré.",
       )
       return
     }
 
     Linking.openURL(attachment.url).catch((err) => {
       console.error('Error opening attachment:', err)
-      Alert.alert('Erreur', 'Impossible d’ouvrir le fichier.')
+      Alert.alert('Erreur', "Impossible d'ouvrir le fichier.")
     })
   }
 
@@ -320,19 +319,21 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
                     ? 'image'
                     : 'file'
                 }
-                size={24}
+                size={20}
                 color="#FF3B30"
               />
             </View>
             <View style={styles.attachmentInfo}>
               <Text style={styles.attachmentName}>{item.attachment.name}</Text>
-              <Text style={styles.attachmentType}>{item.attachment.type}</Text>
+              <Text style={styles.attachmentType}>
+                {item.attachment.type.toUpperCase()}
+              </Text>
             </View>
             <TouchableOpacity
               style={styles.downloadButton}
               onPress={() => handleDownloadAttachment(item.attachment)}
             >
-              <Feather name="download" size={20} color={colors.secondary} />
+              <Feather name="download" size={20} color="#007AFF" />
             </TouchableOpacity>
           </View>
         )}
@@ -351,26 +352,26 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
-          onPress={() => navigation.goBack()}
-        >
-          <View style={styles.backButton}>
-            <Feather name="arrow-left" size={25} color="#303133" />
-          </View>
-          <Text style={styles.headerTitle}>{param.Receiver}</Text>
-        </TouchableOpacity>
-      </View>
-      {/* Input Area */}
       <KeyboardAvoidingView
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 25}
-        style={{
-          flex: 1,
-          paddingBottom: keyboardHeight > 0 ? keyboardHeight / 15 : 24,
-        }}
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        {/* Messages */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Feather name="arrow-left" size={24} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            {param?.chat?.titre_evt || 'Conversation'}
+          </Text>
+          <TouchableOpacity style={styles.moreButton}>
+            <Feather name="more-vertical" size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
+
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
@@ -382,23 +383,17 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
             data={transformedMessages}
             renderItem={renderMessage}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={[
-              styles.messagesList,
-              // Ajouter un padding bottom quand le clavier est ouvert
-            ]}
-            automaticallyAdjustKeyboardInsets={true}
-            showsVerticalScrollIndicator={true}
+            contentContainerStyle={styles.messagesList}
             refreshControl={
               <RefreshControl
                 refreshing={isRefreshing}
                 onRefresh={handleRefresh}
-                colors={[colors.primary]}
                 tintColor={colors.primary}
               />
             }
-            onContentSizeChange={() => {
+            onContentSizeChange={() =>
               flatListRef.current?.scrollToEnd({ animated: true })
-            }}
+            }
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyText}>Pas de nouveaux message</Text>
@@ -408,12 +403,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
           />
         )}
 
-        <View
-          style={[
-            styles.inputContainer,
-            { marginBottom: keyboardHeight > 0 ? keyboardHeight : 0 },
-          ]}
-        >
+        <View style={styles.inputContainer}>
           <View
             style={{
               flex: 1,
@@ -636,6 +626,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
+    backgroundColor: '#FFF',
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
   },
   attachButton: {
     padding: 8,
