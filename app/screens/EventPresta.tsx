@@ -577,11 +577,15 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       )}
 
       <KeyboardAwareScrollView
-        scrollEnabled={true}
-        extraScrollHeight={20}
-        keyboardShouldPersistTaps="handled"
-        style={{ flex: 1, paddingBottom: 25 }}
+        style={{ flex: 1 }}
         contentContainerStyle={styles.scrollViewContent}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid={true}
+        extraScrollHeight={Platform.OS === 'ios' ? 20 : 100}
+        extraHeight={Platform.OS === 'android' ? 150 : 0}
+        enableAutomaticScroll={true}
+        enableResetScrollToCoords={false}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -821,6 +825,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     padding: 6,
+    paddingBottom: 50, // ✅ Espace supplémentaire en bas
   },
   prestataireSection: {
     flexDirection: 'row',

@@ -546,11 +546,15 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       </View>
 
       <KeyboardAwareScrollView
-        style={{ flex: 1, paddingBottom: 25 }}
+        style={{ flex: 1 }}
         contentContainerStyle={styles.scrollViewContent}
         keyboardShouldPersistTaps="handled"
         enableOnAndroid={true}
-        extraScrollHeight={20}
+        extraScrollHeight={Platform.OS === 'ios' ? 20 : 100}
+        extraHeight={Platform.OS === 'android' ? 150 : 0}
+        enableAutomaticScroll={true}
+        enableResetScrollToCoords={false}
+        showsVerticalScrollIndicator={false}
       >
         {step === "date" && (
           <Form1
