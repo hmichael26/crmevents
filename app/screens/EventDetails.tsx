@@ -550,11 +550,13 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
         contentContainerStyle={styles.scrollViewContent}
         keyboardShouldPersistTaps="handled"
         enableOnAndroid={true}
-        extraScrollHeight={Platform.OS === 'ios' ? 20 : 100}
-        extraHeight={Platform.OS === 'android' ? 150 : 0}
+        extraScrollHeight={Platform.OS === "ios" ? 20 : 100}
+        extraHeight={Platform.OS === "android" ? 150 : 0}
         enableAutomaticScroll={true}
         enableResetScrollToCoords={false}
         showsVerticalScrollIndicator={false}
+        automaticallyAdjustKeyboardInsets={true}
+        automaticallyAdjustContentInsets={true}
       >
         {step === "date" && (
           <Form1
