@@ -15,14 +15,17 @@
     },
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "7",
+      "buildNumber": "8",
       "bundleIdentifier": "com.crmevents.myapp",
       "entitlements": {
         "aps-environment": "production"
       },
       "infoPlist": {
         "NSUserTrackingUsageDescription": "Cette application utilise les notifications pour vous informer des mises à jour.",
-        "UIBackgroundModes": ["remote-notification", "remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification",
+          "remote-notification"
+        ],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
