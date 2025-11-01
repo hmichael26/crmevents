@@ -22,10 +22,7 @@
       },
       "infoPlist": {
         "NSUserTrackingUsageDescription": "Cette application utilise les notifications pour vous informer des mises à jour.",
-        "UIBackgroundModes": [
-          "remote-notification",
-          "remote-notification"
-        ],
+        "UIBackgroundModes": ["remote-notification"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -52,7 +49,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./app/assets/images/favicon.png",
+      "favicon": "./app/assets/images/favicon.ico",
       "name": "CRM Events"
     },
     "plugins": [
@@ -83,7 +80,15 @@
           }
         }
       ],
-      "expo-notifications"
+      [
+        "expo-notifications",
+        {
+          "icon": "./app/assets/images/notification.png",
+          "color": "#A127417C",
+          "sounds": [],
+          "mode": "production"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -95,6 +100,11 @@
       "eas": {
         "projectId": "a241f533-0f5e-4876-b35a-60fda30d8b3c"
       }
+    },
+    "notification": {
+      "icon": "./app/assets/images/notification.png",
+      "color": "#A127417C",
+      "iosDisplayInForeground": true
     },
     "owner": "pierre.ahoble"
   }

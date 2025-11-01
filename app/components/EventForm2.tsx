@@ -216,7 +216,7 @@ const Form2: React.FC<Form2Props> = ({
               width: '50%',
               flexDirection: 'row',
               alignItems: 'center',
-
+              backgroundColor: '#ccc4',
               borderWidth: 1,
               borderColor: '#ccc',
               borderRadius: 5,
@@ -227,6 +227,7 @@ const Form2: React.FC<Form2Props> = ({
             value={formData.ent}
             onChangeText={(text) => updateFormField('ent', text)}
             placeholderTextColor={'#000'}
+            editable={false}
           />
 
           <TextInput
@@ -237,6 +238,7 @@ const Form2: React.FC<Form2Props> = ({
               alignItems: 'center',
               height: 40,
               borderWidth: 1,
+              backgroundColor: '#ccc4',
               borderColor: '#ccc',
               borderRadius: 5,
               paddingHorizontal: 10,
@@ -245,6 +247,7 @@ const Form2: React.FC<Form2Props> = ({
             value={formData.clt_email}
             onChangeText={(text) => updateFormField('clt_email', text)}
             placeholderTextColor={'#000'}
+            editable={false}
           />
         </View>
 
@@ -256,6 +259,7 @@ const Form2: React.FC<Form2Props> = ({
               flexDirection: 'row',
               alignItems: 'center',
               height: 40,
+              backgroundColor: '#ccc4',
               borderWidth: 1,
               borderColor: '#ccc',
               borderRadius: 5,
@@ -265,6 +269,7 @@ const Form2: React.FC<Form2Props> = ({
             value={formData.clt_telfix}
             onChangeText={(text) => updateFormField('clt_telfix', text)}
             placeholderTextColor={'#000'}
+            editable={false}
           />
           <TextInput
             placeholder="Téléphone portable"
@@ -273,6 +278,7 @@ const Form2: React.FC<Form2Props> = ({
               flexDirection: 'row',
               alignItems: 'center',
               height: 40,
+              backgroundColor: '#ccc4',
               borderWidth: 1,
               borderColor: '#ccc',
               borderRadius: 5,
@@ -282,6 +288,7 @@ const Form2: React.FC<Form2Props> = ({
             value={formData.clt_telport}
             onChangeText={(text) => updateFormField('clt_telport', text)}
             placeholderTextColor={'#000'}
+            editable={false}
           />
         </View>
 
@@ -305,6 +312,7 @@ const Form2: React.FC<Form2Props> = ({
             height: 100,
             borderWidth: 1,
             borderColor: '#ccc',
+            backgroundColor: '#ccc4',
             borderRadius: 5,
             paddingHorizontal: 10,
             marginBottom: 13,
@@ -312,6 +320,7 @@ const Form2: React.FC<Form2Props> = ({
           value={formData.clt_infos}
           onChangeText={(text) => updateFormField('clt_infos', text)}
           placeholderTextColor={'#000'}
+          editable={false}
         />
 
         <View
