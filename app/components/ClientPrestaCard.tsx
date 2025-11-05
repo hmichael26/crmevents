@@ -631,8 +631,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
           </Text>
         </Button>
 
-        {/* Tous les boutons devis */}
-        {devisButtons}
+        <View style={{ marginBottom: 25 }}>{devisButtons}</View>
       </ScrollView>
     )
   },
