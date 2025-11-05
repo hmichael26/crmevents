@@ -63,6 +63,7 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
               onPress={() =>
                 navigation.navigate('Inbox', {
                   Receiver: `Conseiller pour ${item.evt}`,
+                  isForClient: true,
                   chat: {
                     idevt: item.idevt,
                     from_user: userdata.user.IDC,

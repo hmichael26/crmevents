@@ -228,7 +228,7 @@ const ClientPresta: React.FC<ClientPrestaProps> = ({ route, navigation }) => {
       const response = await getDerouler({ id_deroule: activeDeroule.id })
 
       if (response?.data) {
-        console.log('🟢 Données récupérées avec succès:', response.data)
+        //  console.log('🟢 Données récupérées avec succès:', response.data)
         setDeroulerData(response.data)
         setError(null)
       } else {
