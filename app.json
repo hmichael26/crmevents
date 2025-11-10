@@ -1,34 +1,93 @@
 {
   "expo": {
-    "name": "test",
+    "name": "CRM Events",
     "slug": "crmevents",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
-    "icon": "./app/assets/images/icon.png",
+    "icon": "./app/assets/images/splash.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
+    "jsEngine": "hermes",
     "splash": {
       "image": "./app/assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "buildNumber": "11",
+      "bundleIdentifier": "com.crmevents.myapp",
+      "entitlements": {
+        "aps-environment": "production"
+      },
+      "infoPlist": {
+        "NSUserNotificationUsageDescription": "Cette application utilise les notifications pour vous informer des mises à jour.",
+        "UIBackgroundModes": ["remote-notification"],
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.crmevents.myapp",
+      "compileSdkVersion": 35,
+      "targetSdkVersion": 35,
+      "minSdkVersion": 23,
+      "versionCode": 3,
+      "versionName": "2.0.0",
       "adaptiveIcon": {
-        "foregroundImage": "./app/assets/images/icon.png",
+        "foregroundImage": "./app/assets/images/splash.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./app/assets/images/splash.png",
+      "name": "CRM Events"
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-file-system",
+        {
+          "filePermission": true
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          },
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0"
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./app/assets/images/notification.png",
+          "sounds": [],
+          "mode": "production"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -40,6 +99,10 @@
       "eas": {
         "projectId": "208bdf9e-cee4-4672-acb7-847d2a2c70b5"
       }
+    },
+    "notification": {
+      "icon": "./app/assets/images/notification.png",
+      "iosDisplayInForeground": true
     },
     "owner": "hmichael26"
   }

@@ -168,11 +168,11 @@ export const TRENDING: IProduct[] = [
 
 // categories
 export const CATEGORIES: ICategory[] = [
-  {id: 1, name: 'Nouveau Projet'},
-  {id: 2, name: 'Devis à Valider'},
-  {id: 3, name: 'Recherche à Affiner'},
-  {id: 4, name: 'Devis Envoyé'},
-  {id: 5, name: 'HOT'},
+  {id: 'Nouveau', name: 'Nouveau Projet'},
+  {id: 'a_valider', name: 'Devis à Valider'},
+  {id: 'a_affiner', name: 'Recherche à Affiner'},
+  {id: 'Envoyer', name: 'Devis Envoyé'},
+  {id: 'Hot', name: 'HOT'},
 ];
 
 // article options
