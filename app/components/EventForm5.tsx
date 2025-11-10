@@ -1,345 +1,492 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Dimensions, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
-import { useTheme } from '../hooks';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
-import Button from './Button';
+import React, { useContext, useEffect, useState } from 'react'
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  Dimensions,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+} from 'react-native'
+import { useTheme } from '../hooks'
+import Button from './Button'
+import { AuthContext } from '../context/AuthContext'
+import SelectOption from './SelectOption'
+import Icon from 'react-native-vector-icons/Ionicons'
+import { CustomDatePicker } from './CustomDatePicker'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get('window')
+const FIELD_HEIGHT = 50
 
 interface DateFieldProps {
-  date: Date;
-  onDateChange: (date: Date) => void;
+  date: string // ✅ String au lieu de Date
+  onDateChange: (date: string) => void // ✅ String au lieu de Date
+  index: number
 }
 
-const DateField: React.FC<DateFieldProps> = ({ date, onDateChange }) => {
-  const [show, setShow] = useState(false);
+const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
+  const [isPickerVisible, setPickerVisible] = useState(false)
+  const { colors } = useTheme()
 
-  const onChange = (event: Event, selectedDate?: Date) => {
-    const currentDate = selectedDate || date;
-    setShow(false);
-    onDateChange(currentDate);
-  };
+  const handleDateConfirm = (dateStr: string) => {
+    onDateChange(dateStr) // ✅ Directement la string
+  }
 
   return (
-    <View style={{ flex: 1, flexDirection: "row", alignContent: "center", }}>
-      <TouchableOpacity onPress={() => setShow(true)} style={{ marginTop: 5, marginHorizontal: 5 }}>
-        <Text style={{ textAlign: "center", fontSize: 15 }}>{date.toLocaleDateString()}</Text>
+    <View style={{ flex: 1 }}>
+      <TouchableOpacity
+        style={styles.datePickerButton}
+        onPress={() => setPickerVisible(true)}
+      >
+        <Text style={styles.datePickerText}>
+          {date || 'Sélectionner une date'}
+        </Text>
+        <Icon name="calendar-outline" size={20} color={colors.primary} />
       </TouchableOpacity>
-      {show && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode="date"
-          is20Hour={true}
-          display="default"
-          onChange={onChange}
-        />
-      )}
+
+      <CustomDatePicker
+        visible={isPickerVisible}
+        onClose={() => setPickerVisible(false)}
+        onConfirm={handleDateConfirm}
+        initialDate={date} // ✅ Passer la string directement
+        title="Sélectionner une date"
+        minDate={new Date(2000, 0, 1)}
+        maxDate={new Date(2030, 11, 31)}
+      />
     </View>
-  );
-};
+  )
+}
+
+interface FormData {
+  fields: {
+    type: FieldType
+    value: string
+  }[]
+  timestamp: string
+}
 
 interface Option {
-  label: string;
-  value: string;
+  id: string
+  libelle: string
 }
 
-type FieldType = 'date' | 'text' | 'dynamic';
+type FieldType = 'date' | 'text' | 'dynamic'
 
 interface Field {
-  type: FieldType;
-  value: Date | string;
+  type: FieldType
+  value: string // ✅ Toujours string maintenant
 }
 
-const Form5: React.FC = () => {
-  const { gradients, colors } = useTheme();
-  const [fields, setFields] = useState<Field[]>([]);
-  const [dynamicOptions, setDynamicOptions] = useState<Option[]>([
-    { label: 'En train d\'écrire', value: 'writing' },
-    { label: 'Option 1', value: 'option1' },
-    { label: 'Option 2', value: 'option2' },
-    { label: 'Option 3', value: 'option3' },
-  ]);
-  const [showOptionsModal, setShowOptionsModal] = useState(false);
-  const [newOptionLabel, setNewOptionLabel] = useState('');
-  const [newOptionValue, setNewOptionValue] = useState('');
+interface Form5Props {
+  options: Option[]
+  onDataChange: (data: any) => void
+  item?: any
+}
+
+// ✅ Fonction pour formater n'importe quelle date en DD/MM/YYYY
+const formatDateForDisplay = (date: any): string => {
+  if (!date) return ''
+
+  try {
+    if (typeof date === 'string') {
+      // Ignorer les dates invalides
+      if (date.startsWith('-') || date.includes('-000001')) {
+        return ''
+      }
+
+      // Si déjà au format DD/MM/YYYY
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
+        return date
+      }
+
+      // Si format ISO: YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ss.sssZ
+      if (date.includes('-')) {
+        const datePart = date.includes('T') ? date.split('T')[0] : date
+        const parts = datePart.split('-').filter((p) => p)
+
+        if (parts.length === 3) {
+          const [year, month, day] = parts.map((p) => p.trim())
+          const yearNum = Number(year)
+
+          if (
+            year &&
+            month &&
+            day &&
+            yearNum >= 1900 &&
+            yearNum <= 2100 &&
+            !isNaN(Number(month)) &&
+            !isNaN(Number(day))
+          ) {
+            return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+          }
+        }
+      }
+    }
+
+    // Si objet Date
+    if (date instanceof Date) {
+      const year = date.getFullYear()
+      if (!isNaN(date.getTime()) && year >= 1900 && year <= 2100) {
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        return `${day}/${month}/${year}`
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ Erreur formatDateForDisplay:', date)
+  }
+
+  return ''
+}
+
+// ✅ Fonction pour obtenir la date actuelle au format DD/MM/YYYY
+const getTodayFormatted = (): string => {
+  const today = new Date()
+  const day = String(today.getDate()).padStart(2, '0')
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const year = today.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
+const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
+  const { userdata } = useContext(AuthContext)
+  const { gradients, colors } = useTheme()
+
+  const determineFieldType = (fieldItem: any): FieldType => {
+    if (
+      fieldItem.type === 'date' ||
+      fieldItem.type === 'text' ||
+      fieldItem.type === 'dynamic'
+    ) {
+      return fieldItem.type
+    }
+
+    // Vérifier si la valeur ressemble à une date
+    if (
+      typeof fieldItem.value === 'string' &&
+      (fieldItem.value.match(/^\d{2}\/\d{2}\/\d{4}$/) ||
+        fieldItem.value.includes('-'))
+    ) {
+      return 'date'
+    }
+
+    return 'text'
+  }
+
+  const [fields, setFields] = useState<Field[]>([])
+  const [dynamicOptions, setDynamicOptions] = useState<Option[]>([])
+
+  useEffect(() => {
+    if (item && Array.isArray(item) && item.length > 0) {
+      const initializedFields = item.map((fieldItem: any) => {
+        const fieldType = determineFieldType(fieldItem)
+
+        return {
+          type: fieldType,
+          value:
+            fieldType === 'date'
+              ? formatDateForDisplay(fieldItem.value) || getTodayFormatted()
+              : fieldItem.value || '',
+        }
+      })
+      setFields(initializedFields)
+    }
+  }, [item])
+
+  useEffect(() => {
+    if (Array.isArray(options) && options.length > 0) {
+      setDynamicOptions(options)
+    }
+  }, [options])
+
+  const onDataChangeRef = React.useRef(onDataChange)
+
+  useEffect(() => {
+    onDataChangeRef.current = onDataChange
+  }, [onDataChange])
+
+  useEffect(() => {
+    const formData = {
+      fields: fields.map((field) => ({
+        type: field.type,
+        value: field.value, // ✅ Toujours string maintenant
+      })),
+    }
+    onDataChangeRef.current(formData)
+  }, [fields])
 
   const addRandomField = (option: number): void => {
-    const fieldTypes: FieldType[] = ['date', 'text', 'dynamic'];
-    const randomType = fieldTypes[option];
-    let newField: Field;
+    const fieldTypes: FieldType[] = ['date', 'text', 'dynamic']
+    const randomType = fieldTypes[option]
+    let newField: Field
 
     switch (randomType) {
       case 'date':
-        newField = { type: 'date', value: new Date() };
-        break;
+        newField = { type: 'date', value: getTodayFormatted() } // ✅ String
+        break
       case 'text':
-        newField = { type: 'text', value: '' };
-        break;
+        newField = { type: 'text', value: '' }
+        break
       case 'dynamic':
-        newField = { type: 'dynamic', value: dynamicOptions[0].value };
-        break;
+        if (dynamicOptions.length > 0) {
+          newField = {
+            type: 'dynamic',
+            value: dynamicOptions[0].libelle,
+          }
+        } else {
+          newField = {
+            type: 'dynamic',
+            value: '',
+          }
+        }
+        break
     }
 
-    setFields([...fields, newField]);
-  };
+    setFields([...fields, newField])
+  }
 
-  const updateField = (index: number, newValue: Date | string): void => {
-    const newFields = [...fields];
-    newFields[index].value = newValue;
-    setFields(newFields);
-  };
+  const updateField = (index: number, newValue: string): void => {
+    const newFields = [...fields]
+    newFields[index].value = newValue // ✅ Toujours string
+    setFields(newFields)
+  }
+
   const removeField = (index: number): void => {
-    const newFields = [...fields];
-    newFields.splice(index, 1); // Remove one item at the specified index
-    setFields(newFields);
-  };
-
-  const addOption = () => {
-    if (newOptionLabel && newOptionValue) {
-      setDynamicOptions([...dynamicOptions, { label: newOptionLabel, value: newOptionValue }]);
-      setNewOptionLabel('');
-      setNewOptionValue('');
-    }
-  };
-
-  const removeOption = (index: number) => {
-    const newOptions = dynamicOptions.filter((_, i) => i !== index);
-    setDynamicOptions(newOptions);
-  };
+    const newFields = [...fields]
+    newFields.splice(index, 1)
+    setFields(newFields)
+  }
 
   const renderField = (field: Field, index: number) => {
     switch (field.type) {
       case 'date':
         return (
-          <View key={index} style={{ flexDirection: "row", alignContent: "center", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10 }}>
-            <TouchableOpacity onPress={() => removeField(index)}>
-              <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>X</Text>
+          <View key={index} style={styles.fieldWrapper}>
+            <TouchableOpacity
+              onPress={() => removeField(index)}
+              style={styles.removeButton}
+            >
+              <Text style={[styles.removeText, { color: colors.danger }]}>
+                ×
+              </Text>
             </TouchableOpacity>
             <DateField
-              date={field.value as Date}
-              onDateChange={(newDate) => updateField(index, newDate)}
+              date={field.value} // ✅ String
+              onDateChange={(newDate) => updateField(index, newDate)} // ✅ String
+              index={index}
             />
           </View>
-        );
+        )
       case 'text':
         return (
-          <View key={index} style={{ flexDirection: "row", alignContent: "center", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10 }}>
-            <TouchableOpacity onPress={() => removeField(index)}>
-              <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>X</Text>
+          <View key={index} style={styles.fieldWrapper}>
+            <TouchableOpacity
+              onPress={() => removeField(index)}
+              style={styles.removeButton}
+            >
+              <Text style={[styles.removeText, { color: colors.danger }]}>
+                ×
+              </Text>
             </TouchableOpacity>
             <TextInput
-              style={{ fontSize: 18, color: "#000", textAlign: "center", marginLeft: 7 }}
-              value={field.value as string}
+              style={styles.textInput}
+              value={field.value}
               onChangeText={(newText: string) => updateField(index, newText)}
-              placeholder="Enter text"
+              placeholder="Entrer du texte"
+              placeholderTextColor="#999"
             />
-
           </View>
-
-
-        );
+        )
       case 'dynamic':
         return (
-          <View 
-          key={index} 
-          style={{ 
-            flex: 1, 
-            flexDirection: "row",
-            alignItems: "center",  
-            justifyContent: "space-between", 
-            borderColor: "#ccc", 
-            borderWidth: 1, 
-            paddingHorizontal: 10, 
-            borderRadius: 10 
-          }}
-        >
-          <TouchableOpacity onPress={() => removeField(index)}>
-            <Text style={{ fontSize: 20, color: colors.primary, fontWeight: "bold" }}>X</Text>
-          </TouchableOpacity>
-          <Picker
-            selectedValue={field.value as string}
-            style={[styles.picker, { flex: 1 }]} 
-            onValueChange={(itemValue) => updateField(index, itemValue)}
-          >
-            {dynamicOptions.map((option) => (
-              <Picker.Item key={option.value} label={option.label} value={option.value} />
-            ))}
-          </Picker>
-        </View>
-        );
+          <View key={index} style={styles.dynamicFieldWrapper}>
+            <TouchableOpacity
+              onPress={() => removeField(index)}
+              style={styles.removeButtonDynamic}
+            >
+              <Text style={[styles.removeText, { color: colors.danger }]}>
+                ×
+              </Text>
+            </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              <SelectOption
+                options={dynamicOptions}
+                selectedOption={field.value}
+                onSelectionChange={(selectedLibelle) =>
+                  updateField(index, selectedLibelle)
+                }
+                placeholder="Sélectionnez une option"
+              />
+            </View>
+          </View>
+        )
     }
-  };
+  }
 
   return (
     <ScrollView style={styles.container}>
-      {fields.map((field, index) => (
-        <View key={index} style={styles.fieldContainer}>
-          {renderField(field, index)}
+      {(!item || item.length === 0 || fields.length === 0) && (
+        <View style={styles.fieldContainer}>
+          <Text style={[styles.loadingText, { color: colors.danger }]}>
+            Aucun champ ajouté
+          </Text>
         </View>
-      ))}
+      )}
+
+      {fields &&
+        fields.map((field, index) => (
+          <View key={index} style={styles.fieldContainer}>
+            {renderField(field, index)}
+          </View>
+        ))}
 
       <View style={styles.buttonContainer}>
-        <Button gradient={gradients.secondary} style={styles.button} onPress={() => addRandomField(0)}>
+        <Button
+          gradient={gradients.secondary}
+          style={styles.button}
+          onPress={() => addRandomField(0)}
+        >
           <View style={styles.buttonContent}>
-            <Text style={[styles.buttonText, styles.centerText]}>Champ DATE</Text>
-            <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
+            <Text style={[styles.buttonText, styles.centerText]}>
+              Champ DATE
+            </Text>
+            <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>
         </Button>
-        <Button gradient={gradients.info} style={styles.button} onPress={() => addRandomField(1)}>
+
+        <Button
+          gradient={gradients.info}
+          style={styles.button}
+          onPress={() => addRandomField(1)}
+        >
           <View style={styles.buttonContent}>
-            <Text style={[styles.buttonText, styles.centerText]}>Champ TEXT</Text>
-            <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
+            <Text style={[styles.buttonText, styles.centerText]}>
+              Champ TEXT
+            </Text>
+            <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>
         </Button>
-        <Button gradient={gradients.success} style={styles.button} onPress={() => addRandomField(2)}>
+
+        <Button
+          gradient={gradients.success}
+          style={styles.button}
+          onPress={() => addRandomField(2)}
+        >
           <View style={styles.buttonContent}>
-            <Text style={[styles.buttonText, styles.centerText]}>Champ DYNAMIQUE</Text>
-            <Text style={[styles.buttonText, { fontSize: 25, marginHorizontal: 5 }]}>+</Text>
+            <Text style={[styles.buttonText, styles.centerText]}>
+              Champ DYNAMIQUE
+            </Text>
+            <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>
         </Button>
-        {/* <Button gradient={gradients.info} style={styles.button} onPress={() => setShowOptionsModal(true)}>
-          <Text style={styles.buttonText}>Gérer les options du select box</Text>
-        </Button>*/}
       </View>
-
-
-      {/*  <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showOptionsModal}
-        onRequestClose={() => setShowOptionsModal(false)}
-        
-      >
-        <View style={styles.modalView}>
-          <View style={styles.modalOpen}>
-
-          
-          <Text style={styles.modalTitle}>Gérer les options du select box</Text>
-          {dynamicOptions.map((option, index) => (
-            <View key={index} style={styles.optionContainer}>
-              <Text>{option.label} ({option.value})</Text>
-              <TouchableOpacity onPress={() => removeOption(index)}>
-                <Text style={styles.removeButton}>Supprimer</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-          <TextInput
-            style={styles.input}
-            value={newOptionLabel}
-            onChangeText={setNewOptionLabel}
-            placeholder="Nouveau label"
-          />
-          <TextInput
-            style={styles.input}
-            value={newOptionValue}
-            onChangeText={setNewOptionValue}
-            placeholder="Nouvelle valeur"
-          />
-
-          <View style={{ flex:0.2,flexDirection: "row", justifyContent: "space-around", gap: 10, marginHorizontal: 5, marginVertical: 10 }}>
-          <Button flex={1} gradient={gradients.success} style={styles.button} onPress={addOption}>
-            <Text style={styles.buttonText}>Ajouter une option</Text>
-          </Button>
-          <Button flex={1} gradient={gradients.danger} style={styles.button} onPress={() => setShowOptionsModal(false)}>
-            <Text style={styles.buttonText}>Fermer</Text>
-          </Button>
-          </View>
-          
-          </View>
-        </View>
-      
-      </Modal>*/}
     </ScrollView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     padding: 5,
-    marginHorizontal: 15,
+    marginTop: 13,
+    marginHorizontal: 10,
     flex: 1,
   },
   fieldContainer: {
     marginBottom: 10,
   },
-  input: {
-
-
-
-
-  },
-  picker: {
-   
-    borderColor: '#000',
+  fieldWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#ccc',
     borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: 10,
+    marginHorizontal: 7,
+    minHeight: FIELD_HEIGHT + 7,
+    backgroundColor: '#fff',
+  },
+  dynamicFieldWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    marginHorizontal: 7,
+    minHeight: FIELD_HEIGHT + 5,
+    backgroundColor: '#fff',
+  },
+  removeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10,
+  },
+  removeButtonDynamic: {
+    paddingRight: 10,
+    alignSelf: 'flex-start',
+    paddingTop: 5,
+  },
+  removeText: {
+    fontSize: 28,
+    fontWeight: '600',
+    lineHeight: 28,
+  },
+  textInput: {
+    backgroundColor: '#fff',
+    fontSize: 16,
+    color: '#000',
+    flex: 1,
+    paddingVertical: 8,
+  },
+  loadingText: {
+    fontSize: 20,
+    textAlign: 'center',
+    paddingVertical: 20,
   },
   buttonContainer: {
     marginTop: 10,
-    marginHorizontal: 40
+    marginHorizontal: 10,
+    marginBottom: 20,
   },
   button: {
-
-
-
     marginBottom: 5,
   },
   buttonText: {
-    fontWeight: "bold",
     fontSize: 16,
-    color: "white",
-  },
-  modalView: {
-    flex: 1,
-
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-
-  },
-  modalTitle: {
-    marginBottom: 15,
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 18,
-  },
-  optionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 10,
-  },
-  removeButton: {
-    color: 'red',
-  },
-  modalOpen: {
-    margin: 10,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 2,
+    color: 'white',
   },
   buttonContent: {
-    flexDirection: 'row', // Arrange children horizontally
-    alignItems: 'center',  // Vertically center children
-    justifyContent: 'space-between', // Space out children evenly
-    width: '100%', // Make the View take up the full button width
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   centerText: {
-    textAlign: 'center', // Center the text horizontally
-    flex: 1, // Allow the text to expand and take up available space
+    textAlign: 'center',
+    flex: 1,
   },
-});
+  plusIcon: {
+    fontSize: 25,
+    marginHorizontal: 5,
+  },
+  datePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    flex: 1,
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#000',
+  },
+})
 
-export default Form5;
+export default Form5

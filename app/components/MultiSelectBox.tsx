@@ -32,28 +32,32 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 
     const renderSelectedOptions = () => {
         if (selectedOptions.length === 0) {
-          return <Text style={styles.placeholder}>{placeholder}</Text>;
+            return <Text style={styles.placeholder}>{placeholder}</Text>;
         }
         return (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.selectedContainer}>
-              {options
-                .filter(option => selectedOptions.includes(option.id))
-                .map(option => (
-                  <View key={option.id} style={styles.selectedTag}>
-                    <Text style={styles.selectedTagText}>{option.label}</Text>
-                  </View>
-                ))}
+                {options
+                    .filter(option => selectedOptions.includes(option.id))
+                    .map(option => (
+                        <View key={option.id} style={styles.selectedTag}>
+                            <Text style={styles.selectedTagText}>{option.label}</Text>
+                        </View>
+                    ))}
             </View>
-          </ScrollView>
         );
-      };
+    };
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.selectBox} onPress={toggleDropdown}>
-                {renderSelectedOptions()}
-                <Text style={styles.arrow}>{isOpen ? '▲' : '▼'}</Text>
+            <TouchableOpacity 
+                style={styles.selectBox} 
+                onPress={toggleDropdown}
+                activeOpacity={0.7}
+            >
+                <View style={styles.contentContainer}>
+                    {renderSelectedOptions()}
+                    <Text style={styles.arrow}>{isOpen ? '▲' : '▼'}</Text>
+                </View>
             </TouchableOpacity>
             <Modal visible={isOpen} transparent={true} animationType="fade">
                 <TouchableOpacity
@@ -95,21 +99,40 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
-        padding: 12,
+        padding: 10,
+        minHeight: 50,
+    },
+    contentContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-
+        alignItems: 'flex-start', // Changed from 'center' to 'flex-start'
     },
     placeholder: {
         color: '#999',
-    },
-    selectedText: {
         flex: 1,
-
+    },
+    selectedContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 5,
+        paddingRight: 25, // Espace pour la flèche
+    },
+    selectedTag: {
+        backgroundColor: '#e1e1e1',
+        borderRadius: 20,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginBottom: 5,
+    },
+    selectedTagText: {
+        fontSize: 14,
     },
     arrow: {
         fontSize: 20,
+        position: 'absolute',
+        right: 0,
+        top: 0,
     },
     modalOverlay: {
         flex: 1,
@@ -141,33 +164,7 @@ const styles = StyleSheet.create({
     checkmark: {
         color: 'green',
         fontWeight: 'bold',
-    }, selectBox: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        padding: 10,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        minHeight: 50, // Ajout d'une hauteur minimale
-      },
-      selectedContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        flex: 1,
-      },
-      selectedTag: {
-        backgroundColor: '#e1e1e1',
-        borderRadius: 20,
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginRight: 5,
-        marginBottom: 5,
-      },
-      selectedTagText: {
-        fontSize: 14,
-      },
-    
+    },
 });
 
 export default MultiSelect;
