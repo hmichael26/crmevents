@@ -50,8 +50,8 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
   const param = route.params
 
-  //console.log(param)
-  //console.log(param)
+  console.log('Inbox Screen Params:')
+  console.log(param)
 
   const [menuVisible, setMenuVisible] = useState(false)
 
@@ -125,10 +125,11 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
       const response = await getChat({
         idevt: param.chat.idevt,
         user1: param.chat.from_user,
-        user2: param.chat.to_user ? param.chat.to_user : '9',
+        user2: param.chat.to_user,
       })
 
-      // console.log(response.data)
+      console.log(param)
+      console.log(response.data)
       setMessages(response.data.all_chats)
     } catch (error) {
       console.error('Error loading messages:', error)

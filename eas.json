@@ -67,7 +67,7 @@
     }
   },
   "cli": {
-    "appVersionSource": "local",
+    "appVersionSource": "remote",
     "promptToConfigurePushNotifications": false
   }
 }

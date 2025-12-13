@@ -59,7 +59,7 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
       chat: {
         idevt: idevt,
         from_user: userdata.user.IDC,
-        //iduser2: admin, // Admin ID
+        to_user: item.admin_id, // Admin ID
         id_deroule: derouleId,
       },
     })
