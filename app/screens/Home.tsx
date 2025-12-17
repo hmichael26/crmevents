@@ -10,6 +10,7 @@ import {
   View,
   Image,
   TouchableWithoutFeedback,
+  TouchableOpacity,
   Alert,
   RefreshControl,
   Text as TextField,
@@ -29,6 +30,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { useTranslation } from 'react-i18next'
 import { EventCard } from '../components/EventCard'
 import { useApi } from '../context/useApi'
+import { scheduleTestNotification, scheduleTestNotificationInboxClient } from '../../App'
 
 const Home = (props: DrawerContentComponentProps) => {
   const { t, i18n } = useTranslation()
@@ -473,6 +475,8 @@ const Home = (props: DrawerContentComponentProps) => {
           )}
         />
       </View>
+ 
+     
     </Block>
   )
 }

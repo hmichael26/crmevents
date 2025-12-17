@@ -21,6 +21,10 @@ import Toast from 'react-native-toast-message'
 import * as eva from '@eva-design/eva'
 import { ApplicationProvider } from '@ui-kitten/components'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
+import { createNavigationContainerRef } from '@react-navigation/native'
+
+// Créer une référence de navigation globale
+export const navigationRef = createNavigationContainerRef()
 
 LogBox.ignoreAllLogs() // si tu veux ignorer les warnings
 
@@ -66,17 +70,98 @@ export default function App() {
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(
       (response) => {
-        console.log(response)
+        console.log('📱 Notification Response:', response)
+        
+        // Extraire les données de la notification
+        const notificationData = response.notification.request.content.data
+        
+        console.log('📦 Notification Data:', notificationData)
+        
+        // Vérifier si des données sont présentes
+        if (notificationData && Object.keys(notificationData).length > 0) {
+          console.log('✅ Data présente dans la notification')
+          
+          // Vérifier si un écran est spécifié
+          if (notificationData.screen) {
+            console.log(`🎯 Navigation vers l'écran: ${notificationData.screen}`)
+            console.log('📋 Paramètres:', notificationData)
+            
+            // Implémenter la navigation
+            if (navigationRef.isReady()) {
+              // Navigation vers Inbox (conversation directe)
+              if (notificationData.screen === 'Chat' || notificationData.screen === 'Inbox') {
+                console.log('🚀 Navigation vers Inbox avec les paramètres')
+                navigationRef.navigate('Screens' as never, {
+                  screen: 'Inbox',
+                  params: {
+                    Receiver: notificationData.receiver_name || 'Conversation',
+                    isForClient: notificationData.isForClient || false,
+                    chat: {
+                      idevt: notificationData.idevt,
+                      from_user: notificationData.from_user,
+                      to_user: notificationData.to_user
+                    }
+                  }
+                } as never)
+              } 
+              // Navigation vers InboxClient (liste des déroulés)
+              else if (notificationData.screen === 'InboxClient') {
+                console.log('🚀 Navigation vers InboxClient avec les paramètres')
+                navigationRef.navigate('Screens' as never, {
+                  screen: 'InboxClient',
+                  params: {
+                    item: notificationData.item
+                  }
+                } as never)
+              } 
+              else {
+                console.log(`⚠️ Écran "${notificationData.screen}" non géré`)
+              }
+            } else {
+              console.log('⚠️ Navigation non prête, attente...')
+              // Attendre que la navigation soit prête
+              setTimeout(() => {
+                if (navigationRef.isReady()) {
+                  if (notificationData.screen === 'Chat' || notificationData.screen === 'Inbox') {
+                    navigationRef.navigate('Screens' as never, {
+                      screen: 'Inbox',
+                      params: {
+                        Receiver: notificationData.receiver_name || 'Conversation',
+                        isForClient: notificationData.isForClient || false,
+                        chat: {
+                          idevt: notificationData.idevt,
+                          from_user: notificationData.from_user,
+                          to_user: notificationData.to_user
+                        }
+                      }
+                    } as never)
+                  } else if (notificationData.screen === 'InboxClient') {
+                    navigationRef.navigate('Screens' as never, {
+                      screen: 'InboxClient',
+                      params: {
+                        item: notificationData.item
+                      }
+                    } as never)
+                  }
+                }
+              }, 1000)
+            }
+          } else {
+            console.log('⚠️ Pas de paramètre "screen" dans les données')
+          }
+        } else {
+          console.log('⚠️ Aucune data dans la notification')
+        }
       },
     )
 
     return () => {
-      notificationListener.current &&
-        Notifications.removeNotificationSubscription(
-          notificationListener.current,
-        )
-      responseListener.current &&
-        Notifications.removeNotificationSubscription(responseListener.current)
+      if (notificationListener.current) {
+        notificationListener.current.remove()
+      }
+      if (responseListener.current) {
+        responseListener.current.remove()
+      }
     }
   }, [])
 
@@ -143,10 +228,66 @@ const registerForPushNotificationsAsync = async () => {
   }
 }
 
-export async function schedulePushNotification() {
-  await Notifications.setNotificationChannelAsync('new_emails', {
-    name: 'E-mail notifications',
-    importance: Notifications.AndroidImportance.HIGH,
-    sound: 'mySoundFile.wav', // Provide ONLY the base filename
+// Fonction pour tester les notifications locales avec des données
+export async function scheduleTestNotification() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "🔔 Test Notification Client",
+      body: "Cliquez pour ouvrir la conversation client",
+      data: {
+        screen: "Inbox",
+        receiver_name: "Bruno PEREIRA - MERCEDES",
+        isForClient: true,
+        idevt: "10",
+        from_user: "1",
+        to_user: "12"
+      },
+    },
+    trigger: null, // Notification immédiate
   })
+  console.log('✅ Notification de test client envoyée')
+}
+
+// Fonction pour tester InboxClient (liste des déroulés)
+export async function scheduleTestNotificationInboxClient() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "🔔 Test InboxClient",
+      body: "Cliquez pour voir vos déroulés",
+      data: {
+        screen: "InboxClient",
+        item: {
+          admin_id: "1",
+          arrderoules: [
+            {
+              id: "123",
+              fk_evt: "10",
+              titre_deroule: "Réception",
+              comm_deroule: "Discussion sur la réception",
+              numero_deroule: "1",
+              titre_evt: "Mariage Bruno"
+            },
+            {
+              id: "124",
+              fk_evt: "10",
+              titre_deroule: "Traiteur",
+              comm_deroule: "Choix du menu",
+              numero_deroule: "2",
+              titre_evt: "Mariage Bruno"
+            },
+            {
+              id: "125",
+              fk_evt: "10",
+              titre_deroule: "Décoration",
+              comm_deroule: "Thème et ambiance",
+              numero_deroule: "3",
+              titre_evt: "Mariage Bruno"
+            }
+          ]
+        }
+      },
+    },
+    trigger: null,
+  })
+  console.log('✅ Notification de test InboxClient envoyée')
 }

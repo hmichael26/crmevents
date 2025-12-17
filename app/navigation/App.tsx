@@ -20,6 +20,7 @@ import { Login } from '../screens'
 import ModernSplashScreen from '../screens/ModernSplashScreen'
 import Menu from './Menu'
 import { initializeI18n } from '../constants/translations'
+import { navigationRef } from '../../App'
 
 // Empêche le splash auto tant que fonts ne sont pas chargées
 SplashScreen.preventAutoHideAsync()
@@ -183,7 +184,7 @@ const App = () => {
   return (
     <ThemeProvider theme={theme} setTheme={setTheme}>
       <AuthProvider>
-        <NavigationContainer theme={navigationTheme}>
+        <NavigationContainer ref={navigationRef} theme={navigationTheme}>
           <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
           <SecureNavigator />
         </NavigationContainer>

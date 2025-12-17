@@ -50,6 +50,9 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
   const param = route.params
 
+  console.log('User Data:')
+  console.log(param)
+
   console.log('Inbox Screen Params:')
   console.log(param)
 
