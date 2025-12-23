@@ -180,20 +180,34 @@ export default function App() {
 // Dans votre App.js ou service de notifications
 const registerForPushNotificationsAsync = async () => {
   try {
-    // Vérifier si nous sommes dans un environnement approprié (pas Expo Go)
     if (!Device.isDevice) {
-      console.log(
-        'Doit utiliser un appareil physique pour les notifications push',
-      )
+      console.log('Doit utiliser un appareil physique pour les notifications push')
       return null
     }
 
+    // Configuration Android plus robuste
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
+        name: 'Messages',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#A127417C',
+        sound: 'default',
+        enableVibrate: true,
+        showBadge: true,
+        lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+        bypassDnd: false,
+      })
+
+      // Canal pour les messages importants
+      await Notifications.setNotificationChannelAsync('high-priority', {
+        name: 'Messages Urgents',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 500, 250, 500],
+        lightColor: '#FF0000',
+        sound: 'default',
+        enableVibrate: true,
+        showBadge: true,
       })
     }
 
@@ -206,7 +220,7 @@ const registerForPushNotificationsAsync = async () => {
     }
 
     if (finalStatus !== 'granted') {
-      console.log("Échec de l'obtention du token push pour les notifications !")
+      console.log("Échec de l'obtention du token push")
       return null
     }
 
@@ -215,15 +229,18 @@ const registerForPushNotificationsAsync = async () => {
       Constants?.easConfig?.projectId
 
     if (!projectId) {
-      throw new Error('Project ID non trouvé dans la configuration')
+      throw new Error('Project ID non trouvé')
     }
 
-    const token = (await Notifications.getExpoPushTokenAsync({ projectId }))
-      .data
-    console.log('Token push obtenu:', token)
+    const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data
+    console.log('✅ Token push obtenu:', token)
+    
+    // Enregistrer le token sur votre serveur
+    // await saveTokenToBackend(token)
+    
     return token
   } catch (error) {
-    console.error("Erreur lors de l'enregistrement des notifications:", error)
+    console.error("❌ Erreur lors de l'enregistrement des notifications:", error)
     return null
   }
 }
