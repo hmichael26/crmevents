@@ -15,16 +15,15 @@
     },
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "12",
+      "buildNumber": "11",
       "bundleIdentifier": "com.crmevents.myapp",
       "entitlements": {
         "aps-environment": "production"
       },
       "infoPlist": {
-        "NSUserNotificationUsageDescription": "Cette application utilise les notifications pour vous informer des nouveaux messages et mises à jour.",
+        "NSUserNotificationUsageDescription": "Cette application utilise les notifications pour vous informer des mises à jour.",
         "UIBackgroundModes": [
-          "remote-notification",
-          "fetch"
+          "remote-notification"
         ],
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -34,7 +33,7 @@
       "compileSdkVersion": 35,
       "targetSdkVersion": 35,
       "minSdkVersion": 23,
-      "versionCode": 5,
+      "versionCode": 4,
       "versionName": "2.0.0",
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/images/splash.png",
@@ -47,12 +46,8 @@
         "android.permission.INTERNET",
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS",
-        "android.permission.POST_NOTIFICATIONS",
-        "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.VIBRATE",
-        "android.permission.WAKE_LOCK"
-      ],
-      "useNextNotificationsApi": true
+        "android.permission.POST_NOTIFICATIONS" 
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -92,11 +87,8 @@
         "expo-notifications",
         {
           "icon": "./app/assets/images/notification.png",
-          "color": "#A127417C",
           "sounds": [],
-          "mode": "production",
-          "androidMode": "default",
-          "androidCollapsedTitle": "Nouveaux messages"
+          "mode": "production"
         }
       ]
     ],
@@ -113,10 +105,7 @@
     },
     "notification": {
       "icon": "./app/assets/images/notification.png",
-      "color": "#A127417C",
-      "iosDisplayInForeground": true,
-      "androidMode": "default",
-      "androidCollapsedTitle": "Nouveaux messages"
+      "iosDisplayInForeground": true
     },
     "owner": "hmichael26"
   }
