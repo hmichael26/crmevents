@@ -10,6 +10,7 @@ import * as Device from 'expo-device'
 import { Platform } from 'react-native'
 import * as SplashScreen from 'expo-splash-screen'
 import * as TaskManager from 'expo-task-manager'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { DataProvider } from './app/hooks'
 import AppNavigation from './app/navigation/App'
@@ -35,6 +36,9 @@ interface PushTokenContextType {
 const PushTokenContext = createContext<PushTokenContextType>({ expoPushToken: '' })
 
 export const usePushToken = () => useContext(PushTokenContext)
+
+// 🆕 Importer le contexte de notification en attente
+import { PendingNotificationProvider, usePendingNotification } from './app/context/PendingNotificationContext'
 
 LogBox.ignoreAllLogs() // si tu veux ignorer les warnings
 
@@ -80,6 +84,25 @@ TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({ data, error, execu
 
 export default function App() {
   const [expoPushToken, setExpoPushToken] = useState('')
+  
+  return (
+    <PendingNotificationProvider>
+      <PushTokenContext.Provider value={{ expoPushToken }}>
+        <AppContent expoPushToken={expoPushToken} setExpoPushToken={setExpoPushToken} />
+      </PushTokenContext.Provider>
+    </PendingNotificationProvider>
+  )
+}
+
+interface AppContentProps {
+  expoPushToken: string
+  setExpoPushToken: (token: string) => void
+}
+
+// 🆕 Clé AsyncStorage pour les notifications traitées
+const PROCESSED_NOTIFICATIONS_KEY = '@processed_notifications'
+
+function AppContent({ expoPushToken, setExpoPushToken }: AppContentProps) {
   const [channels, setChannels] = useState<Notifications.NotificationChannel[]>(
     [],
   )
@@ -88,6 +111,83 @@ export default function App() {
   >(undefined)
   const notificationListener = useRef<Notifications.EventSubscription>()
   const responseListener = useRef<Notifications.EventSubscription>()
+  
+  // 🆕 Tracker pour éviter de retraiter les mêmes notifications
+  // Utilise une clé métier au lieu de l'ID Expo pour permettre le retry
+  const processedNotificationKeys = useRef<Set<string>>(new Set())
+  
+  // 🆕 Utiliser le contexte de notification en attente (file d'attente)
+  const { addNotification, clearQueue } = usePendingNotification()
+
+  // 🆕 Charger les clés traitées depuis AsyncStorage au démarrage
+  useEffect(() => {
+    const loadProcessedKeys = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(PROCESSED_NOTIFICATIONS_KEY)
+        if (stored) {
+          const keys = JSON.parse(stored) as string[]
+          processedNotificationKeys.current = new Set(keys)
+          console.log(`📂 ${keys.length} notifications déjà traitées chargées depuis le stockage`)
+        }
+      } catch (error) {
+        console.error('❌ Erreur chargement notifications traitées:', error)
+      }
+    }
+    loadProcessedKeys()
+  }, [])
+
+  // 🆕 Fonction centralisée pour gérer la navigation depuis les notifications
+  // IMPORTANT: Doit être définie AVANT le useEffect
+  const handleNotificationResponse = (response: Notifications.NotificationResponse) => {
+    const notificationId = response.notification.request.identifier
+    
+    // Extraire les données de la notification
+    const notificationData = response.notification.request.content.data
+    
+    console.log('🆔 Notification Expo ID:', notificationId)
+    console.log('📦 Notification Data:', notificationData)
+    
+    // Vérifier si des données sont présentes
+    if (notificationData && Object.keys(notificationData).length > 0) {
+      console.log('✅ Data présente dans la notification')
+      
+      // Vérifier si un écran est spécifié
+      if (notificationData.screen) {
+        console.log(`🎯 Écran cible: ${notificationData.screen}`)
+        console.log('📋 Paramètres:', notificationData)
+        
+        // 🆕 Utiliser l'ID Expo comme clé unique (chaque notification est unique)
+        console.log('🔑 Clé unique:', notificationId)
+        
+        // 🆕 Vérifier si cette notification a déjà été traitée avec succès
+        if (processedNotificationKeys.current.has(notificationId)) {
+          console.log('⏭️ Notification déjà traitée avec succès, ignorée')
+          return
+        }
+        
+        // 🆕 Ajouter la notification à la file d'attente
+        // Marquer comme traitée APRÈS navigation réussie
+        addNotification(notificationData as any, async () => {
+          console.log('✅ Navigation réussie, marquage de la notification comme traitée')
+          processedNotificationKeys.current.add(notificationId)
+          
+          // 🆕 Sauvegarder dans AsyncStorage pour persistence
+          try {
+            const keys = Array.from(processedNotificationKeys.current)
+            await AsyncStorage.setItem(PROCESSED_NOTIFICATIONS_KEY, JSON.stringify(keys))
+            console.log(`💾 ${keys.length} notifications traitées sauvegardées`)
+          } catch (error) {
+            console.error('❌ Erreur sauvegarde notifications traitées:', error)
+          }
+        })
+        
+      } else {
+        console.log('⚠️ Pas de paramètre "screen" dans les données')
+      }
+    } else {
+      console.log('⚠️ Aucune data dans la notification')
+    }
+  }
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(
@@ -110,6 +210,7 @@ export default function App() {
       })
 
     // 🆕 Vérifier si l'app a été ouverte par une notification (état fermé)
+    // IMPORTANT: Ceci est appelé UNE SEULE FOIS au démarrage
     Notifications.getLastNotificationResponseAsync()
       .then((response) => {
         if (response) {
@@ -123,6 +224,7 @@ export default function App() {
 
     notificationListener.current = Notifications.addNotificationReceivedListener(
       (notification) => {
+        console.log('📬 Notification reçue (foreground):', notification)
         setNotification(notification)
       },
     )
@@ -142,88 +244,7 @@ export default function App() {
         responseListener.current.remove()
       }
     }
-  }, [])
-
-  // 🆕 Fonction centralisée pour gérer la navigation depuis les notifications
-  const handleNotificationResponse = (response: Notifications.NotificationResponse) => {
-    // Extraire les données de la notification
-    const notificationData = response.notification.request.content.data
-    
-    console.log('📦 Notification Data:', notificationData)
-    
-    // Vérifier si des données sont présentes
-    if (notificationData && Object.keys(notificationData).length > 0) {
-      console.log('✅ Data présente dans la notification')
-      
-      // Vérifier si un écran est spécifié
-      if (notificationData.screen) {
-        console.log(`🎯 Navigation vers l'écran: ${notificationData.screen}`)
-        console.log('📋 Paramètres:', notificationData)
-        
-        // Fonction pour effectuer la navigation
-        const performNavigation = () => {
-          // Navigation vers Inbox (conversation directe)
-          if (notificationData.screen === 'Chat' || notificationData.screen === 'Inbox') {
-            console.log('🚀 Navigation vers Inbox avec les paramètres')
-            navigationRef.navigate('Screens' as never, {
-              screen: 'Inbox',
-              params: {
-                Receiver: notificationData.receiver_name || 'Conversation',
-                isForClient: notificationData.isForClient || false,
-                chat: {
-                  idevt: notificationData.idevt,
-                  from_user: notificationData.from_user,
-                  to_user: notificationData.to_user
-                }
-              }
-            } as never)
-          } 
-          // Navigation vers InboxClient (liste des déroulés)
-          else if (notificationData.screen === 'InboxClient') {
-            console.log('🚀 Navigation vers InboxClient avec les paramètres')
-            navigationRef.navigate('Screens' as never, {
-              screen: 'InboxClient',
-              params: {
-                item: notificationData.item
-              }
-            } as never)
-          } 
-          else {
-            console.log(`⚠️ Écran "${notificationData.screen}" non géré`)
-          }
-        }
-
-        // 🆕 Fonction de retry améliorée pour attendre que la navigation soit prête
-        const waitForNavigationAndPerform = (attempt = 1, maxAttempts = 10) => {
-          if (navigationRef.isReady()) {
-            console.log(`✅ Navigation prête (tentative ${attempt})`)
-            performNavigation()
-          } else if (attempt < maxAttempts) {
-            console.log(`⏳ Navigation non prête, tentative ${attempt}/${maxAttempts}...`)
-            // Augmenter progressivement le délai: 500ms, 1s, 1.5s, 2s, etc.
-            const delay = Math.min(attempt * 500, 3000)
-            setTimeout(() => {
-              waitForNavigationAndPerform(attempt + 1, maxAttempts)
-            }, delay)
-          } else {
-            console.log('❌ Navigation toujours non prête après toutes les tentatives')
-          }
-        }
-
-        // Implémenter la navigation avec retry
-        if (navigationRef.isReady()) {
-          performNavigation()
-        } else {
-          console.log('⚠️ Navigation non prête, démarrage du système de retry...')
-          waitForNavigationAndPerform()
-        }
-      } else {
-        console.log('⚠️ Pas de paramètre "screen" dans les données')
-      }
-    } else {
-      console.log('⚠️ Aucune data dans la notification')
-    }
-  }
+  }, [addNotification])
 
   return (
     <>
