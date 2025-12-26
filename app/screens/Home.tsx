@@ -30,10 +30,12 @@ import { useFocusEffect } from '@react-navigation/native'
 import { useTranslation } from 'react-i18next'
 import { EventCard } from '../components/EventCard'
 import { useApi } from '../context/useApi'
-import { scheduleTestNotification, scheduleTestNotificationInboxClient } from '../../App'
+import { usePushToken } from '../../App'
+import * as Clipboard from 'expo-clipboard'
 
 const Home = (props: DrawerContentComponentProps) => {
   const { t, i18n } = useTranslation()
+  const { expoPushToken } = usePushToken()
 
   const { getProjetcs } = useApi()
   const { navigation } = props
@@ -308,6 +310,14 @@ const Home = (props: DrawerContentComponentProps) => {
     }),
   }
 
+  // 🆕 Fonction pour copier le token
+  const copyTokenToClipboard = async () => {
+    if (expoPushToken) {
+      await Clipboard.setStringAsync(expoPushToken)
+      Alert.alert('✅ Token copié', 'Le token Expo Push a été copié dans le presse-papier.')
+    }
+  }
+
   if (userdata?.user?.admin == 0) {
     if (Array.isArray(projectsData) && projectsData.length > 0) {
       return (
@@ -344,6 +354,39 @@ const Home = (props: DrawerContentComponentProps) => {
 
   return (
     <Block>
+      {/* 🆕 Push Token Display */}
+      {expoPushToken && (
+        <Block color={colors.card} padding={sizes.sm} marginBottom={sizes.s}>
+          <Text p semibold marginBottom={sizes.xs}>
+            🔔 Expo Push Token (pour tests)
+          </Text>
+          <TouchableOpacity onPress={copyTokenToClipboard}>
+            <Block
+              row
+              align="center"
+              justify="space-between"
+              padding={sizes.s}
+              radius={sizes.s}
+              color="#f0f0f0"
+            >
+              <Text p size={11} style={{ flex: 1 }} numberOfLines={1}>
+                {expoPushToken}
+              </Text>
+              <Button
+                flex={0}
+                marginLeft={sizes.s}
+                gradient={gradients.primary}
+                onPress={copyTokenToClipboard}
+              >
+                <Text white bold>
+                  Copier
+                </Text>
+              </Button>
+            </Block>
+          </TouchableOpacity>
+        </Block>
+      )}
+
       {/* search input */}
       <Block color={colors.card} flex={0} padding={sizes.padding}>
         <Input

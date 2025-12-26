@@ -4,11 +4,12 @@ import 'react-native-gesture-handler'
 import { Alert, ToastAndroid } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, createContext, useContext } from 'react'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import { Platform } from 'react-native'
 import * as SplashScreen from 'expo-splash-screen'
+import * as TaskManager from 'expo-task-manager'
 
 import { DataProvider } from './app/hooks'
 import AppNavigation from './app/navigation/App'
@@ -26,6 +27,15 @@ import { createNavigationContainerRef } from '@react-navigation/native'
 // Créer une référence de navigation globale
 export const navigationRef = createNavigationContainerRef()
 
+// 🆕 Créer un contexte pour le token push
+interface PushTokenContextType {
+  expoPushToken: string
+}
+
+const PushTokenContext = createContext<PushTokenContextType>({ expoPushToken: '' })
+
+export const usePushToken = () => useContext(PushTokenContext)
+
 LogBox.ignoreAllLogs() // si tu veux ignorer les warnings
 
 // Pour capturer les erreurs globales :
@@ -41,6 +51,33 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
   }),
 })
+
+// 🆕 Définir le nom de la tâche en arrière-plan
+const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK'
+
+// 🆕 Définir la tâche en arrière-plan pour les notifications
+TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({ data, error, executionInfo }) => {
+  console.log('🔔 Background notification task triggered!')
+  console.log('📦 Data:', data)
+  console.log('⚙️ Execution info:', executionInfo)
+  
+  if (error) {
+    console.error('❌ Background task error:', error)
+    return
+  }
+
+  if (data) {
+    const notification = data as any
+    console.log('📬 Background notification received:', notification)
+    
+    // Vous pouvez ajouter ici une logique personnalisée
+    // Par exemple: sauvegarder dans AsyncStorage, mettre à jour un badge, etc.
+    
+    // Note: Vous ne pouvez PAS naviguer directement depuis une tâche en arrière-plan
+    // La navigation se fera quand l'utilisateur tapera sur la notification
+  }
+})
+
 export default function App() {
   const [expoPushToken, setExpoPushToken] = useState('')
   const [channels, setChannels] = useState<Notifications.NotificationChannel[]>(
@@ -62,6 +99,28 @@ export default function App() {
         setChannels(value ?? []),
       )
     }
+
+    // 🆕 Enregistrer la tâche en arrière-plan pour les notifications
+    Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK)
+      .then(() => {
+        console.log('✅ Background notification task registered')
+      })
+      .catch((error) => {
+        console.error('❌ Error registering background task:', error)
+      })
+
+    // 🆕 Vérifier si l'app a été ouverte par une notification (état fermé)
+    Notifications.getLastNotificationResponseAsync()
+      .then((response) => {
+        if (response) {
+          console.log('🔔 App ouverte depuis une notification (état fermé):', response)
+          handleNotificationResponse(response)
+        }
+      })
+      .catch((error) => {
+        console.error('❌ Erreur getLastNotificationResponseAsync:', error)
+      })
+
     notificationListener.current = Notifications.addNotificationReceivedListener(
       (notification) => {
         setNotification(notification)
@@ -70,88 +129,8 @@ export default function App() {
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(
       (response) => {
-        console.log('📱 Notification Response:', response)
-        
-        // Extraire les données de la notification
-        const notificationData = response.notification.request.content.data
-        
-        console.log('📦 Notification Data:', notificationData)
-        
-        // Vérifier si des données sont présentes
-        if (notificationData && Object.keys(notificationData).length > 0) {
-          console.log('✅ Data présente dans la notification')
-          
-          // Vérifier si un écran est spécifié
-          if (notificationData.screen) {
-            console.log(`🎯 Navigation vers l'écran: ${notificationData.screen}`)
-            console.log('📋 Paramètres:', notificationData)
-            
-            // Implémenter la navigation
-            if (navigationRef.isReady()) {
-              // Navigation vers Inbox (conversation directe)
-              if (notificationData.screen === 'Chat' || notificationData.screen === 'Inbox') {
-                console.log('🚀 Navigation vers Inbox avec les paramètres')
-                navigationRef.navigate('Screens' as never, {
-                  screen: 'Inbox',
-                  params: {
-                    Receiver: notificationData.receiver_name || 'Conversation',
-                    isForClient: notificationData.isForClient || false,
-                    chat: {
-                      idevt: notificationData.idevt,
-                      from_user: notificationData.from_user,
-                      to_user: notificationData.to_user
-                    }
-                  }
-                } as never)
-              } 
-              // Navigation vers InboxClient (liste des déroulés)
-              else if (notificationData.screen === 'InboxClient') {
-                console.log('🚀 Navigation vers InboxClient avec les paramètres')
-                navigationRef.navigate('Screens' as never, {
-                  screen: 'InboxClient',
-                  params: {
-                    item: notificationData.item
-                  }
-                } as never)
-              } 
-              else {
-                console.log(`⚠️ Écran "${notificationData.screen}" non géré`)
-              }
-            } else {
-              console.log('⚠️ Navigation non prête, attente...')
-              // Attendre que la navigation soit prête
-              setTimeout(() => {
-                if (navigationRef.isReady()) {
-                  if (notificationData.screen === 'Chat' || notificationData.screen === 'Inbox') {
-                    navigationRef.navigate('Screens' as never, {
-                      screen: 'Inbox',
-                      params: {
-                        Receiver: notificationData.receiver_name || 'Conversation',
-                        isForClient: notificationData.isForClient || false,
-                        chat: {
-                          idevt: notificationData.idevt,
-                          from_user: notificationData.from_user,
-                          to_user: notificationData.to_user
-                        }
-                      }
-                    } as never)
-                  } else if (notificationData.screen === 'InboxClient') {
-                    navigationRef.navigate('Screens' as never, {
-                      screen: 'InboxClient',
-                      params: {
-                        item: notificationData.item
-                      }
-                    } as never)
-                  }
-                }
-              }, 1000)
-            }
-          } else {
-            console.log('⚠️ Pas de paramètre "screen" dans les données')
-          }
-        } else {
-          console.log('⚠️ Aucune data dans la notification')
-        }
+        console.log('📱 Notification Response (app active/background):', response)
+        handleNotificationResponse(response)
       },
     )
 
@@ -165,14 +144,97 @@ export default function App() {
     }
   }, [])
 
+  // 🆕 Fonction centralisée pour gérer la navigation depuis les notifications
+  const handleNotificationResponse = (response: Notifications.NotificationResponse) => {
+    // Extraire les données de la notification
+    const notificationData = response.notification.request.content.data
+    
+    console.log('📦 Notification Data:', notificationData)
+    
+    // Vérifier si des données sont présentes
+    if (notificationData && Object.keys(notificationData).length > 0) {
+      console.log('✅ Data présente dans la notification')
+      
+      // Vérifier si un écran est spécifié
+      if (notificationData.screen) {
+        console.log(`🎯 Navigation vers l'écran: ${notificationData.screen}`)
+        console.log('📋 Paramètres:', notificationData)
+        
+        // Fonction pour effectuer la navigation
+        const performNavigation = () => {
+          // Navigation vers Inbox (conversation directe)
+          if (notificationData.screen === 'Chat' || notificationData.screen === 'Inbox') {
+            console.log('🚀 Navigation vers Inbox avec les paramètres')
+            navigationRef.navigate('Screens' as never, {
+              screen: 'Inbox',
+              params: {
+                Receiver: notificationData.receiver_name || 'Conversation',
+                isForClient: notificationData.isForClient || false,
+                chat: {
+                  idevt: notificationData.idevt,
+                  from_user: notificationData.from_user,
+                  to_user: notificationData.to_user
+                }
+              }
+            } as never)
+          } 
+          // Navigation vers InboxClient (liste des déroulés)
+          else if (notificationData.screen === 'InboxClient') {
+            console.log('🚀 Navigation vers InboxClient avec les paramètres')
+            navigationRef.navigate('Screens' as never, {
+              screen: 'InboxClient',
+              params: {
+                item: notificationData.item
+              }
+            } as never)
+          } 
+          else {
+            console.log(`⚠️ Écran "${notificationData.screen}" non géré`)
+          }
+        }
+
+        // 🆕 Fonction de retry améliorée pour attendre que la navigation soit prête
+        const waitForNavigationAndPerform = (attempt = 1, maxAttempts = 10) => {
+          if (navigationRef.isReady()) {
+            console.log(`✅ Navigation prête (tentative ${attempt})`)
+            performNavigation()
+          } else if (attempt < maxAttempts) {
+            console.log(`⏳ Navigation non prête, tentative ${attempt}/${maxAttempts}...`)
+            // Augmenter progressivement le délai: 500ms, 1s, 1.5s, 2s, etc.
+            const delay = Math.min(attempt * 500, 3000)
+            setTimeout(() => {
+              waitForNavigationAndPerform(attempt + 1, maxAttempts)
+            }, delay)
+          } else {
+            console.log('❌ Navigation toujours non prête après toutes les tentatives')
+          }
+        }
+
+        // Implémenter la navigation avec retry
+        if (navigationRef.isReady()) {
+          performNavigation()
+        } else {
+          console.log('⚠️ Navigation non prête, démarrage du système de retry...')
+          waitForNavigationAndPerform()
+        }
+      } else {
+        console.log('⚠️ Pas de paramètre "screen" dans les données')
+      }
+    } else {
+      console.log('⚠️ Aucune data dans la notification')
+    }
+  }
+
   return (
     <>
-      <ApplicationProvider {...eva} theme={eva.light}>
-        <DataProvider>
-          <AppNavigation />
-        </DataProvider>
-        <Toast />
-      </ApplicationProvider>
+      <PushTokenContext.Provider value={{ expoPushToken }}>
+        <ApplicationProvider {...eva} theme={eva.light}>
+          <DataProvider>
+            <AppNavigation />
+          </DataProvider>
+          <Toast />
+        </ApplicationProvider>
+      </PushTokenContext.Provider>
     </>
   )
 }
@@ -228,66 +290,4 @@ const registerForPushNotificationsAsync = async () => {
   }
 }
 
-// Fonction pour tester les notifications locales avec des données
-export async function scheduleTestNotification() {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "🔔 Test Notification Client",
-      body: "Cliquez pour ouvrir la conversation client",
-      data: {
-        screen: "Inbox",
-        receiver_name: "Bruno PEREIRA - MERCEDES",
-        isForClient: true,
-        idevt: "10",
-        from_user: "1",
-        to_user: "12"
-      },
-    },
-    trigger: null, // Notification immédiate
-  })
-  console.log('✅ Notification de test client envoyée')
-}
 
-// Fonction pour tester InboxClient (liste des déroulés)
-export async function scheduleTestNotificationInboxClient() {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "🔔 Test InboxClient",
-      body: "Cliquez pour voir vos déroulés",
-      data: {
-        screen: "InboxClient",
-        item: {
-          admin_id: "1",
-          arrderoules: [
-            {
-              id: "123",
-              fk_evt: "10",
-              titre_deroule: "Réception",
-              comm_deroule: "Discussion sur la réception",
-              numero_deroule: "1",
-              titre_evt: "Mariage Bruno"
-            },
-            {
-              id: "124",
-              fk_evt: "10",
-              titre_deroule: "Traiteur",
-              comm_deroule: "Choix du menu",
-              numero_deroule: "2",
-              titre_evt: "Mariage Bruno"
-            },
-            {
-              id: "125",
-              fk_evt: "10",
-              titre_deroule: "Décoration",
-              comm_deroule: "Thème et ambiance",
-              numero_deroule: "3",
-              titre_evt: "Mariage Bruno"
-            }
-          ]
-        }
-      },
-    },
-    trigger: null,
-  })
-  console.log('✅ Notification de test InboxClient envoyée')
-}
