@@ -3,6 +3,7 @@ import axios from 'axios'
 import * as SecureStore from 'expo-secure-store'
 import * as Notifications from 'expo-notifications'
 import Constants from 'expo-constants'
+import { usePendingNotification } from './PendingNotificationContext'
 
 export const AuthContext = createContext()
 
@@ -20,6 +21,9 @@ export const AuthProvider = ({ children }) => {
   const [presta, setPresta] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [loginProgress, setLoginProgress] = useState(null) // Pour suivre l'étape du login
+  
+  // 🆕 Utiliser le contexte de notification en attente (file d'attente)
+  const { processNextNotification } = usePendingNotification()
 
   /** Utility Functions */
   const StoreSave = async (key, value) => {
@@ -126,6 +130,9 @@ export const AuthProvider = ({ children }) => {
 
       setUserData(response.data.data)
       console.log('✅ Données utilisateur récupérées avec succès')
+      
+      // 🆕 Traiter la prochaine notification en attente après authentification
+      processNextNotification(true)
     } catch (error) {
       if (error.code === 'ECONNABORTED') {
         console.error('⏱️ Timeout - La requête a pris trop de temps')

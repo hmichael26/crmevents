@@ -10,6 +10,7 @@ import {
   View,
   Image,
   TouchableWithoutFeedback,
+  TouchableOpacity,
   Alert,
   RefreshControl,
   Text as TextField,
@@ -348,7 +349,7 @@ const Home = (props: DrawerContentComponentProps) => {
           search
           value={InputValue}
           onChange={handleTextChange}
-          placeholder={'nom de projet'}
+          placeholder={'Nom de projet'}
         />
       </Block>
 
@@ -473,6 +474,8 @@ const Home = (props: DrawerContentComponentProps) => {
           )}
         />
       </View>
+ 
+     
     </Block>
   )
 }

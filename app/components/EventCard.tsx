@@ -12,17 +12,6 @@ interface EventCardProps {
 export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
   const { userdata } = useContext(AuthContext)
 
-  //console.log(item)
-
-  /* {
-      Receiver: `Admin - ${derouleTitle}`,
-      chat: {
-        idevt: idevt,
-        from_user: userdata.user.IDC,
-        //iduser2: admin, // Admin ID
-        id_deroule: derouleId,
-      },*/
-
   const { colors, gradients, sizes } = useTheme()
 
   return (
@@ -60,14 +49,14 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
             <Button
               gradient={gradients.black}
               style={styles.consultButton}
-              onPress={() =>
+              onPress={() => 
                 navigation.navigate('Inbox', {
                   Receiver: `Conseiller pour ${item.evt}`,
                   isForClient: true,
                   chat: {
                     idevt: item.idevt,
                     from_user: userdata.user.IDC,
-                    //iduser2: admin, // Admin ID
+                    to_user: item.admin_id,
                     id_deroule: item.idevt,
                   },
                 })

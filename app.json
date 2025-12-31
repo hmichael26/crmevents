@@ -22,7 +22,9 @@
       },
       "infoPlist": {
         "NSUserNotificationUsageDescription": "Cette application utilise les notifications pour vous informer des mises à jour.",
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -31,7 +33,7 @@
       "compileSdkVersion": 35,
       "targetSdkVersion": 35,
       "minSdkVersion": 23,
-      "versionCode": 3,
+      "versionCode": 4,
       "versionName": "2.0.0",
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/images/splash.png",
@@ -43,7 +45,8 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.INTERNET",
         "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.POST_NOTIFICATIONS" 
       ]
     },
     "web": {
