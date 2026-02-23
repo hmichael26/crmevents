@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo } from "react";
 import {
   StyleSheet,
   Text,
@@ -16,91 +16,91 @@ import {
   Image,
   ActivityIndicator,
   ScrollView,
-} from 'react-native'
-import { useTheme } from '../hooks'
-import { useApi } from '../context/useApi'
-import Button from './Button'
-import { GRADIENTS } from '../constants/light'
-import Icon from 'react-native-vector-icons/AntDesign'
-import { ArrowUpCircle, ThumbsDown, ThumbsUp } from 'react-native-feather'
-import logo from '../assets/images/splash.png'
-import VoteButtons from './VoteButtons'
+} from "react-native";
+import { useTheme } from "../hooks";
+import { useApi } from "../context/useApi";
+import Button from "./Button";
+import { GRADIENTS } from "../constants/light";
+import Icon from "react-native-vector-icons/AntDesign";
+import { ArrowUpCircle, ThumbsDown, ThumbsUp } from "react-native-feather";
+import logo from "../assets/images/splash.png";
+import VoteButtons from "./VoteButtons";
 
 // Constants
-const { width, height } = Dimensions.get('window')
+const { width, height } = Dimensions.get("window");
 
 // Types
 interface VenueCardProps {
   activeDerouler: {
-    id: number
-    [key: string]: any
-  }
+    id: number;
+    [key: string]: any;
+  };
   eventData: {
-    id_evt: string | number
-    id_client: string | number
-  }
-  deroulerData: any
-  refreshData: () => Promise<void>
+    id_evt: string | number;
+    id_client: string | number;
+  };
+  deroulerData: any;
+  refreshData: () => Promise<void>;
 }
 
 interface PrestaItem {
-  id_presta: number
-  nom_presta: string
-  budget?: string
-  location?: string
-  ggmap?: string
-  lien_brochure?: string
-  pouce_leve?: number
-  pouce_baisse?: number
-  all_imgs?: Array<{ image: string }>
-  all_devis?: Array<{ lien_devis: string }>
+  id_presta: number;
+  nom_presta: string;
+  budget?: string;
+  location?: string;
+  ggmap?: string;
+  lien_brochure?: string;
+  pouce_leve?: number;
+  pouce_baisse?: number;
+  all_imgs?: Array<{ image: string }>;
+  all_devis?: Array<{ lien_devis: string }>;
 }
 
 interface ErrorState {
-  message: string
-  type: 'network' | 'server' | 'validation'
+  message: string;
+  type: "network" | "server" | "validation";
 }
 
 // Utility functions memoized
 const normalize = (size: number): number => {
-  const { width } = Dimensions.get('window')
-  const scale = width / 320
-  const newSize = size * scale
+  const { width } = Dimensions.get("window");
+  const scale = width / 320;
+  const newSize = size * scale;
 
-  if (Platform.OS === 'ios') {
-    return Math.round(PixelRatio.roundToNearestPixel(newSize))
+  if (Platform.OS === "ios") {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize));
   } else {
-    return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
+    return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2;
   }
-}
+};
 
 const openUrl = async (url: string | undefined): Promise<void> => {
   if (!url?.trim()) {
-    Alert.alert('Erreur', 'Aucun lien disponible')
-    return
+    Alert.alert("Erreur", "Aucun lien disponible");
+    return;
   }
 
   try {
-    const canOpen = await Linking.canOpenURL(url)
+    const canOpen = await Linking.canOpenURL(url);
     if (canOpen) {
-      await Linking.openURL(url)
+      await Linking.openURL(url);
     } else {
-      throw new Error('URL non supportée')
+      throw new Error("URL non supportée");
     }
   } catch (error) {
-    console.error('🔴 Erreur ouverture URL:', error)
-    Alert.alert('Erreur', "Impossible d'ouvrir ce lien.")
+    console.error("🔴 Erreur ouverture URL:", error);
+    Alert.alert("Erreur", "Impossible d'ouvrir ce lien.");
   }
-}
+};
 
 const openGoogleMaps = (ggmap?: string, location?: string): void => {
   const url =
     ggmap ||
     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-      location || '',
-    )}`
-  openUrl(url)
-}
+      location || "",
+    )}`;
+  openUrl(url);
+};
 
 // Main component
 const ClientPrestaCard: React.FC<VenueCardProps> = ({
@@ -109,20 +109,20 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
   deroulerData,
   refreshData,
 }) => {
-  const { colors, sizes } = useTheme()
-  const [error, setError] = useState<ErrorState | null>(null)
+  const { colors, sizes } = useTheme();
+  const [error, setError] = useState<ErrorState | null>(null);
 
   // Memoized prestataires list avec validation
   const prestaInterroger = useMemo(() => {
-    const presta = deroulerData?.all_presta_interroges || []
+    const presta = deroulerData?.all_presta_interroges || [];
     if (!Array.isArray(presta)) {
-      console.warn("⚠️ all_presta_interroges n'est pas un tableau")
-      return []
+      console.warn("⚠️ all_presta_interroges n'est pas un tableau");
+      return [];
     }
     return presta.filter(
       (item: any) => item && item.id_presta && item.nom_presta,
-    )
-  }, [deroulerData?.all_presta_interroges])
+    );
+  }, [deroulerData?.all_presta_interroges]);
 
   // Loading state
   if (!activeDerouler) {
@@ -133,7 +133,7 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
           Chargement...
         </Text>
       </View>
-    )
+    );
   }
 
   // Empty state
@@ -147,7 +147,7 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
           Il n'y a pas encore de prestataire associé à ce déroulé.
         </Text>
       </View>
-    )
+    );
   }
 
   // Error state
@@ -161,14 +161,14 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
           gradient={GRADIENTS.primary}
           style={styles.retryButton}
           onPress={() => {
-            setError(null)
-            refreshData()
+            setError(null);
+            refreshData();
           }}
         >
           <Text style={styles.retryButtonText}>Réessayer</Text>
         </Button>
       </View>
-    )
+    );
   }
 
   return (
@@ -195,56 +195,56 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
       keyboardShouldPersistTaps="handled" // Gère les interactions pendant le scroll
       scrollEventThrottle={16} // Optimise les événements de scroll
     />
-  )
-}
+  );
+};
 
 // Card item component
 interface PrestaCardItemProps {
-  item: PrestaItem
-  refreshData: () => Promise<void>
-  derouleId: number
+  item: PrestaItem;
+  refreshData: () => Promise<void>;
+  derouleId: number;
   eventData: {
-    id_evt: string | number
-    id_client: string | number
-  }
-  onError: (error: ErrorState) => void
+    id_evt: string | number;
+    id_client: string | number;
+  };
+  onError: (error: ErrorState) => void;
 }
 
 const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
   ({ item, refreshData, derouleId, eventData, onError }) => {
-    const { sendPouce } = useApi()
-    const dimensions = useWindowDimensions()
+    const { sendPouce } = useApi();
+    const dimensions = useWindowDimensions();
 
     // States
-    const [photos, setPhotos] = useState<Array<{ image: string }>>([])
-    const [modalImageVisible, setModalImageVisible] = useState(false)
-    const [currentImageIndex, setCurrentImageIndex] = useState(0)
-    const [isVoting, setIsVoting] = useState(false)
+    const [photos, setPhotos] = useState<Array<{ image: string }>>([]);
+    const [modalImageVisible, setModalImageVisible] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isVoting, setIsVoting] = useState(false);
 
     // Memoized calculations
     const { isLandscape, isSmallDevice, imageWidth } = useMemo(() => {
-      const isLandscape = dimensions.width > dimensions.height
-      const isSmallDevice = dimensions.width < 375
+      const isLandscape = dimensions.width > dimensions.height;
+      const isSmallDevice = dimensions.width < 375;
       const imageWidth = isLandscape
         ? dimensions.width * 0.6
         : isSmallDevice
-        ? dimensions.width - 32
-        : dimensions.width * 0.6
+          ? dimensions.width - 32
+          : dimensions.width * 0.6;
 
-      return { isLandscape, isSmallDevice, imageWidth }
-    }, [dimensions.width, dimensions.height])
+      return { isLandscape, isSmallDevice, imageWidth };
+    }, [dimensions.width, dimensions.height]);
 
     // Optimized vote handler
     const handleSendPouce = useCallback(
       async (pouceLeve: number, pouceBaisse: number) => {
-        if (isVoting) return // Prévenir les double-clics
+        if (isVoting) return; // Prévenir les double-clics
 
-        console.log('🔵 Envoi du vote:', {
+        console.log("🔵 Envoi du vote:", {
           pouceLeve,
           pouceBaisse,
           presta: item.nom_presta,
-        })
-        setIsVoting(true)
+        });
+        setIsVoting(true);
 
         try {
           const response = await sendPouce({
@@ -253,29 +253,29 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
             id_presta: item.id_presta,
             pouce_leve: pouceLeve,
             pouce_baisse: pouceBaisse,
-          })
+          });
 
-          if (response.code === 'SUCCESS') {
-            console.log('🟢 Vote envoyé avec succès')
+          if (response.code === "SUCCESS") {
+            console.log("🟢 Vote envoyé avec succès");
           } else {
-            throw new Error(response.message || 'Erreur lors du vote')
+            throw new Error(response.message || "Erreur lors du vote");
           }
         } catch (error) {
-          console.error('🔴 Erreur envoi vote:', error)
+          console.error("🔴 Erreur envoi vote:", error);
 
           const errorMessage =
             error?.response?.status === 403
               ? "Vous n'avez pas les permissions pour voter"
               : error?.request
-              ? 'Problème de connexion'
-              : 'Erreur lors du vote'
+                ? "Problème de connexion"
+                : "Erreur lors du vote";
 
           onError({
             message: errorMessage,
-            type: error?.request ? 'network' : 'server',
-          })
+            type: error?.request ? "network" : "server",
+          });
         } finally {
-          setIsVoting(false)
+          setIsVoting(false);
         }
       },
       [
@@ -288,87 +288,87 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
         refreshData,
         onError,
       ],
-    )
+    );
 
     const handleOpenWebsite = (link) => {
-      Linking.openURL(link)
-    }
+      Linking.openURL(link);
+    };
 
     // Modal handlers
     const openModalWithImages = useCallback(
       (images?: Array<{ image: string }>) => {
         if (images?.length > 0) {
-          console.log('🔵 Ouverture galerie photos:', images.length, 'images')
-          setPhotos(images)
-          setCurrentImageIndex(0)
-          setModalImageVisible(true)
+          // console.log('🔵 Ouverture galerie photos:', images.length, 'images')
+          setPhotos(images);
+          setCurrentImageIndex(0);
+          setModalImageVisible(true);
         } else {
-          Alert.alert('Information', 'Aucune photo disponible.')
+          Alert.alert("Information", "Aucune photo disponible.");
         }
       },
       [],
-    )
+    );
 
     const navigateImages = useCallback(
-      (direction: 'prev' | 'next') => {
+      (direction: "prev" | "next") => {
         setCurrentImageIndex((prev) => {
-          if (direction === 'prev') {
-            return prev > 0 ? prev - 1 : prev
+          if (direction === "prev") {
+            return prev > 0 ? prev - 1 : prev;
           } else {
-            return prev < photos.length - 1 ? prev + 1 : prev
+            return prev < photos.length - 1 ? prev + 1 : prev;
           }
-        })
+        });
       },
       [photos.length],
-    )
+    );
 
     const closeModal = useCallback(() => {
-      setModalImageVisible(false)
-      setPhotos([])
-      setCurrentImageIndex(0)
-    }, [])
+      setModalImageVisible(false);
+      setPhotos([]);
+      setCurrentImageIndex(0);
+    }, []);
 
     // Document handlers
     const openDocument = useCallback(() => {
-      console.log('🔵 Ouverture brochure:', item.lien_brochure)
-      openUrl(item.lien_brochure)
-    }, [item.lien_brochure])
+      console.log("🔵 Ouverture brochure:", item.lien_brochure);
+      openUrl(item.lien_brochure);
+    }, [item.lien_brochure]);
 
     const openPhotos = useCallback(() => {
-      openModalWithImages(item.all_imgs)
-    }, [item.all_imgs, openModalWithImages])
+      openModalWithImages(item.all_imgs);
+    }, [item.all_imgs, openModalWithImages]);
 
     const openLocation = useCallback(() => {
-      console.log('🔵 Ouverture localisation:', item.location)
-      openGoogleMaps(item.ggmap, item.location)
-    }, [item.ggmap, item.location])
+      console.log("🔵 Ouverture localisation:", item.location);
+      openGoogleMaps(item.ggmap, item.location);
+    }, [item.ggmap, item.location]);
 
     // Vote success handler
     const handleVoteSuccess = useCallback(() => {
-      console.log('🟢 Vote réussi, actualisation des données')
-    }, [refreshData])
+      console.log("🟢 Vote réussi, actualisation des données");
+    }, [refreshData]);
 
     // Vote error handler
     const handleVoteError = useCallback((errorMessage: string) => {
-      console.error('🔴 Erreur vote:', errorMessage)
-    }, [])
+      console.error("🔴 Erreur vote:", errorMessage);
+    }, []);
     return (
-      <View style={[styles.card, { flexDirection: 'row' }]}>
+      <View style={[styles.card, { flexDirection: "row" }]}>
         {/* Main card content with image */}
         <View
           style={[
             styles.cardContent,
-            !isLandscape && isSmallDevice && { width: '100%' },
+            !isLandscape && isSmallDevice && { width: "100%" },
           ]}
         >
           <ImageBackground
             source={
               item?.lien_brochure &&
-              item.lien_brochure !== 'https://www.goseminaire.com/crm/upload/'
+              item.lien_brochure !== "https://www.goseminaire.com/crm/upload/"
                 ? { uri: item.lien_brochure }
                 : item?.all_imgs?.length > 0
-                ? { uri: item.all_imgs[0].image }
-                : logo
+                  ? { uri: item.all_imgs[0].image }
+                  : logo
             }
             style={[
               styles.venueImage,
@@ -376,7 +376,7 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
             ]}
             imageStyle={{
               borderRadius: 10,
-              backgroundColor: '#f0f0f0',
+              backgroundColor: "#f0f0f0",
             }}
             resizeMode="cover"
           >
@@ -456,9 +456,9 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
             styles.sideButtons,
             !isLandscape &&
               isSmallDevice && {
-                width: '100%',
+                width: "100%",
                 height: 50,
-                flexDirection: 'row',
+                flexDirection: "row",
                 maxHeight: 50,
               },
             isLandscape && {
@@ -482,21 +482,21 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
           photos={photos}
           currentIndex={currentImageIndex}
           onClose={closeModal}
-          onPrevious={() => navigateImages('prev')}
-          onNext={() => navigateImages('next')}
+          onPrevious={() => navigateImages("prev")}
+          onNext={() => navigateImages("next")}
         />
       </View>
-    )
+    );
   },
-)
+);
 
 // Side buttons component
 interface SideButtonsSectionProps {
-  item: PrestaItem
-  isHorizontalLayout: boolean
-  isSmallDevice: boolean
-  openDocument: () => void
-  openPhotos: () => void
+  item: PrestaItem;
+  isHorizontalLayout: boolean;
+  isSmallDevice: boolean;
+  openDocument: () => void;
+  openPhotos: () => void;
 }
 
 const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
@@ -508,10 +508,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
           <Button
             key={`devis-${index}`}
             gradient={GRADIENTS.secondary}
-            style={[
-              styles.sideButton,
-              isHorizontalLayout && { flex: 1, marginHorizontal: 1 },
-            ]}
+            style={[styles.sideButton]}
             width={110}
             onPress={() => openUrl(devis?.lien_devis)}
           >
@@ -524,17 +521,17 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
               Devis {index + 1}
             </Text>
           </Button>
-        ))
-    }, [item?.all_devis, isHorizontalLayout, isSmallDevice])
+        ));
+    }, [item?.all_devis, isHorizontalLayout, isSmallDevice]);
 
     // Si c'est un layout horizontal (petit écran), pas de scroll vertical
-    if (isHorizontalLayout) {
+    if (false) {
       return (
         <View
           style={{
             gap: 2,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
+            flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
           {/* Brochure button */}
@@ -574,7 +571,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
           {/* Premier devis seulement en mode horizontal */}
           {devisButtons[0]}
         </View>
-      )
+      );
     }
 
     // Layout vertical avec ScrollView pour tous les boutons
@@ -633,18 +630,18 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
 
         <View style={{ marginBottom: 25 }}>{devisButtons}</View>
       </ScrollView>
-    )
+    );
   },
-)
+);
 
 // Image gallery modal component
 interface ImageGalleryModalProps {
-  visible: boolean
-  photos: Array<{ image: string }>
-  currentIndex: number
-  onClose: () => void
-  onPrevious: () => void
-  onNext: () => void
+  visible: boolean;
+  photos: Array<{ image: string }>;
+  currentIndex: number;
+  onClose: () => void;
+  onPrevious: () => void;
+  onNext: () => void;
 }
 
 const ImageGalleryModal: React.FC<ImageGalleryModalProps> = React.memo(
@@ -655,12 +652,12 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = React.memo(
         next: currentIndex < photos.length - 1,
       }),
       [currentIndex, photos.length],
-    )
+    );
 
-    const currentPhoto = useMemo(() => photos?.[currentIndex]?.image, [
-      photos,
-      currentIndex,
-    ])
+    const currentPhoto = useMemo(
+      () => photos?.[currentIndex]?.image,
+      [photos, currentIndex],
+    );
 
     return (
       <Modal
@@ -728,38 +725,38 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = React.memo(
           </TouchableOpacity>
         </View>
       </Modal>
-    )
+    );
   },
-)
+);
 
 // Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 16,
   },
   statusText: {
     fontSize: normalize(16),
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 10,
   },
   emptyTitle: {
     fontSize: normalize(18),
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 10,
   },
   emptySubtitle: {
     fontSize: normalize(14),
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 20,
   },
   errorTitle: {
     fontSize: normalize(16),
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 15,
   },
   retryButton: {
@@ -767,76 +764,76 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   retryButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   card: {
     marginHorizontal: 16,
     marginVertical: 8,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
+    backgroundColor: "#fff",
+    overflow: "hidden",
     minHeight: 200,
-    justifyContent: 'center',
+    justifyContent: "center",
     gap: 6,
   },
   cardContent: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 20,
   },
   venueImage: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   venueNameContainer: {
     marginVertical: 10,
     height: 60,
-    width: '95%',
+    width: "95%",
     paddingHorizontal: 3,
   },
   venueNameText: {
-    color: '#fff',
-    fontWeight: '600',
-    textAlign: 'center',
-    textTransform: 'uppercase',
+    color: "#fff",
+    fontWeight: "600",
+    textAlign: "center",
+    textTransform: "uppercase",
     fontSize: normalize(11),
   },
   venueName: {
     borderRadius: 20,
   },
   priceTag: {
-    backgroundColor: '#4ECCE6',
+    backgroundColor: "#4ECCE6",
     paddingVertical: 6,
     borderRadius: 4,
     marginTop: 15,
   },
   priceText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: normalize(17),
   },
   locationContainer: {
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: "rgba(0,0,0,0.6)",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 4,
     marginTop: 20,
-    maxWidth: '80%',
+    maxWidth: "80%",
   },
   locationText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: normalize(12),
-    textAlign: 'center',
+    textAlign: "center",
   },
   actionButtons: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     borderRadius: 10,
   },
   actionButton: {
@@ -848,39 +845,39 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: normalize(22),
-    color: '#140101BD',
+    color: "#140101BD",
   },
   activeVote: {
-    color: '#fff',
+    color: "#fff",
   },
   sideButtons: {
     width: 120,
-    flexDirection: 'column',
-    backgroundColor: '#fff',
+    flexDirection: "column",
+    backgroundColor: "#fff",
     maxHeight: 400, // Ajoutez une hauteur max pour forcer le scroll
-    overflow: 'scroll', // Empêche le scroll si le contenu est trop grand
+    overflow: "scroll", // Empêche le scroll si le contenu est trop grand
   },
   sideButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#A9A9A9',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#A9A9A9",
     marginVertical: 0.2,
     height: 40,
     minHeight: 40,
   },
   sideButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: normalize(14),
-    textAlign: 'center',
+    textAlign: "center",
   },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   image: {
     width: width * 0.9,
@@ -890,35 +887,35 @@ const styles = StyleSheet.create({
   imageError: {
     width: width * 0.9,
     height: height * 0.6,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 10,
   },
   imageCounter: {
-    position: 'absolute',
+    position: "absolute",
     top: 60,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignSelf: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 15,
   },
   modalText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   navigationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     paddingHorizontal: 20,
-    position: 'absolute',
+    position: "absolute",
     bottom: 100,
   },
   navButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 25,
@@ -927,19 +924,19 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 50,
     right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 20,
   },
   sideButtonsScrollView: {
     flex: 1,
-    width: '100%',
-    maxHeight: '100%',
-    overflow: 'scroll',
+    width: "100%",
+    maxHeight: "100%",
+    overflow: "scroll",
   },
   sideButtonsContent: {
     gap: 2,
@@ -948,6 +945,6 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
   },
   // Modifiez aussi le style sideButtons existant
-})
+});
 
-export default ClientPrestaCard
+export default ClientPrestaCard;
