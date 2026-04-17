@@ -1,32 +1,32 @@
-import React from 'react'
-import { TouchableOpacity, Text } from 'react-native'
+import React from "react";
+import { TouchableOpacity, Text } from "react-native";
 import {
   StackHeaderProps,
   CardStyleInterpolators,
-} from '@react-navigation/stack'
-import { useNavigation } from '@react-navigation/core'
-import { DrawerActions } from '@react-navigation/native'
-import { StackHeaderOptions } from '@react-navigation/stack/lib/typescript/src/types'
+} from "@react-navigation/stack";
+import { useNavigation } from "@react-navigation/core";
+import { DrawerActions } from "@react-navigation/native";
+import { StackHeaderOptions } from "@react-navigation/stack/lib/typescript/src/types";
 
-import { useData } from './useData'
+import { useData } from "./useData";
 // import {useTranslation} from './useTranslation';
 
-import Image from '../components/Image'
+import Image from "../components/Image";
 //import Text from '../components/Text';
-import useTheme from '../hooks/useTheme'
-import Button from '../components/Button'
-import Block from '../components/Block'
-import { Input } from '../components'
+import useTheme from "../hooks/useTheme";
+import Button from "../components/Button";
+import Block from "../components/Block";
+import { Input } from "../components";
 
 export default () => {
   // const {t} = useTranslation();
-  const { user, basket, isDark } = useData()
-  const navigation = useNavigation()
-  const { icons, colors, gradients, sizes } = useTheme()
-  const labelColor = isDark ? colors.white : colors.dark
+  const { user, basket, isDark } = useData();
+  const navigation = useNavigation();
+  const { icons, colors, gradients, sizes } = useTheme();
+  const labelColor = isDark ? colors.white : colors.dark;
   const menu = {
     headerStyle: { elevation: 0 },
-    headerTitleAlign: 'left',
+    headerTitleAlign: "left",
     headerTitleStyle: {
       fontSize: 15,
     },
@@ -38,7 +38,16 @@ export default () => {
     //   <Text p>{children}</Text>
     // ),
     headerLeft: () => (
-      <Button onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}>
+      <Button
+        onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        style={{
+          minWidth: 44,
+          minHeight: 44,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Image
           source={icons.menu}
           radius={0}
@@ -49,7 +58,7 @@ export default () => {
         />
       </Button>
     ),
-  } as StackHeaderOptions
+  } as StackHeaderOptions;
 
   const options = {
     stack: menu,
@@ -64,6 +73,13 @@ export default () => {
       headerLeft: () => (
         <Button
           onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          style={{
+            minWidth: 44,
+            minHeight: 44,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
           <Image source={icons.menu} radius={0} color={colors.white} />
         </Button>
@@ -80,7 +96,7 @@ export default () => {
             height={18}
             color={colors.icon}
             source={icons.arrow}
-            transform={[{ rotate: '180deg' }]}
+            transform={[{ rotate: "180deg" }]}
           />
         </Button>
       ),
@@ -96,7 +112,7 @@ export default () => {
             height={18}
             color={colors.icon}
             source={icons.arrow}
-            transform={[{ rotate: '180deg' }]}
+            transform={[{ rotate: "180deg" }]}
           />
         </Button>
       ),
@@ -114,7 +130,7 @@ export default () => {
             height={19}
             color={colors.icon}
             source={icons.arrow}
-            transform={[{ rotate: '180deg' }]}
+            transform={[{ rotate: "180deg" }]}
           />
         </Button>
       ),
@@ -129,7 +145,7 @@ export default () => {
             height={18}
             color={colors.icon}
             source={icons.arrow}
-            transform={[{ rotate: '180deg' }]}
+            transform={[{ rotate: "180deg" }]}
           />
         </Button>
       ),
@@ -151,6 +167,13 @@ export default () => {
       headerLeft: () => (
         <Button
           onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          style={{
+            minWidth: 44,
+            minHeight: 44,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
           <Image source={icons.menu} radius={0} color={labelColor} />
         </Button>
@@ -177,7 +200,41 @@ export default () => {
         </Block>
       ),
     },
-  }
+    eventPresta: {
+      ...menu,
+      headerLeft: () => (
+        <Button
+          onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          style={{
+            minWidth: 44,
+            minHeight: 44,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Image source={icons.menu} radius={0} color={labelColor} />
+        </Button>
+      ),
+    },
+    eventMenu: {
+      ...menu,
+      headerLeft: () => (
+        <Button
+          onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          style={{
+            minWidth: 44,
+            minHeight: 44,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Image source={icons.menu} radius={0} color={labelColor} />
+        </Button>
+      ),
+    },
+  };
 
-  return options
-}
+  return options;
+};
