@@ -16,6 +16,7 @@ import { useTheme } from '../hooks'
 import ClientAutocomplete from './ClientAutoComplete'
 import ClientAutoDropdownComplete from './ClientAutoDropdownComplete'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { useTranslation } from 'react-i18next'
 
 const { width, height } = Dimensions.get('window')
 
@@ -61,6 +62,7 @@ const Form2: React.FC<Form2Props> = ({
   clients: initialClients,
   clientData = [],
 }) => {
+  const { t } = useTranslation()
   //  console.log(item)
   const { assets, colors, gradients, sizes } = useTheme()
 
@@ -200,7 +202,7 @@ const Form2: React.FC<Form2Props> = ({
   return (
     <View style={styles.container}>
       <ClientAutoDropdownComplete
-        placeholder="Prénom NOM"
+        placeholder={t('details.form.client')}
         value={formData.clt}
         onChangeText={(text) => updateFormField('clt', text)}
         data={clientData} // Votre tableau de données
@@ -211,7 +213,7 @@ const Form2: React.FC<Form2Props> = ({
       <View>
         <View style={styles.inputContainer}>
           <TextInput
-            placeholder="Entreprise"
+            placeholder={t('details.form.company')}
             style={{
               width: '50%',
               flexDirection: 'row',
@@ -231,7 +233,7 @@ const Form2: React.FC<Form2Props> = ({
           />
 
           <TextInput
-            placeholder="Email"
+            placeholder={t('details.form.email')}
             style={{
               width: '50%',
               flexDirection: 'row',
@@ -253,7 +255,7 @@ const Form2: React.FC<Form2Props> = ({
 
         <View style={styles.inputContainer}>
           <TextInput
-            placeholder="Téléphone fixe"
+            placeholder={t('details.form.phoneFix')}
             style={{
               width: '50%',
               flexDirection: 'row',
@@ -272,7 +274,7 @@ const Form2: React.FC<Form2Props> = ({
             editable={false}
           />
           <TextInput
-            placeholder="Téléphone portable"
+            placeholder={t('details.form.phoneMobile')}
             style={{
               width: '50%',
               flexDirection: 'row',
@@ -294,7 +296,7 @@ const Form2: React.FC<Form2Props> = ({
 
         <View style={styles.inputContainer}>
           <SwitchTextBox
-            label="Publier au nom de l'entreprise"
+            label={t('details.form.showClientName')}
             placeholder="Enter notification details"
             style={{ width: '100%' }}
             toogleValue={formData.afficher_nom_client}
@@ -305,7 +307,7 @@ const Form2: React.FC<Form2Props> = ({
         </View>
 
         <TextInput
-          placeholder="Infos Client"
+          placeholder={t('details.form.infos')}
           multiline
           numberOfLines={4}
           style={{
@@ -332,7 +334,7 @@ const Form2: React.FC<Form2Props> = ({
           }}
         >
           <Text style={{ fontSize: 16, color: colors.primary }}>
-            Ajouter d'autres clients
+            {t('details.form.addClients')}
           </Text>
           <Button
             flex={0.6}
@@ -343,7 +345,7 @@ const Form2: React.FC<Form2Props> = ({
             style={{ marginTop: 10 }}
             onPress={addClient}
           >
-            <Text style={{ fontSize: 16, color: 'white' }}> + Ajouter</Text>
+            <Text style={{ fontSize: 16, color: 'white' }}> {t('details.form.addBtn')}</Text>
           </Button>
         </View>
       </View>

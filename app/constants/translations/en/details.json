@@ -1,0 +1,68 @@
+{
+  "newProject": "New project",
+  "eventDetails": "Event Details",
+  "tabs": {
+    "dates": "Dates",
+    "clients": "Clients",
+    "com": "COM %"
+  },
+  "footer": {
+    "back": "Back",
+    "creating": "Creating...",
+    "saving": "Saving...",
+    "create": "Create",
+    "save": "Save"
+  },
+  "validation": {
+    "nameRequired": "❌ Event name is required",
+    "successCreated": "✅ Event created successfully!",
+    "successModified": "✅ Event modified successfully!",
+    "errorAction": "❌ Error during event {{action}}",
+    "createAction": "creation",
+    "editAction": "modification"
+  },
+  "form": {
+    "eventName": "Event Name",
+    "receptionDate": "Reception Date",
+    "pax": "Number of people (PAX)",
+    "zone": "Zone / Location",
+    "eventType": "Event Type",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "flexibleDates": "Flexible Dates",
+    "budget": "Budget",
+    "comments": "Comments / Dates",
+    "format": "Format",
+    "client": "Primary Client",
+    "company": "Company",
+    "email": "Email",
+    "phoneFix": "Landline",
+    "phoneMobile": "Mobile Phone",
+    "phone": "Phone",
+    "infos": "Additional Info",
+    "showClientName": "Show client name",
+    "selectClients": "Select clients",
+    "commission": "Commission",
+    "addClients": "Add other clients",
+    "addBtn": "+ Add",
+    "commissionTitle": "Commission Proposal to Providers",
+    "commissionRate": "{{rate}}% excl. tax on the total invoiced amount",
+    "ref": "REF",
+    "flexibility": "Flexibility",
+    "fields": {
+      "selectDate": "Select a date",
+      "enterText": "Enter text",
+      "selectOption": "Select an option",
+      "noFields": "No fields added",
+      "dateField": "DATE field",
+      "textField": "TEXT field",
+      "dynamicField": "DYNAMIC field"
+    }
+  },
+  "autocomplete": {
+    "placeholder": "Select a client",
+    "searchPlaceholder": "Search for a client",
+    "noResults": "No clients found",
+    "close": "Close"
+  }
+}

@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { useApi } from '../context/useApi'
+import { useTranslation } from 'react-i18next'
 import useTheme from './../hooks/useTheme'
 import Button from './Button'
 
@@ -29,6 +30,7 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
   onSelectItem,
   nom,
 }) => {
+  const { t } = useTranslation()
   const { gradients } = useTheme()
   const { getPrestaBy, searchPresta } = useApi()
   const [modalVisible, setModalVisible] = useState(false)
@@ -156,7 +158,7 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
         onPress={() => setModalVisible(true)}
       >
         <Text style={styles.clientName}>
-          {nom ? formatName(nom) : 'selectionner un prestataire'}
+          {nom ? formatName(nom) : t('presta.providers.list.select')}
         </Text>
       </TouchableOpacity>
       <Modal
@@ -174,7 +176,7 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
               <View style={styles.searchContainer}>
                 <Icon name="search" color="#666" size={20} />
                 <TextInput
-                  placeholder="Search for a provider"
+                  placeholder={t('presta.providers.list.searchPlaceholder')}
                   style={styles.searchInput}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -182,7 +184,7 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
               </View>
               {isLoading ? (
                 <Text style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                  Chargement...
+                  {t('presta.providers.list.loading')}
                 </Text>
               ) : (
                 <FlatList
@@ -206,17 +208,17 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
                         <Text
                           style={{ color: '#666', fontSize: 14, marginTop: 2 }}
                         >
-                          departement: {item.fk_departement}
+                          {t('presta.providers.list.details.dept')} {item.fk_departement}
                         </Text>
                         <Text
                           style={{ color: '#666', fontSize: 14, marginTop: 2 }}
                         >
-                          ville: {item.ville}
+                          {t('presta.providers.list.details.city')} {item.ville}
                         </Text>
                         <Text
                           style={{ color: '#666', fontSize: 14, marginTop: 2 }}
                         >
-                          region: {item.region}
+                          {t('presta.providers.list.details.region')} {item.region}
                         </Text>
                       </View>
                     </TouchableOpacity>
@@ -236,11 +238,11 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
                       fontWeight: 'bold',
                     }}
                   >
-                    Prev
+                    {t('presta.providers.modals.prev')}
                   </Text>
                 </Button>
                 <Text>
-                  {currentPage} of {totalPages}
+                  {currentPage} {t('common.of')} {totalPages}
                 </Text>
                 <Button
                   onPress={handleNextPage}
@@ -254,7 +256,7 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
                       fontWeight: 'bold',
                     }}
                   >
-                    Next
+                    {t('presta.providers.modals.next')}
                   </Text>
                 </Button>
               </View>
@@ -262,7 +264,7 @@ const ModalPresta: React.FC<ModalPrestaProps> = ({
                 style={styles.closeButton}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.closeButtonText}>Close</Text>
+                <Text style={styles.closeButtonText}>{t('presta.providers.modals.close')}</Text>
               </TouchableOpacity>
             </>
           </View>

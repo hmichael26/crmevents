@@ -1,0 +1,32 @@
+{
+  "recommended": {
+    "title": "Recommended Settings",
+    "subtitle": "These are the most important settings",
+    "faceid": "Use FaceID to sign in",
+    "autolock": "Auto-Lock security",
+    "notifications": "Notifications",
+    "darkmode": "Dark Mode",
+    "language": "Language"
+  },
+  "payment": {
+    "title": "Payment Settings",
+    "subtitle": "These are the payment settings",
+    "options": "Manage Payment Options",
+    "giftcards": "Manage Gift Cards"
+  },
+  "privacy": {
+    "title": "Privacy Settings",
+    "subtitle": "Third most important settings",
+    "agreement": "User Agreement",
+    "privacy": "Privacy",
+    "about": "About"
+  },
+  "notifications": {
+    "title": "Notifications Settings",
+    "subtitle": "These are the most important settings",
+    "mentions": "Someone mentions me",
+    "follows": "Anyone follows me",
+    "comments": "Someone comments me",
+    "offers": "New Offers"
+  }
+}

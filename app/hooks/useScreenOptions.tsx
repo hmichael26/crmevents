@@ -9,7 +9,7 @@ import { DrawerActions } from "@react-navigation/native";
 import { StackHeaderOptions } from "@react-navigation/stack/lib/typescript/src/types";
 
 import { useData } from "./useData";
-// import {useTranslation} from './useTranslation';
+import { useTranslation } from "react-i18next";
 
 import Image from "../components/Image";
 //import Text from '../components/Text';
@@ -19,7 +19,7 @@ import Block from "../components/Block";
 import { Input } from "../components";
 
 export default () => {
-  // const {t} = useTranslation();
+  const { t } = useTranslation();
   const { user, basket, isDark } = useData();
   const navigation = useNavigation();
   const { icons, colors, gradients, sizes } = useTheme();
@@ -161,7 +161,7 @@ export default () => {
             color: labelColor,
           }}
         >
-          DÉTAILS DU PROJET
+          {children}
         </Text>
       ),
       headerLeft: () => (
@@ -183,7 +183,7 @@ export default () => {
           <Input
             search
             style={{ width: 110, marginHorizontal: 15, fontSize: 13 }}
-            placeholder="REF"
+            placeholder={t('common.ref') || 'REF'}
           ></Input>
           <TouchableOpacity style={{ marginRight: sizes.sm }}>
             <Image source={icons.bell} radius={0} color={colors.icon} />

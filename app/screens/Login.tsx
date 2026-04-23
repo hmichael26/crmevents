@@ -6,35 +6,12 @@ import { useData, useTheme } from '../hooks/'
 import { useForm } from 'react-hook-form'
 import * as regex from '../constants/regex'
 import { Block, Button, Input, Image, Text, Checkbox } from '../components/'
-import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
 import * as Notifications from 'expo-notifications'
 import * as Clipboard from 'expo-clipboard'
 import Constants from 'expo-constants'
 import Toast from 'react-native-toast-message'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-const translations = {
-  en: {
-    translation: {
-      'login.title': 'Login Title',
-    },
-  },
-  fr: {
-    translation: {
-      'login.title': 'Titre de Connexion',
-    },
-  },
-}
-
-i18n.use(initReactI18next).init({
-  resources: translations,
-  lng: 'fr', // langue par défaut
-  fallbackLng: 'fr',
-  compatibilityJSON: 'v3', // Utiliser le format de compatibilité v3
-  interpolation: {
-    escapeValue: false, // React se charge déjà de l'échappement des valeurs
-  },
-})
+import { useTranslation } from 'react-i18next'
 
 const isAndroid = Platform.OS === 'android'
 
@@ -53,6 +30,7 @@ const Login = () => {
   const navigation = useNavigation()
   const { assets, colors, gradients, sizes } = useTheme()
   const { Login, isloading } = useContext(AuthContext)
+  const { t } = useTranslation()
 
   const [loginData, setLoginData] = useState({
     email: '',
@@ -81,7 +59,7 @@ const Login = () => {
   // Gestion de la connexion
   const handleSignIn = useCallback(async () => {
     if (!isValid.email || !isValid.password) {
-      setError('Veuillez remplir tous les champs correctement.')
+      setError(t('login.errorFields'))
       return
     }
 
@@ -90,9 +68,9 @@ const Login = () => {
       // navigation.navigate('Menu') // Redirection après connexion réussie
     } catch (err) {
       // console.log(err)
-      setError('Échec de la connexion. Vérifiez vos identifiants.')
+      setError(t('login.errorFailed'))
     }
-  }, [isValid, loginData, Login, navigation])
+  }, [isValid, loginData, Login, navigation, t])
 
   return (
     <Block safe marginTop={sizes.md}>
@@ -123,7 +101,7 @@ const Login = () => {
             </Block>
 
             <Text h4 center white marginBottom={sizes.md}>
-              Bienvenue sur CrmEvents
+              {t('login.welcome')}
             </Text>
           </Image>
         </Block>
@@ -157,7 +135,7 @@ const Login = () => {
                 }}
                 size={22}
               >
-                Connexion
+                {t('login.formTitle')}
               </Text>
 
               {/* social buttons */}
@@ -207,10 +185,10 @@ const Login = () => {
                 }}
               >
                 <Input
-                  label="Email"
+                  label={t('login.emailLabel')}
                   autoCapitalize="none"
                   keyboardType="email-address"
-                  placeholder="Entrez votre adresse e-mail"
+                  placeholder={t('login.emailPlaceholder')}
                   value={loginData.email}
                   onChangeText={(value) => handleChange({ email: value })}
                   success={Boolean(loginData.email && isValid.email)}
@@ -218,10 +196,10 @@ const Login = () => {
                 />
                 <Input
                   style={{ marginVertical: sizes.sm }}
-                  label="Mot de Passe"
+                  label={t('login.passwordLabel')}
                   secureTextEntry
                   autoCapitalize="none"
-                  placeholder="Entrez votre mot de passe"
+                  placeholder={t('login.passwordPlaceholder')}
                   value={loginData.password}
                   onChangeText={(value) => handleChange({ password: value })}
                   success={Boolean(loginData.password && isValid.password)}
@@ -248,7 +226,7 @@ const Login = () => {
                     }}
                     white
                   >
-                    Se connecter
+                    {t('login.submit')}
                   </Text>
                 )}
               </Button>

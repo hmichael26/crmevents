@@ -1,0 +1,20 @@
+{
+  "title": "CONVERSATION",
+  "with": "CONVERSATION AVEC {{name}}",
+  "loading": "Chargement des messages...",
+  "empty": {
+    "title": "Pas de nouveaux messages",
+    "subtitle": "Commencez à discuter !"
+  },
+  "inputPlaceholder": "Envoyer un message...",
+  "errors": {
+    "load": "Échec du chargement des messages. Veuillez réessayer.",
+    "send": "Échec de l'envoi du message.",
+    "openAttachment": "Impossible d'ouvrir le fichier.",
+    "selectFile": "Impossible de choisir un fichier.",
+    "noFile": "Aucun fichier sélectionné",
+    "localFile": "Ce fichier est local et ne peut pas être ouvert directement."
+  },
+  "advisorFor": "Conseiller pour {{name}}",
+  "adminFor": "Admin - {{name}}"
+}

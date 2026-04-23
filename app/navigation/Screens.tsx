@@ -49,7 +49,7 @@ export default () => {
       <Stack.Screen
         name="Home"
         component={Home}
-        options={{ title: 'ACCUEIL ', ...screenOptions.profile }}
+        options={{ title: t('navigation.home'), ...screenOptions.profile }}
       />
 
       <Stack.Screen
@@ -156,7 +156,7 @@ export default () => {
         name="Eventdetails"
         component={EventDetails}
         options={{
-          title: 'DÉTAILS DU PROJET',
+          title: t('navigation.projectDetails'),
           ...screenOptions.eventDetail,
           headerRight: () => null,
         }}
@@ -165,12 +165,12 @@ export default () => {
       <Stack.Screen
         name="EventPresta"
         component={EventPresta}
-        options={{ title: 'DÉTAILS DU DÉROULÉ', ...screenOptions.eventPresta }}
+        options={{ title: t('navigation.eventSteps'), ...screenOptions.eventPresta }}
       />
       <Stack.Screen
         name="Prestataire"
         component={Prestataire}
-        options={{ title: 'PRESTATAIRES', ...screenOptions.eventPresta }}
+        options={{ title: t('navigation.providers'), ...screenOptions.eventPresta }}
       />
 
       <Stack.Screen
@@ -178,7 +178,7 @@ export default () => {
         component={EventMenu}
         // options={screenOptions.eventMenu}
         options={{
-          title: 'EXPLORATION DU PROJET',
+          title: t('navigation.projectExploration'),
           ...screenOptions.eventMenu,
           headerRight: () => null,
         }}
@@ -188,7 +188,7 @@ export default () => {
         name="Client"
         component={Client}
         options={{
-          title: 'CLIENTS',
+          title: t('navigation.clients'),
           ...screenOptions.eventPresta,
           headerRight: () => null,
         }}

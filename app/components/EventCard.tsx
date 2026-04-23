@@ -1,4 +1,5 @@
 import React, { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import { View, Text, StyleSheet, Image } from 'react-native'
 import { Button } from '../components'
 import { useTheme } from '../hooks'
@@ -9,8 +10,8 @@ interface EventCardProps {
   navigation: any
 }
 
-export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
   const { userdata } = useContext(AuthContext)
+  const { t } = useTranslation()
 
   const { colors, gradients, sizes } = useTheme()
 
@@ -37,7 +38,7 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
             </Button>
             {true && (
               <Button gradient={gradients.info} style={styles.statusButton}>
-                <Text style={styles.statusText}>Event en cours</Text>
+                <Text style={styles.statusText}>{t('home.eventInProgress')}</Text>
               </Button>
             )}
           </View>
@@ -51,7 +52,7 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
               style={styles.consultButton}
               onPress={() => 
                 navigation.navigate('Inbox', {
-                  Receiver: `Conseiller pour ${item.evt}`,
+                  Receiver: t('chat.advisorFor', { name: item.evt }),
                   isForClient: true,
                   chat: {
                     idevt: item.idevt,
@@ -62,7 +63,7 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
                 })
               }
             >
-              <Text style={styles.consultText}>Chat</Text>
+              <Text style={styles.consultText}>{t('chat.title')}</Text>
             </Button>
           </View>
           <View style={styles.infoRow}>
@@ -71,7 +72,7 @@ export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
               style={styles.consultButton}
               onPress={() => navigation.navigate('ClientPresta', { item })}
             >
-              <Text style={styles.consultText}>Consulter</Text>
+              <Text style={styles.consultText}>{t('common.view')}</Text>
             </Button>
           </View>
         </View>

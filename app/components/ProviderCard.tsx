@@ -12,6 +12,7 @@ import { useApi } from '../context/useApi'
 import { useTheme } from '../hooks'
 import Button from './Button'
 import SelectionModal from './SelectionModal'
+import { useTranslation } from 'react-i18next'
 import { Colors } from '../constants/Colors'
 import { AuthContext } from '../context/AuthContext'
 
@@ -24,6 +25,7 @@ export const ProviderCard = ({
   isSelected,
   disabled = false, // Nouvelle prop pour désactiver la carte
 }) => {
+  const { t } = useTranslation()
   const { userdata } = useContext(AuthContext)
   const admin = userdata?.user?.admin
 
@@ -67,8 +69,8 @@ export const ProviderCard = ({
         setEditedProvider(provider)
 
         Alert.alert(
-          'Erreur',
-          'Impossible de modifier le prestataire. Les modifications ont été annulées.',
+          t('presta.quotes.error'),
+          t('presta.search.errors.modify'),
         )
       } finally {
         setIsLoading(false)
@@ -84,22 +86,22 @@ export const ProviderCard = ({
   // 🗑️ HANDLE DELETE CORRIGÉ
   const handleDelete = useCallback(async () => {
     if (!provider.id) {
-      Alert.alert('Erreur', 'ID du prestataire manquant')
+      Alert.alert(t('presta.quotes.error'), t('presta.card.errorMissingId'))
       return
     }
 
     console.log('🗑️ Demande de suppression prestataire:', provider.id)
 
     Alert.alert(
-      'Confirmer la suppression',
-      `Êtes-vous sûr de vouloir supprimer "${provider.nom}" ?`,
+      t('presta.search.confirmDelete.title'),
+      t('presta.search.confirmDelete.message'),
       [
         {
-          text: 'Annuler',
+          text: t('presta.search.confirmDelete.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Supprimer',
+          text: t('presta.search.confirmDelete.delete'),
           style: 'destructive',
           onPress: async () => {
             setIsLoading(true)
@@ -121,7 +123,7 @@ export const ProviderCard = ({
                 '🔴 Erreur lors de la suppression prestataire:',
                 error,
               )
-              Alert.alert('Erreur', 'Impossible de supprimer le prestataire')
+              Alert.alert(t('presta.quotes.error'), t('presta.search.errors.delete'))
             } finally {
               setIsLoading(false)
             }
@@ -220,7 +222,7 @@ export const ProviderCard = ({
                   isDisabled && styles.disabledText,
                 ]}
               >
-                Sélectionner
+                {t('presta.card.select')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -248,14 +250,14 @@ export const ProviderCard = ({
       {/* Mode édition */}
       {isEditing ? (
         <View style={styles.editContainer}>
-          {renderEditableField('nom', 'Nom')}
-          {renderEditableField('tel', 'Téléphone')}
-          {renderEditableField('email1', 'Email')}
-          {renderEditableField('nb_salle', 'Nombre de salles')}
-          {renderEditableField('nb_chbre', 'Nombre de chambres')}
-          {renderEditableField('fk_departement', 'Département')}
-          {renderEditableField('fk_ville', 'Ville')}
-          {renderEditableField('fk_region', 'Région')}
+          {renderEditableField('nom', t('presta.search.card.fields.name'))}
+          {renderEditableField('tel', t('presta.search.card.fields.phone'))}
+          {renderEditableField('email1', t('presta.search.card.fields.email'))}
+          {renderEditableField('nb_salle', t('presta.search.card.fields.rooms'))}
+          {renderEditableField('nb_chbre', t('presta.search.card.fields.bedrooms'))}
+          {renderEditableField('fk_departement', t('presta.search.card.fields.dept'))}
+          {renderEditableField('fk_ville', t('presta.search.card.fields.city'))}
+          {renderEditableField('fk_region', t('presta.search.card.fields.region'))}
         </View>
       ) : (
         /* Mode affichage */
@@ -279,13 +281,13 @@ export const ProviderCard = ({
             {provider.nb_salle && (
               <View style={styles.tag}>
                 <Text style={styles.tagText}>
-                  🏢 {provider.nb_salle} salles
+                  🏢 {provider.nb_salle} {t('presta.card.rooms')}
                 </Text>
               </View>
             )}
             {provider.nb_chbre && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>🛏️ {provider.nb_chbre} ch.</Text>
+                <Text style={styles.tagText}>🛏️ {provider.nb_chbre} {t('presta.card.bedrooms')}</Text>
               </View>
             )}
           </View>
@@ -324,7 +326,7 @@ export const ProviderCard = ({
             <ActivityIndicator color="white" size="small" />
           ) : (
             <Text style={styles.actionButtonText}>
-              {isEditing ? 'Enregistrer' : 'Modifier'}
+              {isEditing ? t('presta.card.save') : t('presta.card.modify')}
             </Text>
           )}
         </Button>
@@ -342,7 +344,7 @@ export const ProviderCard = ({
             }}
             disabled={isDisabled}
           >
-            <Text style={styles.actionButtonText}>Annuler</Text>
+            <Text style={styles.actionButtonText}>{t('presta.card.cancel')}</Text>
           </Button>
         )}
 
@@ -358,7 +360,7 @@ export const ProviderCard = ({
             {isLoading ? (
               <ActivityIndicator color="white" size="small" />
             ) : (
-              <Text style={styles.actionButtonText}>Supprimer</Text>
+              <Text style={styles.actionButtonText}>{t('presta.card.delete')}</Text>
             )}
           </Button>
         )}
@@ -377,7 +379,7 @@ export const ProviderCard = ({
             disabled={isDisabled}
           >
             <Text style={styles.actionButtonText}>
-              {isSelected(provider.id) ? 'Désélectionner' : 'Sélectionner'}
+              {isSelected(provider.id) ? t('presta.card.deselect') : t('presta.card.select')}
             </Text>
           </Button>
         )}

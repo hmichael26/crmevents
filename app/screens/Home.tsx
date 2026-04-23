@@ -56,51 +56,55 @@ const Home = (props: DrawerContentComponentProps) => {
   const [keyword, setKeyword] = useState('')
   const [InputValue, setInputValue] = useState('')
   const [filteredEvents, setFilteredEvents] = useState([])
-  const [categories, setCategories] = useState<any>([
-    {
-      id: 5,
-      label: 'Nouveau',
-      value: 'Nouveau',
-      color: '#03a9f5',
-      name: 'Nouveau Projet',
-    },
-    {
-      id: 7,
-      label: 'A valider',
-      value: 'a_valider',
-      color: '#404fe9',
-      name: 'Devis à Valider',
-    },
-    {
-      id: 1,
-      label: 'A affiner',
-      value: 'a_affiner',
-      color: '#4f37da',
-      name: 'Recherche à Affiner',
-    },
-    {
-      id: 3,
-      label: 'Envoyé',
-      value: 'Envoyer',
-      color: '#690ec2',
-      name: 'Devis Envoyé',
-    },
-    { id: 4, label: 'Hot', value: 'Hot', color: '#f025b6', name: 'HOT' },
-    {
-      id: 6,
-      label: 'Gagnés',
-      value: 'Conclu',
-      color: 'green',
-      name: ' Projets Gagnés',
-    },
-    {
-      id: 8,
-      label: 'Perdus',
-      value: 'Perdu',
-      color: '#f025b6',
-      name: 'Projets Perdus',
-    },
-  ])
+  const [categories, setCategories] = useState<any>([])
+
+  useEffect(() => {
+    setCategories([
+      {
+        id: 5,
+        label: t('home.categories.new'),
+        value: 'Nouveau',
+        color: '#03a9f5',
+        name: t('home.categories.new'),
+      },
+      {
+        id: 7,
+        label: t('home.categories.toValidate'),
+        value: 'a_valider',
+        color: '#404fe9',
+        name: t('home.categories.toValidate'),
+      },
+      {
+        id: 1,
+        label: t('home.categories.toRefine'),
+        value: 'a_affiner',
+        color: '#4f37da',
+        name: t('home.categories.toRefine'),
+      },
+      {
+        id: 3,
+        label: t('home.categories.sent'),
+        value: 'Envoyer',
+        color: '#690ec2',
+        name: t('home.categories.sent'),
+      },
+      { id: 4, label: t('home.categories.hot'), value: 'Hot', color: '#f025b6', name: t('home.categories.hot') },
+      {
+        id: 6,
+        label: t('home.categories.won'),
+        value: 'Conclu',
+        color: 'green',
+        name: t('home.categories.won'),
+      },
+      {
+        id: 8,
+        label: t('home.categories.lost'),
+        value: 'Perdu',
+        color: '#f025b6',
+        name: t('home.categories.lost'),
+      },
+    ])
+  }, [t, i18n.language])
 
   const [active, setActive] = useState('')
 
@@ -176,9 +180,9 @@ const Home = (props: DrawerContentComponentProps) => {
         stopLoading()
 
         Alert.alert(
-          'Erreur',
-          'Impossible de récupérer les données. Veuillez réessayer.',
-          [{ text: 'OK' }],
+          t('common.confirmation'),
+          t('home.errors.fetch'),
+          [{ text: t('common.ok') }],
         )
       } finally {
         // 🔧 FIX 7: Nettoyage robuste
@@ -259,15 +263,15 @@ const Home = (props: DrawerContentComponentProps) => {
 
   const goToEvtsScreen = (item: any) => {
     Alert.alert(
-      'Confirmation',
-      'Souhaitez-vous ouvrir ce projet ? ',
+      t('common.confirmation'),
+      t('common.openProjectQuestion'),
       [
         {
-          text: 'Annuler',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'OK',
+          text: t('common.ok'),
           onPress: () => {
             const isActive = active === 'EventMenu'
             handleNavigation('EventMenu', item)
@@ -302,7 +306,7 @@ const Home = (props: DrawerContentComponentProps) => {
     tintColor: colors.primary,
     // Options spécifiques iOS
     ...(Platform.OS === 'ios' && {
-      title: 'Actualisation...',
+      title: t('home.refreshing'),
       titleColor: colors.primary,
     }),
   }
@@ -335,7 +339,7 @@ const Home = (props: DrawerContentComponentProps) => {
             backgroundColor: '#fff',
           }}
         >
-          <Text size={16}>Aucun projet à afficher</Text>
+          <Text size={16}>{t('home.noProjects')}</Text>
         </View>
       )
     }
@@ -349,7 +353,7 @@ const Home = (props: DrawerContentComponentProps) => {
           search
           value={InputValue}
           onChange={handleTextChange}
-          placeholder={'Nom de projet'}
+          placeholder={t('home.searchPlaceholder')}
         />
       </Block>
 
@@ -438,7 +442,7 @@ const Home = (props: DrawerContentComponentProps) => {
                           fontSize: 13,
                         }}
                       >
-                        Ref :
+                        {t('home.refLabel')}
                         <TextField
                           style={{
                             fontSize: 13,

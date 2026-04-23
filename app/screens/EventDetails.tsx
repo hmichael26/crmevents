@@ -41,6 +41,7 @@ import { RouteProp, useNavigation } from '@react-navigation/native'
 import { AuthContext } from '../context/AuthContext'
 import { useToast } from '../components/ToastComponent'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { useTranslation } from 'react-i18next'
 
 type RootStackParamList = {
   EventDetails: { item?: ItemType } // item devient optionnel
@@ -129,6 +130,7 @@ const fontScale = PixelRatio.getFontScale()
 
 const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   const [isSaving, setIsSaving] = useState(false)
+  const { t } = useTranslation()
 
   const { userdata, validForm, getUserData } = useContext(AuthContext)
   const { showToast, ToastComponent } = useToast()
@@ -141,7 +143,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
   // Déterminer si on est en mode création ou édition
   const isCreatingNew = !item || !item.idevt
 
-  const eventRef = item?.ref || 'Nouveau'
+  const eventRef = item?.ref || t('details.newProject')
 
   // console.log('Item:', item)
   // console.log('Mode création:', isCreatingNew)
@@ -407,7 +409,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
 
       // Validation : le nom est obligatoire en mode création
       if (isCreatingNew && (!formData.evt || formData.evt.trim() === '')) {
-        showToast("❌ Le nom de l'événement est obligatoire", 'error')
+        showToast(t('details.validation.nameRequired'), 'error')
         return
       }
 
@@ -423,8 +425,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
       const response = await validForm(formDataObj)
 
       // Affichage du toast de succès seulement après validation réussie
-      const actionText = isCreatingNew ? 'créé' : 'modifié'
-      showToast(`✅ Événement ${actionText} avec succès !`, 'success')
+      const successMessage = isCreatingNew 
+        ? t('details.validation.successCreated') 
+        : t('details.validation.successModified')
+      showToast(successMessage, 'success')
 
       //   console.log(response.idevt)
 
@@ -439,8 +443,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
         })
       }
     } catch (error) {
-      const actionText = isCreatingNew ? 'création' : 'modification'
-      showToast(`❌ Erreur lors de la ${actionText} de l'événement`, 'error')
+      const actionKey = isCreatingNew ? 'createAction' : 'editAction'
+      showToast(t('details.validation.errorAction', { action: t(`details.validation.${actionKey}`) }), 'error')
       console.error('Erreur sauvegarde:', error)
     } finally {
       setIsSaving(false)
@@ -504,8 +508,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
           <Button gradient={gradients.primary} marginBottom={sizes.base}>
             <Text white transform="uppercase" size={18}>
               {isCreatingNew
-                ? 'Nouveau projet'
-                : `Détails de l'Event ${eventRef}`}
+                ? t('details.newProject')
+                : `${t('details.eventDetails')} ${eventRef}`}
             </Text>
           </Button>
 
@@ -528,7 +532,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
               onPress={() => setStep('date')}
             >
               <Text white transform="uppercase" size={15}>
-                Dates
+                {t('details.tabs.dates')}
               </Text>
             </Button>
             <Button
@@ -540,7 +544,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
               onPress={() => setStep('clients')}
             >
               <Text white transform="uppercase" size={15}>
-                Clients
+                {t('details.tabs.clients')}
               </Text>
             </Button>
             <Button
@@ -552,7 +556,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
               onPress={() => setStep('com')}
             >
               <Text white transform="uppercase" size={15}>
-                COM %
+                {t('details.tabs.com')}
               </Text>
             </Button>
           </View>
@@ -598,8 +602,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
               round={false}
               onPress={() => navigation.goBack()}
             >
-              <Text white transform="uppercase" size={getFontSize(13)}>
-                Retour
+              <Text white transform="uppercase" size={13}>
+                {t('details.footer.back')}
               </Text>
             </Button>
             <Button
@@ -623,14 +627,14 @@ const EventDetails: React.FC<EventDetailsProps> = ({ route }) => {
                     style={{ marginRight: 8 }}
                   />
                 )}
-                <Text white transform="uppercase" size={getFontSize(13)}>
+                <Text white transform="uppercase" size={13}>
                   {isSaving
                     ? isCreatingNew
-                      ? 'Création...'
-                      : 'Sauvegarde...'
+                      ? t('details.footer.creating')
+                      : t('details.footer.saving')
                     : isCreatingNew
-                    ? 'Créer'
-                    : 'Sauvegarder'}
+                    ? t('details.footer.create')
+                    : t('details.footer.save')}
                 </Text>
               </View>
             </Button>

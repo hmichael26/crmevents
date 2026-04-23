@@ -16,6 +16,7 @@ import SelectOption from './SelectOption'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { CustomDatePicker } from './CustomDatePicker'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { useTranslation } from 'react-i18next'
 
 const { height } = Dimensions.get('window')
 const FIELD_HEIGHT = 50
@@ -29,6 +30,7 @@ interface DateFieldProps {
 const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
   const [isPickerVisible, setPickerVisible] = useState(false)
   const { colors } = useTheme()
+  const { t } = useTranslation()
 
   const handleDateConfirm = (dateStr: string) => {
     onDateChange(dateStr) // ✅ Directement la string
@@ -41,7 +43,7 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
         onPress={() => setPickerVisible(true)}
       >
         <Text style={styles.datePickerText}>
-          {date || 'Sélectionner une date'}
+          {date || t('details.fields.selectDate')}
         </Text>
         <Icon name="calendar-outline" size={20} color={colors.primary} />
       </TouchableOpacity>
@@ -51,7 +53,7 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
         onClose={() => setPickerVisible(false)}
         onConfirm={handleDateConfirm}
         initialDate={date} // ✅ Passer la string directement
-        title="Sélectionner une date"
+        title={t('details.fields.selectDate')}
         minDate={new Date(2000, 0, 1)}
         maxDate={new Date(2030, 11, 31)}
       />
@@ -153,6 +155,7 @@ const getTodayFormatted = (): string => {
 const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
   const { userdata } = useContext(AuthContext)
   const { gradients, colors } = useTheme()
+  const { t } = useTranslation()
 
   const determineFieldType = (fieldItem: any): FieldType => {
     if (
@@ -294,7 +297,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               style={styles.textInput}
               value={field.value}
               onChangeText={(newText: string) => updateField(index, newText)}
-              placeholder="Entrer du texte"
+              placeholder={t('details.fields.enterText')}
               placeholderTextColor="#999"
             />
           </View>
@@ -317,7 +320,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
                 onSelectionChange={(selectedLibelle) =>
                   updateField(index, selectedLibelle)
                 }
-                placeholder="Sélectionnez une option"
+                placeholder={t('details.fields.selectOption')}
               />
             </View>
           </View>
@@ -330,7 +333,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
       {(!item || item.length === 0 || fields.length === 0) && (
         <View style={styles.fieldContainer}>
           <Text style={[styles.loadingText, { color: colors.danger }]}>
-            Aucun champ ajouté
+            {t('details.fields.noFields')}
           </Text>
         </View>
       )}
@@ -350,7 +353,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         >
           <View style={styles.buttonContent}>
             <Text style={[styles.buttonText, styles.centerText]}>
-              Champ DATE
+              {t('details.fields.dateField')}
             </Text>
             <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>
@@ -363,7 +366,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         >
           <View style={styles.buttonContent}>
             <Text style={[styles.buttonText, styles.centerText]}>
-              Champ TEXT
+              {t('details.fields.textField')}
             </Text>
             <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>
@@ -376,7 +379,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         >
           <View style={styles.buttonContent}>
             <Text style={[styles.buttonText, styles.centerText]}>
-              Champ DYNAMIQUE
+              {t('details.fields.dynamicField')}
             </Text>
             <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>

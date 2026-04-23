@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Modal,
   View,
@@ -39,6 +40,7 @@ const DeroulesModal: React.FC<DeroulesModalProps> = ({
   onAssign,
 }) => {
   const { colors, sizes } = useTheme()
+  const { t } = useTranslation()
   const { getProjetcs } = useApi()
   const { userdata } = useContext(AuthContext)
 
@@ -144,11 +146,11 @@ const DeroulesModal: React.FC<DeroulesModalProps> = ({
           {item.evt}
         </Text>
         {!hasArrderoules && (
-          <Text style={styles.warningText}>Aucun déroulé disponible</Text>
+          <Text style={styles.warningText}>{t('common.noDeroule')}</Text>
         )}
         {hasArrderoules && (
           <Text style={styles.countText}>
-            {item.arrderoules.length} déroulé(s)
+            {t('common.derouleCount', { count: item.arrderoules.length })}
           </Text>
         )}
       </TouchableOpacity>
@@ -168,7 +170,7 @@ const DeroulesModal: React.FC<DeroulesModalProps> = ({
         }}
       >
         <Text style={styles.title}>{item.titre_deroule}</Text>
-        <Text style={styles.subtitle}>Numéro: {item.numero_deroule}</Text>
+        <Text style={styles.subtitle}>{t('common.number')}: {item.numero_deroule}</Text>
       </TouchableOpacity>
     )
   }
@@ -179,20 +181,20 @@ const DeroulesModal: React.FC<DeroulesModalProps> = ({
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>
             {selectedArrDeroule
-              ? 'Sélectionner un déroulé'
-              : 'Sélectionner un projet'}
+              ? t('common.selectDeroule')
+              : t('common.selectProject')}
           </Text>
 
           {isLoadingData ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={colors.primary} />
-              <Text style={styles.loadingText}>Chargement des données...</Text>
+              <Text style={styles.loadingText}>{t('common.loading')}</Text>
             </View>
           ) : (
             <>
               <TextInput
                 style={styles.searchInput}
-                placeholder="Rechercher..."
+                placeholder={t('common.searchPlaceholder')}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
@@ -213,7 +215,7 @@ const DeroulesModal: React.FC<DeroulesModalProps> = ({
                   ListEmptyComponent={() => (
                     <View style={styles.emptyState}>
                       <Text style={styles.emptyStateText}>
-                        Aucun déroulé disponible pour cet événement
+                        {t('common.noDeroule')}
                       </Text>
                     </View>
                   )}
@@ -233,7 +235,7 @@ const DeroulesModal: React.FC<DeroulesModalProps> = ({
                   {isLoading ? (
                     <ActivityIndicator color={colors.white} />
                   ) : (
-                    <Text style={styles.assignButtonText}>Assigner</Text>
+                    <Text style={styles.assignButtonText}>{t('common.assign')}</Text>
                   )}
                 </Button>
               )}
@@ -242,7 +244,7 @@ const DeroulesModal: React.FC<DeroulesModalProps> = ({
 
           <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
             <Text style={styles.closeButtonText}>
-              {selectedArrDeroule ? 'Retour' : 'Fermer'}
+              {selectedArrDeroule ? t('common.back') : t('common.close')}
             </Text>
           </TouchableOpacity>
         </View>

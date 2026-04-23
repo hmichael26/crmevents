@@ -8,6 +8,7 @@ import {
   TextInput,
   FlatList
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -34,6 +35,7 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
   onDeleteClient,
   initialClient
 }) => {
+  const { t } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClient, setSelectedClient] = useState<Client | null>(
@@ -109,7 +111,7 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
 
 
         <Text style={styles.clientName}>
-          {(selectedClient && selectedClient.nom != "") ? selectedClient.nom : 'Sélectionner un client'}
+          {(selectedClient && selectedClient.nom != "") ? selectedClient.nom : t('details.autocomplete.placeholder')}
         </Text>
 
 
@@ -127,7 +129,7 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
               <Icon name="search" color="#666" size={20} />
 
               <TextInput
-                placeholder="Rechercher un client"
+                placeholder={t('details.autocomplete.searchPlaceholder')}
                 style={styles.searchInput}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
@@ -141,7 +143,7 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
               ListEmptyComponent={() => (
                 <View style={styles.emptyContainer}>
                   <Text style={styles.emptyText}>
-                    Aucun client trouvé
+                    {t('details.autocomplete.noResults')}
                   </Text>
                 </View>
               )}
@@ -151,7 +153,7 @@ const ClientAutocomplete: React.FC<ClientAutocompleteProps> = ({
               style={styles.closeButton}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={styles.closeButtonText}>Fermer</Text>
+              <Text style={styles.closeButtonText}>{t('details.autocomplete.close')}</Text>
             </TouchableOpacity>
           </View>
         </View>

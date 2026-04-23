@@ -1,0 +1,22 @@
+{
+  "title": "Home",
+  "following": "Following",
+  "trending": "Trending",
+  "searchPlaceholder": "Project name",
+  "refLabel": "Ref:",
+  "noProjects": "No projects to display",
+  "categories": {
+    "new": "New Project",
+    "toValidate": "Quote to validate",
+    "toRefine": "Search to refine",
+    "sent": "Quote Sent",
+    "hot": "HOT",
+    "won": "Projects Won",
+    "lost": "Projects Lost"
+  },
+  "refreshing": "Refreshing...",
+  "errors": {
+    "fetch": "Impossible to retrieve data. Please try again."
+  },
+  "eventInProgress": "Event in progress"
+}

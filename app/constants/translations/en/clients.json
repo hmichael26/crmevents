@@ -1,0 +1,57 @@
+{
+  "title": "CLIENTS",
+  "searchPlaceholder": "Client name (min. 2 chars)",
+  "search": "Search",
+  "results": {
+    "label": "Search result: ",
+    "found": "clients found"
+  },
+  "clientsCount": " clients.",
+  "selectedCount": " clients selected.",
+  "validate": "Validate",
+  "loading": {
+    "searching": "Searching...",
+    "updating": "Updating...",
+    "longWait": "The request is taking longer than expected... Please wait.",
+    "more": "Loading next clients...",
+    "refreshing": "Refreshing data...",
+    "success": "Data refreshed successfully"
+  },
+  "empty": {
+    "noResults": "No clients found for \"{{query}}\".",
+    "retry": "Retry"
+  },
+  "alerts": {
+    "minChars": "Please enter at least 2 characters for searching.",
+    "deleteConfirm": "Are you sure you want to delete this client?",
+    "deleteSuccess": "Client deleted successfully",
+    "modifySuccess": "Client modified successfully",
+    "errorSearch": "Error while searching for clients",
+    "errorUpdate": "Unable to modify client",
+    "errorDelete": "Unable to delete client",
+    "errorRefresh": "Unable to refresh data"
+  },
+  "card": {
+    "editTitle": "Modify Client",
+    "noName": "Client without name",
+    "createdOn": "Created on {{date}}",
+    "admin": "Administrator",
+    "save": "Save",
+    "modify": "Modify",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "select": "Select",
+    "selected": "✓ Selected",
+    "form": {
+      "name": "Client name",
+      "phone": "Phone",
+      "website": "Website / Info"
+    },
+    "alerts": {
+      "timeout": "Operation {{type}} took too long",
+      "error": "Error during {{type}}",
+      "deleteTitle": "Delete Client",
+      "deleteConfirm": "Are you sure you want to delete client \"{{name}}\" ?"
+    }
+  }
+}

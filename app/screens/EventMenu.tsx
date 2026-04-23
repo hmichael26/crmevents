@@ -16,6 +16,8 @@ import * as SecureStore from 'expo-secure-store'
 import StatusDropdown from '../components/StatusDrop'
 import { useToast } from '../components/ToastComponent'
 
+import { useTranslation } from 'react-i18next'
+
 type RootStackParamList = {
   EventMenu: { item: ItemType }
   Eventdetails: { item: ItemType }
@@ -49,6 +51,7 @@ interface ButtonsProps {
 
 const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
   const { showToast, ToastComponent } = useToast()
+  const { t } = useTranslation()
 
   const storedToken = async () => {
     try {
@@ -125,15 +128,15 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 
   const goToEvtsScreen = () => {
     Alert.alert(
-      'Confirmation',
-      'Souhaitez-vous ouvrir ce projet ?',
+      t('common.confirmation'),
+      t('common.openProjectQuestion'),
       [
         {
-          text: 'Annuler',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'OK',
+          text: t('common.ok'),
           onPress: () => handleNavigation('Eventdetails', data), // Utilisez `data` au lieu de `item`
         },
       ],
@@ -164,7 +167,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
     return (
       <View style={{ marginBottom: 10 }}>
         <Text2 style={{ color: 'red', fontSize: 20, textAlign: 'center' }}>
-          chargement ...
+          {t('common.loading')}
         </Text2>
       </View>
     )
@@ -180,7 +183,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
           onPress={() => handlepush()}
         >
           <Text white bold transform="uppercase">
-            Detail de l'Evenement
+            {t('menu.eventDetail')}
           </Text>
         </Button>
 
@@ -191,11 +194,11 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
             onStatusChange={(newStatus, apiResponse) => {
               if (apiResponse?.code == 'SUCCESS') {
                 showToast(
-                  '✅ Statut mis à jour vers: ' + newStatus.label,
+                  t('menu.statusUpdateSuccess', { status: newStatus.label }),
                   'success',
                 )
               } else {
-                showToast('❌ Erreur lors de la mise à jour du statut', 'error')
+                showToast(t('menu.statusUpdateError'), 'error')
               }
             }}
           />
@@ -228,7 +231,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
             }
           >
             <Text bold transform="uppercase">
-              + Ajouter un Deroule
+              {t('menu.addSchedule')}
             </Text>
           </Button>
         )}
@@ -238,6 +241,7 @@ const Buttons: React.FC<ButtonsProps> = ({ item, navigation }) => {
 }
 
 const EventMenu: React.FC<EventMenuProps> = ({ route }) => {
+  const { t } = useTranslation()
   const { item } = route.params
   // console.log(item)
   const { sizes } = useTheme()
@@ -269,7 +273,7 @@ const EventMenu: React.FC<EventMenuProps> = ({ route }) => {
               transform="uppercase"
               style={{ flex: 1, justifyContent: 'center', flexWrap: 'wrap' }}
             >
-              {item?.evt}
+              {item?.evt ? item.evt.replace(/\sAU\s/g, ` ${t('menu.to')} `) : ''}
             </Text>
             <Buttons item={item} navigation={navigation} />
           </Block>

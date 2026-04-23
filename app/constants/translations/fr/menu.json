@@ -1,0 +1,12 @@
+{
+  "started": "Mise en route",
+  "documentation": "Documentation",
+  "eventDetail": "DÉTAIL DE L'EVENEMENT",
+  "status": "STATUT :",
+  "venues": "LIEUX DISPO",
+  "activities": "ACTIVITÉS",
+  "addSchedule": "+ AJOUTER UN DEROULE",
+  "to": "AU",
+  "statusUpdateSuccess": "✅ Statut mis à jour vers: {{status}}",
+  "statusUpdateError": "❌ Erreur lors de la mise à jour du statut"
+}

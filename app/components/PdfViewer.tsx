@@ -3,11 +3,13 @@
 
 import React, { useState } from 'react';
 import { StyleSheet, View, Button, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { WebView } from 'react-native-webview';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 
 const PdfViewer = ({ url }) => {
+    const { t } = useTranslation();
     const [pdfUri, setPdfUri] = useState(url || null);
 
     const pickDocument = async () => {
@@ -69,7 +71,7 @@ const PdfViewer = ({ url }) => {
     return (
         <View style={styles.container}>
             <Button
-                title="Sélectionner un PDF"
+                title={t('common.selectPdf')}
                 onPress={pickDocument}
                 style={styles.button}
             />

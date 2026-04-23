@@ -37,6 +37,7 @@ import { useApi } from '../context/useApi'
 import DevisInterface from './DevisInterface'
 import Dropdown from './Dropdown'
 import { useToast } from './ToastComponent'
+import { useTranslation } from 'react-i18next'
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
@@ -47,6 +48,12 @@ const options = [
   { id: '1', label: 'OUI' },
   { id: '2', label: 'NON' },
   { id: '3', label: 'SUPPRIMER' },
+]
+
+const getOptions = (t) => [
+  { id: '1', label: t('labels.yes') },
+  { id: '2', label: t('labels.no') },
+  { id: '3', label: t('labels.delete') },
 ]
 
 const { width, height } = Dimensions.get('window')
@@ -72,6 +79,7 @@ const isLargeScreen = width >= 400
 // ===========================
 const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
   const { showToast, ToastComponent } = useToast()
+  const { t } = useTranslation()
   // ===========================
   // HOOKS & API
   // ===========================
@@ -216,22 +224,26 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
       })
     }
   }
-  const handleOptionSelect = async (option, type) => {
+  const handleOptionSelect = async (selectedItem, type) => {
+    const actionId = selectedItem.id // '1', '2', '3'
+    const actionValue =
+      actionId === '1' ? 'oui' : actionId === '2' ? 'non' : 'supprimer'
+
     if (type === 1) {
-      if (option === 'SUPPRIMER') {
+      if (actionId === '3') {
         validateForm(1)
       } else {
-        setSelectedOption(option)
+        setSelectedOption(selectedItem.label)
       }
     } else {
-      if (option === 'SUPPRIMER') {
+      if (actionId === '3') {
         validateForm(2)
       } else {
         await validbrochure({
           id_presta: activeBadgeData.id_presta,
-          valid: option.toLowerCase(),
+          valid: actionValue,
         })
-        setSelectedOption2(option)
+        setSelectedOption2(selectedItem.label)
       }
     }
   }
@@ -352,10 +364,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uriToOpen)
       } else {
-        showToast("❌ Impossible d'ouvrir le PDF", 'error')
+        showToast(t('presta.toasts.errorLoading'), 'error')
       }
     } catch (error) {
-      showToast("❌ Erreur lors de l'ouverture du PDF", 'error')
+      showToast(t('presta.toasts.errorLoading'), 'error')
     }
   }
 
@@ -381,10 +393,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
         id_deroule: item?.id_deroule,
         id_presta: activeBadgeData?.id_presta,
       })
-      showToast('✅ Badge supprimé avec succès !', 'success')
+      showToast(t('presta.toasts.successDeleted'), 'success')
     } catch (error) {
       console.error('ERREUR LORS DE LA SUPPRESSION DU BADGE :', error)
-      showToast('❌ Erreur lors de la suppression du badge', 'error')
+      showToast(t('presta.toasts.errorDeleted'), 'error')
     } finally {
       setIsLoading(false)
     }
@@ -426,7 +438,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
           id_evt: idevt,
         })
 
-        showToast('✅ Demande envoyée avec succès !', 'success')
+        showToast(t('presta.toasts.successSent'), 'success')
 
         onRefresh()
       } else {
@@ -435,12 +447,12 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
           id_presta: activeBadgeData?.id_presta,
           id_evt: idevt,
         })
-        showToast('✅ Demande envoyée avec succès !', 'success')
+        showToast(t('presta.toasts.successSent'), 'success')
         onRefresh()
       }
     } catch (error) {
       console.error('Erreur lors de la demande:', error)
-      showToast('❌ Erreur lors de la demande', 'error')
+      showToast(t('presta.toasts.errorSent'), 'error')
     }
   }
 
@@ -481,7 +493,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
     return (
       <View style={styles.errorContainer}>
         <TextBlock style={styles.errorText}>
-          AUCUN PRESTATAIRE ASSOCIÉ À CE DÉROULÉ
+          {t('presta.providers.list.empty')}
         </TextBlock>
       </View>
     )
@@ -490,7 +502,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
   if (badges.length === 0) {
     return (
       <View style={styles.errorContainer}>
-        <TextBlock style={styles.errorText}>CHARGEMENT ...</TextBlock>
+        <TextBlock style={styles.errorText}>{t('presta.providers.list.loading')}</TextBlock>
       </View>
     )
   }
@@ -546,7 +558,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
           onClose={() => setModalVisible2(false)}
           onConfirm={confirmDeleteBadge}
           onCancel={() => setModalVisible2(false)}
-          message="SUPPRIMER CE PRESTATAIRE ?"
+          message={t('presta.providers.modals.confirmDelete')}
         />
 
         {/* Contenu principal quand un badge est actif */}
@@ -567,14 +579,14 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     size={getFontSize(isSmallScreen ? 11 : 13)}
                     style={styles.buttonText}
                   >
-                    ENVOYER
+                    {t('presta.providers.actions.send')}
                   </Text>
                   <Text
                     white
                     size={getFontSize(isSmallScreen ? 11 : 13)}
                     style={styles.buttonText}
                   >
-                    DEMANDE
+                    {t('presta.providers.actions.demand')}
                   </Text>
                 </Button>
                 <Button flex={1} style={styles.infoBox}>
@@ -583,7 +595,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     size={getFontSize(isSmallScreen ? 10 : 11)}
                     style={styles.infoTitle}
                   >
-                    DEMANDE ENVOYÉE
+                    {t('presta.providers.actions.demandSent')}
                   </Text>
                   <Text
                     color={colors.primary}
@@ -594,10 +606,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     activeBadgeData.date_demande_envoye !=
                       '0000-00-00 00:00:00' &&
                     activeBadgeData.date_demande_envoye != '0000-00-00'
-                      ? new Date(
+                        ? new Date(
                           activeBadgeData.date_demande_envoye,
                         ).toLocaleDateString()
-                      : 'Aucun demande envoyée'}
+                      : t('presta.providers.actions.noDemand')}
                   </Text>
                 </Button>
               </View>
@@ -616,14 +628,14 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     transform="uppercase"
                     size={getFontSize(isSmallScreen ? 11 : 13)}
                   >
-                    INSÉRER
+                    {t('presta.providers.actions.insert')}
                   </Text>
                   <Text
                     white
                     size={getFontSize(isSmallScreen ? 11 : 13)}
                     style={styles.buttonText}
                   >
-                    DEVIS
+                    {t('presta.providers.actions.quote')}
                   </Text>
                 </Button>
                 <Button flex={1} style={styles.infoBox}>
@@ -632,7 +644,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     size={getFontSize(isSmallScreen ? 11 : 12)}
                     style={styles.infoTitle}
                   >
-                    DEVIS REÇU LE
+                    {t('presta.providers.actions.quoteReceived')}
                   </Text>
                   <Text
                     color={colors.primary}
@@ -642,10 +654,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     {activeBadgeData?.date_devis_recu &&
                     activeBadgeData.date_devis_recu !== '0000-00-00 00:00:00' &&
                     activeBadgeData.date_devis_recu !== '0000-00-00'
-                      ? new Date(
+                        ? new Date(
                           activeBadgeData.date_devis_recu,
                         ).toLocaleDateString()
-                      : 'Aucun devis recu'}
+                      : t('presta.providers.actions.noQuote')}
                   </Text>
                 </Button>
               </View>
@@ -679,24 +691,24 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                             size={getFontSize(isSmallScreen ? 11 : 13)}
                             style={styles.buttonText}
                           >
-                            OUVRIR
+                            {t('presta.providers.actions.open')}
                           </Text>
                           <Text
                             white
                             size={getFontSize(isSmallScreen ? 11 : 13)}
                             style={styles.buttonText}
                           >
-                            BROCHURE
+                            {t('presta.providers.actions.brochure')}
                           </Text>
                         </Button>
                         <Button flex={1} style={styles.infoBox}>
-                          <Dropdown
-                            data={options}
-                            onChange={(item) =>
-                              handleOptionSelect(item.label, 2)
-                            }
-                            placeholder="VALIDER"
-                          />
+                           <Dropdown
+                             data={getOptions(t)}
+                             onChange={(item) =>
+                               handleOptionSelect(item, 2)
+                             }
+                             placeholder={t('presta.providers.actions.validate')}
+                           />
                         </Button>
                       </View>
                     </>
@@ -715,14 +727,14 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                       size={getFontSize(isSmallScreen ? 11 : 13)}
                       style={styles.buttonText}
                     >
-                      GALERIE
+                      {t('presta.providers.actions.gallery')}
                     </Text>
                     <Text
                       white
                       size={getFontSize(isSmallScreen ? 11 : 13)}
                       style={styles.buttonText}
                     >
-                      PHOTO
+                      {t('presta.providers.actions.photo')}
                     </Text>
                   </Button>
                   <Button flex={1} style={styles.infoBox}>
@@ -745,7 +757,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                         onChangeText={(text) =>
                           handleFieldChange('budget', text)
                         }
-                        placeholder="Budget"
+                        placeholder={t('presta.providers.actions.budgetPlaceholder')}
                       />
                       <Text
                         style={{
@@ -791,7 +803,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                               size={getFontSize(14)}
                               style={styles.upperCaseText}
                             >
-                              PRÉCÉDENT
+                              {t('presta.providers.modals.prev')}
                             </Text>
                           </TouchableOpacity>
                           <TouchableOpacity
@@ -803,7 +815,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                               size={getFontSize(14)}
                               style={styles.upperCaseText}
                             >
-                              SUIVANT
+                              {t('presta.providers.modals.next')}
                             </Text>
                           </TouchableOpacity>
                         </View>
@@ -815,7 +827,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                           size={getFontSize(16)}
                           style={styles.upperCaseText}
                         >
-                          IMAGE INDISPONIBLE
+                          {t('presta.providers.modals.imageUnavailable')}
                         </Text>
                       </View>
                     )}
@@ -828,7 +840,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                         size={getFontSize(14)}
                         style={styles.upperCaseText}
                       >
-                        FERMER
+                        {t('presta.providers.modals.close')}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -840,7 +852,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                   onClose={() => setModalVisible(false)}
                   onConfirm={handleConfirm}
                   onCancel={handleCancel}
-                  message="VOUS ÊTES SUR LE POINT DE SUPPRIMER ?"
+                  message={t('presta.providers.modals.deletePoint')}
                 />
               </View>
 
@@ -849,7 +861,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                 {activeBadgeData.pouce_baisse == 0 &&
                 activeBadgeData.pouce_leve == 0 ? (
                   <View style={styles.thumbBox}>
-                    <Text style={{}}>Aucune reponse du client</Text>
+                    <Text style={{}}>{t('presta.providers.actions.noResponse')}</Text>
                   </View>
                 ) : (
                   <>
@@ -888,7 +900,7 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     }}
                     size={getFontSize(isSmallScreen ? 10 : 11)}
                   >
-                    COMMISSION:{' '}
+                    {t('presta.providers.form.commission')}{' '}
                   </Text>
                   <Text
                     color={colors.primary}
@@ -911,14 +923,14 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                     style={styles.upperCaseText}
                     size={getFontSize(isSmallScreen ? 10 : 11)}
                   >
-                    OPTION :{' '}
+                    {t('presta.providers.form.option')}{' '}
                   </Text>
                   <Text
                     color={colors.primary}
                     size={getFontSize(isSmallScreen ? 9 : 11)}
                     style={styles.upperCaseText}
                   >
-                    MULTI-OPTION
+                    {t('presta.providers.actions.multiOption')}
                   </Text>
                 </View>
               </View>
@@ -929,26 +941,26 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
                   multiline
                   numberOfLines={4}
                   style={styles.commentInput}
-                  value={formFields.comment}
+                   value={formFields.comment}
                   onChangeText={(text) => handleFieldChange('comment', text)}
-                  placeholder="AUTRE PROPOSITION DE COMMISSION && COMMENTAIRES PRESTATAIRE"
+                  placeholder={t('presta.providers.form.commentPlaceholder')}
                 />
               </View>
 
               {/* Section Contacts */}
               <View style={styles.contactRow}>
                 <View style={styles.contactInputContainer}>
-                  <TextInputWithIcon
+                   <TextInputWithIcon
                     value={formFields.email}
                     onChangeText={(text) => handleFieldChange('email', text)}
-                    placeholder="EMAIL PRESTATAIRE"
+                    placeholder={t('presta.providers.form.emailPlaceholder')}
                   />
                 </View>
                 <View style={styles.contactInputContainer}>
-                  <TextInputWithIcon
+                   <TextInputWithIcon
                     value={formFields.tel}
                     onChangeText={(text) => handleFieldChange('tel', text)}
-                    placeholder="PRÉNOM & TÉLÉPHONE"
+                    placeholder={t('presta.providers.form.contactPlaceholder')}
                   />
                 </View>
               </View>
@@ -989,10 +1001,10 @@ const Form4 = ({ item, onDataChange, getData0, onRefresh, idevt }) => {
               white
               size={getFontSize(isSmallScreen ? 11 : 13)}
               style={styles.globalButtonText}
-              h4
+               h4
               center
             >
-              ENVOYER DEMANDE À TOUS LES LIEUX
+              {t('presta.providers.actions.sendAll')}
             </Text>
           </Button>
         </View>

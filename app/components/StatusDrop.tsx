@@ -10,12 +10,14 @@ import {
 } from 'react-native'
 import { useApi } from '../context/useApi'
 import { useToast } from '../components/ToastComponent'
+import { useTranslation } from 'react-i18next'
 
 const StatusDropdown = ({
   initialStatus = 'Nouveau',
   onStatusChange,
   itemId,
 }) => {
+  const { t } = useTranslation()
   console.log('initialStatus', initialStatus)
   const { showToast, ToastComponent } = useToast()
 
@@ -29,49 +31,49 @@ const StatusDropdown = ({
     () => [
       {
         id: 5,
-        label: 'Nouveau',
+        label: t('common.status.options.nouveau'),
         value: 'Nouveau',
         color: '#03a9f5',
         name: 'Nouveau Projet',
       },
       {
         id: 7,
-        label: 'A valider',
+        label: t('common.status.options.a_valider'),
         value: 'a_valider',
         color: '#404fe9',
         name: 'Devis à Valider',
       },
       {
         id: 1,
-        label: 'A affiner',
+        label: t('common.status.options.a_affiner'),
         value: 'a_affiner',
         color: '#4f37da',
         name: 'Recherche à Affiner',
       },
       {
         id: 3,
-        label: 'Envoyé',
+        label: t('common.status.options.envoye'),
         value: 'Envoyer',
         color: '#690ec2',
         name: 'Devis Envoyé',
       },
-      { id: 4, label: 'Hot', value: 'Hot', color: '#f025b6', name: 'HOT' },
+      { id: 4, label: t('common.status.options.hot'), value: 'Hot', color: '#f025b6', name: 'HOT' },
       {
         id: 6,
-        label: 'Gagnés',
+        label: t('common.status.options.gagnes'),
         value: 'Conclu',
         color: 'green',
         name: ' Projets Gagnés',
       },
       {
         id: 8,
-        label: 'Perdus',
+        label: t('common.status.options.perdus'),
         value: 'Perdu',
         color: '#f025b6',
         name: 'Projets Perdus',
       },
     ],
-    [],
+    [t],
   )
 
   // Map pour optimiser les recherches
@@ -93,7 +95,7 @@ const StatusDropdown = ({
   const updateStatus = useCallback(
     async (newStatus) => {
       if (!itemId) {
-        Alert.alert('Erreur', 'ID manquant pour la mise à jour')
+        Alert.alert(t('common.error'), t('common.status.errorUpdate'))
         return
       }
 
@@ -110,12 +112,12 @@ const StatusDropdown = ({
         if (response?.code == 'SUCCESS') {
           setSelectedStatus(newStatus.value)
           onStatusChange?.(newStatus, response)
-          showToast('✅ Statut mis à jour vers: ' + newStatus.label, 'success')
+          showToast(t('common.status.updated') + newStatus.label, 'success')
         } else {
           throw new Error('Erreur lors de la mise à jour')
         }
       } catch (error) {
-        Alert.alert('Erreur', 'Impossible de mettre à jour le statut')
+        Alert.alert(t('common.error'), t('common.status.errorUpdate'))
         console.error('Erreur API:', error)
       } finally {
         setIsLoading(false)
@@ -143,8 +145,8 @@ const StatusDropdown = ({
 
   const getCurrentStatusLabel = useCallback(() => {
     const currentStatus = statusMap.get(selectedStatus)
-    return currentStatus?.label || 'Nouveau'
-  }, [selectedStatus, statusMap])
+    return currentStatus?.label || t('common.status.options.nouveau')
+  }, [selectedStatus, statusMap, t])
 
   const renderStatusItem = useCallback(
     ({ item }) => (
@@ -194,8 +196,8 @@ const StatusDropdown = ({
         activeOpacity={0.8}
       >
         <Text style={styles.statusText}>
-          STATUT :{' '}
-          {isLoading ? 'MISE À JOUR...' : getCurrentStatusLabel().toUpperCase()}
+          {t('common.status.label')} :{' '}
+          {isLoading ? t('common.status.updating') : getCurrentStatusLabel().toUpperCase()}
         </Text>
         <View
           style={[

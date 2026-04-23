@@ -12,6 +12,7 @@ import {
 import { BlurView } from 'expo-blur'
 import Button from './Button'
 import { useTheme } from '../hooks'
+import { useTranslation } from 'react-i18next'
 
 const { width } = Dimensions.get('window')
 
@@ -25,33 +26,21 @@ interface CustomDatePickerProps {
   title?: string
 }
 
-const MONTHS = [
-  'Janvier',
-  'Février',
-  'Mars',
-  'Avril',
-  'Mai',
-  'Juin',
-  'Juillet',
-  'Août',
-  'Septembre',
-  'Octobre',
-  'Novembre',
-  'Décembre',
-]
-
-const DAYS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
-
-export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
+const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   visible,
   onClose,
   onConfirm,
   initialDate,
   minDate,
   maxDate,
-  title = 'Sélectionner une date',
+  title,
 }) => {
   const { colors, gradients, sizes } = useTheme()
+  const { t } = useTranslation()
+
+  const MONTHS = t('dates:monthNames', { returnObjects: true }) as string[]
+  const DAYS = t('dates:dayNamesShort', { returnObjects: true }) as string[]
+  const finalTitle = title || t('common.selectDate')
 
   const parseInitialDate = (): Date => {
     if (initialDate) {
@@ -221,7 +210,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         <BlurView intensity={20} style={styles.blurContainer}>
           <View style={styles.modalContainer}>
             <View style={styles.header}>
-              <Text style={styles.headerTitle}>{title}</Text>
+              <Text style={styles.headerTitle}>{finalTitle}</Text>
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
@@ -271,7 +260,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                     shadow={false}
                     height={38}
                   >
-                    <Text style={styles.cancelButtonText}>Annuler</Text>
+                    <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
                   </Button>
 
                   <Button
@@ -281,7 +270,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                     shadow={false}
                     height={40}
                   >
-                    <Text style={styles.confirmButtonText}>OK</Text>
+                    <Text style={styles.confirmButtonText}>{t('common.ok')}</Text>
                   </Button>
                 </View>
               </View>
@@ -366,7 +355,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                 </View>
 
                 <View style={styles.previewContainer}>
-                  <Text style={styles.previewLabel}>Date sélectionnée :</Text>
+                  <Text style={styles.previewLabel}>{t('common.selectDate')} :</Text>
                   <Text style={[styles.previewDate, { color: colors.primary }]}>
                     {String(tempSelectedDate.getDate()).padStart(2, '0')}/
                     {String(tempSelectedDate.getMonth() + 1).padStart(2, '0')}/
@@ -382,7 +371,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                     shadow={false}
                     height={38}
                   >
-                    <Text style={styles.cancelButtonText}>Annuler</Text>
+                    <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
                   </Button>
 
                   <Button
@@ -392,7 +381,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                     shadow={false}
                     height={40}
                   >
-                    <Text style={styles.confirmButtonText}>Confirmer</Text>
+                    <Text style={styles.confirmButtonText}>{t('common.confirmation')}</Text>
                   </Button>
                 </View>
               </>

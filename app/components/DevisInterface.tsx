@@ -4,6 +4,7 @@ import Button from './Button'
 import { Picker } from '@react-native-picker/picker'
 import Text from './Text'
 import { useApi } from '../context/useApi'
+import { useTranslation } from 'react-i18next'
 import ConfirmationModal from './ConfirmModal'
 import Dropdown from './Dropdown'
 
@@ -35,6 +36,7 @@ const DevisInterface = ({
   getFontSize,
   openDevis,
 }) => {
+  const { t } = useTranslation()
   console.log('📋 DevisInterface - données reçues:', activeBadgeData)
 
   // ===========================
@@ -54,11 +56,10 @@ const DevisInterface = ({
   // ===========================
   const { validdevis } = useApi()
 
-  // Options cohérentes avec Form4 (UPPERCASE)
-  const options = [
-    { id: '1', label: 'OUI' },
-    { id: '2', label: 'NON' },
-    { id: '3', label: 'SUPPRIMER' },
+  const getOptions = (t) => [
+    { id: '1', label: t('labels.yes') },
+    { id: '2', label: t('labels.no') },
+    { id: '3', label: t('labels.delete') },
   ]
 
   // ===========================
@@ -96,7 +97,7 @@ const DevisInterface = ({
       // Ne pas inclure les devis déjà supprimés (valid = 3)
       if (devis.valid != 3) {
         initialSelections[devis.id_devis] =
-          devis.valid === '1' ? 'OUI' : devis.valid === '2' ? 'NON' : ''
+          devis.valid === '1' ? t('labels.yes') : devis.valid === '2' ? t('labels.no') : ''
       }
     })
 
@@ -136,16 +137,16 @@ const DevisInterface = ({
   // GESTIONNAIRES D'ÉVÉNEMENTS
   // ===========================
 
-  const updateDevisStatus = async (devisId, status) => {
+  const updateDevisStatus = async (devisId, uiStatus, apiStatus) => {
     setIsSubmitting(true)
 
     try {
       console.log(
-        `🔄 Mise à jour du devis ${devisId} vers le statut: ${status}`,
+        `🔄 Mise à jour du devis ${devisId} vers le statut: ${uiStatus} (API: ${apiStatus})`,
       )
 
       // Si c'est une suppression, cacher immédiatement le devis localement
-      if (status === 'SUPPRIMER') {
+      if (apiStatus === 'supprimer') {
         console.log(`🗑️ Suppression locale immédiate du devis ${devisId}`)
         setLocallyDeletedDevis((prev) => new Set(prev).add(devisId))
 
@@ -157,11 +158,10 @@ const DevisInterface = ({
         })
       } else {
         // Pour les autres statuts, mettre à jour immédiatement l'interface
-        setDevisSelections((prev) => ({ ...prev, [devisId]: status }))
+        setDevisSelections((prev) => ({ ...prev, [devisId]: uiStatus }))
       }
 
       // Appel API en arrière-plan
-      const apiStatus = status.toLowerCase()
       console.log(`📡 Envoi API avec statut: ${apiStatus}`)
 
       const response = await validdevis({ id_devis: devisId, valid: apiStatus })
@@ -169,16 +169,16 @@ const DevisInterface = ({
 
       // Message de confirmation approprié
       const successMessage =
-        status === 'SUPPRIMER'
-          ? 'DEVIS SUPPRIMÉ AVEC SUCCÈS'
-          : 'VOTRE DEVIS A ÉTÉ MIS À JOUR AVEC SUCCÈS'
+        apiStatus === 'supprimer'
+          ? t('presta.quotes.successDeleted')
+          : t('presta.quotes.successUpdated')
 
-      Alert.alert('CONFIRMATION', successMessage)
+      Alert.alert(t('presta.quotes.confirmation'), successMessage)
     } catch (error) {
       console.error('🔴 Erreur lors de la mise à jour du devis:', error)
 
       // En cas d'erreur, annuler les modifications locales
-      if (status === 'SUPPRIMER') {
+      if (apiStatus === 'supprimer') {
         console.log(
           `↩️ Annulation de la suppression locale du devis ${devisId}`,
         )
@@ -195,9 +195,9 @@ const DevisInterface = ({
         if (originalDevis) {
           const originalStatus =
             originalDevis.valid === '1'
-              ? 'OUI'
+              ? t('labels.yes')
               : originalDevis.valid === '2'
-              ? 'NON'
+              ? t('labels.no')
               : ''
           setDevisSelections((prev) => ({ ...prev, [devisId]: originalStatus }))
         }
@@ -209,38 +209,42 @@ const DevisInterface = ({
         if (originalDevis) {
           const originalStatus =
             originalDevis.valid === '1'
-              ? 'OUI'
+              ? t('labels.yes')
               : originalDevis.valid === '2'
-              ? 'NON'
+              ? t('labels.no')
               : ''
           setDevisSelections((prev) => ({ ...prev, [devisId]: originalStatus }))
         }
       }
 
       Alert.alert(
-        'ERREUR',
-        'LA MISE À JOUR DU DEVIS A ÉCHOUÉ. LES MODIFICATIONS ONT ÉTÉ ANNULÉES.',
+        t('presta.quotes.error'),
+        t('presta.quotes.errorUpdate'),
       )
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const handleOptionSelect = (devisId, itemValue) => {
-    console.log(`👆 Sélection pour devis ${devisId}: ${itemValue}`)
+  const handleOptionSelect = (devisId, selectedItem) => {
+    console.log(`👆 Sélection pour devis ${devisId}: ${selectedItem.label} (ID: ${selectedItem.id})`)
+    
+    const actionId = selectedItem.id // '1', '2', '3'
+    const uiStatus = selectedItem.label
+    const apiStatus = actionId === '1' ? 'oui' : actionId === '2' ? 'non' : 'supprimer'
 
-    if (itemValue === 'SUPPRIMER') {
+    if (actionId === '3') {
       setSelectedDevisId(devisId)
       setModalVisible2(true)
     } else {
-      updateDevisStatus(devisId, itemValue)
+      updateDevisStatus(devisId, uiStatus, apiStatus)
     }
   }
 
   const confirmDeletion = () => {
     console.log(`✅ Confirmation de suppression du devis ${selectedDevisId}`)
     if (selectedDevisId) {
-      updateDevisStatus(selectedDevisId, 'SUPPRIMER')
+      updateDevisStatus(selectedDevisId, t('labels.delete'), 'supprimer')
       setModalVisible2(false)
       setSelectedDevisId(null)
     }
@@ -266,7 +270,7 @@ const DevisInterface = ({
     return (
       <View style={styles.emptyContainer}>
         <Text size={getFontSize(14)} style={styles.emptyText}>
-          AUCUN DEVIS DISPONIBLE
+          {t('presta.quotes.none')}
         </Text>
       </View>
     )
@@ -296,24 +300,24 @@ const DevisInterface = ({
               size={getFontSize(isSmallScreen ? 11 : 13)}
               style={styles.buttonText}
             >
-              OUVRIR
+              {t('presta.providers.actions.open')}
             </Text>
             <Text
               white
               size={getFontSize(isSmallScreen ? 10 : 12)}
               style={styles.buttonText}
             >
-              DEVIS {index + 1}
+              {t('presta.quotes.label')} {index + 1}
             </Text>
           </Button>
 
           <Button flex={1} style={styles.infoBox}>
             <Dropdown
-              data={options}
+              data={getOptions(t)}
               onChange={(value) =>
-                handleOptionSelect(item.id_devis, value.label)
+                handleOptionSelect(item.id_devis, value)
               }
-              placeholder="VALIDER"
+              placeholder={t('presta.providers.actions.validate')}
               defaultValue={{
                 [item.id_devis]: devisSelections[item.id_devis],
               }}
@@ -329,7 +333,7 @@ const DevisInterface = ({
         onClose={handleCancelDeletion}
         onConfirm={confirmDeletion}
         onCancel={handleCancelDeletion}
-        message="VOULEZ-VOUS VRAIMENT SUPPRIMER CE DEVIS ?"
+        message={t('presta.providers.modals.confirmDeleteQuote')}
       />
     </>
   )

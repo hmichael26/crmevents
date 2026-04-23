@@ -19,8 +19,9 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons'
 import { useApi } from '../context/useApi'
 import { useTheme } from '../hooks'
-import Button from './Button'
+import { Button } from './'
 import { AuthContext } from '../context/AuthContext'
+import { useTranslation } from 'react-i18next'
 
 export const ClientCard = React.memo(
   ({
@@ -31,8 +32,9 @@ export const ClientCard = React.memo(
     handleUnSelect,
     isSelected,
   }) => {
+    const { t } = useTranslation()
     const { userdata } = useContext(AuthContext)
-    const { colors, gradients } = useTheme()
+    const { colors, gradients, sizes } = useTheme()
 
     // États optimisés
     const [operationState, setOperationState] = useState({
@@ -97,12 +99,12 @@ export const ClientCard = React.memo(
         } catch (error) {
           if (error.name === 'AbortError') {
             Alert.alert(
-              'Timeout',
-              `L'opération ${operationType} a pris trop de temps`,
+              t('common.timeout'),
+              t('clients.card.alerts.timeout', { type: operationType }),
             )
           } else {
             console.error(`Erreur ${operationType}:`, error)
-            Alert.alert('Erreur', `Erreur lors de ${operationType}`)
+            Alert.alert(t('common.error'), t('clients.card.alerts.error', { type: operationType }))
           }
           throw error
         } finally {
@@ -157,12 +159,12 @@ export const ClientCard = React.memo(
       if (!client.id) return
 
       Alert.alert(
-        'Supprimer client',
-        `Êtes-vous sûr de vouloir supprimer le client "${client.nom}" ?`,
+        t('clients.card.alerts.deleteTitle'),
+        t('clients.card.alerts.deleteConfirm', { name: client.nom }),
         [
-          { text: 'Annuler', style: 'cancel' },
+          { text: t('common.cancel'), style: 'cancel' },
           {
-            text: 'Supprimer',
+            text: t('common.delete'),
             onPress: async () => {
               try {
                 await withOperationTimeout(async () => {
@@ -311,11 +313,11 @@ export const ClientCard = React.memo(
 
       if (client.date_creation) {
         const dateCreation = new Date(client.date_creation).toLocaleDateString(
-          'fr-FR',
+          t('common.dateLocale'),
         )
         info.push({
           icon: 'calendar',
-          text: `Créé le ${dateCreation}`,
+          text: t('clients.card.createdOn', { date: dateCreation }),
           type: 'date',
         })
       }
@@ -323,7 +325,7 @@ export const ClientCard = React.memo(
       if (client.admin === '1') {
         info.push({
           icon: 'shield-checkmark',
-          text: 'Administrateur',
+          text: t('clients.card.admin'),
           type: 'admin',
         })
       }
@@ -349,7 +351,7 @@ export const ClientCard = React.memo(
             <ActivityIndicator size="small" color="white" />
           ) : (
             <Text style={styles.buttonText}>
-              {operationState.isEditing ? 'Sauvegarder' : 'Modifier'}
+              {operationState.isEditing ? t('clients.card.save') : t('clients.card.modify')}
             </Text>
           )}
         </Button>,
@@ -369,7 +371,9 @@ export const ClientCard = React.memo(
             }}
             disabled={operationState.isLoading}
           >
-            <Text style={styles.buttonText}>Annuler</Text>
+            <Text style={styles.buttonText}>
+              {t('clients.card.cancel')}
+            </Text>
           </Button>,
         )
       }
@@ -389,7 +393,9 @@ export const ClientCard = React.memo(
             operationState.operation === 'delete' ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Text style={styles.buttonText}>Supprimer</Text>
+              <Text style={styles.buttonText}>
+                {t('clients.card.delete')}
+              </Text>
             )}
           </Button>,
         )
@@ -442,13 +448,13 @@ export const ClientCard = React.memo(
           <View style={styles.editContainer}>
             <View style={styles.editHeader}>
               {renderLogo}
-              <Text style={styles.editTitle}>Modification du client</Text>
+              <Text style={styles.editTitle}>{t('clients.card.editTitle')}</Text>
             </View>
 
             <View style={styles.editFieldsContainer}>
-              {renderEditableField('nom', 'Nom du client', 'person')}
-              {renderEditableField('tel', 'Téléphone', 'call')}
-              {renderEditableField('infos', 'Site web / Infos', 'globe')}
+              {renderEditableField('nom', t('clients.card.form.name'), 'person')}
+              {renderEditableField('tel', t('clients.card.form.phone'), 'call')}
+              {renderEditableField('infos', t('clients.card.form.website'), 'globe')}
             </View>
           </View>
         ) : (
@@ -458,7 +464,7 @@ export const ClientCard = React.memo(
 
             <View style={styles.infoSection}>
               <Text style={styles.clientName}>
-                {client.nom || 'Client sans nom'}
+                {client.nom || t('clients.card.noName')}
               </Text>
 
               <View style={styles.infoList}>

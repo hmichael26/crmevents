@@ -1,0 +1,57 @@
+{
+  "title": "CLIENTS",
+  "searchPlaceholder": "Nom du client (min. 2 caractères)",
+  "search": "Rechercher",
+  "results": {
+    "label": "Résultat de recherche : ",
+    "found": "clients trouvés"
+  },
+  "clientsCount": " clients.",
+  "selectedCount": " clients sélectionnés.",
+  "validate": "Valider",
+  "loading": {
+    "searching": "Recherche en cours...",
+    "updating": "Mise à jour en cours...",
+    "longWait": "La requête prend plus de temps que prévu... Veuillez patienter.",
+    "more": "Chargement des clients suivants...",
+    "refreshing": "Actualisation des données...",
+    "success": "Données actualisées avec succès"
+  },
+  "empty": {
+    "noResults": "Aucun client trouvé pour \"{{query}}\".",
+    "retry": "Réessayer"
+  },
+  "alerts": {
+    "minChars": "Veuillez saisir au moins 2 caractères pour la recherche.",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce client ?",
+    "deleteSuccess": "Client supprimé avec succès",
+    "modifySuccess": "Client modifié avec succès",
+    "errorSearch": "Erreur lors de la recherche des clients",
+    "errorUpdate": "Impossible de modifier le client",
+    "errorDelete": "Impossible de supprimer le client",
+    "errorRefresh": "Impossible d'actualiser les données"
+  },
+  "card": {
+    "editTitle": "Modification du client",
+    "noName": "Client sans nom",
+    "createdOn": "Créé le {{date}}",
+    "admin": "Administrateur",
+    "save": "Sauvegarder",
+    "modify": "Modifier",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "select": "Sélectionner",
+    "selected": "✓ Sélectionné",
+    "form": {
+      "name": "Nom du client",
+      "phone": "Téléphone",
+      "website": "Site web / Infos"
+    },
+    "alerts": {
+      "timeout": "L'opération {{type}} a pris trop de temps",
+      "error": "Erreur lors de {{type}}",
+      "deleteTitle": "Supprimer client",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer le client \"{{name}}\" ?"
+    }
+  }
+}

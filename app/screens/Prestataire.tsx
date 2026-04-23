@@ -29,6 +29,7 @@ import {
   CustomPickerModal,
   CustomSelector,
 } from '../components/CustomPickerModal'
+import { useTranslation } from 'react-i18next'
 
 const initialFormState = {
   region: '',
@@ -66,6 +67,7 @@ export const Prestataire = () => {
     getprestaprms,
     assignPresta,
   } = useApi()
+  const { t } = useTranslation()
 
   const [modalState, setModalState] = useState({
     visible: false,
@@ -277,7 +279,7 @@ export const Prestataire = () => {
     cleanupMemory()
 
     setLoadingState('searching', true)
-    setSearchProgress('Préparation de la recherche...')
+    setSearchProgress(t('presta.search.actions.preparing'))
     setCurrentPage(1)
     setHasMore(true)
 
@@ -285,8 +287,8 @@ export const Prestataire = () => {
       await fetchData(1, true)
       cleanupAfterSearch()
     } catch (error) {
-      setSearchProgress('Erreur lors de la recherche')
-      Alert.alert('Erreur', error.message || 'Erreur lors de la recherche')
+      setSearchProgress(t('presta.search.actions.searching'))
+      Alert.alert(t('common.error'), error.message || t('presta.search.actions.searching'))
       cleanupMemory()
     } finally {
       setLoadingState('searching', false)
@@ -301,9 +303,9 @@ export const Prestataire = () => {
   ) => {
     try {
       if (isNewSearch && showProgress) {
-        setSearchProgress('Recherche des prestataires...')
+        setSearchProgress(t('presta.search.actions.searching'))
       } else if (showProgress) {
-        setSearchProgress('Actualisation des données...')
+        setSearchProgress(t('presta.search.actions.refreshing'))
       }
 
       const filteredForm = Object.fromEntries(
@@ -355,8 +357,8 @@ export const Prestataire = () => {
         setCurrentPage(page)
         if (showProgress) {
           newData.nb_tot_presta > 0
-            ? setSearchProgress(`${newData.nb_tot_presta} prestataires trouvés`)
-            : setSearchProgress('Aucun prestataire trouvé')
+            ? setSearchProgress(`${newData.nb_tot_presta}${t('presta.search.results.found')}`)
+            : setSearchProgress(t('presta.search.results.none'))
         }
       } else {
         // Actualisation : garde les données existantes ou les remplace selon le contexte
@@ -440,7 +442,7 @@ export const Prestataire = () => {
         nb_tot_presta: searchResults.nb_tot_presta, // Garde le nombre total
       })
 
-      setSearchProgress('Données prestataires actualisées avec succès')
+      setSearchProgress(t('presta.search.actions.updated'))
 
       // Nettoie le message après 2 secondes
       setTimeout(() => {
@@ -451,8 +453,8 @@ export const Prestataire = () => {
     } catch (error) {
       console.error("🔴 Erreur lors de l'actualisation prestataires:", error)
       Alert.alert(
-        'Erreur',
-        "Impossible d'actualiser les données des prestataires",
+        t('common.error'),
+        t('presta.toasts.errorLoading'),
       )
     } finally {
       setLoadingState('updating', false)
@@ -492,7 +494,7 @@ export const Prestataire = () => {
   const assignEvent = useCallback(
     async (selectedArrDeroule, selectedDeroule) => {
       setLoadingState('assigning', true)
-      setAssignProgress("Préparation de l'assignation...")
+      setAssignProgress(t('presta.search.actions.assigning'))
 
       try {
         const eventData = {
@@ -501,7 +503,7 @@ export const Prestataire = () => {
         }
 
         setAssignProgress(
-          "Assignation en cours... Cela peut prendre jusqu'à 60 secondes.",
+          t('presta.search.actions.assigningLong'),
         )
 
         const response = await withTimeout(
@@ -510,7 +512,7 @@ export const Prestataire = () => {
         )
 
         if (response.code === 'SUCCESS') {
-          setAssignProgress('Assignation réussie !')
+          setAssignProgress(t('presta.search.actions.assigned'))
 
           // Nettoyage complet après assignation réussie
           cleanupAfterAssignment()
@@ -524,8 +526,8 @@ export const Prestataire = () => {
         }
       } catch (error) {
         Alert.alert(
-          'Erreur',
-          error.message || "Une erreur est survenue lors de l'assignation.",
+          t('common.error'),
+          error.message || t('presta.search.errors.assign'),
         )
         console.error(error)
         cleanupMemory()
@@ -554,15 +556,15 @@ export const Prestataire = () => {
           await refreshCurrentSearch()
 
           // Message de succès
-          Alert.alert('Succès', 'Prestataire modifié avec succès')
+          Alert.alert(t('common.success'), t('presta.quotes.successUpdated'))
         } else {
           throw new Error('Réponse invalide du serveur')
         }
       } catch (error) {
         console.error('🔴 Erreur lors de la modification prestataire:', error)
         Alert.alert(
-          'Erreur',
-          error.message || 'Impossible de modifier le prestataire',
+          t('common.error'),
+          error.message || t('presta.search.errors.modify'),
         )
       } finally {
         setLoadingState('updating', false)
@@ -577,15 +579,15 @@ export const Prestataire = () => {
 
       // Confirmation avant suppression
       Alert.alert(
-        'Confirmation',
-        'Êtes-vous sûr de vouloir supprimer ce prestataire ?',
+        t('presta.search.confirmDelete.title'),
+        t('presta.search.confirmDelete.message'),
         [
           {
-            text: 'Annuler',
+            text: t('presta.search.confirmDelete.cancel'),
             style: 'cancel',
           },
           {
-            text: 'Supprimer',
+            text: t('presta.search.confirmDelete.delete'),
             style: 'destructive',
             onPress: async () => {
               setLoadingState('updating', true)
@@ -608,7 +610,7 @@ export const Prestataire = () => {
                   await refreshCurrentSearch()
 
                   // Message de succès
-                  Alert.alert('Succès', 'Prestataire supprimé avec succès')
+                  Alert.alert(t('common.success'), t('presta.quotes.successDeleted'))
                 } else {
                   throw new Error('Réponse invalide du serveur')
                 }
@@ -618,8 +620,8 @@ export const Prestataire = () => {
                   error,
                 )
                 Alert.alert(
-                  'Erreur',
-                  error.message || 'Impossible de supprimer le prestataire',
+                  t('common.error'),
+                  error.message || t('presta.search.errors.delete'),
                 )
               } finally {
                 setLoadingState('updating', false)
@@ -685,8 +687,8 @@ export const Prestataire = () => {
         } catch (error) {
           console.error(`Erreur ${type}:`, error)
           Alert.alert(
-            'Erreur',
-            error.message || `Impossible de charger ${type}`,
+            t('common.error'),
+            error.message || t('presta.toasts.errorLoading'),
           )
           setModalState({
             visible: false,
@@ -742,7 +744,7 @@ export const Prestataire = () => {
         windowSize={5}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>PRESTATAIRES</Text>
+          <Text style={styles.title}>{t('presta.search.title')}</Text>
 
           {/* Indicateur de progression */}
           {(searchProgress ||
@@ -753,10 +755,10 @@ export const Prestataire = () => {
               <ActivityIndicator color="#9932CC" />
               <Text style={styles.progressText}>
                 {loadingStates.updating
-                  ? 'Mise à jour en cours...'
+                  ? t('presta.search.updating')
                   : assignProgress ||
                     searchProgress ||
-                    'La requête prend plus de temps que prévu... Veuillez patienter.'}
+                    t('presta.search.longWait')}
               </Text>
             </View>
           )}
@@ -769,10 +771,10 @@ export const Prestataire = () => {
                   openPickerModal(
                     'regions',
                     'region',
-                    'Sélectionner une région',
+                    t('presta.search.selectRegion'),
                   )
                 }
-                placeholder="Sélectionner une région"
+                placeholder={t('presta.search.selectRegion')}
                 disabled={loadingStates.updating}
                 items={dropdownData.regions}
               />
@@ -782,10 +784,10 @@ export const Prestataire = () => {
                   openPickerModal(
                     'departments',
                     'dept',
-                    'Sélectionner un département',
+                    t('presta.search.selectDept'),
                   )
                 }
-                placeholder="Sélectionner un département"
+                placeholder={t('presta.search.selectDept')}
                 disabled={loadingStates.updating}
                 items={dropdownData.departments}
               />
@@ -795,9 +797,9 @@ export const Prestataire = () => {
               <CustomSelector
                 value={selectForm.city}
                 onPress={() =>
-                  openPickerModal('cities', 'ville', 'Sélectionner une ville')
+                  openPickerModal('cities', 'ville', t('presta.search.selectCity'))
                 }
-                placeholder="Sélectionner une ville"
+                placeholder={t('presta.search.selectCity')}
                 disabled={loadingStates.updating}
                 items={dropdownData.cities}
               />
@@ -807,10 +809,10 @@ export const Prestataire = () => {
                   openPickerModal(
                     'providerTypes',
                     'categ',
-                    'Type de prestataire',
+                    t('presta.search.providerType'),
                   )
                 }
-                placeholder="Type de prestataire"
+                placeholder={t('presta.search.providerType')}
                 disabled={loadingStates.updating}
                 items={dropdownData.providerTypes}
               />
@@ -818,21 +820,21 @@ export const Prestataire = () => {
 
             <View style={styles.row}>
               <CustomTextInput
-                placeholder="Code Postal"
+                placeholder={t('presta.search.postalCode')}
                 value={selectForm.postalCode}
                 onChangeText={(text) => handleInputChange('postalCode', text)}
                 keyboardType="numeric"
                 editable={!loadingStates.updating}
               />
               <CustomTextInput
-                placeholder="Nb de chambre min."
+                placeholder={t('presta.search.minRooms')}
                 value={selectForm.minRooms}
                 onChangeText={(text) => handleInputChange('minRooms', text)}
                 keyboardType="numeric"
                 editable={!loadingStates.updating}
               />
               <CustomTextInput
-                placeholder="Nb de salle min."
+                placeholder={t('presta.search.minHall')}
                 value={selectForm.maxRooms}
                 onChangeText={(text) => handleInputChange('maxRooms', text)}
                 keyboardType="numeric"
@@ -851,7 +853,7 @@ export const Prestataire = () => {
                 />
                 <TextInput
                   style={styles.searchInput}
-                  placeholder="Nom du prestataire"
+                  placeholder={t('presta.search.providerName')}
                   value={selectForm.nom}
                   onChangeText={(text) => handleInputChange('nom', text)}
                   onSubmitEditing={submit}
@@ -887,7 +889,7 @@ export const Prestataire = () => {
                   ) : (
                     <>
                       <Icon name="search" size={18} color="white" />
-                      <Text style={styles.searchButtonText}>Rechercher</Text>
+                      <Text style={styles.searchButtonText}>{t('presta.search.searchButton')}</Text>
                     </>
                   )}
                 </Button>
@@ -904,11 +906,11 @@ export const Prestataire = () => {
             {/* Résultats */}
             {searchResults !== null && (
               <Text style={styles.resultCount}>
-                Resultat de recherche :{' '}
+                {t('presta.search.results.prefix')}{' '}
                 <Text style={styles.resultCountHighlight}>
                   {searchResults.nb_tot_presta}
                 </Text>{' '}
-                prestataires.
+                {t('presta.search.results.suffix')}
               </Text>
             )}
 
@@ -918,7 +920,7 @@ export const Prestataire = () => {
                   <Text style={styles.resultCountHighlight}>
                     {selectPresta.length}
                   </Text>{' '}
-                  prestataires sélectionnés.
+                  {t('presta.search.results.selected')}
                 </Text>
                 <Button
                   gradient={gradients.primary}
@@ -926,7 +928,7 @@ export const Prestataire = () => {
                   onPress={() => setModalShow(true)}
                   disabled={loadingStates.assigning || loadingStates.updating}
                 >
-                  <Text style={styles.searchButtonText}>Valider</Text>
+                  <Text style={styles.searchButtonText}>{t('presta.search.actions.validate')}</Text>
                 </Button>
               </View>
             )}
@@ -948,12 +950,12 @@ export const Prestataire = () => {
                     />
                   ))
                 ) : (
-                  <EmptyState message="Aucun prestataire trouvé pour cette recherche." />
+                  <EmptyState message={t('presta.search.results.empty')} />
                 )}
 
                 {loadingStates.loadingMore && hasMore && (
                   <LoadingIndicator
-                    message="Chargement des prestataires suivants..."
+                    message={t('presta.search.actions.loadingMore')}
                     size="small"
                   />
                 )}
@@ -969,11 +971,11 @@ export const Prestataire = () => {
         onSelect={handleModalSelect}
         title={
           {
-            regions: 'Sélectionner une région',
-            departments: 'Sélectionner un département',
-            cities: 'Sélectionner une ville',
-            providerTypes: 'Type de prestataire',
-          }[modalState.type] || 'Sélectionner'
+            regions: t('presta.search.selectRegion'),
+            departments: t('presta.search.selectDept'),
+            cities: t('presta.search.selectCity'),
+            providerTypes: t('presta.search.providerType'),
+          }[modalState.type] || t('common.selectOption')
         }
         loading={modalState.loading}
       />

@@ -35,6 +35,7 @@ import { AuthContext } from '../context/AuthContext'
 import { useApi } from '../context/useApi'
 import ModalPresta from '../components/ModalPresta'
 import { useToast } from '../components/ToastComponent'
+import { useTranslation } from 'react-i18next'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 const { width, height } = Dimensions.get('window')
@@ -58,6 +59,7 @@ interface FormData {
 
 const EventPresta: React.FC = ({ route, navigation }) => {
   const { item } = route.params
+  const { t } = useTranslation()
 
   // console.log(item)
   const { showToast, ToastComponent } = useToast()
@@ -126,17 +128,17 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     const trimmedTitle = title.trim()
 
     if (!trimmedTitle) {
-      setTitleError('Le titre ne peut pas être vide')
+      setTitleError(t('presta.validation.empty'))
       return false
     }
 
     if (trimmedTitle.length < 3) {
-      setTitleError('Le titre doit contenir au moins 3 caractères')
+      setTitleError(t('presta.validation.tooShort'))
       return false
     }
 
     if (trimmedTitle.length > 100) {
-      setTitleError('Le titre ne peut pas dépasser 100 caractères')
+      setTitleError(t('presta.validation.tooLong'))
       return false
     }
 
@@ -183,7 +185,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error)
-        showToast('❌ Erreur lors du chargement des données', 'error')
+        showToast(t('presta.toasts.errorLoading'), 'error')
         setIsDataLoaded(false)
       }
     },
@@ -218,7 +220,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       })
 
       if (response.code === 'SUCCESS') {
-        showToast('✅ Déroulé créé avec succès !', 'success')
+        showToast(t('presta.toasts.successCreated'), 'success')
 
         // Navigation vers le nouveau déroulé
         const newItem = {
@@ -238,7 +240,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       }
     } catch (error) {
       console.error('Erreur création déroulé:', error)
-      showToast('❌ Erreur lors de la création du déroulé', 'error')
+      showToast(t('presta.toasts.errorCreated'), 'error')
     } finally {
       setIsCreating(false)
     }
@@ -285,7 +287,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
   const handleSaveForm = useCallback(async () => {
     // Validation du titre au moment de la sauvegarde
     if (!validateTitle(derouleTitle)) {
-      showToast(`❌ ${titleError || 'Le titre est requis'}`, 'error')
+      showToast(`❌ ${titleError || t('presta.validation.required')}`, 'error')
       return
     }
     setIsSaving(true)
@@ -310,7 +312,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
       // console.log('📝 Payload:', payload)
       await validForm({ data: payload })
       setPrestataire([])
-      showToast('✅ Données sauvegardées avec succès !', 'success')
+      showToast(t('presta.toasts.successSaved'), 'success')
       await onRefresh()
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error)
@@ -336,7 +338,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
     (newStep: string) => {
       // Si on va sur Presta et que les données ne sont pas chargées
       if (newStep === 'Presta' && !isDataLoaded && item?.id) {
-        showToast('⏳ Chargement des données en cours...', 'info')
+        showToast(t('presta.toasts.loadingData'), 'info')
         return
       }
       setStep(newStep)
@@ -439,7 +441,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             style={{ marginHorizontal: 10 }}
           >
             <Text white transform="uppercase" size={20}>
-              nouveau déroulé
+              {t('presta.title.new')}
             </Text>
           </Button>
 
@@ -449,7 +451,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
             >
               <TextInput
                 style={styles.textInput}
-                placeholder="Saisissez le titre de votre déroulé"
+                placeholder={t('presta.title.placeholder')}
                 placeholderTextColor="#999"
                 value={derouleTitle}
                 onChangeText={handleDerouleTitleChange}
@@ -469,7 +471,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
 
           <View style={styles.titleCounter}>
             <Text style={styles.counterText}>
-              {derouleTitle.length}/100 caractères
+              {t('presta.title.counter', { count: derouleTitle.length })}
             </Text>
           </View>
 
@@ -492,12 +494,12 @@ const EventPresta: React.FC = ({ route, navigation }) => {
                     style={styles.loader}
                   />
                   <Text color={'#fff'} style={{ textTransform: 'uppercase' }}>
-                    Création en cours...
+                    {t('presta.buttons.creating')}
                   </Text>
                 </View>
               ) : (
                 <Text color={'#fff'} style={{ textTransform: 'uppercase' }}>
-                  Créer le déroulé
+                  {t('presta.buttons.create')}
                 </Text>
               )}
             </Button>
@@ -534,7 +536,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
         <View style={{ marginHorizontal: 30 }}>
           <Button gradient={gradients.primary} marginBottom={sizes.base}>
             <Text white transform="uppercase" size={20}>
-              {formData.derouleTitle || 'Déroulé'}
+              {formData.derouleTitle || t('presta.title.edit')}
             </Text>
           </Button>
 
@@ -554,7 +556,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
                 transform="uppercase"
                 size={12}
               >
-                Déroulé
+                {t('presta.tabs.schedule')}
               </Text>
             </Button>
             <Button
@@ -572,8 +574,8 @@ const EventPresta: React.FC = ({ route, navigation }) => {
                 size={12}
               >
                 {!isDataLoaded && item?.id
-                  ? 'Chargement...'
-                  : 'Prestataires interrogés'}
+                  ? t('presta.tabs.loading')
+                  : t('presta.tabs.providers')}
               </Text>
             </Button>
           </View>
@@ -583,7 +585,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
           <View style={styles.titleEditContainer}>
             <TextInput
               style={[styles.titleInput, titleError && styles.inputError]}
-              placeholder="Saisissez le titre de votre déroulé"
+              placeholder={t('presta.title.placeholder')}
               placeholderTextColor="#999"
               value={derouleTitle}
               onChangeText={handleDerouleTitleChange}
@@ -647,7 +649,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
                       textTransform: 'uppercase',
                     }}
                   >
-                    Ajouter un prestataire interrogé
+                    {t('presta.buttons.addProvider')}
                   </TextField>
                 </View>
               </Button>
@@ -674,7 +676,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
               onPress={handleGoBack}
             >
               <Text white transform="uppercase" size={getFontSize(13)}>
-                Retour
+                {t('presta.buttons.back')}
               </Text>
             </Button>
             <Button
@@ -694,12 +696,12 @@ const EventPresta: React.FC = ({ route, navigation }) => {
                     style={styles.loader}
                   />
                   <Text white transform="uppercase" size={getFontSize(11)}>
-                    Sauvegarde...
+                    {t('presta.buttons.saving')}
                   </Text>
                 </View>
               ) : (
                 <Text white transform="uppercase" size={getFontSize(13)}>
-                  Sauvegarder
+                  {t('presta.buttons.save')}
                 </Text>
               )}
             </Button>
@@ -717,7 +719,7 @@ const EventPresta: React.FC = ({ route, navigation }) => {
               }
             >
               <Text white transform="uppercase" size={getFontSize(13)}>
-                Chat
+                {t('presta.buttons.chat')}
               </Text>
             </Button>
           </View>

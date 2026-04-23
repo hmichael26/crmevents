@@ -1,0 +1,32 @@
+{
+  "recommended": {
+    "title": "Paramètres recommandés",
+    "subtitle": "Ce sont les plus importants paramètres",
+    "faceid": "Utilisez FaceID pour vous connecter",
+    "autolock": "Auto-Lock sécurité",
+    "notifications": "Notifications",
+    "darkmode": "Dark Mode",
+    "language": "Langue"
+  },
+  "payment": {
+    "title": "Paramètres de paiement",
+    "subtitle": "Ce sont les paramètres de paiement",
+    "options": "Gérer les options de paiement",
+    "giftcards": "Gérer les cartes-cadeaux"
+  },
+  "privacy": {
+    "title": "Paramètres de confidentialité",
+    "subtitle": "Troisièmes paramètres les plus importants",
+    "agreement": "Accord d'utilisation",
+    "privacy": "Confidentialité",
+    "about": "Environ"
+  },
+  "notifications": {
+    "title": "Notifications Paramètres",
+    "subtitle": "Ce sont les plus importants paramètres",
+    "mentions": "Quelqu'un me mentionne",
+    "follows": "Quelqu'un me suit",
+    "comments": "Quelqu'un me commente",
+    "offers": "Offres nouveaux"
+  }
+}

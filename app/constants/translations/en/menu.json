@@ -1,0 +1,12 @@
+{
+  "started": "Getting Started",
+  "documentation": "Documentation",
+  "eventDetail": "EVENT DETAILS",
+  "status": "STATUS:",
+  "venues": "VENUES AVAILABLE",
+  "activities": "ACTIVITIES",
+  "addSchedule": "+ ADD A SCHEDULE",
+  "to": "TO",
+  "statusUpdateSuccess": "✅ Status updated to: {{status}}",
+  "statusUpdateError": "❌ Error updating status"
+}

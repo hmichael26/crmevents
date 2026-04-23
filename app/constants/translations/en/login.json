@@ -1,0 +1,13 @@
+{
+  "title": "Welcome",
+  "subtitle": "Sign In with",
+  "welcome": "Welcome to CrmEvents",
+  "formTitle": "Login",
+  "emailLabel": "Email",
+  "emailPlaceholder": "Enter your email address",
+  "passwordLabel": "Password",
+  "passwordPlaceholder": "Enter your password",
+  "submit": "Sign In",
+  "errorFields": "Please fill all fields correctly.",
+  "errorFailed": "Login failed. Check your credentials."
+}

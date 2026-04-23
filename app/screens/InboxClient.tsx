@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   View,
   Text,
@@ -32,6 +33,7 @@ interface ChatScreenProps {
 
 const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   const { colors } = useTheme()
+  const { t } = useTranslation()
   const { item } = route.params
   const derouler = item?.arrderoules || []
   const { userdata } = useContext(AuthContext)
@@ -55,7 +57,7 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   ) => {
     // Navigate to chat with admin for this specific deroule
     navigation.navigate('Inbox', {
-      Receiver: `Admin - ${derouleTitle}`,
+      Receiver: t('chat.adminFor', { name: derouleTitle }),
       chat: {
         idevt: idevt,
         from_user: userdata.user.IDC,
@@ -93,7 +95,7 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {item.comm_deroule || 'Discuter avec votre conseiller sur ce sujet'}
+            {item.comm_deroule || t('inbox.discussWithAdvisor')}
           </Text>
         </View>
       </View>
@@ -104,7 +106,7 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
 
   const renderEmptyList = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>Aucun déroulé disponible</Text>
+      <Text style={styles.emptyText}>{t('inbox.noDeroule')}</Text>
     </View>
   )
 
@@ -118,7 +120,7 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
           <View style={styles.backButton}>
             <Feather name="arrow-left" size={25} color="#303133" />
           </View>
-          <Text style={styles.headerTitle}>CHATTER AVEC L'ADMIN</Text>
+          <Text style={styles.headerTitle}>{t('inbox.chatWithAdmin')}</Text>
         </TouchableOpacity>
       </View>
       {/* Search Bar */}
@@ -131,7 +133,7 @@ const InboxClient: React.FC<ChatScreenProps> = ({ navigation, route }) => {
         />
         <TextInput
           style={styles.searchInput}
-          placeholder="Rechercher un déroulé..."
+          placeholder={t('inbox.searchPlaceholder')}
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholderTextColor="#7F7F7F"

@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
+import { useTranslation } from 'react-i18next'
 
 export const CustomPickerModal = React.memo(
   ({
@@ -17,13 +18,18 @@ export const CustomPickerModal = React.memo(
     onClose,
     items = [],
     onSelect,
-    title = 'Sélectionner',
+    title,
     loading = false,
     searchable = true,
-    placeholder = 'Rechercher...',
-    emptyText = 'Aucun résultat trouvé',
-    resetText = 'Aucune sélection',
+    placeholder,
+    emptyText,
+    resetText,
   }) => {
+    const { t } = useTranslation()
+    const finalTitle = title || t('common.selectOption')
+    const finalPlaceholder = placeholder || t('common.searchPlaceholder')
+    const finalEmptyText = emptyText || t('common.noResults')
+    const finalResetText = resetText || t('common.noSelection')
     const [searchQuery, setSearchQuery] = useState('')
 
     const filteredItems = useMemo(() => {
@@ -63,7 +69,7 @@ export const CustomPickerModal = React.memo(
           <View style={styles.modalContent}>
             {/* Header */}
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{title}</Text>
+              <Text style={styles.modalTitle}>{finalTitle}</Text>
               <TouchableOpacity
                 onPress={handleClose}
                 style={styles.closeButton}
@@ -78,7 +84,7 @@ export const CustomPickerModal = React.memo(
                 <Icon name="search" size={20} color="#999" />
                 <TextInput
                   style={styles.modalSearchInput}
-                  placeholder={placeholder}
+                  placeholder={finalPlaceholder}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                   placeholderTextColor="#999"
@@ -97,7 +103,7 @@ export const CustomPickerModal = React.memo(
             {loading ? (
               <View style={styles.modalLoading}>
                 <ActivityIndicator color="#9932CC" size="large" />
-                <Text style={styles.modalLoadingText}>Chargement...</Text>
+                <Text style={styles.modalLoadingText}>{t('common.loading')}</Text>
               </View>
             ) : (
               <>
@@ -106,7 +112,7 @@ export const CustomPickerModal = React.memo(
                   style={styles.modalItem}
                   onPress={() => handleSelect('')}
                 >
-                  <Text style={styles.modalItemTextReset}>{resetText}</Text>
+                  <Text style={styles.modalItemTextReset}>{finalResetText}</Text>
                 </TouchableOpacity>
 
                 <View style={styles.modalSeparator} />
@@ -129,7 +135,7 @@ export const CustomPickerModal = React.memo(
                     <View style={styles.modalSeparator} />
                   )}
                   ListEmptyComponent={
-                    <Text style={styles.modalEmptyText}>{emptyText}</Text>
+                    <Text style={styles.modalEmptyText}>{finalEmptyText}</Text>
                   }
                   showsVerticalScrollIndicator={true}
                   maxToRenderPerBatch={10}
@@ -148,15 +154,16 @@ export const CustomSelector = React.memo(
   ({
     value,
     onPress,
-    placeholder = 'Sélectionner',
+    placeholder,
     disabled = false,
     items = [],
     style,
   }) => {
+    const { t } = useTranslation()
     const selectedItem = items.find((item) => item.id === value)
     const displayText = selectedItem
       ? selectedItem.name || selectedItem.libelle
-      : placeholder
+      : placeholder || t('common.selectOption')
 
     return (
       <TouchableOpacity

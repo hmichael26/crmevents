@@ -1,0 +1,22 @@
+{
+  "title": "Accueil",
+  "following": "Suivant",
+  "trending": "Tendance",
+  "searchPlaceholder": "Nom de projet",
+  "refLabel": "Ref :",
+  "noProjects": "Aucun projet à afficher",
+  "categories": {
+    "new": "Nouveau Projet",
+    "toValidate": "Devis à Valider",
+    "toRefine": "Recherche à Affiner",
+    "sent": "Devis Envoyé",
+    "hot": "HOT",
+    "won": "Projets Gagnés",
+    "lost": "Projets Perdus"
+  },
+  "refreshing": "Actualisation...",
+  "errors": {
+    "fetch": "Impossible de récupérer les données. Veuillez réessayer."
+  },
+  "eventInProgress": "Event en cours"
+}

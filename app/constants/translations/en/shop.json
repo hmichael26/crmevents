@@ -1,0 +1,8 @@
+{
+  "subtotal": {
+    "one": "Cart subtotal (1 item)",
+    "other": "Cart subtotal ({{count}} items)",
+    "zero": "Cart subtotal (0 items)"
+  },
+  "alsoShopped": "Customers who shopped for items in your cart also shopped for"
+}

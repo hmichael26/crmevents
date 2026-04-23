@@ -24,6 +24,7 @@ import { ClientCard } from '../components/ClientCard'
 import { Button } from '../components'
 import { useTheme } from '../hooks'
 import { useNavigation } from '@react-navigation/native'
+import { useTranslation } from 'react-i18next'
 
 const PAGE_SIZE = 30
 
@@ -43,7 +44,7 @@ const EmptyState = React.memo(({ message, onRetry }) => (
     {onRetry && (
       <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
         <Icon name="refresh" size={20} color="#9932CC" />
-        <Text style={styles.retryButtonText}>Réessayer</Text>
+        <Text style={styles.retryButtonText}>{t('clients.empty.retry')}</Text>
       </TouchableOpacity>
     )}
   </View>
@@ -51,6 +52,7 @@ const EmptyState = React.memo(({ message, onRetry }) => (
 
 export const Client = () => {
   const { getClient, udpateClient, deleteClient } = useApi()
+  const { t } = useTranslation()
 
   const navigation = useNavigation()
   const scrollViewRef = useRef(null)
@@ -208,8 +210,8 @@ export const Client = () => {
     // Vérifie qu'il y a au moins 2 caractères
     if (searchQuery.trim().length < 2) {
       Alert.alert(
-        'Recherche',
-        'Veuillez saisir au moins 2 caractères pour la recherche.',
+        t('clients.alerts.searching'),
+        t('clients.alerts.minChars'),
       )
       return
     }
@@ -218,7 +220,7 @@ export const Client = () => {
     cleanupMemory()
 
     setLoadingState('searching', true)
-    setSearchProgress('Recherche en cours...')
+    setSearchProgress(t('clients.loading.searching'))
     setCurrentPage(1)
     setHasMore(true)
 
@@ -226,10 +228,10 @@ export const Client = () => {
       await fetchData(1, true)
       cleanupAfterSearch()
     } catch (error) {
-      setSearchProgress('Erreur lors de la recherche')
+      setSearchProgress(t('clients.alerts.errorSearch'))
       Alert.alert(
-        'Erreur',
-        error.message || 'Erreur lors de la recherche des clients',
+        t('common.error'),
+        error.message || t('clients.alerts.errorSearch'),
       )
       cleanupMemory()
     } finally {
@@ -245,9 +247,9 @@ export const Client = () => {
   ) => {
     try {
       if (isNewSearch && showProgress) {
-        setSearchProgress(`Recherche de "${searchQuery}"...`)
+        setSearchProgress(t('clients.loading.searching'))
       } else if (showProgress) {
-        setSearchProgress('Actualisation des données...')
+        setSearchProgress(t('clients.loading.refreshing'))
       }
 
       const formattedData = {
@@ -279,7 +281,7 @@ export const Client = () => {
         setSearchResults(newData)
         setCurrentPage(page)
         if (showProgress) {
-          setSearchProgress(`${newData.nb_tot_client} clients trouvés`)
+          setSearchProgress(`${newData.nb_tot_client} ${t('clients.results.found')}`)
         }
       } else {
         // Actualisation : garde les données existantes ou les remplace selon le contexte
@@ -344,7 +346,7 @@ export const Client = () => {
         nb_tot_client: searchResults.nb_tot_client, // Garde le nombre total
       })
 
-      setSearchProgress('Données actualisées avec succès')
+      setSearchProgress(t('clients.loading.success'))
 
       // Nettoie le message après 2 secondes
       setTimeout(() => {
@@ -354,7 +356,7 @@ export const Client = () => {
       console.log('✅ Actualisation terminée')
     } catch (error) {
       console.error("🔴 Erreur lors de l'actualisation:", error)
-      Alert.alert('Erreur', "Impossible d'actualiser les données")
+      Alert.alert(t('common.error'), t('clients.alerts.errorRefresh'))
     } finally {
       setLoadingState('updating', false)
     }
@@ -408,15 +410,15 @@ export const Client = () => {
           await refreshCurrentSearch()
 
           // Message de succès
-          Alert.alert('Succès', 'Client modifié avec succès')
+          Alert.alert(t('common.success'), t('clients.alerts.modifySuccess'))
         } else {
           throw new Error('Réponse invalide du serveur')
         }
       } catch (error) {
         console.error('🔴 Erreur lors de la modification:', error)
         Alert.alert(
-          'Erreur',
-          error.message || 'Impossible de modifier le client',
+          t('common.error'),
+          error.message || t('clients.alerts.errorUpdate'),
         )
       } finally {
         setLoadingState('updating', false)
@@ -431,15 +433,15 @@ export const Client = () => {
 
       // Confirmation avant suppression
       Alert.alert(
-        'Confirmation',
-        'Êtes-vous sûr de vouloir supprimer ce client ?',
+        t('common.confirmation'),
+        t('clients.alerts.deleteConfirm'),
         [
           {
-            text: 'Annuler',
+            text: t('common.cancel'),
             style: 'cancel',
           },
           {
-            text: 'Supprimer',
+            text: t('common.delete'),
             style: 'destructive',
             onPress: async () => {
               setLoadingState('updating', true)
@@ -464,15 +466,15 @@ export const Client = () => {
                   await refreshCurrentSearch()
 
                   // Message de succès
-                  Alert.alert('Succès', 'Client supprimé avec succès')
+                  Alert.alert(t('common.success'), t('clients.alerts.deleteSuccess'))
                 } else {
                   throw new Error('Réponse invalide du serveur')
                 }
               } catch (error) {
                 console.error('🔴 Erreur lors de la suppression:', error)
                 Alert.alert(
-                  'Erreur',
-                  error.message || 'Impossible de supprimer le client',
+                  t('common.error'),
+                  error.message || t('clients.alerts.errorDelete'),
                 )
               } finally {
                 setLoadingState('updating', false)
@@ -525,7 +527,7 @@ export const Client = () => {
         windowSize={5}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>CLIENTS</Text>
+          <Text style={styles.title}>{t('clients.title')}</Text>
 
           {/* Indicateur de progression */}
           {(searchProgress ||
@@ -535,9 +537,9 @@ export const Client = () => {
               <ActivityIndicator color="#9932CC" />
               <Text style={styles.progressText}>
                 {loadingStates.updating
-                  ? 'Mise à jour en cours...'
+                  ? t('clients.loading.updating')
                   : searchProgress ||
-                    'La requête prend plus de temps que prévu... Veuillez patienter.'}
+                    t('clients.loading.longWait')}
               </Text>
             </View>
           )}
@@ -553,7 +555,7 @@ export const Client = () => {
               />
               <TextInput
                 style={styles.searchInput}
-                placeholder="Nom du client (min. 2 caractères)"
+                placeholder={t('clients.searchPlaceholder')}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 onSubmitEditing={submit}
@@ -592,7 +594,7 @@ export const Client = () => {
                   ) : (
                     <>
                       <Icon name="search" size={18} color="white" />
-                      <Text style={styles.searchButtonText}>Rechercher</Text>
+                      <Text style={styles.searchButtonText}>{t('clients.search')}</Text>
                     </>
                   )}
                 </Button>
@@ -610,11 +612,11 @@ export const Client = () => {
             {/* Résultats */}
             {searchResults !== null && (
               <Text style={styles.resultCount}>
-                Résultat de recherche :{' '}
+                {t('clients.results.label')}
                 <Text style={styles.resultCountHighlight}>
                   {searchResults.nb_tot_client}
-                </Text>{' '}
-                clients.
+                </Text>
+                {t('clients.clientsCount')}
               </Text>
             )}
 
@@ -625,8 +627,8 @@ export const Client = () => {
                 <Text style={styles.selectionText}>
                   <Text style={styles.resultCountHighlight}>
                     {selectClient.length}
-                  </Text>{' '}
-                  clients sélectionnés.
+                  </Text>
+                  {t('clients.selectedCount')}
                 </Text>
                 <Button
                   gradient={gradients.success}
@@ -634,7 +636,7 @@ export const Client = () => {
                   onPress={() => console.log('Validation:', selectClient)}
                   disabled={loadingStates.updating}
                 >
-                  <Text style={styles.searchButtonText}>Valider</Text>
+                  <Text style={styles.searchButtonText}>{t('clients.validate')}</Text>
                 </Button>
               </View>
             )}
@@ -657,14 +659,14 @@ export const Client = () => {
                   ))
                 ) : (
                   <EmptyState
-                    message={`Aucun client trouvé pour "${searchQuery}".`}
+                    message={t('clients.empty.noResults', { query: searchQuery })}
                     onRetry={submit}
                   />
                 )}
 
                 {loadingStates.loadingMore && hasMore && (
                   <LoadingIndicator
-                    message="Chargement des clients suivants..."
+                    message={t('clients.loading.more')}
                     size="small"
                   />
                 )}

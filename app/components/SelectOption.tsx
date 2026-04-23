@@ -7,6 +7,7 @@ import {
   ScrollView,
   Modal,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 
 interface Option {
   id: string | number
@@ -25,9 +26,11 @@ const SelectOption: React.FC<SelectOptionProps> = ({
   options,
   selectedOption,
   onSelectionChange,
-  placeholder = 'Sélectionnez une option',
+  placeholder,
   disabled = false,
 }) => {
+  const { t } = useTranslation()
+  const finalPlaceholder = placeholder || t('common.selectOption')
   const [isOpen, setIsOpen] = useState(false)
 
   const selectOption = (libelle: string) => {
@@ -49,7 +52,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
   const renderSelectedOption = () => {
     const selectedLabel = getSelectedLabel()
     if (!selectedLabel) {
-      return <Text style={styles.placeholder}>{placeholder}</Text>
+      return <Text style={styles.placeholder}>{finalPlaceholder}</Text>
     }
     return (
       <View style={styles.selectedContainer}>

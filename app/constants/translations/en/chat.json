@@ -1,0 +1,20 @@
+{
+  "title": "CONVERSATION",
+  "with": "CONVERSATION WITH {{name}}",
+  "loading": "Loading messages...",
+  "empty": {
+    "title": "No new messages",
+    "subtitle": "Start chatting!"
+  },
+  "inputPlaceholder": "Send a message...",
+  "errors": {
+    "load": "Failed to load messages. Please try again.",
+    "send": "Failed to send message.",
+    "openAttachment": "Impossible to open the file.",
+    "selectFile": "Impossible to choose a file.",
+    "noFile": "No file selected",
+    "localFile": "This file is local and cannot be opened directly."
+  },
+  "advisorFor": "Advisor for {{name}}",
+  "adminFor": "Admin - {{name}}"
+}

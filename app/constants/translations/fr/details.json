@@ -1,0 +1,67 @@
+{
+  "newProject": "Nouveau projet",
+  "eventDetails": "Détails de l'Event",
+  "tabs": {
+    "dates": "Dates",
+    "clients": "Clients",
+    "com": "COM %"
+  },
+  "footer": {
+    "back": "Retour",
+    "creating": "Création...",
+    "saving": "Sauvegarde...",
+    "create": "Créer",
+    "save": "Sauvegarder"
+  },
+  "validation": {
+    "nameRequired": "❌ Le nom de l'événement est obligatoire",
+    "successCreated": "✅ Événement créé avec succès !",
+    "successModified": "✅ Événement modifié avec succès !",
+    "errorAction": "❌ Erreur lors de la {{action}} de l'événement",
+    "createAction": "création",
+    "editAction": "modification"
+  },
+  "form": {
+    "eventName": "Nom de l'événement",
+    "receptionDate": "Date de réception",
+    "pax": "Nombre de personnes (PAX)",
+    "zone": "Zone / Lieu",
+    "eventType": "Type d'événement",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "flexibleDates": "Dates flexibles",
+    "budget": "Budget",
+    "comments": "Commentaires / Dates",
+    "format": "Format",
+    "client": "Client principal",
+    "company": "Entreprise",
+    "email": "Email",
+    "phoneFix": "Téléphone fixe",
+    "phoneMobile": "Téléphone portable",
+    "infos": "Infos complémentaires",
+    "showClientName": "Afficher le nom du client",
+    "selectClients": "Sélectionner des clients",
+    "commission": "Commission",
+    "addClients": "Ajouter d'autres clients",
+    "addBtn": "+ Ajouter",
+    "commissionTitle": "Proposition de Commission aux Prestataires",
+    "commissionRate": "{{rate}}% HT sur le Total HT facturé",
+    "ref": "REF",
+    "flexibility": "Flexibilite",
+    "fields": {
+      "selectDate": "Sélectionner une date",
+      "enterText": "Entrer du texte",
+      "selectOption": "Sélectionnez une option",
+      "noFields": "Aucun champ ajouté",
+      "dateField": "Champ DATE",
+      "textField": "Champ TEXT",
+      "dynamicField": "Champ DYNAMIQUE"
+    }
+  },
+  "autocomplete": {
+    "placeholder": "Sélectionner un client",
+    "searchPlaceholder": "Rechercher un client",
+    "noResults": "Aucun client trouvé",
+    "close": "Fermer"
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, StyleSheet, TextInput, Alert, Dimensions, KeyboardAvoidingView, TouchableOpacity, Text } from 'react-native';
 import { SwitchTextBox, TextInputWithIcon } from './TextInputWithIcon';
 import MultiSelect from './MultiSelectBox';
@@ -28,6 +29,7 @@ type FormData = {
 };
 
 const Form3: React.FC<Form3Props> = ({ item, onDataChange }) => {
+  const { t } = useTranslation();
 
   const { assets, colors, gradients, sizes } = useTheme();
   const [switch1, setSwitch1] = useState(item?.commission_10);
@@ -65,18 +67,18 @@ const Form3: React.FC<Form3Props> = ({ item, onDataChange }) => {
   return <View style={styles.container}>
 
 
-    <Text style={{ fontSize: 18, fontWeight: "bold", textAlign: 'center', color: colors.primary, flexWrap: "wrap", marginVertical: 15 }}>Proposition de Commission aux Prestataires</Text>
+    <Text style={{ fontSize: 18, fontWeight: "bold", textAlign: 'center', color: colors.primary, flexWrap: "wrap", marginVertical: 15 }}>{t('details.form.commissionTitle')}</Text>
 
-    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
-      <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>10% HT sur le Total HT facturé</Text>
+    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10, marginVertical: 5, alignItems: 'center' }}>
+      <Text style={{ fontSize: 16, fontWeight: "bold", marginHorizontal: 10, flex: 1 }}>{t('details.form.commissionRate', { rate: '10' })}</Text>
       <Switch checked={switch1} onPress={(checked) => { setSwitch1(checked), updateFormField('commission_10', checked) }} />
     </View>
-    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
-      <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>12% HT sur le Total HT facturé</Text>
+    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10, marginVertical: 5, alignItems: 'center' }}>
+      <Text style={{ fontSize: 16, fontWeight: "bold", marginHorizontal: 10, flex: 1 }}>{t('details.form.commissionRate', { rate: '12' })}</Text>
       <Switch checked={switch2} onPress={(checked) => { setSwitch2(checked), updateFormField('commission_12', checked) }} />
     </View>
-    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 5, borderRadius: 10, marginVertical: 5 }}>
-      <Text style={{ fontSize: 17, fontWeight: "bold", marginHorizontal: 10 }}>15% HT sur le Total HT facturé</Text>
+    <View style={{ flexDirection: "row", alignContent: "center", justifyContent: "space-between", borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 10, marginVertical: 5, alignItems: 'center' }}>
+      <Text style={{ fontSize: 16, fontWeight: "bold", marginHorizontal: 10, flex: 1 }}>{t('details.form.commissionRate', { rate: '15' })}</Text>
       <Switch checked={switch3} onPress={(checked) => { setSwitch3(checked), updateFormField('commission_15', checked) }} />
     </View>
 

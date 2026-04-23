@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   StyleSheet,
   Text,
@@ -74,9 +75,9 @@ const normalize = (size: number): number => {
   }
 };
 
-const openUrl = async (url: string | undefined): Promise<void> => {
+const openUrl = async (url: string | undefined, t: any): Promise<void> => {
   if (!url?.trim()) {
-    Alert.alert("Erreur", "Aucun lien disponible");
+    Alert.alert(t('common.error'), t('presta.toasts.noLink'));
     return;
   }
 
@@ -89,17 +90,17 @@ const openUrl = async (url: string | undefined): Promise<void> => {
     }
   } catch (error) {
     console.error("🔴 Erreur ouverture URL:", error);
-    Alert.alert("Erreur", "Impossible d'ouvrir ce lien.");
+    Alert.alert(t('common.error'), t('presta.toasts.errorLink'));
   }
 };
 
-const openGoogleMaps = (ggmap?: string, location?: string): void => {
+const openGoogleMaps = (t: any, ggmap?: string, location?: string): void => {
   const url =
     ggmap ||
     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
       location || "",
     )}`;
-  openUrl(url);
+  openUrl(url, t);
 };
 
 // Main component
@@ -110,6 +111,7 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
   refreshData,
 }) => {
   const { colors, sizes } = useTheme();
+  const { t } = useTranslation();
   const [error, setError] = useState<ErrorState | null>(null);
 
   // Memoized prestataires list avec validation
@@ -130,7 +132,7 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
       <View style={styles.container}>
         <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[styles.statusText, { color: colors.text }]}>
-          Chargement...
+          {t('common.loading')}
         </Text>
       </View>
     );
@@ -141,10 +143,10 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
     return (
       <View style={styles.container}>
         <Text style={[styles.emptyTitle, { color: colors.text }]}>
-          Aucun prestataire disponible
+          {t('presta.providers.list.empty')}
         </Text>
         <Text style={[styles.emptySubtitle, { color: colors.gray }]}>
-          Il n'y a pas encore de prestataire associé à ce déroulé.
+          {t('presta.providers.list.noProviderAttached')}
         </Text>
       </View>
     );
@@ -165,7 +167,7 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
             refreshData();
           }}
         >
-          <Text style={styles.retryButtonText}>Réessayer</Text>
+          <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
         </Button>
       </View>
     );
@@ -182,6 +184,7 @@ const ClientPrestaCard: React.FC<VenueCardProps> = ({
           derouleId={activeDerouler.id}
           eventData={eventData}
           onError={setError}
+          t={t}
         />
       )}
       showsVerticalScrollIndicator={false}
@@ -208,10 +211,11 @@ interface PrestaCardItemProps {
     id_client: string | number;
   };
   onError: (error: ErrorState) => void;
+  t: any;
 }
 
 const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
-  ({ item, refreshData, derouleId, eventData, onError }) => {
+  ({ item, refreshData, derouleId, eventData, onError, t }) => {
     const { sendPouce } = useApi();
     const dimensions = useWindowDimensions();
 
@@ -291,7 +295,7 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
     );
 
     const handleOpenWebsite = (link) => {
-      Linking.openURL(link);
+      openUrl(link, t);
     };
 
     // Modal handlers
@@ -303,7 +307,7 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
           setCurrentImageIndex(0);
           setModalImageVisible(true);
         } else {
-          Alert.alert("Information", "Aucune photo disponible.");
+          Alert.alert(t('common.info'), t('presta.providers.modals.noPhoto'));
         }
       },
       [],
@@ -331,8 +335,8 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
     // Document handlers
     const openDocument = useCallback(() => {
       console.log("🔵 Ouverture brochure:", item.lien_brochure);
-      openUrl(item.lien_brochure);
-    }, [item.lien_brochure]);
+      openUrl(item.lien_brochure, t);
+    }, [item.lien_brochure, t]);
 
     const openPhotos = useCallback(() => {
       openModalWithImages(item.all_imgs);
@@ -340,8 +344,8 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
 
     const openLocation = useCallback(() => {
       console.log("🔵 Ouverture localisation:", item.location);
-      openGoogleMaps(item.ggmap, item.location);
-    }, [item.ggmap, item.location]);
+      openGoogleMaps(t, item.ggmap, item.location);
+    }, [item.ggmap, item.location, t]);
 
     // Vote success handler
     const handleVoteSuccess = useCallback(() => {
@@ -473,6 +477,7 @@ const PrestaCardItem: React.FC<PrestaCardItemProps> = React.memo(
             isSmallDevice={isSmallDevice}
             openDocument={openDocument}
             openPhotos={openPhotos}
+            t={t}
           />
         </View>
 
@@ -497,10 +502,11 @@ interface SideButtonsSectionProps {
   isSmallDevice: boolean;
   openDocument: () => void;
   openPhotos: () => void;
+  t: any;
 }
 
 const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
-  ({ item, isHorizontalLayout, isSmallDevice, openDocument, openPhotos }) => {
+  ({ item, isHorizontalLayout, isSmallDevice, openDocument, openPhotos, t }) => {
     const devisButtons = useMemo(() => {
       return (item?.all_devis || [])
         .slice(0, 100) // Max 100 devis
@@ -510,7 +516,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
             gradient={GRADIENTS.secondary}
             style={[styles.sideButton]}
             width={110}
-            onPress={() => openUrl(devis?.lien_devis)}
+            onPress={() => openUrl(devis?.lien_devis, t)}
           >
             <Text
               style={[
@@ -518,7 +524,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
                 isSmallDevice && { fontSize: normalize(13) },
               ]}
             >
-              Devis {index + 1}
+              {t('presta.quotes.label')} {index + 1}
             </Text>
           </Button>
         ));
@@ -547,7 +553,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
                 isSmallDevice && { fontSize: normalize(13) },
               ]}
             >
-              Brochure
+              {t('presta.providers.actions.brochure')}
             </Text>
           </Button>
 
@@ -564,7 +570,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
                 isSmallDevice && { fontSize: normalize(13) },
               ]}
             >
-              Photos ({item?.all_imgs?.length || 0})
+              {t('presta.providers.actions.photo')} ({item?.all_imgs?.length || 0})
             </Text>
           </Button>
 
@@ -607,7 +613,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
               isSmallDevice && { fontSize: normalize(13) },
             ]}
           >
-            Brochure
+            {t('presta.providers.actions.brochure')}
           </Text>
         </Button>
 
@@ -624,7 +630,7 @@ const SideButtonsSection: React.FC<SideButtonsSectionProps> = React.memo(
               isSmallDevice && { fontSize: normalize(13) },
             ]}
           >
-            Photos ({item?.all_imgs?.length || 0})
+            {t('presta.providers.actions.photo')} ({item?.all_imgs?.length || 0})
           </Text>
         </Button>
 
@@ -646,6 +652,7 @@ interface ImageGalleryModalProps {
 
 const ImageGalleryModal: React.FC<ImageGalleryModalProps> = React.memo(
   ({ visible, photos, currentIndex, onClose, onPrevious, onNext }) => {
+    const { t } = useTranslation()
     const canNavigate = useMemo(
       () => ({
         prev: currentIndex > 0,
@@ -678,7 +685,7 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = React.memo(
             />
           ) : (
             <View style={styles.imageError}>
-              <Text style={styles.modalText}>Image indisponible</Text>
+              <Text style={styles.modalText}>{t('presta.providers.modals.imageUnavailable')}</Text>
             </View>
           )}
 
@@ -700,7 +707,7 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = React.memo(
               disabled={!canNavigate.prev}
               activeOpacity={0.7}
             >
-              <Text style={styles.modalText}>← Précédent</Text>
+              <Text style={styles.modalText}>← {t('presta.providers.modals.prev')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={onNext}
@@ -711,7 +718,7 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = React.memo(
               disabled={!canNavigate.next}
               activeOpacity={0.7}
             >
-              <Text style={styles.modalText}>Suivant →</Text>
+              <Text style={styles.modalText}>{t('presta.providers.modals.next')} →</Text>
             </TouchableOpacity>
           </View>
 
@@ -721,7 +728,7 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = React.memo(
             style={styles.closeButton}
             activeOpacity={0.7}
           >
-            <Text style={styles.modalText}>✕ Fermer</Text>
+            <Text style={styles.modalText}>✕ {t('presta.providers.modals.close')}</Text>
           </TouchableOpacity>
         </View>
       </Modal>

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   View,
   Text,
@@ -43,6 +44,7 @@ interface InboxScreenProps {
 
 const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
   const { colors } = useTheme()
+  const { t } = useTranslation()
   const { getChat, sendChat } = useApi()
 
   const { userdata } = useContext(AuthContext)
@@ -136,7 +138,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
       setMessages(response.data.all_chats)
     } catch (error) {
       console.error('Error loading messages:', error)
-      Alert.alert('Error', 'Failed to load messages. Please try again.')
+      Alert.alert(t('common.error'), t('chat.errors.load'))
     } finally {
       setIsLoading(false)
       setIsRefreshing(false)
@@ -193,7 +195,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
       flatListRef.current?.scrollToEnd({ animated: true })
     } catch (error) {
       console.error('Error sending message:', error)
-      Alert.alert('Erreur', 'Envoi du message échoué.')
+      Alert.alert(t('common.error'), t('chat.errors.send'))
     } finally {
       setIsSending(false)
     }
@@ -204,15 +206,15 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
 
     if (attachment.url.startsWith('file://')) {
       Alert.alert(
-        "Impossible d'ouvrir",
-        "Ce fichier est local et ne peut pas être ouvert directement. Uploade-le d'abord ou ouvre-le via un lecteur intégré.",
+        t('common.error'),
+        t('chat.errors.localFile'),
       )
       return
     }
 
     Linking.openURL(attachment.url).catch((err) => {
       console.error('Error opening attachment:', err)
-      Alert.alert('Erreur', "Impossible d'ouvrir le fichier.")
+      Alert.alert(t('common.error'), t('chat.errors.openAttachment'))
     })
   }
 
@@ -246,11 +248,11 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
         setMessages((prev) => [...prev, newMessage])
         flatListRef.current?.scrollToEnd({ animated: true })
       } else {
-        Alert.alert('Aucun fichier sélectionné')
+        Alert.alert(t('chat.errors.noFile'))
       }
     } catch (error) {
       console.error('Erreur document picker:', error)
-      Alert.alert('Erreur', 'Impossible de choisir un fichier')
+      Alert.alert(t('common.error'), t('chat.errors.selectFile'))
     }
   }
 
@@ -370,15 +372,15 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
           </View>
           <Text style={styles.headerTitle} numberOfLines={1}>
             {param?.isForClient
-              ? param?.Receiver || 'CONVERSATION'
-              : 'CONVERSATION AVEC ' + param?.Receiver || 'CONVERSATION'}
+              ? param?.Receiver || t('chat.title')
+              : t('chat.with', { name: param?.Receiver || t('chat.title') })}
           </Text>
         </TouchableOpacity>
 
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={styles.loadingText}>Chargement des messages...</Text>
+            <Text style={styles.loadingText}>{t('chat.loading')}</Text>
           </View>
         ) : (
           <FlatList
@@ -399,8 +401,8 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
             }
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Pas de nouveaux message</Text>
-                <Text style={styles.emptySubtext}>Commencez à discuter !</Text>
+                <Text style={styles.emptyText}>{t('chat.empty.title')}</Text>
+                <Text style={styles.emptySubtext}>{t('chat.empty.subtitle')}</Text>
               </View>
             }
           />
@@ -420,7 +422,7 @@ const InboxScreen: React.FC<InboxScreenProps> = ({ navigation, route }) => {
           >
             <TextInput
               style={styles.input}
-              placeholder="Envoyer un message..."
+              placeholder={t('chat.inputPlaceholder')}
               value={inputText}
               onChangeText={setInputText}
               multiline

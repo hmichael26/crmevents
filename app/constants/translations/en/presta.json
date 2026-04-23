@@ -1,0 +1,179 @@
+{
+  "title": {
+    "new": "New schedule",
+    "edit": "Schedule",
+    "placeholder": "Enter the title of your schedule",
+    "counter": "{{count}}/100 characters"
+  },
+  "tabs": {
+    "schedule": "Schedule",
+    "providers": "Interviewed providers",
+    "loading": "Loading..."
+  },
+  "validation": {
+    "empty": "Title cannot be empty",
+    "tooShort": "Title must be at least 3 characters",
+    "tooLong": "Title cannot exceed 100 characters",
+    "required": "Title is required"
+  },
+  "buttons": {
+    "create": "Create schedule",
+    "creating": "Creating...",
+    "addProvider": "Add an interviewed provider",
+    "saving": "Saving...",
+    "save": "Save",
+    "back": "Back",
+    "chat": "Chat"
+  },
+  "toasts": {
+    "loadingData": "⏳ Loading data...",
+    "errorLoading": "❌ Error loading data",
+    "successCreated": "✅ Schedule created successfully!",
+    "errorCreated": "❌ Error creating schedule",
+    "successSaved": "✅ Data saved successfully!",
+    "errorSaved": "❌ Error saving data",
+    "errorPdf": "❌ Impossible to open PDF",
+    "successDeleted": "✅ Badge deleted successfully!",
+    "errorDeleted": "❌ Error deleting badge",
+    "successSent": "✅ Request sent successfully!",
+    "errorSent": "❌ Error sending request",
+    "submitError": "Impossible to submit the form",
+    "noLink": "No link available",
+    "errorLink": "Impossible to open this link."
+  },
+  "providers": {
+    "list": {
+      "empty": "NO PROVIDERS ASSOCIATED WITH THIS SCHEDULE",
+      "noProviderAttached": "There are no providers associated with this breakdown yet.",
+      "loading": "LOADING ...",
+      "select": "select a provider",
+      "searchPlaceholder": "Search for a provider",
+      "details": {
+        "dept": "department:",
+        "city": "city:",
+        "region": "region:"
+      }
+    },
+    "actions": {
+      "send": "SEND",
+      "demand": "DEMAND",
+      "demandSent": "DEMAND SENT",
+      "noDemand": "No demand sent",
+      "insert": "INSERT",
+      "quote": "QUOTE",
+      "quoteReceived": "QUOTE RECEIVED ON",
+      "noQuote": "No quote received",
+      "insertQuoteFor": "Insert quote for",
+      "addQuotes": "Add quotes",
+      "open": "OPEN",
+      "brochure": "BROCHURE",
+      "gallery": "GALLERY",
+      "photo": "PHOTO",
+      "validate": "VALIDATE",
+      "budgetPlaceholder": "Budget",
+      "sendAll": "SEND DEMAND TO ALL VENUES",
+      "multiOption": "MULTI-OPTION",
+      "noResponse": "No response from client"
+    },
+    "form": {
+      "commentPlaceholder": "OTHER COMMISSION PROPOSAL && PROVIDER COMMENTS",
+      "emailPlaceholder": "PROVIDER EMAIL",
+      "contactPlaceholder": "FIRST NAME & PHONE",
+      "commission": "COMMISSION:",
+      "option": "OPTION:"
+    },
+    "modals": {
+      "confirmDelete": "DELETE THIS PROVIDER?",
+      "confirmDeleteQuote": "ARE YOU SURE YOU WANT TO DELETE THIS QUOTE?",
+      "deletePoint": "YOU ARE ABOUT TO DELETE?",
+      "imageUnavailable": "IMAGE UNAVAILABLE",
+      "noPhoto": "No photos available.",
+      "prev": "PREVIOUS",
+      "next": "NEXT",
+      "close": "CLOSE"
+    }
+  },
+  "quotes": {
+    "successDeleted": "QUOTE DELETED SUCCESSFULLY",
+    "successUpdated": "YOUR QUOTE HAS BEEN UPDATED SUCCESSFULLY",
+    "none": "NO QUOTES AVAILABLE",
+    "label": "QUOTE",
+    "confirmation": "CONFIRMATION",
+    "error": "ERROR",
+    "errorUpdate": "QUOTE UPDATE FAILED. CHANGES HAVE BEEN CANCELLED."
+  },
+  "labels": {
+    "yes": "YES",
+    "no": "NO",
+    "delete": "DELETE"
+  },
+  "search": {
+    "title": "PROVIDERS",
+    "updating": "Updating...",
+    "longWait": "The request is taking longer than expected... Please wait.",
+    "selectRegion": "Select a region",
+    "selectDept": "Select a department",
+    "selectCity": "Select a city",
+    "providerType": "Provider type",
+    "postalCode": "Postal Code",
+    "minRooms": "Min. rooms",
+    "minRoomsCard": "Nb of rooms",
+    "minHall": "Min. hall size",
+    "providerName": "Provider name",
+    "searchButton": "Search",
+    "reset": "Reset",
+    "results": {
+      "prefix": "Search results: ",
+      "suffix": " providers.",
+      "selected": " providers selected.",
+      "empty": "No providers found for this search.",
+      "none": "No providers found",
+      "found": " providers found"
+    },
+    "actions": {
+      "validate": "Validate",
+      "loadingMore": "Loading next providers...",
+      "preparing": "Preparing search...",
+      "searching": "Searching for providers...",
+      "refreshing": "Refreshing data...",
+      "updated": "Provider data refreshed successfully",
+      "assigning": "Preparing assignment...",
+      "assigningLong": "Assignment in progress... This can take up to 60 seconds.",
+      "assigned": "Assignment successful!"
+    },
+    "errors": {
+      "modify": "Impossible to modify provider",
+      "delete": "Impossible to delete provider",
+      "assign": "An error occurred during assignment.",
+      "selectQuote": "Please select at least one quote",
+      "submitForm": "Impossible to submit the form"
+    },
+    "confirmDelete": {
+      "title": "Confirmation",
+      "message": "Are you sure you want to delete this provider?",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "card": {
+      "modify": "Modify",
+      "save": "Save",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "select": "Select",
+      "deselect": "Deselect",
+      "rooms": "meeting rooms",
+      "bedrooms": "bedrooms",
+      "errorMissingId": "Provider ID missing",
+      "fields": {
+        "name": "Name",
+        "phone": "Phone",
+        "email": "Email",
+        "rooms": "Number of rooms",
+        "bedrooms": "Number of bedrooms",
+        "dept": "Department",
+        "city": "City",
+        "region": "Region"
+      }
+    }
+  }
+}

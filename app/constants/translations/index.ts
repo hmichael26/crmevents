@@ -1,112 +1,138 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import * as Localization from 'expo-localization';
-import en from './en.json';
-import fr from './fr.json';
 
-// CORRECTION: Fonction pour obtenir la langue de manière sécurisée
+// English
+import enApp from './en/app.json';
+import enCommon from './en/common.json';
+import enExtras from './en/extras.json';
+import enHome from './en/home.json';
+import enLogin from './en/login.json';
+import enMenu from './en/menu.json';
+import enNavigation from './en/navigation.json';
+import enNotifications from './en/notifications.json';
+import enProfile from './en/profile.json';
+import enRegister from './en/register.json';
+import enRentals from './en/rentals.json';
+import enScreens from './en/screens.json';
+import enSettings from './en/settings.json';
+import enShop from './en/shop.json';
+import enDetails from './en/details.json';
+import enClients from './en/clients.json';
+import enPresta from './en/presta.json';
+import enDates from './en/dates.json';
+import enChat from './en/chat.json';
+import enInbox from './en/inbox.json';
+
+// French
+import frApp from './fr/app.json';
+import frCommon from './fr/common.json';
+import frDates from './fr/dates.json';
+import frExtras from './fr/extras.json';
+import frHome from './fr/home.json';
+import frLogin from './fr/login.json';
+import frMenu from './fr/menu.json';
+import frNavigation from './fr/navigation.json';
+import frDetails from './fr/details.json';
+import frClients from './fr/clients.json';
+import frPresta from './fr/presta.json';
+import frNotifications from './fr/notifications.json';
+import frProfile from './fr/profile.json';
+import frRegister from './fr/register.json';
+import frRentals from './fr/rentals.json';
+import frScreens from './fr/screens.json';
+import frSettings from './fr/settings.json';
+import frShop from './fr/shop.json';
+import frChat from './fr/chat.json';
+import frInbox from './fr/inbox.json';
+
+const en = {
+  app: enApp,
+  common: enCommon,
+  extras: enExtras,
+  home: enHome,
+  login: enLogin,
+  menu: enMenu,
+  navigation: enNavigation,
+  notifications: enNotifications,
+  profile: enProfile,
+  register: enRegister,
+  rentals: enRentals,
+  screens: enScreens,
+  settings: enSettings,
+  shop: enShop,
+  details: enDetails,
+  clients: enClients,
+  presta: enPresta,
+  dates: enDates,
+  chat: enChat,
+  inbox: enInbox,
+};
+
+const fr = {
+  app: frApp,
+  common: frCommon,
+
+  extras: frExtras,
+  home: frHome,
+  login: frLogin,
+  menu: frMenu,
+  navigation: frNavigation,
+  notifications: frNotifications,
+  profile: frProfile,
+  register: frRegister,
+  rentals: frRentals,
+  screens: frScreens,
+  settings: frSettings,
+  shop: frShop,
+  details: frDetails,
+  clients: frClients,
+  presta: frPresta,
+  dates: frDates,
+  chat: frChat,
+  inbox: frInbox,
+};
+
 const getDeviceLanguage = () => {
   try {
-    // Vérifier si Localization.locale existe et est une string
     const locale = Localization.locale;
-
-    console.log('🌍 Locale détectée:', locale, 'Type:', typeof locale);
-
     if (!locale || typeof locale !== 'string') {
-      console.warn('⚠️ Locale invalide, utilisation du fallback "en"');
-      return 'en';
+      return 'fr';
     }
-
-    // Extraire la langue principale (fr-FR -> fr)
     const language = locale.split('-')[0];
-
-    // Vérifier que la langue est supportée
     const supportedLanguages = ['en', 'fr'];
     if (supportedLanguages.includes(language)) {
-      console.log('✅ Langue supportée:', language);
       return language;
     }
-
-    console.log('🔄 Langue non supportée, fallback vers "en"');
-    return 'en';
-
+    return 'fr';
   } catch (error) {
-    console.error('❌ Erreur détection langue:', error);
-    return 'en'; // Fallback sécurisé
+    return 'fr';
   }
 };
+
+const deviceLanguage = getDeviceLanguage();
+
+i18n
+  .use(initReactI18next)
+  .init({
+    resources: {
+      en: { translation: en },
+      fr: { translation: fr },
+    },
+    lng: deviceLanguage,
+    fallbackLng: 'fr',
+    compatibilityJSON: 'v3',
+    interpolation: {
+      escapeValue: false, 
+    },
+    react: {
+      useSuspense: false,
+    },
+  });
 
 export const initializeI18n = async () => {
-  try {
-    const deviceLanguage = getDeviceLanguage();
-
-    await i18n
-      .use(initReactI18next)
-      .init({
-        resources: {
-          en: { translation: en },
-          fr: { translation: fr },
-        },
-        lng: deviceLanguage, // Utiliser la fonction sécurisée
-        fallbackLng: 'en',
-        interpolation: {
-          escapeValue: false,
-        },
-        // Options supplémentaires pour plus de robustesse
-        debug: __DEV__, // Debug uniquement en développement
-        keySeparator: false, // Permet d'utiliser des clés avec des points
-        nsSeparator: false, // Désactive les namespaces avec ':'
-      });
-
-    console.log('✅ i18n initialisé avec succès avec la langue:', deviceLanguage);
-    return true;
-
-  } catch (error) {
-    console.error('❌ Erreur lors de l\'initialisation i18n:', error);
-    // En cas d'erreur, initialiser avec une config minimale
-    try {
-      await i18n.init({
-        lng: 'en',
-        fallbackLng: 'en',
-        resources: {
-          en: { translation: en },
-        },
-        interpolation: {
-          escapeValue: false,
-        },
-      });
-      console.log('⚠️ i18n initialisé en mode dégradé (English only)');
-      return true;
-    } catch (fallbackError) {
-      console.error('❌ Impossible d\'initialiser i18n même en mode dégradé:', fallbackError);
-      return false;
-    }
-  }
+  return i18n;
 };
 
-// Version synchrone si vous en avez besoin (pas recommandée)
-export const initializeI18nSync = () => {
-  try {
-    const deviceLanguage = getDeviceLanguage();
-
-    return i18n
-      .use(initReactI18next)
-      .init({
-        resources: {
-          en: { translation: en },
-          fr: { translation: fr },
-        },
-        lng: deviceLanguage,
-        fallbackLng: 'fr',
-        interpolation: {
-          escapeValue: false,
-        },
-      });
-  } catch (error) {
-    console.error('❌ Erreur initializeI18nSync:', error);
-    throw error;
-  }
-};
-
-// Export de la détection de langue pour usage externe si besoin
-export { getDeviceLanguage };
+export { getDeviceLanguage, i18n };
+export default i18n;

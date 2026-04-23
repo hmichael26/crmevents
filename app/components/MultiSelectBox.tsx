@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface Option {
     id: string;
@@ -17,8 +18,10 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
     options,
     selectedOptions,
     onSelectionChange,
-    placeholder = "Sélectionnez des options"
+    placeholder
 }) => {
+    const { t } = useTranslation();
+    const finalPlaceholder = placeholder || t('common.selectOptions');
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleOption = (id: string) => {
@@ -32,7 +35,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 
     const renderSelectedOptions = () => {
         if (selectedOptions.length === 0) {
-            return <Text style={styles.placeholder}>{placeholder}</Text>;
+            return <Text style={styles.placeholder}>{finalPlaceholder}</Text>;
         }
         return (
             <View style={styles.selectedContainer}>

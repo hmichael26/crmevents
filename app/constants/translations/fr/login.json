@@ -1,0 +1,13 @@
+{
+  "title": "Bienvenu",
+  "subtitle": "Connectez-vous avec",
+  "welcome": "Bienvenue sur CrmEvents",
+  "formTitle": "Connexion",
+  "emailLabel": "Email",
+  "emailPlaceholder": "Entrez votre adresse e-mail",
+  "passwordLabel": "Mot de Passe",
+  "passwordPlaceholder": "Entrez votre mot de passe",
+  "submit": "Se connecter",
+  "errorFields": "Veuillez remplir tous les champs correctement.",
+  "errorFailed": "Échec de la connexion. Vérifiez vos identifiants."
+}

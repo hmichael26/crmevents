@@ -19,7 +19,7 @@ import { useData, useTheme } from '../hooks'
 import { Login } from '../screens'
 import ModernSplashScreen from '../screens/ModernSplashScreen'
 import Menu from './Menu'
-import { initializeI18n } from '../constants/translations'
+import { initializeI18n, i18n } from '../constants/translations'
 import { navigationRef } from '../../App'
 
 // Empêche le splash auto tant que fonts ne sont pas chargées
@@ -87,7 +87,7 @@ const SecureNavigator = () => {
     // Si ça prend du temps, on informe l'utilisateur
     if (showDelayedMessage) {
       return (
-        <LoadingScreen message="Chargement en cours...  Merci de patienter." />
+        <LoadingScreen message={`${i18n.t('common.loading')}  ${i18n.t('common.pleaseWait')}`} />
       )
     }
 
@@ -109,7 +109,7 @@ const SecureNavigator = () => {
 const App = () => {
   const { isDark, theme, setTheme } = useData()
   const [isReady, setIsReady] = useState(false)
-  const [appInitProgress, setAppInitProgress] = useState('Initialisation...')
+  const [appInitProgress, setAppInitProgress] = useState(i18n.t('common.initializing'))
   const { colors } = useTheme()
 
   const [fontsLoaded, fontError] = useFonts({
@@ -127,11 +127,11 @@ const App = () => {
 
   const prepareApp = useCallback(async () => {
     try {
-      setAppInitProgress('Chargement des traductions...')
+      setAppInitProgress(i18n.t('common.loadingTranslations'))
       await initializeI18n()
 
       if (fontsLoaded) {
-        setAppInitProgress('Finalisation...')
+        setAppInitProgress(i18n.t('common.finalizing'))
         await SplashScreen.hideAsync()
 
         // Petit délai pour que l'utilisateur voie le message de finalisation
@@ -141,7 +141,7 @@ const App = () => {
       }
     } catch (error) {
       console.error('Erreur init app :', error)
-      setAppInitProgress('Une erreur est survenue, but continuing...')
+      setAppInitProgress(i18n.t('common.errorOccurred'))
       setTimeout(() => {
         setIsReady(true)
       }, 1000)

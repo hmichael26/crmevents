@@ -4,108 +4,109 @@ import React, {
   useEffect,
   useRef,
   useState,
-} from 'react'
-import { Animated, Linking, StyleSheet } from 'react-native'
+} from "react";
+import { Animated, Linking, StyleSheet } from "react-native";
 import {
   createDrawerNavigator,
   DrawerContentComponentProps,
   DrawerContentScrollView,
-} from '@react-navigation/drawer'
-import Screens from './Screens'
-import { Block, Text, Switch, Button, Image } from '../components'
-import { useData, useTheme } from '../hooks'
-import { AuthContext } from '../context/AuthContext'
-import { useTranslation } from 'react-i18next'
-import logo from '../assets/images/splash.png'
-import { AtSign, LogOut } from 'react-native-feather'
-const Drawer = createDrawerNavigator()
+} from "@react-navigation/drawer";
+import Screens from "./Screens";
+import { Block, Text, Switch, Button, Image } from "../components";
+import { useData, useTheme } from "../hooks";
+import { AuthContext } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
+import { AtSign, LogOut, Globe } from "react-native-feather";
+import { Dropdown } from "react-native-element-dropdown";
+import logo from "../assets/images/splash.png";
+
+const Drawer = createDrawerNavigator();
 
 /* drawer menu screens navigation */
 const ScreensStack = () => {
-  const { colors } = useTheme()
+  const { colors } = useTheme();
   // const isDrawerOpen = useIsDrawerOpen();
-  const isDrawerOpen = true
-  const animation = useRef(new Animated.Value(0)).current
+  const isDrawerOpen = true;
+  const animation = useRef(new Animated.Value(0)).current;
 
   const scale = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [1, 0.88],
-  })
+  });
 
   const borderRadius = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 16],
-  })
+  });
 
   const animatedStyle = {
     borderRadius: borderRadius,
     transform: [{ scale: scale }],
-  }
+  };
 
   useEffect(() => {
     Animated.timing(animation, {
       duration: 200,
       useNativeDriver: true,
       toValue: isDrawerOpen ? 1 : 0,
-    }).start()
-  }, [isDrawerOpen, animation])
+    }).start();
+  }, [isDrawerOpen, animation]);
 
-  return <Screens />
-}
+  return <Screens />;
+};
 
 /* custom drawer menu */
 const DrawerContent = (props: DrawerContentComponentProps) => {
   //console.log(admin)
 
-  const { t, i18n } = useTranslation()
-  useEffect(() => {}, [])
+  const { t, i18n } = useTranslation();
+  useEffect(() => {}, []);
 
-  const { navigation } = props
-  const { isDark, handleIsDark } = useData()
+  const { navigation } = props;
+  const { isDark, handleIsDark } = useData();
   // const { t } = useTranslation();
-  const [active, setActive] = useState('Home')
-  const { assets, colors, gradients, sizes } = useTheme()
+  const [active, setActive] = useState("Home");
+  const { assets, colors, gradients, sizes } = useTheme();
 
-  const { Logout, usertoken, userdata } = useContext(AuthContext)
-  const admin = userdata?.user?.admin
+  const { Logout, usertoken, userdata } = useContext(AuthContext);
+  const admin = userdata?.user?.admin;
 
-  const labelColor = isDark ? colors.white : colors.text
+  const languages = [
+    { label: t("navigation.french"), value: "fr" },
+    { label: t("navigation.english"), value: "en" },
+  ];
+
+  const labelColor = isDark ? colors.white : colors.text;
 
   const handleNavigation = useCallback(
     (to: string) => {
-      setActive(to)
+      setActive(to);
       // Si l'écran est dans le navigateur imbriqué "Screens"
-      navigation.navigate('Screens', { screen: to })
+      navigation.navigate("Screens", { screen: to });
     },
     [navigation, setActive],
-  )
+  );
 
-  const handleWebLink = useCallback((url: string) => Linking.openURL(url), [])
+  const handleWebLink = useCallback((url: string) => Linking.openURL(url), []);
 
   const screens = [
-    { name: 'ACCUEIL', to: 'Home', icon: assets.home },
+    { name: t("screens.home"), to: "Home", icon: assets.home },
 
-    // { name: t('screens.components'), to: 'Components', icon: assets.components },
-    // { name: t('screens.articles'), to: 'Articles', icon: assets.document },
-    // { name: t('screens.rental'), to: 'Rentals', icon: assets.rental },
-    // { name: t('screens.profile'), to: 'Profile', icon: assets.profile },
-    // { name: t('screens.settings'), to: 'Settings', icon: assets.settings },
-    // { name: t('screens.register'), to: 'Register', icon: assets.register },
-    // { name: t('screens.extra'), to: 'Extra', icon: assets.extras },
-    // { name: t('screens.eventdetails'), to: 'Eventdetails', icon: assets.register },
-    // { name: t('screens.eventPresta'), to: 'EventPresta', icon: assets.register },
-
-    admin == 1 && { name: 'CLIENTS', to: 'Client', icon: assets.users },
     admin == 1 && {
-      name: 'PRESTATAIRES',
-      to: 'Prestataire',
+      name: t("navigation.clients"),
+      to: "Client",
+      icon: assets.users,
+    },
+    admin == 1 && {
+      name: t("navigation.providers"),
+      to: "Prestataire",
       icon: assets.office,
     },
-  ].filter(Boolean) // Cela supprime toutes les valeurs `falsy` du tableau
+  ].filter(Boolean); // Cela supprime toutes les valeurs `falsy` du tableau
 
   const handleNewProject = () => {
-    navigation.navigate('Screens', { screen: 'Eventdetails' })
-  }
+    navigation.navigate("Screens", { screen: "Eventdetails" });
+  };
   return (
     <DrawerContentScrollView
       {...props}
@@ -131,7 +132,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
         </Block>
 
         {screens?.map((screen, index) => {
-          const isActive = active === screen.to
+          const isActive = active === screen.to;
           return (
             <Button
               row
@@ -148,21 +149,21 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
                 width={sizes.md}
                 height={sizes.md}
                 marginRight={sizes.s}
-                gradient={gradients[isActive ? 'primary' : 'white']}
+                gradient={gradients[isActive ? "primary" : "white"]}
               >
                 <Image
                   radius={0}
                   width={14}
                   height={14}
                   source={screen.icon}
-                  color={colors[isActive ? 'white' : 'black']}
+                  color={colors[isActive ? "white" : "black"]}
                 />
               </Block>
               <Text p semibold={isActive} color={labelColor} size={15}>
                 {screen.name}
               </Text>
             </Button>
-          )
+          );
         })}
 
         <Block
@@ -181,7 +182,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
             gradient={gradients.info}
           >
             <Text p color={colors.white} size={15} center>
-              NOUVEAU PROJET +
+              {t("navigation.newProject")} +
             </Text>
           </Button>
         )}
@@ -206,12 +207,47 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
             <LogOut width={14} height={14} color={colors.black} />
           </Block>
           <Text p color={labelColor} size={15}>
-            DÉCONNEXION
+            {t("navigation.logout")}
           </Text>
         </Button>
 
-        <Block row justify="space-between" marginTop={sizes.sm}>
-          <Text color={labelColor}> MODE SOMBRE</Text>
+        <Block row align="center" justify="space-between" marginTop={sizes.m}>
+          <Block row align="center">
+            <Text color={labelColor} size={15}>
+              {t("navigation.language")}
+            </Text>
+          </Block>
+          <Dropdown
+            style={[
+              {
+                height: 35,
+                width: 100,
+                borderColor: colors.gray,
+                borderWidth: 0.5,
+                borderRadius: 8,
+                paddingHorizontal: 8,
+                backgroundColor: isDark ? colors.card : colors.white,
+              },
+            ]}
+            placeholderStyle={{ color: colors.gray, fontSize: 12 }}
+            selectedTextStyle={{ color: labelColor, fontSize: 12 }}
+            data={languages}
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder={i18n.language === "fr" ? "FR" : "EN"}
+            value={i18n.language}
+            onChange={(item) => {
+              i18n.changeLanguage(item.value);
+            }}
+          />
+        </Block>
+
+        <Block row justify="space-between" marginTop={sizes.m}>
+          <Text color={labelColor} size={15}>
+            {" "}
+            {t("navigation.darkmode")}
+          </Text>
           <Switch
             checked={isDark}
             onPress={(checked) => handleIsDark(checked)}
@@ -219,26 +255,26 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
         </Block>
       </Block>
     </DrawerContentScrollView>
-  )
-}
+  );
+};
 
 /* drawer menu navigation */
 export default () => {
-  const { isDark } = useData()
-  const { gradients } = useTheme()
+  const { isDark } = useData();
+  const { gradients } = useTheme();
 
   return (
-    <Block gradient={gradients[isDark ? 'dark' : 'light']}>
+    <Block gradient={gradients[isDark ? "dark" : "light"]}>
       <Drawer.Navigator
         screenOptions={{
-          drawerType: 'slide',
-          overlayColor: 'transparent',
-          sceneContainerStyle: { backgroundColor: 'transparent' },
+          drawerType: "slide",
+          overlayColor: "transparent",
+          sceneContainerStyle: { backgroundColor: "transparent" },
           drawerStyle: {
             flex: 1,
-            width: '60%',
+            width: "60%",
             borderRightWidth: 0,
-            backgroundColor: 'transparent',
+            backgroundColor: "transparent",
           },
         }}
         drawerContent={(props) => <DrawerContent {...props} />}
@@ -250,5 +286,5 @@ export default () => {
         />
       </Drawer.Navigator>
     </Block>
-  )
-}
+  );
+};

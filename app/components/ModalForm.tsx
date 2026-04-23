@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   View,
   Text,
@@ -29,6 +30,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
   onSubmit,
 }) => {
   const { showToast, ToastComponent } = useToast()
+  const { t } = useTranslation()
   console.log(formParam)
   const [selectedFiles, setSelectedFiles] = useState<any[]>([])
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
@@ -53,7 +55,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
 
   const handleSubmit = async () => {
     if (selectedFiles.length === 0) {
-      Alert.alert('Erreur', 'Veuillez sélectionner au moins un devis')
+      Alert.alert(t('presta.search.confirmDelete.title'), t('presta.providers.errors.selectQuote'))
       return
     }
 
@@ -78,13 +80,13 @@ const ModalForm: React.FC<ModalFormProps> = ({
       })
 
       await validFormMultiPart(data)
-      showToast('✅ Données sauvegardées avec succès !', 'success')
+      showToast(t('presta.toasts.successSaved'), 'success')
 
       onSubmit()
       resetForm()
     } catch (error) {
       console.error('Erreur de soumission:', error)
-      Alert.alert('Erreur', 'Impossible de soumettre le formulaire')
+      Alert.alert(t('presta.search.confirmDelete.title'), t('presta.providers.errors.submitForm'))
     } finally {
       setIsSubmitting(false)
     }
@@ -109,7 +111,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
     >
       <View style={styles.centeredView}>
         <Animated.View style={[styles.modalView, { opacity: fadeAnim }]}>
-          <Text style={styles.modalTitle}>Inserer devis pour</Text>
+          <Text style={styles.modalTitle}>{t('presta.providers.actions.insertQuoteFor')}</Text>
           <View style={styles.hotelNameContainer}>
             <Text style={styles.hotelName}>{badge}</Text>
           </View>
@@ -136,7 +138,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
               }
             >
               <Ionicons name="cloud-upload-outline" size={24} color="white" />
-              <Text style={styles.fileUploadButtonText}>Ajouter des devis</Text>
+              <Text style={styles.fileUploadButtonText}>{t('presta.providers.actions.addQuotes')}</Text>
             </Button>
 
             <ScrollView
@@ -154,7 +156,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
                       { color: useTheme().colors.primary },
                     ]}
                   >
-                    Devis {index + 1}: {file.name}
+                    {t('presta.quotes.label')} {index + 1}: {file.name}
                   </Text>
                   <TouchableOpacity
                     onPress={() =>
@@ -185,7 +187,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
               ]}
               onPress={onClose}
             >
-              <Text style={styles.buttonTextCancel}>Annuler</Text>
+              <Text style={styles.buttonTextCancel}>{t('common.cancel')}</Text>
             </Button>
 
             <Button
@@ -200,7 +202,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
               disabled={isSubmitting}
             >
               <Text style={[styles.buttonTextSubmit]}>
-                {isSubmitting ? 'Envoi en cours...' : 'Soumettre'}
+                {isSubmitting ? t('common.sending') : t('common.submit')}
               </Text>
             </Button>
           </View>

@@ -1,4 +1,5 @@
 import React, {useCallback, useState} from 'react';
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import PagerView from 'react-native-pager-view';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -116,7 +117,7 @@ const Personal = ({subject, message, type, read, createdAt}: INotification) => {
 };
 
 const Notifications = () => {
-  // const {t} = useTranslation();
+  const {t} = useTranslation();
   const {notifications} = useData();
   const [tab, setTab] = useState('business');
   const pagerRef = React.createRef<PagerView>();
@@ -170,7 +171,7 @@ const Notifications = () => {
           {unread?.length && (
             <Block card padding={sizes.sm} marginBottom={sizes.sm}>
               <Text p semibold marginBottom={sizes.sm}>
-                {"t('notifications.unread')"}
+                {t('notifications.unread')}
               </Text>
               {unread?.map((notification) => (
                 <Notification
@@ -185,7 +186,7 @@ const Notifications = () => {
           {read?.length && (
             <Block card padding={sizes.sm}>
               <Text p semibold marginBottom={sizes.sm}>
-                {"t('notifications.read')"}
+                {t('notifications.read')}
               </Text>
               {read?.map((notification) => (
                 <Notification
@@ -218,7 +219,7 @@ const Notifications = () => {
               size={12}
               primary={tab === 'personal'}
               secondary={tab !== 'personal'}>
-              {"t('notifications.personal')"}
+              {t('notifications.personal')}
             </Text>
           </Button>
           <Button onPress={() => handleTab('business')}>
@@ -234,7 +235,7 @@ const Notifications = () => {
               size={12}
               primary={tab === 'business'}
               secondary={tab !== 'business'}>
-              {"t('notifications.business')"}
+              {t('notifications.business')}
             </Text>
           </Button>
         </Block>

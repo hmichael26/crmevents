@@ -1,0 +1,179 @@
+{
+  "title": {
+    "new": "Nouveau déroulé",
+    "edit": "Déroulé",
+    "placeholder": "Saisissez le titre de votre déroulé",
+    "counter": "{{count}}/100 caractères"
+  },
+  "tabs": {
+    "schedule": "Déroulé",
+    "providers": "Prestataires interrogés",
+    "loading": "Chargement..."
+  },
+  "validation": {
+    "empty": "Le titre ne peut pas être vide",
+    "tooShort": "Le titre doit contenir au moins 3 caractères",
+    "tooLong": "Le titre ne peut pas dépasser 100 caractères",
+    "required": "Le titre est requis"
+  },
+  "buttons": {
+    "create": "Créer le déroulé",
+    "creating": "Création en cours...",
+    "addProvider": "Ajouter un prestataire interrogé",
+    "saving": "Sauvegarde...",
+    "save": "Sauvegarder",
+    "back": "Retour",
+    "chat": "Chat"
+  },
+  "toasts": {
+    "loadingData": "⏳ Chargement des données en cours...",
+    "errorLoading": "❌ Erreur lors du chargement des données",
+    "successCreated": "✅ Déroulé créé avec succès !",
+    "errorCreated": "❌ Erreur lors de la création du déroulé",
+    "successSaved": "✅ Données sauvegardées avec succès !",
+    "errorSaved": "❌ Erreur lors de la sauvegarde",
+    "errorPdf": "❌ Impossible d'ouvrir le PDF",
+    "successDeleted": "✅ Badge supprimé avec succès !",
+    "errorDeleted": "❌ Erreur lors de la suppression du badge",
+    "successSent": "✅ Demande envoyée avec succès !",
+    "errorSent": "❌ Erreur lors de la demande",
+    "submitError": "Impossible de soumettre le formulaire",
+    "noLink": "Aucun lien disponible",
+    "errorLink": "Impossible d'ouvrir ce lien."
+  },
+  "providers": {
+    "list": {
+      "empty": "AUCUN PRESTATAIRE ASSOCIÉ À CE DÉROULÉ",
+      "noProviderAttached": "Il n'y a pas encore de prestataire associé à ce déroulé.",
+      "loading": "CHARGEMENT ...",
+      "select": "selectionner un prestataire",
+      "searchPlaceholder": "Rechercher un prestataire",
+      "details": {
+        "dept": "département:",
+        "city": "ville:",
+        "region": "région:"
+      }
+    },
+    "actions": {
+      "send": "ENVOYER",
+      "demand": "DEMANDE",
+      "demandSent": "DEMANDE ENVOYÉE",
+      "noDemand": "Aucune demande envoyée",
+      "insert": "INSÉRER",
+      "quote": "DEVIS",
+      "quoteReceived": "DEVIS REÇU LE",
+      "noQuote": "Aucun devis reçu",
+      "insertQuoteFor": "Insérer devis pour",
+      "addQuotes": "Ajouter des devis",
+      "open": "OUVRIR",
+      "brochure": "BROCHURE",
+      "gallery": "GALERIE",
+      "photo": "PHOTO",
+      "validate": "VALIDER",
+      "budgetPlaceholder": "Budget",
+      "sendAll": "ENVOYER DEMANDE À TOUS LES LIEUX",
+      "multiOption": "MULTI-OPTION",
+      "noResponse": "Aucune reponse du client"
+    },
+    "form": {
+      "commentPlaceholder": "AUTRE PROPOSITION DE COMMISSION && COMMENTAIRES PRESTATAIRE",
+      "emailPlaceholder": "EMAIL PRESTATAIRE",
+      "contactPlaceholder": "PRÉNOM & TÉLÉPHONE",
+      "commission": "COMMISSION:",
+      "option": "OPTION :"
+    },
+    "modals": {
+      "confirmDelete": "SUPPRIMER CE PRESTATAIRE ?",
+      "confirmDeleteQuote": "VOULEZ-VOUS VRAIMENT SUPPRIMER CE DEVIS ?",
+      "deletePoint": "VOUS ÊTES SUR LE POINT DE SUPPRIMER ?",
+      "imageUnavailable": "IMAGE INDISPONIBLE",
+      "noPhoto": "Aucune photo disponible.",
+      "prev": "PRÉCÉDENT",
+      "next": "SUIVANT",
+      "close": "FERMER"
+    }
+  },
+  "quotes": {
+    "successDeleted": "DEVIS SUPPRIMÉ AVEC SUCCÈS",
+    "successUpdated": "VOTRE DEVIS A ÉTÉ MIS À JOUR AVEC SUCCÈS",
+    "none": "AUCUN DEVIS DISPONIBLE",
+    "label": "DEVIS",
+    "confirmation": "CONFIRMATION",
+    "error": "ERREUR",
+    "errorUpdate": "LA MISE À JOUR DU DEVIS A ÉCHOUÉ. LES MODIFICATIONS ONT ÉTÉ ANNULÉES."
+  },
+  "labels": {
+    "yes": "OUI",
+    "no": "NON",
+    "delete": "SUPPRIMER"
+  },
+  "search": {
+    "title": "PRESTATAIRES",
+    "updating": "Mise à jour en cours...",
+    "longWait": "La requête prend plus de temps que prévu... Veuillez patienter.",
+    "selectRegion": "Sélectionner une région",
+    "selectDept": "Sélectionner un département",
+    "selectCity": "Sélectionner une ville",
+    "providerType": "Type de prestataire",
+    "postalCode": "Code Postal",
+    "minRooms": "Nb de chambre min.",
+    "minRoomsCard": "Nb de chambre",
+    "minHall": "Nb de salle min.",
+    "providerName": "Nom du prestataire",
+    "searchButton": "Rechercher",
+    "reset": "Réinitialiser",
+    "results": {
+      "prefix": "Resultat de recherche : ",
+      "suffix": " prestataires.",
+      "selected": " prestataires sélectionnés.",
+      "empty": "Aucun prestataire trouvé pour cette recherche.",
+      "none": "Aucun prestataire trouvé",
+      "found": " prestataires trouvés"
+    },
+    "actions": {
+      "validate": "Valider",
+      "loadingMore": "Chargement des prestataires suivants...",
+      "preparing": "Préparation de la recherche...",
+      "searching": "Recherche des prestataires...",
+      "refreshing": "Actualisation des données...",
+      "updated": "Données prestataires actualisées avec succès",
+      "assigning": "Préparation de l'assignation...",
+      "assigningLong": "Assignation en cours... Cela peut prendre jusqu'à 60 secondes.",
+      "assigned": "Assignation réussie !"
+    },
+    "errors": {
+      "modify": "Impossible de modifier le prestataire",
+      "delete": "Impossible de supprimer le prestataire",
+      "assign": "Une erreur est survenue lors de l'assignation.",
+      "selectQuote": "Veuillez sélectionner au moins un devis",
+      "submitForm": "Impossible de soumettre le formulaire"
+    },
+    "confirmDelete": {
+      "title": "Confirmation",
+      "message": "Êtes-vous sûr de vouloir supprimer ce prestataire ?",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "card": {
+      "modify": "Modifier",
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "select": "Sélectionner",
+      "deselect": "Désélectionner",
+      "rooms": "salles",
+      "bedrooms": "ch.",
+      "errorMissingId": "ID du prestataire manquant",
+      "fields": {
+        "name": "Nom",
+        "phone": "Téléphone",
+        "email": "Email",
+        "rooms": "Nombre de salles",
+        "bedrooms": "Nombre de chambres",
+        "dept": "Département",
+        "city": "Ville",
+        "region": "Région"
+      }
+    }
+  }
+}

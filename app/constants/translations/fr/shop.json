@@ -1,0 +1,8 @@
+{
+  "subtotal": {
+    "one": "Sous-total du panier (1 article)",
+    "other": "Sous-total du panier ({{count}} articles)",
+    "zero": "Sous-total du panier (0 articles)"
+  },
+  "alsoShopped": "Les clients qui ont acheté des articles dans votre panier ont également acheté"
+}
