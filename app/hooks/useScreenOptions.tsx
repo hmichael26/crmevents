@@ -30,7 +30,7 @@ export default () => {
     headerTitleStyle: {
       fontSize: 15,
     },
-    headerTitleContainerStyle: { marginLeft: -sizes.sm },
+    headerTitleContainerStyle: { marginLeft: sizes.s },
     headerLeftContainerStyle: { paddingLeft: sizes.s },
     headerRightContainerStyle: { paddingRight: sizes.s },
     cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,

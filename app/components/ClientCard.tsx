@@ -331,7 +331,7 @@ export const ClientCard = React.memo(
       }
 
       return info
-    }, [client])
+    }, [client, t])
 
     // 🎯 BOUTONS D'ACTION OPTIMISÉS
     const renderActionButtons = useMemo(() => {
@@ -431,6 +431,7 @@ export const ClientCard = React.memo(
       client.id,
       isSelected,
       handleToggleSelection,
+      t,
     ])
 
     // 🧹 CLEANUP AU DÉMONTAGE
