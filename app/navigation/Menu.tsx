@@ -237,6 +237,8 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
                 backgroundColor: isDark ? colors.card : colors.white,
               },
             ]}
+            containerStyle={{ width: 130, borderRadius: 8 }}
+            itemTextStyle={{ fontSize: 13, color: colors.black }}
             placeholderStyle={{ color: colors.gray, fontSize: 12 }}
             selectedTextStyle={{ color: labelColor, fontSize: 12 }}
             data={languages}
