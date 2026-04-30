@@ -212,8 +212,8 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
         </Button>
 
         <Block row align="center" justify="space-between" marginTop={sizes.m}>
-          <Block row align="center">
-            <Text color={labelColor} size={15}>
+          <Block flex={1} marginRight={sizes.s}>
+            <Text color={labelColor} size={15} numberOfLines={1}>
               {t("navigation.language")}
             </Text>
           </Block>
@@ -221,7 +221,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
             style={[
               {
                 height: 35,
-                width: 100,
+                width: 90,
                 borderColor: colors.gray,
                 borderWidth: 0.5,
                 borderRadius: 8,
