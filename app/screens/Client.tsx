@@ -37,18 +37,21 @@ const LoadingIndicator = React.memo(({ message, size = 'large' }) => (
 ))
 
 // Composant pour l'état vide
-const EmptyState = React.memo(({ message, onRetry }) => (
-  <View style={styles.emptyState}>
-    <Icon name="people-outline" size={80} color="#ccc" />
-    <Text style={styles.emptyStateText}>{message}</Text>
-    {onRetry && (
-      <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
-        <Icon name="refresh" size={20} color="#9932CC" />
-        <Text style={styles.retryButtonText}>{t('clients.empty.retry')}</Text>
-      </TouchableOpacity>
-    )}
-  </View>
-))
+const EmptyState = React.memo(({ message, onRetry }) => {
+  const { t } = useTranslation()
+  return (
+    <View style={styles.emptyState}>
+      <Icon name="people-outline" size={80} color="#ccc" />
+      <Text style={styles.emptyStateText}>{message}</Text>
+      {onRetry && (
+        <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
+          <Icon name="refresh" size={20} color="#9932CC" />
+          <Text style={styles.retryButtonText}>{t('clients.empty.retry')}</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  )
+})
 
 export const Client = () => {
   const { getClient, udpateClient, deleteClient } = useApi()
