@@ -213,7 +213,17 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
 
         <Block row align="center" justify="space-between" marginTop={sizes.m}>
           <Block flex={1} row align="center" marginRight={sizes.s}>
-            <Globe width={18} height={18} color={labelColor} />
+            <Block
+              flex={0}
+              radius={6}
+              align="center"
+              justify="center"
+              width={sizes.md}
+              height={sizes.md}
+              gradient={gradients.white}
+            >
+              <Globe width={14} height={14} color={colors.black} />
+            </Block>
           </Block>
           <Dropdown
             style={[
