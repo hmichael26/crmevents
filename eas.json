@@ -45,7 +45,8 @@
         "buildType": "app-bundle"
       },
       "ios": {
-        "distribution": "store"
+        "distribution": "store",
+        "image": "latest"
       },
       "env": {
         "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
@@ -69,5 +70,14 @@
   "cli": {
     "appVersionSource": "remote",
     "promptToConfigurePushNotifications": false
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "hmichael26@gmail.com",
+        "ascAppId": "6752250471",
+        "appleTeamId": "SV3RZZNV7R"
+      }
+    }
   }
 }

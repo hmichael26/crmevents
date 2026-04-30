@@ -2,7 +2,7 @@
   "expo": {
     "name": "CRM Events",
     "slug": "crmevents",
-    "version": "3.0.1",
+    "version": "3.0.2",
     "orientation": "portrait",
     "icon": "./app/assets/images/splash.png",
     "scheme": "myapp",
@@ -41,8 +41,8 @@
       "compileSdkVersion": 35,
       "targetSdkVersion": 35,
       "minSdkVersion": 23,
-      "versionCode": 5,
-      "versionName": "3.0.1",
+      "versionCode": 6,
+      "versionName": "3.0.2",
       "edgeToEdgeEnabled": false,
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/images/splash.png",
