@@ -28,6 +28,14 @@
         "ITSAppUsesNonExemptEncryption": false
       }
     },
+    "androidNavigationBar": {
+      "backgroundColor": "#ffffff",
+      "barStyle": "dark-content"
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#ffffff",
+      "barStyle": "dark-content"
+    },
     "android": {
       "package": "com.crmevents.myapp",
       "compileSdkVersion": 35,
@@ -35,6 +43,7 @@
       "minSdkVersion": 23,
       "versionCode": 4,
       "versionName": "2.0.0",
+      "edgeToEdgeEnabled": false,
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/images/splash.png",
         "backgroundColor": "#ffffff"
