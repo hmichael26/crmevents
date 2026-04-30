@@ -10,6 +10,7 @@ interface EventCardProps {
   navigation: any
 }
 
+export const EventCard: React.FC<EventCardProps> = ({ item, navigation }) => {
   const { userdata } = useContext(AuthContext)
   const { t } = useTranslation()
 
