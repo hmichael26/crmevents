@@ -216,7 +216,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
             <RNText
               numberOfLines={1}
               ellipsizeMode="tail"
-              style={{ color: labelColor, fontSize: 15 }}
+              style={{ color: labelColor, fontSize: 13 }}
             >
               {t("navigation.language")}
             </RNText>
@@ -225,7 +225,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
             style={[
               {
                 height: 35,
-                width: 90,
+                width: 75,
                 borderColor: colors.gray,
                 borderWidth: 0.5,
                 borderRadius: 8,
