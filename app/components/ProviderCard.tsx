@@ -86,7 +86,7 @@ export const ProviderCard = ({
   // 🗑️ HANDLE DELETE CORRIGÉ
   const handleDelete = useCallback(async () => {
     if (!provider.id) {
-      Alert.alert(t('presta.quotes.error'), t('presta.card.errorMissingId'))
+      Alert.alert(t('presta.quotes.error'), t('presta.search.card.errorMissingId'))
       return
     }
 
@@ -222,7 +222,7 @@ export const ProviderCard = ({
                   isDisabled && styles.disabledText,
                 ]}
               >
-                {t('presta.card.select')}
+                {t('presta.search.card.select')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -281,13 +281,13 @@ export const ProviderCard = ({
             {provider.nb_salle && (
               <View style={styles.tag}>
                 <Text style={styles.tagText}>
-                  🏢 {provider.nb_salle} {t('presta.card.rooms')}
+                  🏢 {provider.nb_salle} {t('presta.search.card.rooms')}
                 </Text>
               </View>
             )}
             {provider.nb_chbre && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>🛏️ {provider.nb_chbre} {t('presta.card.bedrooms')}</Text>
+                <Text style={styles.tagText}>🛏️ {provider.nb_chbre} {t('presta.search.card.bedrooms')}</Text>
               </View>
             )}
           </View>
@@ -326,7 +326,7 @@ export const ProviderCard = ({
             <ActivityIndicator color="white" size="small" />
           ) : (
             <Text style={styles.actionButtonText}>
-              {isEditing ? t('presta.card.save') : t('presta.card.modify')}
+              {isEditing ? t('presta.search.card.save') : t('presta.search.card.modify')}
             </Text>
           )}
         </Button>
@@ -344,7 +344,7 @@ export const ProviderCard = ({
             }}
             disabled={isDisabled}
           >
-            <Text style={styles.actionButtonText}>{t('presta.card.cancel')}</Text>
+            <Text style={styles.actionButtonText}>{t('presta.search.card.cancel')}</Text>
           </Button>
         )}
 
@@ -360,7 +360,7 @@ export const ProviderCard = ({
             {isLoading ? (
               <ActivityIndicator color="white" size="small" />
             ) : (
-              <Text style={styles.actionButtonText}>{t('presta.card.delete')}</Text>
+              <Text style={styles.actionButtonText}>{t('presta.search.card.delete')}</Text>
             )}
           </Button>
         )}
@@ -379,7 +379,7 @@ export const ProviderCard = ({
             disabled={isDisabled}
           >
             <Text style={styles.actionButtonText}>
-              {isSelected(provider.id) ? t('presta.card.deselect') : t('presta.card.select')}
+              {isSelected(provider.id) ? t('presta.search.card.deselect') : t('presta.search.card.select')}
             </Text>
           </Button>
         )}
