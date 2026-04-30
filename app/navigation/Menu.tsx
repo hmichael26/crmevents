@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Animated, Linking, StyleSheet } from "react-native";
+import { Animated, Linking, StyleSheet, Text as RNText } from "react-native";
 import {
   createDrawerNavigator,
   DrawerContentComponentProps,
@@ -213,9 +213,13 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
 
         <Block row align="center" justify="space-between" marginTop={sizes.m}>
           <Block flex={1} marginRight={sizes.s}>
-            <Text color={labelColor} size={15} numberOfLines={1}>
+            <RNText
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={{ color: labelColor, fontSize: 15 }}
+            >
               {t("navigation.language")}
-            </Text>
+            </RNText>
           </Block>
           <Dropdown
             style={[
