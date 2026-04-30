@@ -212,20 +212,14 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
         </Button>
 
         <Block row align="center" justify="space-between" marginTop={sizes.m}>
-          <Block flex={1} marginRight={sizes.s}>
-            <RNText
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              style={{ color: labelColor, fontSize: 13 }}
-            >
-              {t("navigation.language")}
-            </RNText>
+          <Block flex={1} row align="center" marginRight={sizes.s}>
+            <Globe width={18} height={18} color={labelColor} />
           </Block>
           <Dropdown
             style={[
               {
                 height: 35,
-                width: 75,
+                width: 90,
                 borderColor: colors.gray,
                 borderWidth: 0.5,
                 borderRadius: 8,
