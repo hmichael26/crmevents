@@ -43,7 +43,7 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
         onPress={() => setPickerVisible(true)}
       >
         <Text style={styles.datePickerText}>
-          {date || t('details.fields.selectDate')}
+          {date || t('details.form.fields.selectDate')}
         </Text>
         <Icon name="calendar-outline" size={20} color={colors.primary} />
       </TouchableOpacity>
@@ -53,7 +53,7 @@ const DateField: React.FC<DateFieldProps> = ({ date, onDateChange, index }) => {
         onClose={() => setPickerVisible(false)}
         onConfirm={handleDateConfirm}
         initialDate={date} // ✅ Passer la string directement
-        title={t('details.fields.selectDate')}
+        title={t('details.form.fields.selectDate')}
         minDate={new Date(2000, 0, 1)}
         maxDate={new Date(2030, 11, 31)}
       />
@@ -297,7 +297,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
               style={styles.textInput}
               value={field.value}
               onChangeText={(newText: string) => updateField(index, newText)}
-              placeholder={t('details.fields.enterText')}
+              placeholder={t('details.form.fields.enterText')}
               placeholderTextColor="#999"
             />
           </View>
@@ -320,7 +320,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
                 onSelectionChange={(selectedLibelle) =>
                   updateField(index, selectedLibelle)
                 }
-                placeholder={t('details.fields.selectOption')}
+                placeholder={t('details.form.fields.selectOption')}
               />
             </View>
           </View>
@@ -333,7 +333,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
       {(!item || item.length === 0 || fields.length === 0) && (
         <View style={styles.fieldContainer}>
           <Text style={[styles.loadingText, { color: colors.danger }]}>
-            {t('details.fields.noFields')}
+            {t('details.form.fields.noFields')}
           </Text>
         </View>
       )}
@@ -353,7 +353,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         >
           <View style={styles.buttonContent}>
             <Text style={[styles.buttonText, styles.centerText]}>
-              {t('details.fields.dateField')}
+              {t('details.form.fields.dateField')}
             </Text>
             <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>
@@ -366,7 +366,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         >
           <View style={styles.buttonContent}>
             <Text style={[styles.buttonText, styles.centerText]}>
-              {t('details.fields.textField')}
+              {t('details.form.fields.textField')}
             </Text>
             <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>
@@ -379,7 +379,7 @@ const Form5: React.FC<Form5Props> = ({ options, onDataChange, item }) => {
         >
           <View style={styles.buttonContent}>
             <Text style={[styles.buttonText, styles.centerText]}>
-              {t('details.fields.dynamicField')}
+              {t('details.form.fields.dynamicField')}
             </Text>
             <Text style={[styles.buttonText, styles.plusIcon]}>+</Text>
           </View>

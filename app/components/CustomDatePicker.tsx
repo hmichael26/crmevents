@@ -26,7 +26,7 @@ interface CustomDatePickerProps {
   title?: string
 }
 
-const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
+export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   visible,
   onClose,
   onConfirm,
@@ -38,8 +38,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   const { colors, gradients, sizes } = useTheme()
   const { t } = useTranslation()
 
-  const MONTHS = t('dates:monthNames', { returnObjects: true }) as string[]
-  const DAYS = t('dates:dayNamesShort', { returnObjects: true }) as string[]
+  const MONTHS = t('dates.monthNames', { returnObjects: true }) as string[]
+  const DAYS = t('dates.dayNamesShort', { returnObjects: true }) as string[]
   const finalTitle = title || t('common.selectDate')
 
   const parseInitialDate = (): Date => {

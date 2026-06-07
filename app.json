@@ -55,7 +55,7 @@
         "android.permission.INTERNET",
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS",
-        "android.permission.POST_NOTIFICATIONS" 
+        "android.permission.POST_NOTIFICATIONS"
       ]
     },
     "web": {
@@ -99,7 +99,10 @@
           "sounds": [],
           "mode": "production"
         }
-      ]
+      ],
+      "expo-font",
+      "expo-localization",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
